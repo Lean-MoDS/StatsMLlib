@@ -1,0 +1,10 @@
+/.lake/
+/.lean/
+/build/
+*.ilean
+*.olean
+*.o
+*.c
+.DS_Store
+.idea/
+.vscode/
