@@ -7,7 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F6F2E7'/%3E%3Cpath d='M8 50 C20 50 22 14 32 14 C42 14 44 50 56 50' stroke='%230E5A43' stroke-width='4' fill='none'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:wght@400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:wght@400..700&amp;display=swap" rel="stylesheet">
   <meta name="description" content="StatsMLlib is a Lean 4 library for non-asymptotic statistics, concentration, empirical processes, random matrix theory, and finite-sample learning guarantees.">
   <meta name="theme-color" content="#f7f4eb">
   <style>
@@ -32,7 +32,7 @@
     .content{max-width:var(--content);margin:0 auto}
     .hero{padding-bottom:34px;border-bottom:3px double #9ca39d}
     .eyebrow{margin:0 0 8px;color:var(--green);font:700 12px/1.4 Arial,sans-serif;letter-spacing:.15em;text-transform:uppercase}
-    h1.wordmark{margin:18px 0 10px;color:var(--ink);font-family:"STIX Two Text",Georgia,"Times New Roman",serif;font-size:clamp(58px,7.5vw,112px);font-weight:600;letter-spacing:.12em;line-height:1;white-space:nowrap}
+    h1.wordmark{margin:18px 0 10px;color:var(--ink);font-family:"STIX Two Text",Georgia,"Times New Roman",serif;font-size:clamp(58px,7.5vw,112px);font-weight:600;letter-spacing:.06em;line-height:1;white-space:nowrap}
     h1.wordmark .lib{color:var(--green)}
     .dek{max-width:800px;margin:18px 0 0;font-size:21px;line-height:1.55;color:#39423d}
     .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0 0}
@@ -58,11 +58,13 @@
     h4{margin:0;color:var(--green-2);font-size:18px}
     p{margin:10px 0 16px}
     .book-intro{max-width:820px;color:#4b554f}
+    .book-link{display:inline;color:inherit;text-decoration-color:rgba(14,68,53,.45);text-decoration-thickness:1px;text-underline-offset:5px}
+    .book-link:hover,.book-link:focus-visible{color:var(--green);text-decoration-color:currentColor}
+    .book-link .external-mark{display:inline-block;margin-left:.18em;font:500 .62em/1 Arial,sans-serif;vertical-align:.28em}
     .chapter{display:grid;grid-template-columns:118px 1fr;gap:24px;padding:22px 0;border-top:1px solid var(--soft)}
     .chapter:first-of-type{border-top:0}
     .chapter-no{color:var(--green);font:700 12px/1.45 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase}
     .chapter p{margin:6px 0 8px}
-    .files{color:var(--muted);font:12px/1.6 "IBM Plex Mono","SFMono-Regular",Consolas,monospace;overflow-wrap:anywhere}
     .theorem{margin:25px 0;border-left:3px solid var(--green);background:var(--paper-2);padding:20px 23px;box-shadow:0 0 0 1px rgba(23,91,71,.08)}
     .theorem-label{display:block;color:var(--green);font:700 11px/1.4 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;overflow-wrap:anywhere}
     .formula{margin:18px 0 17px;padding:14px 10px;color:#172b23;font-size:clamp(16px,1.6vw,20px);line-height:1.45;text-align:center;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
@@ -96,6 +98,11 @@
     .install{display:grid;grid-template-columns:1fr 1fr;gap:22px}
     .install-card{min-width:0;background:var(--paper-2);border:1px solid var(--line);padding:20px}
     .install-card h3{margin:0 0 8px;font-size:19px}
+    .paper-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:8px 0 24px}
+    .paper-card{min-width:0;padding:21px 22px 22px;border:1px solid var(--line);border-top:3px solid var(--green);background:var(--paper-2)}
+    .paper-venue{display:inline-block;margin-bottom:12px;color:var(--green);font:700 10px/1.4 Arial,sans-serif;letter-spacing:.11em;text-transform:uppercase}
+    .paper-title{display:block;color:#26342d;font-size:20px;font-weight:600;line-height:1.35;text-decoration-color:rgba(23,91,71,.4)}
+    .paper-authors{margin:12px 0 0;color:#4b554f;font-size:15px;line-height:1.5}
     footer{margin-top:36px;padding-top:18px;border-top:3px double #9ca39d;color:var(--muted);font:12px/1.6 Arial,sans-serif}
     footer a{margin-right:16px}
     .menu{display:none}
@@ -110,7 +117,7 @@
       .main{margin-left:0;padding:34px 24px 55px}
       h1.wordmark{font-size:clamp(52px,10vw,84px)}.stats{grid-template-columns:repeat(3,1fr)}.stat:nth-child(3){border-right:0}.stat:nth-child(n+4){border-top:1px solid var(--line)}
     }
-    @media(max-width:760px){.organizers-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}@media(max-width:620px){body{font-size:16px}.main{padding:28px 18px 45px}h1.wordmark{font-size:clamp(38px,12vw,58px);letter-spacing:.1em}.dek{font-size:18px}.github-cta{width:100%;justify-content:space-between}.stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){border-right:1px solid var(--line)}.stat:nth-child(even){border-right:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}.chapter{grid-template-columns:1fr;gap:5px}.install{grid-template-columns:1fr}.organizer-card{flex-basis:132px}.portrait-frame{width:96px;height:96px}nav{columns:1}.formula{padding:12px 4px}h2{font-size:27px}}
+    @media(max-width:760px){.organizers-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.paper-list{grid-template-columns:1fr}}@media(max-width:620px){body{font-size:16px}.main{padding:28px 18px 45px}h1.wordmark{font-size:clamp(38px,12vw,58px);letter-spacing:.04em}.dek{font-size:18px}.github-cta{width:100%;justify-content:space-between}.stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){border-right:1px solid var(--line)}.stat:nth-child(even){border-right:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}.chapter{grid-template-columns:1fr;gap:5px}.install{grid-template-columns:1fr}.organizer-card{flex-basis:132px}.portrait-frame{width:96px;height:96px}nav{columns:1}.formula{padding:12px 4px}h2{font-size:27px}}
     @media print{.sidebar,.copy,.hero-actions{display:none}.main{margin:0;padding:0}.content{max-width:none}body{background:#fff;font-size:11pt}.theorem,.install-card{break-inside:avoid}.formula{overflow:visible;font-size:10pt}}
   </style>
   <script>
@@ -128,20 +135,17 @@
   <aside class="sidebar">
     <a class="brand" href="#top"><strong>StatsMLlib</strong><span>Non-asymptotic statistics in Lean 4</span></a>
     <button class="menu" type="button" aria-expanded="false" aria-controls="site-nav">Contents</button>
-    <nav id="site-nav" aria-label="Book chapters">
-      <div class="nav-group"><span class="nav-title">Introduction</span><a href="#overview">Overview</a><a href="#results">Selected theorems</a></div>
-      <div class="nav-group"><span class="nav-title">High-Dimensional Probability</span><a class="sub" href="#hdp-2">Ch. 2 Concentration of sums</a><a class="sub" href="#hdp-3">Ch. 3 Random vectors</a><a class="sub" href="#hdp-41">§4.1 Matrix foundations</a><a class="sub" href="#hdp-44">§4.4–4.6 Random matrices</a><a class="sub" href="#hdp-54">§5.4 Matrix Bernstein</a><a class="sub" href="#hdp-62">§6.2 Hanson–Wright</a><a class="sub" href="#hdp-8">Ch. 8 Chaining</a></div>
-      <div class="nav-group"><span class="nav-title">High-Dimensional Statistics</span><a class="sub" href="#hds-2">Ch. 2 Concentration</a><a class="sub" href="#hds-4">Ch. 4 Uniform laws</a><a class="sub" href="#hds-5">Ch. 5 Metric entropy</a><a class="sub" href="#hds-13">Ch. 13 Localized complexity</a></div>
-      <div class="nav-group"><span class="nav-title">Concentration Inequalities</span><a class="sub" href="#ci-3">Ch. 3 Efron–Stein</a><a class="sub" href="#ci-4">Ch. 4 Entropy</a><a class="sub" href="#ci-5">Ch. 5 Log-Sobolev</a></div>
-      <div class="nav-group"><span class="nav-title">Foundations of ML</span><a class="sub" href="#foml">Rademacher complexity</a></div>
-      <div class="nav-group"><span class="nav-title">Project</span><a href="#organizers-title">Organizers</a><a href="#contributors-title">Contributors</a><a href="#install">Installation</a></div>
+    <nav id="site-nav" aria-label="Site contents">
+      <div class="nav-group"><span class="nav-title">Project</span><a href="#overview">Overview</a><a href="#organizers-title">Organizers</a><a href="#contributors">Contributors</a><a href="#install">Installation</a><a href="#results">Selected theorems</a></div>
+      <div class="nav-group"><span class="nav-title">Book map</span><a href="#hdp">High-Dimensional Probability</a><a href="#hds">High-Dimensional Statistics</a><a href="#ci">Concentration Inequalities</a><a href="#foml">Foundations of ML</a><a href="#ltfp">Learning Theory from First Principles</a></div>
+      <div class="nav-group"><span class="nav-title">Research</span><a href="#related-papers">Related papers</a></div>
     </nav>
   </aside>
 
   <main class="main" id="top"><div class="content">
     <header class="hero" id="overview">
       <p class="eyebrow">A Lean 4 library</p>
-      <h1 class="wordmark">STATSML<span class="lib">LIB</span></h1>
+      <h1 class="wordmark">StatsML<span class="lib">lib</span></h1>
       <p class="dek">Non-asymptotic mathematical statistics, from concentration inequalities to certified finite-sample learning guarantees.</p>
       <div class="hero-actions"><a class="github-cta" href="https://github.com/Lean-MoDS/StatsMLlib" target="_blank" rel="noopener noreferrer" aria-label="Open the StatsMLlib repository on GitHub in a new tab"><span class="github-cta-copy"><span class="github-cta-kicker">GitHub repository</span><span class="github-cta-repo">Lean-MoDS / StatsMLlib</span></span><span class="github-cta-arrow" aria-hidden="true">↗</span></a></div>
       <p class="abstract"><strong>Abstract.</strong> StatsMLlib develops concentration of measure, metric entropy and chaining, Rademacher complexity and uniform laws, random matrix theory, and sharp least-squares guarantees as formal mathematics. Definitions elaborate, proofs close, and the complete development is checked by the Lean 4 kernel.</p>
@@ -159,32 +163,26 @@
       </div></div>
     </header>
 
-    <section id="hdp"><p class="section-kicker">Roman Vershynin</p><h2>High-Dimensional Probability</h2><p class="book-intro"><em>High-Dimensional Probability: An Introduction with Applications in Data Science</em>, 2nd ed. (Cambridge University Press, 2026).</p>
-      <article class="chapter" id="hdp-2"><div class="chapter-no">Chapter 2</div><div><h4>Concentration of sums of independent random variables</h4><p>Exponential-moment and cumulant methods for Hoeffding’s lemma and Chernoff bounds, MGF-based sub-Gaussian scales and tails, independent sub-Gaussian linear combinations, finite maximal inequalities, Bernstein-type concentration from local CGF control, and a normalized bounded-density small-ball bound.</p><div class="files">StatsMLlib/Probability/Moments/{Cumulant, Exponential}.lean · StatsMLlib/Probability/Concentration/{Hoeffding, Chernoff, Maximal, HansonWright}.lean · StatsMLlib/Probability/Process/SubGaussian.lean · StatsMLlib/Probability/SmallBall.lean</div></div></article>
-      <article class="chapter" id="hdp-3"><div class="chapter-no">Chapter 3</div><div><h4>Random vectors in high dimensions</h4><p>Projection-based sub-Gaussian vector scales, isotropy through second moments, standard Gaussian and Rademacher models, spectral and Rayleigh-quotient infrastructure used in PCA, and quadratic-form concentration underlying Euclidean norm bounds.</p><div class="files">StatsMLlib/Probability/Process/SubGaussian.lean · StatsMLlib/Probability/Gaussian/Basic.lean · StatsMLlib/Probability/Concentration/HansonWright.lean · StatsMLlib/Probability/RandomMatrix/Basic.lean · StatsMLlib/LearningTheory/Rademacher/Signs.lean · StatsMLlib/LinearAlgebra/Matrix/{SingularValue, CourantFischer}.lean</div></div></article>
-      <article class="chapter" id="hdp-41"><div class="chapter-no">Section 4.1</div><div><h4>Matrix foundations and perturbation</h4><p>Courant–Fischer min–max principles, Weyl inequalities, Davis–Kahan perturbation bounds, and the Eckart–Young–Mirsky theorem.</p><div class="files">StatsMLlib/LinearAlgebra/Matrix/{SingularValue, CourantFischer, EckartYoungMirsky, Perturbation}.lean</div></div></article>
-      <article class="chapter" id="hdp-44"><div class="chapter-no">Sections 4.4 &amp; 4.6</div><div><h4>Norms and singular values of random matrices</h4><p>Operator-norm bounds for matrices with independent sub-Gaussian entries and two-sided singular-value bounds for isotropic sub-Gaussian rows.</p><div class="files">StatsMLlib/Probability/RandomMatrix/Basic.lean</div></div></article>
-      <article class="chapter" id="hdp-54"><div class="chapter-no">Section 5.4</div><div><h4>Matrix calculus, Lieb, and matrix Bernstein</h4><p>Loewner-order matrix calculus, Lieb concavity, trace-MGF recursion, and the matrix Bernstein inequality.</p><div class="files">StatsMLlib/LinearAlgebra/Matrix/Lieb.lean · StatsMLlib/Probability/RandomMatrix/{Lieb, Bernstein}.lean</div></div></article>
-      <article class="chapter" id="hdp-62"><div class="chapter-no">Section 6.2</div><div><h4>Hanson–Wright inequality</h4><p>Concentration for quadratic forms of independent centered sub-Gaussian random variables.</p><div class="files">StatsMLlib/Probability/Concentration/HansonWright.lean</div></div></article>
-      <article class="chapter" id="hdp-8"><div class="chapter-no">Chapter 8</div><div><h4>Chaining and Dudley’s entropy integral</h4><p>Covering numbers, metric entropy, dyadic chaining, separability reductions, and Dudley-type bounds for sub-Gaussian processes.</p><div class="files">StatsMLlib/Topology/MetricSpace/CoveringNumber/Basic.lean · StatsMLlib/Analysis/MetricEntropy/{Basic, Chaining}.lean · StatsMLlib/Probability/Process/{Dudley, TruncatedDudley}.lean · StatsMLlib/Topology/SeparableSpace/Supremum.lean</div></div></article>
-    </section>
+    <section id="contributors"><div class="authors-grid">
+      <div class="people-group"><h3 id="contributors-title">Contributors</h3><div class="people-row contributors-row" role="list" aria-labelledby="contributors-title">
+        <div class="person contributor-card" role="listitem"><b>Yuanhe Zhang</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, random matrix theory, and least-squares formalization.</span></div>
+        <div class="person contributor-card" role="listitem"><b>Sho Sonoda</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
+        <div class="person contributor-card" role="listitem"><b>Kei Tsukamoto</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
+        <div class="person contributor-card" role="listitem"><b>Kazumi Kasaura</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
+        <div class="person contributor-card" role="listitem"><b>Naoto Onda</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
+        <div class="person contributor-card" role="listitem"><b>Yuma Mizuno</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
+        <div class="person contributor-card" role="listitem"><b>Kevin Han Huang</b><span class="role">Contributor</span><span class="contribution">Contribution to random matrix theory.</span></div>
+      </div></div>
+    </div></section>
 
-    <section id="hds"><p class="section-kicker">Martin J. Wainwright</p><h2>High-Dimensional Statistics</h2><p class="book-intro"><em>High-Dimensional Statistics: A Non-Asymptotic Viewpoint</em> (Cambridge University Press, 2019).</p>
-      <article class="chapter" id="hds-2"><div class="chapter-no">Chapter 2</div><div><h4>Concentration and sub-Gaussian variables</h4><p>MGF control, ψ₂ norms, Hoeffding-type tails, Gaussian product measures, and Lipschitz concentration.</p><div class="files">StatsMLlib/Probability/Process/SubGaussian.lean · StatsMLlib/Probability/Concentration/{Hoeffding, Chernoff}.lean · StatsMLlib/Probability/Gaussian/{Basic, Lipschitz, LipschitzConcentration}.lean</div></div></article>
-      <article class="chapter" id="hds-4"><div class="chapter-no">Chapter 4</div><div><h4>Uniform laws and symmetrization</h4><p>Rademacher sign calculus, symmetrization, McDiarmid’s bounded-difference inequality, and uniform deviation bounds for countable and separable classes.</p><div class="files">StatsMLlib/LearningTheory/Rademacher/{Defs, Signs, Symmetrization, Complexity}.lean · StatsMLlib/Probability/Concentration/McDiarmid.lean · StatsMLlib/LearningTheory/UniformDeviation/{Defs, BoundedDifference, Bounds}.lean</div></div></article>
-      <article class="chapter" id="hds-5"><div class="chapter-no">Chapter 5</div><div><h4>Metric entropy and empirical Dudley bounds</h4><p>Entropy integrals, finite-class maximal inequalities, Massart’s lemma, and an empirical Dudley entropy bound.</p><div class="files">StatsMLlib/Analysis/MetricEntropy/Basic.lean · StatsMLlib/Probability/Concentration/Maximal.lean · StatsMLlib/Probability/Process/{FiniteMaximum, Dudley}.lean · StatsMLlib/LearningTheory/Rademacher/{Massart, Dudley}.lean</div></div></article>
-      <article class="chapter" id="hds-13"><div class="chapter-no">Chapter 13</div><div><h4>Localized complexity and least squares</h4><p>Star-shaped classes, localized Gaussian complexity, the critical radius, master error bounds, the minimax rate for linear regression, and covering/localization infrastructure for ℓ¹-constrained regression.</p><div class="files">StatsMLlib/Statistics/Regression/LeastSquares/{Defs, CriticalRadius, Localization, LocalGaussianComplexity, MasterErrorBound, Linear/*, L1/*}.lean</div></div></article>
-    </section>
-
-    <section id="ci"><p class="section-kicker">Boucheron · Lugosi · Massart</p><h2>Concentration Inequalities</h2><p class="book-intro"><em>Concentration Inequalities: A Nonasymptotic Theory of Independence</em> (Oxford University Press, 2013).</p>
-      <article class="chapter" id="ci-3"><div class="chapter-no">Chapter 3</div><div><h4>Efron–Stein and variance bounds</h4><p>Conditional expectations by coordinate, tensorized variance decompositions, and the Efron–Stein inequality.</p><div class="files">StatsMLlib/Probability/Concentration/EfronStein.lean · StatsMLlib/Probability/Gaussian/Poincare/EfronStein.lean</div></div></article>
-      <article class="chapter" id="ci-4"><div class="chapter-no">Chapter 4</div><div><h4>The entropy method</h4><p>Entropy duality, decomposition, Han-type inequalities, and subadditivity under product measures.</p><div class="files">StatsMLlib/Probability/Entropy/{Basic, Duality, Variational}.lean · StatsMLlib/Probability/Entropy/Conditional/{Basic, Decomposition, Subadditivity}.lean</div></div></article>
-      <article class="chapter" id="ci-5"><div class="chapter-no">Chapter 5</div><div><h4>Log-Sobolev inequalities and Herbst</h4><p>The two-point inequality, Bernoulli tensorization, passage to Gauss space, Gaussian log-Sobolev, Poincaré, and Lipschitz concentration.</p><div class="files">StatsMLlib/Probability/Concentration/LogSobolev/* · StatsMLlib/Probability/Gaussian/Poincare/* · StatsMLlib/Probability/Gaussian/LipschitzConcentration.lean</div></div></article>
-    </section>
-
-    <section id="foml"><p class="section-kicker">Mohri · Rostamizadeh · Talwalkar</p><h2>Foundations of Machine Learning</h2><p class="book-intro"><em>Foundations of Machine Learning</em>, 2nd ed. (MIT Press, 2018).</p>
-      <article class="chapter"><div class="chapter-no">Rademacher methods</div><div><h4>Complexity, uniform convergence, and linear predictors</h4><p>Empirical and expected Rademacher complexity, finite sign-vector calculus, symmetrization, expected and high-probability uniform-deviation bounds, McDiarmid’s inequality, Massart’s finite-class lemma, empirical Dudley chaining, and complexity bounds for ℓ¹- and ℓ²-bounded linear predictors. The completed merge integrates the lean-rademacher development into the library’s common probability and empirical-process infrastructure.</p><div class="files">StatsMLlib/LearningTheory/Rademacher/{Defs, Signs, Symmetrization, Complexity, Massart, Dudley}.lean · StatsMLlib/LearningTheory/UniformDeviation/{Defs, BoundedDifference, Bounds}.lean · StatsMLlib/LearningTheory/FunctionClass/LinearPredictor/{L1, L2}.lean</div></div></article>
-    </section>
+    <section id="install"><h2>Installation</h2><div class="install">
+      <article class="install-card"><h3>1. Add the dependency</h3><p>Add StatsMLlib to your project’s <code>lakefile.toml</code>.</p><pre><code>[[require]]
+name = "StatsMLlib"
+git  = "https://github.com/Lean-MoDS/StatsMLlib.git"</code></pre></article>
+      <article class="install-card"><h3>2. Import a chapter</h3><p>Import only the part of the library you need.</p><pre><code>import StatsMLlib.Probability.Process.Dudley
+import StatsMLlib.LearningTheory.UniformDeviation.Bounds
+import StatsMLlib.Statistics.Regression.LeastSquares.Linear.MinimaxRate</code></pre></article>
+    </div></section>
 
     <section id="results"><h2>Selected Theorems</h2>
       <article class="theorem"><span class="theorem-label">Uniform deviation · StatsMLlib.LearningTheory</span><h3>Uniform law via Rademacher complexity</h3><p>For a separable, first-countable parameter space indexing measurable functions bounded in absolute value by \(b>0\), with pointwise-continuous parametrization, empirical means track their expectations uniformly.</p><div class="formula">\[
@@ -215,28 +213,58 @@
       \]</div><div class="source">StatsMLlib/Probability/Process/Dudley.lean · theorem dudley</div></article>
     </section>
 
-    <section id="authors"><div class="authors-grid">
-      <div class="people-group"><h3 id="contributors-title">Contributors</h3><div class="people-row contributors-row" role="list" aria-labelledby="contributors-title">
-        <div class="person contributor-card" role="listitem"><b>Yuanhe Zhang</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, random matrix theory, and least-squares formalization.</span></div>
-        <div class="person contributor-card" role="listitem"><b>Sho Sonoda</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
-        <div class="person contributor-card" role="listitem"><b>Kei Tsukamoto</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
-        <div class="person contributor-card" role="listitem"><b>Kazumi Kasaura</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
-        <div class="person contributor-card" role="listitem"><b>Naoto Onda</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
-        <div class="person contributor-card" role="listitem"><b>Yuma Mizuno</b><span class="role">Contributor</span><span class="contribution">Contribution to concentration, chaining, Rademacher complexity, and generalization.</span></div>
-        <div class="person contributor-card" role="listitem"><b>Kevin Han Huang</b><span class="role">Contributor</span><span class="contribution">Contribution to random matrix theory.</span></div>
-      </div></div>
-    </div></section>
+    <section id="hdp"><p class="section-kicker">Roman Vershynin</p><h2><a class="book-link" href="https://www.math.uci.edu/~rvershyn/papers/HDP-book/HDP-2.pdf" target="_blank" rel="noopener noreferrer">High-Dimensional Probability <span class="external-mark" aria-hidden="true">↗</span></a></h2><p class="book-intro"><em>An Introduction with Applications in Data Science</em>, 2nd ed. (Cambridge University Press, 2026). The title links to the author’s official free PDF. Each entry consolidates the formalized material corresponding to one chapter.</p>
+      <article class="chapter" id="hdp-2"><div class="chapter-no">Chapter 2</div><div><h4>Concentration of sums of independent random variables</h4><p>Formalized coverage includes exponential-moment and cumulant methods, Hoeffding’s lemma and inequality, Chernoff bounds, sub-Gaussian scales and tails, independent sub-Gaussian linear combinations, finite maximal inequalities, Bernstein-type concentration from local cumulant control, and a bounded-density small-ball bound.</p></div></article>
+      <article class="chapter" id="hdp-3"><div class="chapter-no">Chapter 3</div><div><h4>Random vectors in high dimensions</h4><p>Projection-based sub-Gaussian vector scales, covariance and isotropy through second moments, standard Gaussian and Rademacher models, and concentration of norms and quadratic forms provide the chapter’s formalized random-vector toolkit.</p></div></article>
+      <article class="chapter" id="hdp-4"><div class="chapter-no">Chapter 4</div><div><h4>Random matrices</h4><p>The chapter-level development combines singular values and Courant–Fischer min–max principles; covering, packing, and Euclidean nets; Eckart–Young–Mirsky, Weyl, and Davis–Kahan perturbation results; operator-norm bounds for independent sub-Gaussian entries; and two-sided singular-value bounds for matrices with isotropic sub-Gaussian rows.</p></div></article>
+      <article class="chapter" id="hdp-5"><div class="chapter-no">Chapter 5</div><div><h4>Concentration without independence</h4><p>Gaussian Poincaré and logarithmic Sobolev inequalities, tensorization, the Herbst argument, and dimension-free concentration for Lipschitz functions cover the chapter’s Gaussian concentration theory. Matrix concentration is represented by Loewner-order calculus, Lieb concavity, trace-MGF recursion, and matrix Bernstein.</p></div></article>
+      <article class="chapter" id="hdp-6"><div class="chapter-no">Chapter 6</div><div><h4>Quadratic forms and symmetrization</h4><p>Hanson–Wright concentration for quadratic forms of independent centered sub-Gaussian variables is formalized together with Rademacher symmetrization machinery for empirical processes.</p></div></article>
+      <article class="chapter" id="hdp-7"><div class="chapter-no">Chapter 7</div><div><h4>Random processes</h4><p>Sub-Gaussian processes, canonical increment metrics, finite-class maximum bounds, and countable and separable supremum infrastructure formalize the process-level foundations used by later chaining arguments.</p></div></article>
+      <article class="chapter" id="hdp-8"><div class="chapter-no">Chapter 8</div><div><h4>Chaining</h4><p>Covering and packing numbers, metric entropy, dyadic chaining, separability reductions, Dudley’s entropy integral, its truncated form, and empirical Rademacher chaining give a unified formal treatment of the chapter.</p></div></article>
+    </section>
 
-    <section id="install"><h2>Installation</h2><div class="install">
-      <article class="install-card"><h3>1. Add the dependency</h3><p>Add StatsMLlib to your project’s <code>lakefile.toml</code>.</p><pre><code>[[require]]
-name = "StatsMLlib"
-git  = "https://github.com/Lean-MoDS/StatsMLlib.git"</code></pre></article>
-      <article class="install-card"><h3>2. Import a chapter</h3><p>Import only the part of the library you need.</p><pre><code>import StatsMLlib.Probability.Process.Dudley
-import StatsMLlib.LearningTheory.UniformDeviation.Bounds
-import StatsMLlib.Statistics.Regression.LeastSquares.Linear.MinimaxRate</code></pre></article>
-    </div></section>
+    <section id="hds"><p class="section-kicker">Martin J. Wainwright</p><h2><a class="book-link" href="https://www.cambridge.org/core/books/highdimensional-statistics/8A91ECEEC38F46DAB53E9FF8757C7A4E" target="_blank" rel="noopener noreferrer">High-Dimensional Statistics <span class="external-mark" aria-hidden="true">↗</span></a></h2><p class="book-intro"><em>A Non-Asymptotic Viewpoint</em> (Cambridge University Press, 2019). The title links to the official book page. The entries identify formalized overlap with whole chapters, without implying that every result in those chapters has been formalized.</p>
+      <article class="chapter" id="hds-2"><div class="chapter-no">Chapter 2</div><div><h4>Basic tail and concentration bounds</h4><p>Moment-generating-function methods, Chernoff and Hoeffding bounds, sub-Gaussian scales, finite maxima, Gaussian product measures, and Lipschitz Gaussian concentration cover the principal formalized topics.</p></div></article>
+      <article class="chapter" id="hds-3"><div class="chapter-no">Chapter 3</div><div><h4>Concentration of measure</h4><p>Formalized functional methods include entropy and its variational duality, conditional decomposition and Han-type subadditivity, Efron–Stein, Bernoulli and Gaussian logarithmic Sobolev inequalities, Gaussian Poincaré, tensorization, and the resulting Gaussian concentration bounds.</p></div></article>
+      <article class="chapter" id="hds-4"><div class="chapter-no">Chapter 4</div><div><h4>Uniform laws of large numbers</h4><p>Rademacher sign calculus and complexity, symmetrization, McDiarmid’s bounded-difference inequality, and expected and high-probability uniform-deviation bounds are developed for finite, countable, and separably indexed function classes.</p></div></article>
+      <article class="chapter" id="hds-5"><div class="chapter-no">Chapter 5</div><div><h4>Metric entropy and its uses</h4><p>Covering and packing numbers, Euclidean and ℓ¹ covering arguments, one-step discretization, finite-class maximal bounds, Massart’s lemma, Dudley and truncated Dudley integrals, and local Gaussian complexity connect metric entropy to empirical processes.</p></div></article>
+      <article class="chapter" id="hds-6"><div class="chapter-no">Chapter 6</div><div><h4>Random matrices and covariance estimation</h4><p>Singular-value and variational foundations support operator-norm bounds for independent sub-Gaussian entries, two-sided singular-value bounds for isotropic sub-Gaussian rows, covariance-deviation arguments, and matrix Bernstein via trace-MGF methods.</p></div></article>
+      <article class="chapter" id="hds-7"><div class="chapter-no">Chapter 7</div><div><h4>Sparse linear models in high dimensions</h4><p>The formalized overlap consists of ℓ¹-constrained linear predictor classes, fixed-design geometry, Maurey-type covering estimates, and localized least-squares complexity and error bounds. These are foundations for sparse regression rather than a formalization of every estimator in the chapter.</p></div></article>
+      <article class="chapter" id="hds-8"><div class="chapter-no">Chapter 8</div><div><h4>Principal component analysis in high dimensions</h4><p>Spectral and Rayleigh-quotient characterizations, singular values, Courant–Fischer, Eckart–Young–Mirsky, Weyl inequalities, and Davis–Kahan perturbation bounds formalize the deterministic matrix foundations of PCA.</p></div></article>
+      <article class="chapter" id="hds-13"><div class="chapter-no">Chapter 13</div><div><h4>Nonparametric least squares</h4><p>Least-squares estimators and their basic inequality, star-shaped localization, critical radii, local Gaussian complexity, master error bounds, the sharp finite-sample linear rate, and ℓ¹-constrained applications formalize the chapter’s central localization pipeline.</p></div></article>
+      <article class="chapter" id="hds-14"><div class="chapter-no">Chapter 14</div><div><h4>Localization and uniform laws</h4><p>Monotonicity of localized empirical and Gaussian processes, critical-radius machinery, covering-based local complexity, and uniform deviation control provide the formalized basis for localized uniform laws.</p></div></article>
+    </section>
 
-    <footer><p>StatsMLlib · Non-asymptotic statistics verified in Lean 4.</p><p><a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a></p></footer>
+    <section id="ci"><p class="section-kicker">Boucheron · Lugosi · Massart</p><h2><a class="book-link" href="https://academic.oup.com/book/26549" target="_blank" rel="noopener noreferrer">Concentration Inequalities <span class="external-mark" aria-hidden="true">↗</span></a></h2><p class="book-intro"><em>A Nonasymptotic Theory of Independence</em> (Oxford University Press, 2013). The title links to the publisher’s official book page.</p>
+      <article class="chapter" id="ci-2"><div class="chapter-no">Chapter 2</div><div><h4>Basic inequalities</h4><p>Exponential moments and cumulants, Chernoff’s method, Hoeffding’s lemma and inequality, independent sub-Gaussian sums, finite maximal inequalities, and Bernstein-type concentration form the chapter’s formalized core.</p></div></article>
+      <article class="chapter" id="ci-3"><div class="chapter-no">Chapter 3</div><div><h4>Bounding the variance</h4><p>Coordinatewise conditional expectations, variance decompositions, the Efron–Stein inequality, and Gaussian Poincaré inequalities formalize the principal variance-control mechanisms.</p></div></article>
+      <article class="chapter" id="ci-4"><div class="chapter-no">Chapter 4</div><div><h4>Basic information inequalities</h4><p>Entropy definitions, variational and dual formulations, conditional decomposition, Han-type inequalities, and subadditivity under product measures supply the formal information-theoretic infrastructure.</p></div></article>
+      <article class="chapter" id="ci-5"><div class="chapter-no">Chapter 5</div><div><h4>Logarithmic Sobolev inequalities</h4><p>The two-point inequality, Bernoulli tensorization, passage to Gaussian space, Gaussian logarithmic Sobolev and Poincaré inequalities, the Herbst argument, and Lipschitz Gaussian concentration are formalized as one connected development.</p></div></article>
+      <article class="chapter" id="ci-13"><div class="chapter-no">Chapter 13</div><div><h4>Expected suprema of empirical processes</h4><p>Finite-class maxima, Rademacher symmetrization, Massart’s lemma, covering and packing, metric-entropy chaining, and Dudley-type bounds formalize the expected-supremum tools used in empirical-process analysis.</p></div></article>
+    </section>
+
+    <section id="foml"><p class="section-kicker">Mohri · Rostamizadeh · Talwalkar</p><h2><a class="book-link" href="https://www.dropbox.com/s/38p0j6ds5q9c8oe/10290.pdf?dl=1" target="_blank" rel="noopener noreferrer">Foundations of Machine Learning <span class="external-mark" aria-hidden="true">↗</span></a></h2><p class="book-intro">2nd ed. (MIT Press, 2018). The title links to the official PDF provided through the authors’ book site.</p>
+      <article class="chapter" id="foml-3"><div class="chapter-no">Chapter 3</div><div><h4>Rademacher complexity and generalization</h4><p>The Rademacher-complexity portion is formalized through empirical and expected complexity, finite sign-vector calculus, symmetrization, expected and high-probability uniform-deviation bounds, Massart’s finite-class lemma, Dudley chaining, and ℓ¹- and ℓ²-bounded linear predictor classes.</p></div></article>
+      <article class="chapter" id="foml-11"><div class="chapter-no">Chapter 11</div><div><h4>Regression</h4><p>Formalized regression material includes least-squares estimators, the basic inequality, finite-sample guarantees for linear regression, ℓ¹-constrained regression classes, and Rademacher and localization tools for controlling prediction error.</p></div></article>
+      <article class="chapter" id="foml-15"><div class="chapter-no">Chapter 15</div><div><h4>Dimensionality reduction</h4><p>Singular values, Courant–Fischer, Eckart–Young–Mirsky, Weyl inequalities, and Davis–Kahan perturbation bounds provide the formal spectral foundations for principal component analysis.</p></div></article>
+      <article class="chapter" id="foml-d"><div class="chapter-no">Appendix D</div><div><h4>Concentration inequalities</h4><p>Hoeffding and Chernoff bounds, McDiarmid’s inequality, maximal inequalities, sub-Gaussian variables and processes, and Gaussian concentration formalize a substantial part of the appendix’s probability toolkit.</p></div></article>
+    </section>
+
+    <section id="ltfp"><p class="section-kicker">Francis Bach</p><h2><a class="book-link" href="https://www.di.ens.fr/~fbach/ltfp_book.pdf" target="_blank" rel="noopener noreferrer">Learning Theory from First Principles <span class="external-mark" aria-hidden="true">↗</span></a></h2><p class="book-intro">(MIT Press, 2024). The title links to the author-hosted official open-access PDF. The chapter map below records the material that already has a direct formal counterpart in StatsMLlib.</p>
+      <article class="chapter" id="ltfp-1"><div class="chapter-no">Chapter 1</div><div><h4>Mathematical preliminaries</h4><p>Eigenvalue and singular-value tools, Hoeffding and McDiarmid inequalities, finite-maximal bounds, Gaussian and sub-Gaussian concentration, and random-matrix inequalities formalize much of the linear-algebra and probability background.</p></div></article>
+      <article class="chapter" id="ltfp-3"><div class="chapter-no">Chapter 3</div><div><h4>Linear least-squares regression</h4><p>Least-squares definitions and the basic inequality, fixed-design geometry, a sharp finite-sample linear prediction rate, star-shaped localization, and the spectral foundations of PCA overlap with the chapter’s ordinary least-squares and dimension-reduction material.</p></div></article>
+      <article class="chapter" id="ltfp-4"><div class="chapter-no">Chapter 4</div><div><h4>Empirical risk minimization</h4><p>Covering numbers, bounded differences, symmetrization, Rademacher complexity, uniform-deviation bounds, and ℓ¹- and ℓ²-constrained linear predictor classes formalize core tools for controlling estimation error.</p></div></article>
+      <article class="chapter" id="ltfp-8"><div class="chapter-no">Chapter 8</div><div><h4>Sparse methods</h4><p>The constrained least-squares framework, ℓ¹-bounded predictor and fixed-design classes, Maurey-type covering estimates, localized Gaussian complexity, critical radii, and resulting prediction-error bounds give a formal counterpart to the chapter’s constrained sparse-regression analysis.</p></div></article>
+    </section>
+
+    <section id="related-papers"><p class="section-kicker">Research built with the formalization</p><h2>Related Papers</h2>
+      <div class="paper-list">
+        <article class="paper-card"><span class="paper-venue">ITP 2026 · Oral</span><a class="paper-title" href="https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITP.2026.8" target="_blank" rel="noopener noreferrer">Lean Formalization of Generalization Error Bound by Rademacher Complexity and Dudley’s Entropy Integral</a><p class="paper-authors">Sho Sonoda, Kazumi Kasaura, Yuma Mizuno, Kei Tsukamoto, and Naoto Onda</p></article>
+        <article class="paper-card"><span class="paper-venue">ICML 2026 · Accepted</span><a class="paper-title" href="https://openreview.net/forum?id=dfqmQ9WhCP" target="_blank" rel="noopener noreferrer">AI4SLT: Empirical Processes in Lean 4 for Formal Statistical Learning Theory</a><p class="paper-authors">Yuanhe Zhang, Jason D. Lee, and Fanghui Liu</p></article>
+      </div>
+    </section>
+
+    <footer><p><a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a></p></footer>
   </div></main>
 </div>
 <script>
