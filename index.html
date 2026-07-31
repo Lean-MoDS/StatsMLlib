@@ -257,7 +257,7 @@ import StatsMLlib.Statistics.Regression.LeastSquares.Linear.MinimaxRate</code></
       <article class="chapter" id="ltfp-8"><div class="chapter-no">Chapter 8</div><div><h4>Sparse methods</h4><p>The constrained least-squares framework, ℓ¹-bounded predictor and fixed-design classes, Maurey-type covering estimates, localized Gaussian complexity, critical radii, and resulting prediction-error bounds give a formal counterpart to the chapter’s constrained sparse-regression analysis.</p></div></article>
     </section>
 
-    <section id="related-papers"><p class="section-kicker">Research built with the formalization</p><h2>Related Papers</h2>
+    <section id="related-papers"><h2>Related Papers</h2>
       <div class="paper-list">
         <article class="paper-card"><span class="paper-venue">ITP 2026 · Oral</span><a class="paper-title" href="https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITP.2026.8" target="_blank" rel="noopener noreferrer">Lean Formalization of Generalization Error Bound by Rademacher Complexity and Dudley’s Entropy Integral</a><p class="paper-authors">Sho Sonoda, Kazumi Kasaura, Yuma Mizuno, Kei Tsukamoto, and Naoto Onda</p></article>
         <article class="paper-card"><span class="paper-venue">ICML 2026 · Accepted</span><a class="paper-title" href="https://openreview.net/forum?id=dfqmQ9WhCP" target="_blank" rel="noopener noreferrer">AI4SLT: Empirical Processes in Lean 4 for Formal Statistical Learning Theory</a><p class="paper-authors">Yuanhe Zhang, Jason D. Lee, and Fanghui Liu</p></article>
@@ -271,6 +271,8 @@ import StatsMLlib.Statistics.Regression.LeastSquares.Linear.MinimaxRate</code></
   (function(){
     var menu=document.querySelector('.menu'),nav=document.getElementById('site-nav');
     if(menu){menu.addEventListener('click',function(){var open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});}
+    var organizers=document.querySelector('.organizers-row'),aleksandar=document.querySelector('.portrait-aleksandar'),yuekai=document.querySelector('.portrait-yuekai');
+    if(organizers&&aleksandar&&yuekai){organizers.insertBefore(aleksandar.closest('.organizer-card'),yuekai.closest('.organizer-card').nextSibling);}
     document.querySelectorAll('pre').forEach(function(pre){var button=document.createElement('button');button.className='copy';button.type='button';button.textContent='Copy';button.addEventListener('click',function(){navigator.clipboard.writeText(pre.querySelector('code').textContent).then(function(){button.textContent='Copied';setTimeout(function(){button.textContent='Copy';},1200);});});pre.appendChild(button);});
   })();
 </script>
