@@ -15,7 +15,7 @@ The two lines are related, but they do not make the same claim. An author listed
 line is not necessarily the copyright holder named in that file, and an aggregate repository author
 list must not be read as saying that every person authored every module.
 
-The [published StatsMLlib website](https://lean-mods.github.io/StatsMLlib/) identifies project authors in
+The [published StatsMLlib website](https://statsmllib.github.io/) identifies project authors in
 two roles. The order below follows the website.
 
 ### Organizers
