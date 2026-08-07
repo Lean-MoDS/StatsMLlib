@@ -23,6 +23,7 @@ coordinates.
 * `mcdiarmid_inequality_pos`: upper-tail McDiarmid inequality.
 * `mcdiarmid_inequality_neg`: lower-tail McDiarmid inequality.
 * `bounded_difference_iff`: equivalent forms of the bounded-difference condition.
+* `mcdiarmid_inequality_pos_of_sum_sq_pos`: standard optimized upper-tail McDiarmid inequality.
 -/
 
 open MeasureTheory ProbabilityTheory
@@ -1007,6 +1008,24 @@ theorem mcdiarmid_inequality_pos
           exact sq_nonneg ε
         · exact le_of_lt ht
 
+/-- Standard upper-tail McDiarmid inequality, obtained by choosing
+`t = (∑ i, (c i) ^ 2)⁻¹` in `mcdiarmid_inequality_pos`. -/
+theorem mcdiarmid_inequality_pos_of_sum_sq_pos
+    (X : ι → Ω → 𝓧) (hX : ∀ i, Measurable (X i))
+    (hX' : iIndepFun X μ) {f : (ι → 𝓧) → ℝ}
+    {c : ι → ℝ}
+    (hf : ∀ (i : ι) (x : ι → 𝓧) (x' : 𝓧),
+      |f x - f (Function.update x i x')| ≤ c i)
+    (hf' : Measurable f)
+    {ε : ℝ} (hε : ε ≥ 0)
+    (hc : 0 < ∑ i, (c i) ^ 2) :
+    (μ (fun ω : Ω ↦
+      (f ∘ (Function.swap X)) ω - μ[f ∘ (Function.swap X)] ≥ ε)).toReal ≤
+      (-2 * ε ^ 2 / (∑ i, (c i) ^ 2)).exp := by
+  have ht : (∑ i, (c i) ^ 2)⁻¹ * (∑ i, (c i) ^ 2) ≤ 1 := by
+    exact le_of_eq (inv_mul_cancel₀ hc.ne')
+  simpa [div_eq_mul_inv] using
+    (mcdiarmid_inequality_pos X hX hX' hf hf' hε ht)
 
 theorem mcdiarmid_inequality_neg
   (X : ι → Ω → 𝓧) (hX : ∀ i, Measurable (X i))
