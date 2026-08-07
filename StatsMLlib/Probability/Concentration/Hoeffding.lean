@@ -19,7 +19,7 @@ This module uses Mathlib's moment and cumulant generating functions.
 
 * `ProbabilityTheory.hoeffding`: Hoeffding's Lemma states that for a random variable `X` with
   `E[X] = 0` (zero mean) and `a ≤ X ≤ b` almost surely, the inequality
-  `mgf X μ t ≤ exp (t^2 * (b - a)^2 / 8)` holds almost surely for all `t ∈ ℝ`.
+  `mgf X μ t ≤ exp (t^2 * (b - a)^2 / 8)` holds for all `t ∈ ℝ`.
 
 ## References
 
@@ -171,7 +171,7 @@ theorem hoeffding_nonneg [IsProbabilityMeasure μ]
 
 /-- Hoeffding's Lemma states that for a random variable `X` with `E[X] = 0` (zero mean) and
  `a ≤ X ≤ b` almost surely, the inequality
- `μ[exp (t * (X ω))] ≤ exp (t^2 * (b - a)^2 / 8)` holds almost surely for all `t ∈ ℝ`.-/
+ `μ[exp (t * (X ω))] ≤ exp (t^2 * (b - a)^2 / 8)` holds for all `t ∈ ℝ`.-/
 theorem hoeffding [IsProbabilityMeasure μ] (t a b : ℝ) {X : Ω → ℝ} (hX : AEMeasurable X μ)
     (h : ∀ᵐ ω ∂μ, X ω ∈ Set.Icc a b) (h0 : μ[X] = 0) :
     mgf X μ t ≤ exp (t^2 * (b - a)^2 / 8) := by
