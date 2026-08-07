@@ -21,9 +21,9 @@ coordinates.
 ## Main results
 
 * `mcdiarmid_inequality_pos`: upper-tail McDiarmid inequality.
+* `mcdiarmid_inequality_pos_of_sum_sq_pos`: standard optimized upper-tail McDiarmid inequality.
 * `mcdiarmid_inequality_neg`: lower-tail McDiarmid inequality.
 * `bounded_difference_iff`: equivalent forms of the bounded-difference condition.
-* `mcdiarmid_inequality_pos_of_sum_sq_pos`: standard optimized upper-tail McDiarmid inequality.
 -/
 
 open MeasureTheory ProbabilityTheory
