@@ -1,7 +1,7 @@
 # StatsMLlib file tree
 
 This document presents the public Lean source tree after the Mathlib-style subject refactor.
-`StatsMLlib/` contains 89 Lean modules under seven layer-one directories and no root-level Lean
+`StatsMLlib/` contains 90 Lean modules under seven layer-one directories and no root-level Lean
 files. A filesystem path such as `StatsMLlib/Probability/Process/Dudley.lean` corresponds to the Lean
 module `StatsMLlib.Probability.Process.Dudley`.
 
@@ -11,10 +11,10 @@ module `StatsMLlib.Probability.Process.Dudley`.
 | `LearningTheory` | 13 |
 | `LinearAlgebra` | 5 |
 | `MeasureTheory` | 2 |
-| `Probability` | 42 |
+| `Probability` | 43 |
 | `Statistics` | 21 |
 | `Topology` | 2 |
-| **Total** | **89** |
+| **Total** | **90** |
 
 ```text
 StatsMLlib/
@@ -65,6 +65,7 @@ StatsMLlib/
 │   │   │   ├── GaussianOneDim.lean
 │   │   │   ├── GaussianTensorization.lean
 │   │   │   └── TwoPoint.lean
+│   │   ├── Bernstein.lean
 │   │   ├── Chernoff.lean
 │   │   ├── EfronStein.lean
 │   │   ├── HansonWright.lean

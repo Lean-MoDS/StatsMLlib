@@ -3,6 +3,7 @@ Copyright (c) 2026 Yuanhe Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 -/
+import StatsMLlib.Probability.Concentration.Bernstein
 import StatsMLlib.Probability.Process.SubGaussian
 import StatsMLlib.Probability.Moments.Exponential
 import Mathlib.Analysis.CStarAlgebra.Matrix
@@ -4231,73 +4232,7 @@ theorem hasHansonWrightMGF_of_bounded {μ : Measure Ω} [IsProbabilityMeasure μ
         rw [hB_def]
         exact bounded_hansonWright_cgf_constant_le A hC_bound l
 
-private lemma one_sided_tail_of_cgf_bound {μ : Measure Ω} [IsProbabilityMeasure μ]
-    {Y : Ω → ℝ} {v b C t : ℝ} (hC : 0 < C) (hv : 0 < v) (hb : 0 < b)
-    (hcgf : ∀ l : ℝ, |l| ≤ (2 * C * b)⁻¹ → cgf Y μ l ≤ C * l ^ 2 * v)
-    (hint : ∀ l : ℝ, |l| ≤ (2 * C * b)⁻¹ →
-      Integrable (fun ω => exp (l * Y ω)) μ) (ht : 0 ≤ t) :
-    (μ {ω | t ≤ Y ω}).toReal ≤
-      exp (-(1 / (4 * C)) * min (t ^ 2 / v) (t / b)) := by
-  rcases eq_or_lt_of_le ht with rfl | ht_pos
-  · calc (μ {ω | 0 ≤ Y ω}).toReal
-      _ ≤ (1 : ℝ) := ENNReal.toReal_mono ENNReal.one_ne_top prob_le_one
-      _ = exp (-(1 / (4 * C)) * min (0 ^ 2 / v) (0 / b)) := by simp
-  · set l : ℝ := min (t / (2 * C * v)) ((2 * C * b)⁻¹) with hl_def
-    have hden_v : 0 < 2 * C * v := by positivity
-    have hden_b : 0 < 2 * C * b := by positivity
-    have hl_nonneg : 0 ≤ l := by
-      rw [hl_def]
-      exact le_min (div_nonneg ht (le_of_lt hden_v)) (inv_nonneg.mpr (le_of_lt hden_b))
-    have hl_domain : |l| ≤ (2 * C * b)⁻¹ := by
-      rw [abs_of_nonneg hl_nonneg, hl_def]
-      exact min_le_right _ _
-    have hl_le_v : l ≤ t / (2 * C * v) := by
-      rw [hl_def]
-      exact min_le_left _ _
-    have hl_mul_le_t : l * (2 * C * v) ≤ t := by
-      rwa [le_div_iff₀ hden_v] at hl_le_v
-    have hquad_le : C * l ^ 2 * v ≤ l * t / 2 := by
-      nlinarith [hl_mul_le_t, hl_nonneg, hC.le, hv.le]
-    have h_exp_to_half : -l * t + C * l ^ 2 * v ≤ -(l * t / 2) := by
-      linarith
-    have h_rate :
-        l * t / 2 = (1 / (4 * C)) * min (t ^ 2 / v) (t / b) := by
-      by_cases hcase : t / (2 * C * v) ≤ (2 * C * b)⁻¹
-      · have htb_le_v : t * b ≤ v := by
-          rw [inv_eq_one_div] at hcase
-          rw [div_le_div_iff₀ hden_v hden_b] at hcase
-          nlinarith [hcase, hC, hb]
-        have hmin : min (t ^ 2 / v) (t / b) = t ^ 2 / v := by
-          rw [min_eq_left]
-          rw [div_le_div_iff₀ hv hb]
-          nlinarith [htb_le_v, ht_pos]
-        rw [hl_def, min_eq_left hcase, hmin]
-        field_simp [hC.ne', hv.ne']
-        ring
-      · have hcase' : (2 * C * b)⁻¹ ≤ t / (2 * C * v) := le_of_not_ge hcase
-        have hv_le_tb : v ≤ t * b := by
-          rw [inv_eq_one_div] at hcase'
-          rw [div_le_div_iff₀ hden_b hden_v] at hcase'
-          nlinarith [hcase', hC, hv]
-        have hmin : min (t ^ 2 / v) (t / b) = t / b := by
-          rw [min_eq_right]
-          rw [div_le_div_iff₀ hb hv]
-          nlinarith [hv_le_tb, ht_pos]
-        rw [hl_def, min_eq_right hcase', hmin]
-        field_simp [hC.ne', hb.ne']
-        ring
-    have h_chernoff := chernoff_bound_cgf hl_nonneg (hint l hl_domain)
-      (μ := μ) (X := Y) (ε := t)
-    calc (μ {ω | t ≤ Y ω}).toReal
-      _ ≤ exp (-l * t + cgf Y μ l) := h_chernoff
-      _ ≤ exp (-l * t + C * l ^ 2 * v) := by
-        exact exp_le_exp.mpr (by linarith [hcgf l hl_domain])
-      _ ≤ exp (-(l * t / 2)) := exp_le_exp.mpr h_exp_to_half
-      _ = exp (-(1 / (4 * C)) * min (t ^ 2 / v) (t / b)) := by
-        rw [h_rate]
-        ring_nf
-
-/-- A two-sided sub-exponential tail bound from a local quadratic CGF estimate. -/
+/-- Compatibility wrapper around the generic scalar Bernstein CGF-to-tail theorem. -/
 theorem two_sided_tail_of_cgf_bound {μ : Measure Ω} [IsProbabilityMeasure μ]
     {Y : Ω → ℝ} {v b C t : ℝ} (hC : 0 < C) (hv : 0 < v) (hb : 0 < b)
     (hcgf : ∀ l : ℝ, |l| ≤ (2 * C * b)⁻¹ → cgf Y μ l ≤ C * l ^ 2 * v)
@@ -4305,49 +4240,7 @@ theorem two_sided_tail_of_cgf_bound {μ : Measure Ω} [IsProbabilityMeasure μ]
       Integrable (fun ω => exp (l * Y ω)) μ) (ht : 0 ≤ t) :
     (μ {ω | t ≤ |Y ω|}).toReal ≤
       2 * exp (-(1 / (4 * C)) * min (t ^ 2 / v) (t / b)) := by
-  have hpos := one_sided_tail_of_cgf_bound hC hv hb hcgf hint ht
-  have hcgf_neg :
-      ∀ l : ℝ, |l| ≤ (2 * C * b)⁻¹ →
-        cgf (fun ω => -Y ω) μ l ≤ C * l ^ 2 * v := by
-    intro l hl
-    have h_eq : cgf (fun ω => -Y ω) μ l = cgf Y μ (-l) := by
-      unfold cgf mgf
-      congr 1
-      apply integral_congr_ae
-      filter_upwards with ω
-      congr 1
-      ring
-    rw [h_eq]
-    have hl' : |-l| ≤ (2 * C * b)⁻¹ := by simpa [abs_neg] using hl
-    simpa using hcgf (-l) hl'
-  have hint_neg : ∀ l : ℝ, |l| ≤ (2 * C * b)⁻¹ →
-      Integrable (fun ω => exp (l * (-Y ω))) μ := by
-    intro l hl
-    convert hint (-l) (by simpa [abs_neg] using hl) using 1
-    ext ω
-    ring_nf
-  have hneg := one_sided_tail_of_cgf_bound hC hv hb hcgf_neg hint_neg ht
-  have h_subset :
-      {ω | t ≤ |Y ω|} ⊆ {ω | t ≤ Y ω} ∪ {ω | t ≤ -Y ω} := by
-    intro ω hω
-    simp only [Set.mem_setOf_eq, Set.mem_union] at hω ⊢
-    rcases le_or_gt 0 (Y ω) with hY | hY
-    · left
-      simpa [abs_of_nonneg hY] using hω
-    · right
-      simpa [abs_of_neg hY] using hω
-  calc (μ {ω | t ≤ |Y ω|}).toReal
-      ≤ (μ ({ω | t ≤ Y ω} ∪ {ω | t ≤ -Y ω})).toReal := by
-        exact ENNReal.toReal_mono (measure_ne_top μ _) (measure_mono h_subset)
-    _ ≤ (μ {ω | t ≤ Y ω}).toReal + (μ {ω | t ≤ -Y ω}).toReal := by
-        rw [← ENNReal.toReal_add (measure_ne_top μ _) (measure_ne_top μ _)]
-        exact ENNReal.toReal_mono
-          (ENNReal.add_ne_top.mpr ⟨measure_ne_top μ _, measure_ne_top μ _⟩)
-          (measure_union_le _ _)
-    _ ≤ exp (-(1 / (4 * C)) * min (t ^ 2 / v) (t / b)) +
-        exp (-(1 / (4 * C)) * min (t ^ 2 / v) (t / b)) := by
-        exact add_le_add hpos hneg
-    _ = 2 * exp (-(1 / (4 * C)) * min (t ^ 2 / v) (t / b)) := by ring
+  simpa using bernstein_two_sided_of_cgf_bound hC hv hb hcgf hint ht
 
 /-- Hanson-Wright tail bound with the MGF certificate proved from sub-Gaussian coordinates.
 
