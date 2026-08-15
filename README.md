@@ -12,7 +12,7 @@ StatsMLlib is a reusable Lean 4 library for probability, high-dimensional statis
 processes, and statistical learning theory. It is built on Mathlib and organized as a subject-first,
 acyclic hierarchy rather than around individual projects or proof techniques.
 
-The public source contains 89 modules and no `sorry`, `axiom`, `admit`, or `native_decide`.
+The public source contains 90 modules and no `sorry`, `axiom`, `admit`, or `native_decide`.
 
 ## Scope
 
@@ -33,7 +33,7 @@ ownership policy and [FILE_TREE.md](./FILE_TREE.md) for the complete module inde
 ## Selected results
 
 - Dudley's entropy integral and truncated Dudley bounds for sub-Gaussian processes
-- Efron–Stein, Hoeffding, McDiarmid, Gaussian Poincare, and Gaussian log-Sobolev inequalities
+- Efron–Stein, Hoeffding, McDiarmid, scalar Bernstein, Gaussian Poincare, and Gaussian log-Sobolev inequalities
 - Gaussian Lipschitz concentration, Hanson–Wright, and matrix Bernstein inequalities
 - Singular-value decomposition, Courant–Fischer, Eckart–Young–Mirsky, Weyl, and Davis–Kahan
   perturbation results
@@ -41,7 +41,7 @@ ownership policy and [FILE_TREE.md](./FILE_TREE.md) for the complete module inde
 - Localized least-squares theory for linear and L1-constrained regression
 
 Representative declarations include `dudley`, `truncated_dudley_entropy_bound`, `efronStein`,
-`gaussian_lipschitz_concentration`, `hanson_wright_inequality`,
+`gaussian_lipschitz_concentration`, `bernstein_inequality`, `hanson_wright_inequality`,
 `RMT.matrix_bernstein_inequality_hdp_all`, `expectation_le_rademacher`, and
 `master_error_bound`.
 
