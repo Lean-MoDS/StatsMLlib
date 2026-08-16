@@ -757,8 +757,9 @@ private lemma massart_bound_for_increment_term (c_pos : 0 < c) (h' : TotallyBoun
       intro fh
       let hfh : {x // x ∈ incrementFinset c_pos h' n j} := by
         use chainApprox c_pos h' fh (j + 1) - chainApprox c_pos h' fh j
-        dsimp [incrementFinset, incrementSet]
-        simp
+        change chainApprox c_pos h' fh (j + 1) - chainApprox c_pos h' fh j ∈
+          (finite_incrementSet c_pos h' n j).toFinset
+        exact (finite_incrementSet c_pos h' n j).mem_toFinset.mpr ⟨fh, rfl⟩
       convert le_ciSup _ hfh
       · congr
       · use m * (c / 2 ^ (j.1 + 1) + c / 2 ^ j.1)
@@ -773,8 +774,9 @@ private lemma massart_bound_for_increment_term (c_pos : 0 < c) (h' : TotallyBoun
     · have : Nonempty {x // x ∈ incrementFinset c_pos h' n j} := by
         obtain ⟨fh⟩ := (by assumption : Nonempty ι)
         use chainApprox c_pos h' fh (j + 1) - chainApprox c_pos h' fh j
-        dsimp [incrementFinset, finite_incrementSet, incrementSet]
-        simp
+        change chainApprox c_pos h' fh (j + 1) - chainApprox c_pos h' fh j ∈
+          (finite_incrementSet c_pos h' n j).toFinset
+        exact (finite_incrementSet c_pos h' n j).mem_toFinset.mpr ⟨fh, rfl⟩
       apply ciSup_le
       rintro ⟨g, hg⟩
       dsimp [incrementFinset] at hg

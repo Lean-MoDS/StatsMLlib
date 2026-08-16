@@ -52,8 +52,8 @@ def denseSeqInTB {s : Set A} (hs : TotallyBounded s) (hsne : s.Nonempty) (n : �
 lemma sup_subtype_eq_iSup_denseSeq {s : Set A} (hs : TotallyBounded s) (hsne : s.Nonempty)
     {f : A → ℝ} (hcont : Continuous (fun (t : ↥s) => f t.1)) :
     ⨆ (t : ↥s), f t.1 = ⨆ n : ℕ, f (denseSeqInTB hs hsne n).1 := by
-  letI : Nonempty (↥s) := hsne.to_subtype
-  letI : SeparableSpace (↥s) := hs.isSeparable.separableSpace
+  let : Nonempty (↥s) := hsne.to_subtype
+  let : SeparableSpace (↥s) := hs.isSeparable.separableSpace
   unfold denseSeqInTB
   exact separableSpaceSup_eq_real hcont
 
@@ -74,8 +74,8 @@ omit [PseudoMetricSpace A] in
 lemma biSup_eq_iSup_subtype_real {s : Set A} {f : A → ℝ}
     (hne : s.Nonempty) (hzero : ∃ t ∈ s, f t = 0) :
     ⨆ t ∈ s, f t = ⨆ (t : ↥s), f t.1 := by
-  haveI : Nonempty ↥s := hne.to_subtype
-  haveI : Nonempty A := ⟨hne.some⟩
+  have : Nonempty ↥s := hne.to_subtype
+  have : Nonempty A := ⟨hne.some⟩
   obtain ⟨t₀, ht₀, hft₀⟩ := hzero
 
   -- Check if bounded above
@@ -979,7 +979,7 @@ lemma tendsto_le_liminf_of_le' {u v : ℕ → ℝ} {L : ℝ}
   rw [Filter.liminf_eq]
   have h_bdd_above : BddAbove {a | ∀ᶠ n in Filter.atTop, a ≤ v n} := by
     use (Filter.liminf (fun n => (v n : EReal)) Filter.atTop).toReal + 1
-    intro a ha; simp only [Set.mem_setOf_eq] at ha
+    intro a ha; simp only [Set.mem_ofPred_eq] at ha
     have h_a_le : (a : EReal) ≤ Filter.liminf (fun n => (v n : EReal)) Filter.atTop := by
       apply Filter.le_liminf_of_le
       · simp only [Filter.IsCoboundedUnder, Filter.IsCobounded]; use ⊤; intro b _; exact le_top
@@ -990,7 +990,7 @@ lemma tendsto_le_liminf_of_le' {u v : ℕ → ℝ} {L : ℝ}
   have h_dense : ∀ ε > 0, L - ε ≤ sSup {a | ∀ᶠ n in Filter.atTop, a ≤ v n} := by
     intro ε hε
     have h_L_eps_in : L - ε ∈ {a | ∀ᶠ n in Filter.atTop, a ≤ v n} := by
-      simp only [Set.mem_setOf_eq]
+      simp only [Set.mem_ofPred_eq]
       have h_ev : ∀ᶠ n in Filter.atTop, L - ε < u n :=
         hu.eventually (Ioi_mem_nhds (by linarith : L - ε < L))
       filter_upwards [h_ev] with n hn
@@ -1384,9 +1384,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       simp only [Real.enorm_eq_ofReal_abs]
       have h_int_abs := (h_Y_int K hK).abs
       rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal h_int_abs (ae_of_all μ (fun ω => abs_nonneg _))]
-      rw [ENNReal.coe_nnreal_eq]
-      apply ENNReal.ofReal_le_ofReal
-      exact h_abs_bound K hK
+      exact ENNReal.ofReal_le_coe.mpr (h_abs_bound K hK)
 
     obtain ⟨R, hR⟩ := h_bound_exist
 

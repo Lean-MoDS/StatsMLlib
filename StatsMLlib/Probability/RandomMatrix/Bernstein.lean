@@ -139,7 +139,7 @@ lemma matrixBernsteinIndividualMgf_piFamily {n N : ℕ}
     matrixBernsteinIndividualMgf (Measure.pi μs) matrixBernsteinPiFamily l i =
       ∫ A : Matrix (Fin n) (Fin n) ℝ, NormedSpace.exp (l • A) ∂μs i := by
   let Mat : Type := Matrix (Fin n) (Fin n) ℝ
-  letI : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
+  let : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
   let f : Mat → Mat := fun A => NormedSpace.exp (l • A)
   have hmp : MeasurePreserving (fun p : Fin N → Mat => p i) (Measure.pi μs) (μs i) :=
     measurePreserving_eval (μ := μs) i
@@ -589,7 +589,7 @@ lemma matrixBernsteinIndividual_exp_integrable_of_integrable_norm_bound {n N : �
     (h_X_int : Integrable (X i) μ)
     (h_norm_bound : ∀ᵐ ω ∂μ, ‖X i ω‖ ≤ K) :
     Integrable (fun ω => NormedSpace.exp (l • X i ω)) μ := by
-  letI : NormedAlgebra ℚ (Matrix (Fin n) (Fin n) ℝ) :=
+  let : NormedAlgebra ℚ (Matrix (Fin n) (Fin n) ℝ) :=
     NormedAlgebra.restrictScalars ℚ ℝ (Matrix (Fin n) (Fin n) ℝ)
   let s : Set (Matrix (Fin n) (Fin n) ℝ) :=
     Metric.closedBall (0 : Matrix (Fin n) (Fin n) ℝ) K
@@ -628,7 +628,7 @@ lemma matrixBernstein_lieb_trace_integrable_of_integrable_norm_bound {n N : ℕ}
     (h_norm_bound : ∀ᵐ ω ∂μ, ‖X i ω‖ ≤ K) :
     Integrable
       (fun ω => Matrix.trace (NormedSpace.exp (H + l • X i ω))) μ := by
-  letI : NormedAlgebra ℚ (Matrix (Fin n) (Fin n) ℝ) :=
+  let : NormedAlgebra ℚ (Matrix (Fin n) (Fin n) ℝ) :=
     NormedAlgebra.restrictScalars ℚ ℝ (Matrix (Fin n) (Fin n) ℝ)
   let s : Set (Matrix (Fin n) (Fin n) ℝ) :=
     Metric.closedBall (0 : Matrix (Fin n) (Fin n) ℝ) K
@@ -753,7 +753,7 @@ theorem matrixBernstein_lieb_recursion_pi_with_shift {n N : ℕ}
           Matrix.trace
             (NormedSpace.exp
               (H + l • (z.1 + matrixBernsteinSum matrixBernsteinPiFamily z.2)))
-      haveI : ∀ i, IsProbabilityMeasure (μtail i) := by
+      have : ∀ i, IsProbabilityMeasure (μtail i) := by
         intro i
         dsimp [μtail]
         infer_instance
@@ -795,7 +795,7 @@ theorem matrixBernstein_lieb_recursion_pi_with_shift {n N : ℕ}
               IsSelfAdjoint.log).isHermitian
           exact hlog.add hs
       have hg_meas : AEStronglyMeasurable g ν := by
-        letI : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
+        let : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
         have hsum_tail :
             Continuous (fun q : Fin N → Mat => matrixBernsteinSum matrixBernsteinPiFamily q) := by
           unfold matrixBernsteinSum matrixBernsteinPiFamily
@@ -923,7 +923,7 @@ theorem matrixBernstein_lieb_recursion_of_independent {n N : ℕ}
     matrixBernsteinTraceMgf μ X l ≤
       Matrix.trace (NormedSpace.exp (matrixBernsteinLogMgfSum μ X l)) := by
   let Mat : Type := Matrix (Fin n) (Fin n) ℝ
-  letI : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
+  let : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
   let μs : Fin N → Measure Mat := fun i => μ.map (X i)
   let φ : Ω → Fin N → Mat := fun ω i => X i ω
   let g : (Fin N → Mat) → ℝ :=
@@ -931,7 +931,7 @@ theorem matrixBernstein_lieb_recursion_of_independent {n N : ℕ}
   have hX_ae : ∀ i, AEMeasurable (X i) μ := by
     intro i
     exact (h_integrable i).aestronglyMeasurable.aemeasurable
-  haveI : ∀ i, IsProbabilityMeasure (μs i) := by
+  have : ∀ i, IsProbabilityMeasure (μs i) := by
     intro i
     dsimp [μs]
     exact Measure.isProbabilityMeasure_map (hX_ae i)
@@ -959,7 +959,7 @@ theorem matrixBernstein_lieb_recursion_of_independent {n N : ℕ}
       (ae_map_iff (hX_ae i) (p := fun A : Mat => ‖A‖ ≤ K)
         measurableSet_matrix_norm_le).2 (h_norm_bound i)
   have hg : AEStronglyMeasurable g (μ.map φ) := by
-    letI : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
+    let : NormedAlgebra ℚ Mat := NormedAlgebra.restrictScalars ℚ ℝ Mat
     have hsum :
         Continuous (fun p : Fin N → Mat => matrixBernsteinSum matrixBernsteinPiFamily p) := by
       unfold matrixBernsteinSum matrixBernsteinPiFamily
@@ -1981,7 +1981,7 @@ lemma matrixBernstein_trace_exp_integrable_of_summands_integrable_norm_bound_isH
   have hsum_integrable : Integrable (fun ω => matrixBernsteinSum X ω) μ := by
     unfold matrixBernsteinSum
     exact integrable_finsetSum Finset.univ fun i _ => h_integrable i
-  letI : NormedAlgebra ℚ (Matrix (Fin n) (Fin n) ℝ) :=
+  let : NormedAlgebra ℚ (Matrix (Fin n) (Fin n) ℝ) :=
     NormedAlgebra.restrictScalars ℚ ℝ (Matrix (Fin n) (Fin n) ℝ)
   have hsmul :
       Continuous (fun A : Matrix (Fin n) (Fin n) ℝ => l • A) :=

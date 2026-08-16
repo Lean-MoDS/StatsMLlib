@@ -140,7 +140,7 @@ theorem bernstein_two_sided_of_cgf_bound {Ω : Type*} [MeasurableSpace Ω]
   have h_subset :
       {ω | t ≤ |Y ω|} ⊆ {ω | t ≤ Y ω} ∪ {ω | t ≤ -Y ω} := by
     intro ω hω
-    simp only [Set.mem_setOf_eq, Set.mem_union] at hω ⊢
+    simp only [Set.mem_ofPred_eq, Set.mem_union] at hω ⊢
     rcases le_or_gt 0 (Y ω) with hY | hY
     · left
       simpa [abs_of_nonneg hY] using hω

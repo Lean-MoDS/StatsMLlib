@@ -359,7 +359,7 @@ theorem subGaussian_tail_bound {μ : Measure Ω} [IsProbabilityMeasure μ]
   have h_subset : {ω | |X s ω - X t ω| ≥ u} ⊆
       {ω | X s ω - X t ω ≥ u} ∪ {ω | X t ω - X s ω ≥ u} := by
     intro ω hω
-    simp only [ge_iff_le, mem_setOf_eq, mem_union] at hω ⊢
+    simp only [ge_iff_le, mem_ofPred_eq, mem_union] at hω ⊢
     by_cases h' : u ≤ X s ω - X t ω
     · left; exact h'
     · right
@@ -436,7 +436,7 @@ lemma ae_eq_zero_of_mgf_le_one {μ : Measure Ω} [IsProbabilityMeasure μ]
           (hY_int_exp_pos (k + 1) hk1) (exp ((k + 1 : ℝ) * ε))
         have h_subset : {ω | Y ω > ε} ⊆ {ω | exp ((k + 1 : ℝ) * ε) ≤ exp ((k + 1 : ℝ) * Y ω)} := by
           intro ω hω
-          simp only [mem_setOf_eq] at hω ⊢
+          simp only [mem_ofPred_eq] at hω ⊢
           exact exp_le_exp.mpr (mul_lt_mul_of_pos_left hω hk1).le
         have h_toReal_bound : (μ {ω | exp ((k + 1 : ℝ) * ε) ≤ exp ((k + 1 : ℝ) * Y ω)}).toReal ≤
             (exp ((k + 1 : ℝ) * ε))⁻¹ * ∫ ω, exp ((k + 1 : ℝ) * Y ω) ∂μ := by
@@ -477,7 +477,7 @@ lemma ae_eq_zero_of_mgf_le_one {μ : Measure Ω} [IsProbabilityMeasure μ]
       exact ge_of_tendsto' h_lim (fun n => h_bound n)
     apply measure_mono_null (t := ⋃ n : ℕ, {ω | Y ω > 1/((n : ℝ)+1)})
     · intro ω hω
-      simp only [mem_iUnion, mem_setOf_eq, not_le] at hω ⊢
+      simp only [mem_iUnion, mem_ofPred_eq, not_le] at hω ⊢
       obtain ⟨n, hn⟩ := exists_nat_gt (1 / Y ω)
       use n
       have hY_pos : 0 < Y ω := hω
@@ -502,7 +502,7 @@ lemma ae_eq_zero_of_mgf_le_one {μ : Measure Ω} [IsProbabilityMeasure μ]
           (h_neg_int_exp_pos (k + 1) hk1) (exp ((k + 1 : ℝ) * ε))
         have h_subset : {ω | -Y ω > ε} ⊆ {ω | exp ((k + 1 : ℝ) * ε) ≤ exp ((k + 1 : ℝ) * (-Y ω))} := by
           intro ω hω
-          simp only [mem_setOf_eq] at hω ⊢
+          simp only [mem_ofPred_eq] at hω ⊢
           exact exp_le_exp.mpr (mul_lt_mul_of_pos_left hω hk1).le
         have h_toReal_bound : (μ {ω | exp ((k + 1 : ℝ) * ε) ≤ exp ((k + 1 : ℝ) * (-Y ω))}).toReal ≤
             (exp ((k + 1 : ℝ) * ε))⁻¹ * ∫ ω, exp ((k + 1 : ℝ) * (-Y ω)) ∂μ := by
@@ -538,7 +538,7 @@ lemma ae_eq_zero_of_mgf_le_one {μ : Measure Ω} [IsProbabilityMeasure μ]
       exact ge_of_tendsto' h_lim (fun n => h_bound n)
     apply measure_mono_null (t := ⋃ n : ℕ, {ω | -Y ω > 1/((n : ℝ)+1)})
     · intro ω hω
-      simp only [mem_iUnion, mem_setOf_eq, ge_iff_le, not_le] at hω ⊢
+      simp only [mem_iUnion, mem_ofPred_eq, ge_iff_le, not_le] at hω ⊢
       have hY_neg' : 0 < -Y ω := by linarith
       obtain ⟨n, hn⟩ := exists_nat_gt (1 / (-Y ω))
       use n
@@ -651,8 +651,8 @@ omit [PseudoMetricSpace A] in
     This avoids the issue with biSup and sSup ∅ for ℝ. -/
 lemma iSup_subtype_eq_sup' {T : Finset A} (hT : T.Nonempty) (f : A → ℝ) :
     ⨆ (t : T), f t = T.sup' hT f := by
-  haveI : Nonempty T := hT.to_subtype
-  haveI : Fintype T := Finset.fintypeCoeSort T
+  have : Nonempty T := hT.to_subtype
+  have : Fintype T := Finset.fintypeCoeSort T
   have h := Finset.sup'_univ_eq_ciSup (α := ℝ) (ι := T) (f ∘ Subtype.val)
   simp only [Function.comp_apply] at h
   rw [← h]
@@ -831,7 +831,7 @@ lemma integrable_of_integrable_exp_all {Ω : Type*} [MeasurableSpace Ω]
     Integrable Y μ := by
   have h_set_eq : integrableExpSet Y μ = Set.univ := by
     ext t
-    simp only [integrableExpSet, Set.mem_setOf_eq, Set.mem_univ, iff_true]
+    simp only [integrableExpSet, Set.mem_ofPred_eq, Set.mem_univ, iff_true]
     exact h t
   have h_interior : (0 : ℝ) ∈ interior (integrableExpSet Y μ) := by
     rw [h_set_eq, interior_univ]
@@ -859,7 +859,7 @@ lemma subGaussian_process_centered {Ω : Type*} [MeasurableSpace Ω]
   -- Establish that 0 is in interior of integrableExpSet
   have h_set_eq : integrableExpSet Y μ = Set.univ := by
     ext l
-    simp only [integrableExpSet, Set.mem_setOf_eq, Set.mem_univ, iff_true]
+    simp only [integrableExpSet, Set.mem_ofPred_eq, Set.mem_univ, iff_true]
     exact hX_int_exp l
   have h_interior : (0 : ℝ) ∈ interior (integrableExpSet Y μ) := by
     rw [h_set_eq, interior_univ]
@@ -914,5 +914,4 @@ lemma subGaussian_process_centered {Ω : Type*} [MeasurableSpace Ω]
   exact IsLocalMax.hasDerivAt_eq_zero h_local_max h_g_deriv
 
 end
-
 

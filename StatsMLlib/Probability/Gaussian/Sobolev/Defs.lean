@@ -296,7 +296,7 @@ lemma stdMollifierKernel_pos_of_abs_lt_one {x : ℝ} (hx : |x| < 1) : 0 < stdMol
 /-- {x | |x| < 1} equals Metric.ball 0 1 in ℝ -/
 lemma abs_lt_one_eq_ball : {x : ℝ | |x| < 1} = Metric.ball 0 1 := by
   ext x
-  simp only [Set.mem_setOf_eq, Metric.mem_ball, dist_zero_right, Real.norm_eq_abs]
+  simp only [Set.mem_ofPred_eq, Metric.mem_ball, dist_zero_right, Real.norm_eq_abs]
 
 /-- The mollifier kernel is measurable -/
 lemma stdMollifierKernel_measurable : Measurable stdMollifierKernel := by

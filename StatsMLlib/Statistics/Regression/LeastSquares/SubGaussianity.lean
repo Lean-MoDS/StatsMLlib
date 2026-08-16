@@ -188,7 +188,7 @@ theorem empiricalProcess_isSubGaussian (n : ℕ) (hn : 0 < n) (x : Fin n → X) 
       Real.exp (t^2 * τ^2 * (empiricalNorm n (diffValues n x g₁ g₂))^2 / 2) := by
   intro μ τ g₁ g₂ t
   -- Use the MGF formula we proved
-  haveI : NeZero n := ⟨hn.ne'⟩
+  have : NeZero n := ⟨hn.ne'⟩
   rw [empiricalProcess_increment_mgf n x g₁ g₂ t]
   -- Show equality (which implies ≤) - both expressions are equal
   apply le_of_eq
@@ -207,11 +207,10 @@ lemma empiricalProcess_subGaussian_bound (n : ℕ) (hn : 0 < n) (x : Fin n → X
     ∫ w, Real.exp (t * (empiricalProcess n x g₁ w - empiricalProcess n x g₂ w))
       ∂(stdGaussianPi n) ≤
     Real.exp (t^2 * (1 / n) * (empiricalNorm n (diffValues n x g₁ g₂))^2 / 2) := by
-  haveI : NeZero n := ⟨hn.ne'⟩
+  have : NeZero n := ⟨hn.ne'⟩
   rw [empiricalProcess_increment_mgf n x g₁ g₂ t]
   apply le_of_eq
   congr 1
   ring
 
 end LeastSquares
-

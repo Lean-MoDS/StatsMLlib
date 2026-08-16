@@ -75,7 +75,7 @@ theorem ProbabilityTheory.iIndepFun.comp_right
   {f : (i : ι) → Ω → β i} (h : ProbabilityTheory.iIndepFun f μ)
   {g : ι' → ι} (hg : Function.Injective g):
   ProbabilityTheory.iIndepFun (fun i ↦ f (g i)) μ := by
-  simp only [iIndepFun, Kernel.iIndepFun, Kernel.iIndep, Kernel.iIndepSets, Set.mem_setOf_eq,
+  simp only [iIndepFun, Kernel.iIndepFun, Kernel.iIndep, Kernel.iIndepSets, Set.mem_ofPred_eq,
     Kernel.const_apply, ae_dirac_eq, Filter.eventually_pure] at *
   intro s' f₁' h₁'
   let s := s'.image g
@@ -513,7 +513,6 @@ lemma hmartingale
       rw [dif_pos h]
       have : i.1 < k.castSucc.1 := h
       rw [dif_pos this]
-      exact congrArg Xk (Fin.ext rfl)
     else
       rw [dif_neg h]
       have : ¬ i.1 < k.castSucc.1 := h

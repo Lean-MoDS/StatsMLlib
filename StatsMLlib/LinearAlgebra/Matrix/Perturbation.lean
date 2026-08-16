@@ -820,7 +820,7 @@ theorem eigenvalues_sub_le_opNorm {n : ℕ} (hA : A.IsSymmetric) (hB : B.IsSymme
     have hUpos : 0 < finrank 𝕜 (U : Submodule 𝕜 E) := by
       rw [U.property]
       omega
-    haveI : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
+    have : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
     obtain ⟨x, hx0U⟩ := exists_ne (0 : (U : Submodule 𝕜 E))
     have hx0 : (x : E) ≠ 0 := by
       intro hx
@@ -842,12 +842,12 @@ theorem eigenvalues_sub_le_opNorm {n : ℕ} (hA : A.IsSymmetric) (hB : B.IsSymme
     have hLpos : 0 < finrank 𝕜 L := by
       rw [hLdim]
       omega
-    haveI : Nontrivial L := Module.nontrivial_of_finrank_pos hLpos
+    have : Nontrivial L := Module.nontrivial_of_finrank_pos hLpos
     obtain ⟨x0, hx0L⟩ := exists_ne (0 : L)
     have hx0 : (x0 : E) ≠ 0 := by
       intro h
       exact hx0L (Subtype.ext h)
-    haveI : Nonempty { x : L // (x : E) ≠ 0 } := ⟨⟨x0, hx0⟩⟩
+    have : Nonempty { x : L // (x : E) ≠ 0 } := ⟨⟨x0, hx0⟩⟩
     unfold minRayleighQuotientOn
     refine le_ciInf fun x => ?_
     have hxLeading :

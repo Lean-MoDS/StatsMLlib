@@ -38,6 +38,7 @@ two roles. The order below follows the website.
 - Naoto Onda
 - Yuma Mizuno
 - Kevin Han Huang
+- Kazuki Uesugi — Bernstein inequality
 
 These roles describe project-level organization and contribution. Sho Sonoda appears in both roles,
 as on the published website. Neither role replaces file-level copyright or authorship notices.

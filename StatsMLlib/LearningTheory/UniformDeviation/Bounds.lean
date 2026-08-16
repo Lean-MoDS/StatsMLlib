@@ -116,7 +116,7 @@ theorem uniform_deviation_tail_bound_countable
     exact measureReal_le_one
   have hn : 0 < n := Nat.pos_of_ne_zero hn
   apply le_trans _ (uniform_deviation_mcdiarmid_tail (μ := μ) hX hf hb hf' ht' hε)
-  simp only [ge_iff_le, ne_eq, measure_ne_top, not_false_eq_true, ENNReal.toReal_le_toReal]
+  apply ENNReal.toReal_mono (measure_ne_top _ _)
   apply measure_mono
   intro ω h
   have : 2 • rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω) := h

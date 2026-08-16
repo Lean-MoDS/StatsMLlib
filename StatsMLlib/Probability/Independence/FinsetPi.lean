@@ -47,7 +47,7 @@ variable {Ω ι: Type*} [MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMea
 
 theorem pi_eval_iIndepFun :
   iIndepFun Function.eval (Measure.pi fun _ ↦ μ : Measure (ι → Ω)) := by
-  simp only [iIndepFun, Kernel.iIndepFun, Kernel.iIndep, Kernel.iIndepSets, Set.mem_setOf_eq,
+  simp only [iIndepFun, Kernel.iIndepFun, Kernel.iIndep, Kernel.iIndepSets, Set.mem_ofPred_eq,
     Kernel.const_apply, ae_dirac_eq, Filter.eventually_pure]
   intro s f hf
   simp only [MeasurableSet, MeasurableSpace.comap] at hf

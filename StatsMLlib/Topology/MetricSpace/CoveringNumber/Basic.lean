@@ -437,7 +437,7 @@ theorem coveringNumber_image_of_isometry {f : A → B} (hf : Isometry f) (hbij :
     coveringNumber eps (f '' s) = coveringNumber eps s := by
   apply le_antisymm
   · -- Forward: coveringNumber (f '' s) ≤ coveringNumber s
-    haveI : DecidableEq B := Classical.decEq B
+    have : DecidableEq B := Classical.decEq B
     have h1Lip : ∀ x y : A, dist (f x) (f y) ≤ dist x y := fun x y => by
       rw [hf.dist_eq]
     exact coveringNumber_image_le_of_nonexpansive h1Lip
@@ -453,7 +453,7 @@ theorem coveringNumber_image_of_isometry {f : A → B} (hf : Isometry f) (hbij :
       exact hcover this
     have hmem := csInf_mem hne
     obtain ⟨t, ht_net, ht_card⟩ := hmem
-    haveI : DecidableEq A := Classical.decEq A
+    have : DecidableEq A := Classical.decEq A
     obtain ⟨g, hfg⟩ := hbij.2.hasRightInverse
     let t' : Finset A := t.image g
     have ht'_net : IsENet t' eps s := by

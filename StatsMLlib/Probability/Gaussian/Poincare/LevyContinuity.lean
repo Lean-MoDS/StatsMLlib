@@ -148,7 +148,7 @@ lemma isTightMeasureSet_of_tendsto_limsup_measure_norm_gt
     rw [isTightMeasureSet_iff_tendsto_measure_norm_gt] at h_tight
     simpa using h_tight
   · refine measure_mono fun x hx ↦ ?_
-    simp only [Set.mem_setOf_eq] at hx ⊢
+    simp only [Set.mem_ofPred_eq] at hx ⊢
     exact huv.trans_lt hx
 
 lemma isTightMeasureSet_iff_tendsto_limsup_measure_norm_gt :

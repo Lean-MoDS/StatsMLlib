@@ -724,11 +724,11 @@ lemma chain_sup_projection_bound
         rw [Set.not_nonempty_iff_eq_empty.mp h_empty] at h_contra
         simp at h_contra
         exact not_lt_of_ge (Finset.sum_nonneg fun _ _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _) h_contra
-      haveI : Nonempty α := ⟨h_nonempty.some⟩
-      haveI : Nonempty (U L) := Set.Nonempty.to_subtype h_nonempty
+      have : Nonempty α := ⟨h_nonempty.some⟩
+      have : Nonempty (U L) := Set.Nonempty.to_subtype h_nonempty
       let f : U L → ℝ := fun u => |X u - X (chain_projection L pi_map u 1)|
       have h_bdd : BddAbove (Set.range f) := by
-        letI : Fintype (U L) := Set.Finite.fintype (hU_finite L)
+        let : Fintype (U L) := Set.Finite.fintype (hU_finite L)
         exact Finite.bddAbove_range f
       have h_empty_le : sSup (∅ : Set ℝ) ≤ ⨆ u : U L, f u := by
         rw [Real.sSup_empty]
@@ -1326,7 +1326,7 @@ lemma dudley_step_bound
       · rw [ MeasureTheory.integral_eq_zero_of_ae ];
         filter_upwards [ ] with;
         by_cases hU_nonempty : U_next.Nonempty
-        · haveI : Nonempty α := ⟨hU_nonempty.some⟩
+        · have : Nonempty α := ⟨hU_nonempty.some⟩
           refine' le_antisymm _ _;
           · apply ciSup_le
             intro u
@@ -1444,7 +1444,7 @@ lemma dudley_step_bound_tight
     · norm_num [ h_cases ];
       refine' MeasureTheory.integral_nonpos fun ω => _;
       by_cases hU_nonempty : U_next.Nonempty
-      · haveI : Nonempty α := ⟨hU_nonempty.some⟩
+      · have : Nonempty α := ⟨hU_nonempty.some⟩
         apply ciSup_le
         intro u
         rw [ciSup_eq_ite]
@@ -1609,7 +1609,7 @@ lemma integrable_step_sup_of_subGaussian
         intro z
         exact (h_sg z.val (hV_subset (hF.subset z.prop)) (f z.val)
           (hf z.val (hF.subset z.prop))).integrable
-      haveI : Nonempty F := ⟨⟨hF_nonempty.choose, hF_nonempty.choose_spec⟩⟩
+      have : Nonempty F := ⟨⟨hF_nonempty.choose, hF_nonempty.choose_spec⟩⟩
       have h_int := integrable_ciSup_abs_of_fintype (Y := Y) hY_int
       convert h_int using 1
       rw [← hF]
@@ -1656,7 +1656,7 @@ lemma integrable_pairwise_sup_of_subGaussian
       intro p
       exact (h_sg p.1.val (hV_subset (hF.subset p.1.prop))
         p.2.val (hV_subset (hF.subset p.2.prop))).integrable
-    haveI : Nonempty (F × F) :=
+    have : Nonempty (F × F) :=
       ⟨(⟨hF_nonempty.choose, hF_nonempty.choose_spec⟩,
         ⟨hF_nonempty.choose, hF_nonempty.choose_spec⟩)⟩
     have h_int := integrable_ciSup_abs_of_fintype (Y := Y) hY_int
@@ -1718,7 +1718,7 @@ lemma chaining_entropy_bound
       filter_upwards with ω
       apply le_antisymm _ (Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ =>
         Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _)
-      haveI : Nonempty α := ⟨u₀⟩
+      have : Nonempty α := ⟨u₀⟩
       apply ciSup_le; intro u
       rw [ciSup_eq_ite]; split_ifs with hu
       · rw [Set.mem_singleton_iff.mp hu]
@@ -1844,7 +1844,7 @@ lemma chaining_entropy_bound
       simp only [heps_def]
       push_cast
       rw [mul_div_assoc]; congr 1
-      conv_rhs => rw [show -(↑k + 2 : ℝ) = -(↑k + 1) - 1 from by push_cast; ring,
+      conv_rhs => rw [show -(↑k + 2 : ℝ) = -(↑k + 1) - 1 from by ring,
                        rpow_sub (by norm_num : (0:ℝ) < 2), rpow_one]
 
     have h_eps_2 : eps 2 = D / 4 := by

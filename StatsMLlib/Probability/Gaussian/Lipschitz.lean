@@ -108,11 +108,10 @@ noncomputable def centeredLipschitz (f : (Fin n → ℝ) → ℝ) : (Fin n → �
 lemma integral_centeredLipschitz_eq_zero (f : (Fin n → ℝ) → ℝ) (L : ℝ) (hL : 0 ≤ L)
     (hf : LipschitzWith (Real.toNNReal L) f) :
     ∫ w, centeredLipschitz f w ∂(GaussianMeasure.stdGaussianPi n) = 0 := by
-  haveI : IsProbabilityMeasure (GaussianMeasure.stdGaussianPi n) :=
+  have : IsProbabilityMeasure (GaussianMeasure.stdGaussianPi n) :=
     GaussianMeasure.stdGaussianPi_isProbabilityMeasure
   unfold centeredLipschitz
   rw [integral_sub (lipschitz_integrable_stdGaussianPi f L hL hf) (integrable_const _)]
   simp only [integral_const, probReal_univ, smul_eq_mul, one_mul, sub_self]
 
 end LipschitzConcentration
-

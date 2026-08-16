@@ -315,8 +315,8 @@ lemma exists_maximal_packing {E : Type*} [PseudoMetricSpace E]
               · rw [heq', dist_comm]; exact Metric.mem_ball.mp hyc
             _ = eps := by ring
         linarith
-    haveI : Finite cover := hcover_finite
-    haveI : Fintype cover := Fintype.ofFinite cover
+    have : Finite cover := hcover_finite
+    have : Fintype cover := Fintype.ofFinite cover
     calc t.card = Fintype.card t := by rw [Fintype.card_coe]
       _ ≤ Fintype.card cover := Fintype.card_le_of_injective f hf_inj
       _ = cover.ncard := by
