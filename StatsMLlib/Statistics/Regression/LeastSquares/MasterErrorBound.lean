@@ -660,7 +660,7 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
   -- First, bound bad event by Z(u) ≥ 2u²
   have h_subset : badEvent n σ H u x ⊆ {w | 2 * u^2 ≤ Z_supremum n σ H u x w} := by
     intro w hw
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     obtain ⟨g, hg_mem, hg_bound⟩ := hw
     -- g ∈ outer region means ‖g‖_n ≥ u
     have hg_norm : u ≤ empiricalNorm n (fun i => g (x i)) := hg_mem.2
@@ -842,7 +842,7 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
         apply ENNReal.toReal_mono (measure_ne_top _ _)
         apply measure_mono
         intro w hw
-        simp only [Set.mem_setOf_eq] at hw ⊢
+        simp only [Set.mem_ofPred_eq] at hw ⊢
         have h_exp := Z_expectation_bound hn hσ hδ hu hδu H hH x hCI hint_u hint_δ hbdd
         have h_exp' : ∫ y, Z_supremum n σ H u x y ∂(stdGaussianPi n) ≤ u * δ_star := h_exp
         have h_exp'' : u * δ_star ≤ u^2 := by nlinarith
@@ -867,7 +867,7 @@ lemma goodEvent_implies_process_bound {n : ℕ} {σ t δ_star : ℝ}
     (hw : w ∈ goodEvent n σ H t δ_star x)
     (g : X → ℝ) (hg : g ∈ empiricalOuterRegion n H (Real.sqrt (t * δ_star)) x) :
     |σ / n * ∑ i, w i * g (x i)| < 2 * empiricalNorm n (fun i => g (x i)) * Real.sqrt (t * δ_star) := by
-  simp only [goodEvent, Set.mem_compl_iff, badEvent, Set.mem_setOf_eq] at hw
+  simp only [goodEvent, Set.mem_compl_iff, badEvent, Set.mem_ofPred_eq] at hw
   push Not at hw
   exact hw g hg
 
@@ -928,7 +928,7 @@ theorem master_error_bound (hn : 0 < n)
   have h_good_implies : goodEvent n M.σ H t δ_star M.x ⊆
       {w | (empiricalNorm n (fun i => f_hat w (M.x i) - M.f_star (M.x i)))^2 ≤ 16 * t * δ_star} := by
     intro w hw
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     -- Set Δ = f_hat - f_star
     set Δ := fun i => f_hat w (M.x i) - M.f_star (M.x i) with hΔ_def
     set norm_Δ := empiricalNorm n Δ with hnorm_def
@@ -998,7 +998,7 @@ theorem master_error_bound (hn : 0 < n)
   -- Probability bound
   have h_prob : (stdGaussianPi n (goodEvent n M.σ H t δ_star M.x)).toReal ≥
       1 - exp (-n * t * δ_star / (2 * M.σ^2)) := by
-    haveI : IsProbabilityMeasure (stdGaussianPi n) := stdGaussianPi_isProbabilityMeasure
+    have : IsProbabilityMeasure (stdGaussianPi n) := stdGaussianPi_isProbabilityMeasure
     -- Good event is complement of bad event
     have h_good_bad : goodEvent n M.σ H t δ_star M.x = (badEvent n M.σ H u M.x)ᶜ := rfl
     -- P(good) = 1 - P(bad) for any set (using ENNReal arithmetic)

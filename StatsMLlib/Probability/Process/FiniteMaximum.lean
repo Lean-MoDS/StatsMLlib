@@ -44,13 +44,13 @@ theorem measure_finset_sup_ge_le_sum {ι : Type*} {μ : Measure Ω}
   -- {ω | u ≤ sup_i X_i ω} ⊆ ⋃_i {ω | u ≤ X_i ω}
   have h_subset : {ω | u ≤ s.sup' hs (fun i => X i ω)} ⊆ ⋃ i ∈ s, {ω | u ≤ X i ω} := by
     intro ω hω
-    simp only [mem_setOf_eq] at hω
+    simp only [mem_ofPred_eq] at hω
     rw [mem_iUnion₂]
     by_contra h_neg
     push Not at h_neg
     have h_bound : ∀ i ∈ s, X i ω < u := by
       intro i hi
-      simp only [mem_setOf_eq, not_le] at h_neg
+      simp only [mem_ofPred_eq, not_le] at h_neg
       exact h_neg i hi
     have h_sup_lt : s.sup' hs (fun i => X i ω) < u := by
       rw [Finset.sup'_lt_iff]

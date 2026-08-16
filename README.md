@@ -3,7 +3,7 @@
 <h4 align="center">Verified probability, statistics, and learning theory in Lean 4</h4>
 
 <p align="center">
-  <a href="https://github.com/leanprover/lean4/releases/tag/v4.32.0"><img src="https://img.shields.io/badge/Lean-v4.32.0-blue?style=for-the-badge" alt="Lean v4.32.0"></a>
+  <a href="https://github.com/leanprover/lean4/releases/tag/v4.33.0"><img src="https://img.shields.io/badge/Lean-v4.33.0-blue?style=for-the-badge" alt="Lean v4.33.0"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-lightgrey?style=for-the-badge" alt="Apache 2.0"></a>
   <a href="https://statsmllib.github.io/"><img src="https://img.shields.io/badge/Website-StatsMLlib-175b47?style=for-the-badge" alt="StatsMLlib website"></a>
 </p>
@@ -47,7 +47,7 @@ Representative declarations include `dudley`, `truncated_dudley_entropy_bound`, 
 
 ## Getting started
 
-StatsMLlib is pinned to Lean and Mathlib `v4.32.0`.
+StatsMLlib is pinned to Lean and Mathlib `v4.33.0`.
 
 ```bash
 # Optional: download the Mathlib build cache.
@@ -60,11 +60,11 @@ LEAN_NUM_THREADS=$(nproc) lake build
 LEAN_NUM_THREADS=$(nproc) lake build StatsMLlib.Probability.Process.Dudley
 ```
 
-To use the `v4.32.0` release from another Lake project:
+To use the `v4.33.0` release from another Lake project:
 
 ```lean
 require «StatsMLlib» from git
-  "https://github.com/Lean-MoDS/StatsMLlib.git" @ "v4.32.0"
+  "https://github.com/Lean-MoDS/StatsMLlib.git" @ "v4.33.0"
 ```
 
 Then import only the modules needed by the project:

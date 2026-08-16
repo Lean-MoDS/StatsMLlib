@@ -128,7 +128,7 @@ theorem linearLocalizedBallImage_eq (hn : 0 < n)
       v = fun i => @inner ℝ _ _ θ (x i)} := by
   unfold linearLocalizedBallImage
   ext v
-  simp only [Set.mem_image, Set.mem_setOf_eq]
+  simp only [Set.mem_image, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨g, hg, rfl⟩
     unfold linearLocalizedBall localizedBall at hg

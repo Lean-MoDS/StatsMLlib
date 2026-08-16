@@ -885,7 +885,7 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
   have h_bad_eq_preimage : {p : (Fin n → Ω) × Ω | bad p} =
       (fun p => Function.update p.1 i p.2) ⁻¹' S := by
     ext p
-    simp only [S, bad, Set.mem_setOf_eq, Set.mem_preimage]
+    simp only [S, bad, Set.mem_ofPred_eq, Set.mem_preimage]
 
   have hS_null : μˢ S = 0 := by
     set φ := fun p : (Fin n → Ω) × (Fin n → Ω) =>
@@ -915,7 +915,7 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
     have hφ_preimage : φ ⁻¹' S = {p : (Fin n → Ω) × (Fin n → Ω) |
         condExpFirstK (μs := μs) i.succ f p.1 = 0 ∧ f (φ p) > 0} := by
       ext ⟨x, y⟩
-      simp only [S, Set.mem_preimage, Set.mem_setOf_eq, hT_φ x y]
+      simp only [S, Set.mem_preimage, Set.mem_ofPred_eq, hT_φ x y]
 
     have h_meas_eq : μˢ S = (μˢ.prod μˢ) (φ ⁻¹' S) := by
       rw [← Measure.map_apply hφ_meas hS_meas]
@@ -979,7 +979,7 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
       exact ne_of_gt hpos
     · have h_empty : {y | condExpFirstK (μs := μs) i.succ f x = 0 ∧ f (φ (x, y)) > 0} = ∅ := by
         ext y
-        simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+        simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
         intro ⟨hTeq, _⟩
         exact hT hTeq
       rw [h_empty, measure_empty]
@@ -1019,7 +1019,7 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
     linarith
   · rw [ae_iff]
     have h_eq : {a : (Fin n → Ω) × Ω | ¬¬bad a} = {a | bad a} := by
-      ext a; simp only [Set.mem_setOf_eq, not_not]
+      ext a; simp only [Set.mem_ofPred_eq, not_not]
     rw [h_eq]
     exact h_bad_null
 

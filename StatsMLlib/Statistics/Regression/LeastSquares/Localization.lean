@@ -285,7 +285,7 @@ lemma scaled_biSup_le {H : Set (X → ℝ)} (hH : IsStarShaped H)
   rw [mul_comm, Real.iSup_mul_of_nonneg hr_nonneg]
 
   -- Step 2: Apply ciSup_le (need Nonempty)
-  haveI : Nonempty (X → ℝ) := ⟨0⟩
+  have : Nonempty (X → ℝ) := ⟨0⟩
   apply ciSup_le
   intro h
   rw [Real.iSup_mul_of_nonneg hr_nonneg]
@@ -303,7 +303,7 @@ lemma scaled_biSup_le {H : Set (X → ℝ)} (hH : IsStarShaped H)
     have h_eq : (⨆ _ : h ∈ localizedBall H t x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)| * (δ / t)) =
         |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)| * (δ / t) := by
       apply le_antisymm
-      · haveI : Nonempty (h ∈ localizedBall H t x) := ⟨hh⟩
+      · have : Nonempty (h ∈ localizedBall H t x) := ⟨hh⟩
         apply ciSup_le
         intro _
         exact le_refl _

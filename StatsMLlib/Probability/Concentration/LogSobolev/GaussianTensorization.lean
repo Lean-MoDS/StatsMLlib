@@ -301,9 +301,9 @@ lemma sum_expected_condEnt_le_grad_norm (n : ℕ) (g : (Fin n → ℝ) → ℝ)
       filter_upwards [h_slice_ae i] with x hx
       exact condEnt_sq_le_partial_deriv_sq i g hg_diff hg_grad_cont x hx
     -- Integrability of the right-hand side
-    haveI : SigmaFinite (GaussianMeasure.stdGaussianPi n) :=
+    have : SigmaFinite (GaussianMeasure.stdGaussianPi n) :=
       inferInstance
-    haveI : SigmaFinite (gaussianReal 0 1) := inferInstance
+    have : SigmaFinite (gaussianReal 0 1) := inferInstance
     have h_update_mp :
         MeasurePreserving (fun p : (Fin n → ℝ) × ℝ => Function.update p.1 i p.2)
           ((GaussianMeasure.stdGaussianPi n).prod (gaussianReal 0 1))
@@ -355,9 +355,9 @@ lemma sum_expected_condEnt_le_grad_norm (n : ℕ) (g : (Fin n → ℝ) → ℝ)
     intro i
     have h_int : Integrable (fun z => (partialDeriv i g z)^2) (GaussianMeasure.stdGaussianPi n) :=
       (hg.2 i).integrable_sq
-    haveI : SigmaFinite (GaussianMeasure.stdGaussianPi n) :=
+    have : SigmaFinite (GaussianMeasure.stdGaussianPi n) :=
       inferInstance
-    haveI : SigmaFinite (gaussianReal 0 1) := inferInstance
+    have : SigmaFinite (gaussianReal 0 1) := inferInstance
     have h_int_prod :
         Integrable (fun p : (Fin n → ℝ) × ℝ =>
           (partialDeriv i g (Function.update p.1 i p.2))^2)

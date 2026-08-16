@@ -399,7 +399,7 @@ theorem linear_minimax_rate (hn : 0 < n) (hd : 0 < d)
           exact measure_lt_top _ _
         · apply MeasureTheory.measure_mono
           intro w hw
-          simp only [Set.mem_setOf_eq] at hw ⊢
+          simp only [Set.mem_ofPred_eq] at hw ⊢
           calc (empiricalNorm n (fun i => f_hat w (M.x i) - M.f_star (M.x i)))^2
               ≤ 16 * δ_star * δ_star := hw
             _ = linear_C₁ * M.σ^2 * d / n := h_bound_eq
@@ -670,7 +670,7 @@ theorem linear_minimax_rate_rank (hn : 0 < n)
           exact measure_lt_top _ _
         · apply MeasureTheory.measure_mono
           intro w hw
-          simp only [Set.mem_setOf_eq] at hw ⊢
+          simp only [Set.mem_ofPred_eq] at hw ⊢
           calc (empiricalNorm n (fun i => f_hat w (M.x i) - M.f_star (M.x i)))^2
               ≤ 16 * δ_star * δ_star := hw
             _ = linear_C₁_rank * M.σ^2 * r / n := h_bound_eq

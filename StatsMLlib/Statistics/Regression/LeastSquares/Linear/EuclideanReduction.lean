@@ -63,7 +63,7 @@ lemma empiricalToEuclidean_euclideanToEmpirical (v : EuclideanSpace ℝ (Fin n))
   simp [euclideanToEmpirical, empiricalToEuclidean]
 
 lemma empiricalToEuclidean_apply (v : EmpiricalSpace n) (i : Fin n) :
-    empiricalToEuclidean n v i = v i := rfl
+    (empiricalToEuclidean n v).ofLp i = v i := rfl
 
 lemma euclideanToEmpirical_apply (v : EuclideanSpace ℝ (Fin n)) (i : Fin n) :
     euclideanToEmpirical n v i = v i := rfl
@@ -154,11 +154,11 @@ theorem empiricalToEuclidean_image_eq (hn : 0 < n)
     constructor
     · -- empiricalToEuclidean (fun i => ⟨θ, x i⟩) = designMatrixMul x θ
       ext i
-      simp only [empiricalToEuclidean_apply, designMatrixMul_apply]
+      rfl
     · -- ‖designMatrixMul x θ‖ ≤ δ * √n
       have heq : empiricalToEuclidean n (fun i => @inner ℝ _ _ θ (x i)) = designMatrixMul x θ := by
         ext i
-        simp only [empiricalToEuclidean_apply, designMatrixMul_apply]
+        rfl
       rw [heq]
       exact hθ_norm
   · -- Backward: v ∈ euclideanLocalizedBall → v ∈ image
@@ -168,7 +168,7 @@ theorem empiricalToEuclidean_image_eq (hn : 0 < n)
     · rw [linearLocalizedBallImage_eq hn x δ]
       exact ⟨θ, hball, rfl⟩
     · ext i
-      simp only [empiricalToEuclidean_apply, designMatrixMul_apply]
+      rfl
 
 /-- empiricalToEuclidean is a bijection from EmpiricalSpace to EuclideanSpace -/
 lemma empiricalToEuclidean_bijective : Function.Bijective (empiricalToEuclidean n) := by
@@ -232,7 +232,7 @@ theorem linearCoveringNumber_eq_euclidean (hn : 0 < n)
     have hmem := csInf_mem hne
     obtain ⟨t_euc, ht_net, ht_card⟩ := hmem
     -- Project back to EmpiricalSpace
-    haveI : DecidableEq (EmpiricalSpace n) := Classical.decEq _
+    have : DecidableEq (EmpiricalSpace n) := Classical.decEq _
     let t_emp : Finset (EmpiricalSpace n) := t_euc.image (euclideanToEmpirical n)
     -- Show t_emp is an s-net for linearLocalizedBallImage
     have ht_emp_net : IsENet t_emp s (linearLocalizedBallImage n d δ x) := by
@@ -404,7 +404,7 @@ lemma euclideanLocalizedBall_subset_range (x : Fin n → EuclideanSpace ℝ (Fin
 lemma exists_linearIsometryEquiv_of_finrank_eq (hd : 0 < d) (V : Submodule ℝ (EuclideanSpace ℝ (Fin n)))
     (hV : Module.finrank ℝ V = d) :
     Nonempty (V ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin d)) := by
-  haveI : FiniteDimensional ℝ V := Module.finite_of_finrank_pos (hV ▸ hd)
+  have : FiniteDimensional ℝ V := Module.finite_of_finrank_pos (hV ▸ hd)
   -- Get an orthonormal basis for V, indexed by Fin (finrank ℝ V)
   let b := stdOrthonormalBasis ℝ V
   -- We need an equiv from Fin (finrank ℝ V) to Fin d

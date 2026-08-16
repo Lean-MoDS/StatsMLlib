@@ -1472,7 +1472,7 @@ theorem bernoulliUniform_map_toRademacher {n : ℕ} :
         rw [heq, measure_empty, Set.indicator_of_notMem h]
     simp_rw [hsum, hterm]
     -- ∑ ε, indicator s _ (toRademacher ε) = 2^{-(n+1)} * |toRademacher⁻¹' s|
-    haveI : DecidablePred fun i => toRademacher i ∈ s := Classical.decPred _
+    have : DecidablePred fun i => toRademacher i ∈ s := Classical.decPred _
     rw [Finset.sum_indicator_eq_sum_filter, Finset.sum_const]
     -- Convert nsmul to mul and relate cardinalities
     rw [nsmul_eq_mul, mul_comm]

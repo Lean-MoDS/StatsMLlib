@@ -250,8 +250,8 @@ theorem linear_two_sided_tail_bound_stdGaussianPi (a : Fin n → ℝ) (u : ℝ)
   have h_union : {w : Fin n → ℝ | u ≤ |∑ i, a i * w i|} ⊆
       {w | u ≤ ∑ i, a i * w i} ∪ {w | u ≤ -(∑ i, a i * w i)} := by
     intro w hw
-    simp only [Set.mem_setOf_eq] at hw
-    simp only [Set.mem_union, Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq] at hw
+    simp only [Set.mem_union, Set.mem_ofPred_eq]
     rcases le_or_gt 0 (∑ i, a i * w i) with h | h
     · left
       rwa [abs_of_nonneg h] at hw

@@ -821,8 +821,9 @@ lemma hasSubgaussianMGF_of_abs_le_of_integral_eq_zero {μ : Measure Ω}
                 filter_upwards [hY_zero] with ω hω
                 simp [hω]
           _ = 1 := by simp
-      rw [hmgf, hR0]
-      exact one_le_exp (by positivity)
+      rw [hmgf]
+      apply one_le_exp
+      exact div_nonneg (mul_nonneg (NNReal.zero_le_coe) (sq_nonneg t)) (by norm_num)
     · have hR_pos : 0 < R := lt_of_le_of_ne hR (Ne.symm hR0)
       let chord : Ω → ℝ := fun ω =>
         ((R - Y ω) / (2 * R)) * exp (t * (-R)) +
@@ -2386,9 +2387,9 @@ lemma integrable_exp_mul_prod_of_indepFun_hasSubgaussianMGF_of_le
   have hg : AEStronglyMeasurable g (μ.map φ) := by
     dsimp [g]
     fun_prop
-  haveI : IsProbabilityMeasure (μ.map X) :=
+  have : IsProbabilityMeasure (μ.map X) :=
     MeasureTheory.Measure.isProbabilityMeasure_map hX.aemeasurable
-  haveI : IsProbabilityMeasure (μ.map Y) :=
+  have : IsProbabilityMeasure (μ.map Y) :=
     MeasureTheory.Measure.isProbabilityMeasure_map hY.aemeasurable
   have hprod_int :
       Integrable g ((μ.map Y).prod (μ.map X)) :=
@@ -2421,9 +2422,9 @@ lemma integral_exp_mul_prod_le_of_indepFun_hasSubgaussianMGF_of_le
   have hg : AEStronglyMeasurable g (μ.map φ) := by
     dsimp [g]
     fun_prop
-  haveI : IsProbabilityMeasure (μ.map X) :=
+  have : IsProbabilityMeasure (μ.map X) :=
     MeasureTheory.Measure.isProbabilityMeasure_map hX.aemeasurable
-  haveI : IsProbabilityMeasure (μ.map Y) :=
+  have : IsProbabilityMeasure (μ.map Y) :=
     MeasureTheory.Measure.isProbabilityMeasure_map hY.aemeasurable
   have hmap_eq :
       μ.map φ = (μ.map Y).prod (μ.map X) := by

@@ -239,7 +239,7 @@ lemma innerProductProcess_isSubGaussianProcess (n : ℕ) (hn : 0 < n) :
   rw [h_dist]
   set d := v₁ - v₂
   set a : Fin n → ℝ := fun i => (n : ℝ)⁻¹ * d i with ha_def
-  haveI : NeZero n := ⟨ne_of_gt hn⟩
+  have : NeZero n := ⟨ne_of_gt hn⟩
   have h_inner_eq_sum : ∀ w : Fin n → ℝ, innerProductProcess n d w = ∑ i, a i * w i := fun w => by
     unfold innerProductProcess
     rw [Finset.mul_sum]
@@ -977,7 +977,7 @@ lemma dudley_empiricalProcess (n : ℕ) (hn : 0 < n) (x : Fin n → X)
   let σ := subGaussianParam n
   let v₀ := empiricalMetricImage n x g₀
   -- Key facts
-  haveI : IsProbabilityMeasure μ := stdGaussianPi_isProbabilityMeasure
+  have : IsProbabilityMeasure μ := stdGaussianPi_isProbabilityMeasure
   have hσ : 0 < σ := by
     unfold σ subGaussianParam
     apply div_pos one_pos
@@ -1097,8 +1097,8 @@ lemma dudley_empiricalProcess (n : ℕ) (hn : 0 < n) (x : Fin n → X)
       calc (0 : ℝ) = innerProductProcess n v₀ w := (hv₀_center w).symm
         _ ≤ ⨆ (g : ↥G), innerProductProcess n (empiricalMetricImage n x g.1) w := by
             apply le_ciSup h_bdd ⟨g₀, hg₀⟩
-    haveI : Nonempty (X → ℝ) := ⟨fun _ => 0⟩
-    haveI : Nonempty (EmpiricalSpace n) := ⟨0⟩
+    have : Nonempty (X → ℝ) := ⟨fun _ => 0⟩
+    have : Nonempty (EmpiricalSpace n) := ⟨0⟩
     have h_ciSup := ciSup_image (s := G) (f := empiricalMetricImage n x)
       (g := fun v => innerProductProcess n v w) h_bdd h_ssup
     exact h_ciSup.symm
@@ -1161,7 +1161,7 @@ lemma local_gaussian_complexity_bound (n : ℕ) (hn : 0 < n) (H : Set (X → ℝ
   let G := localizedBall H δ x
   let Gx := empiricalMetricImage n x '' G
   let μ := stdGaussianPi n
-  haveI : IsProbabilityMeasure μ := stdGaussianPi_isProbabilityMeasure
+  have : IsProbabilityMeasure μ := stdGaussianPi_isProbabilityMeasure
   have hG_star : IsStarShaped G := localizedBall_isStarShaped n H δ (le_of_lt hδ) x hH_star
   have h0_G : (0 : X → ℝ) ∈ G := hG_star.1
   have hD : 0 < 2 * δ := by linarith
@@ -1179,4 +1179,3 @@ lemma local_gaussian_complexity_bound (n : ℕ) (hn : 0 < n) (H : Set (X → ℝ
     _ = (24 * Real.sqrt 2) / Real.sqrt n * entropyIntegral Gx (2*δ) := by ring
 
 end LeastSquares
-

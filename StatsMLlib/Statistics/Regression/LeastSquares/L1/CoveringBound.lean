@@ -127,6 +127,8 @@ lemma maureyNet_card_le (x : Fin n → EuclideanSpace ℝ (Fin d)) (R : ℝ) (k 
 /-- The squared empirical norm of column j equals (1/n) Σᵢ (xᵢ)ⱼ² -/
 lemma empColumn_empiricalNorm_sq (x : Fin n → EuclideanSpace ℝ (Fin d)) (j : Fin d) :
     (empiricalNorm n (empColumn x j))^2 = (n : ℝ)⁻¹ * ∑ i : Fin n, (empColumn x j i)^2 := by
+  change (empiricalNorm n (fun i => empColumn x j i)) ^ 2 =
+    (n : ℝ)⁻¹ * ∑ i : Fin n, (empColumn x j i) ^ 2
   rw [empiricalNorm_sq]
 
 /-- The squared empirical norm of column j equals (1/n) ‖designMatrixColumn x j‖² -/
@@ -1032,8 +1034,10 @@ theorem l1BallImage_coveringNumber_le {R ε : ℝ} (hR : 0 ≤ R) (hε : 0 < ε)
           Finset.mem_image.mpr ⟨f, Finset.mem_univ f, rfl⟩
         simp only [N, maureyNet, this]
       have hdist : dist v (maureyAvg x R k f) ≤ ε := by
-        rw [hv_eq, dist_comm]
-        exact hf
+        rw [← hv_eq] at hf
+        calc
+          dist v (maureyAvg x R k f) = dist (maureyAvg x R k f) v := dist_comm _ _
+          _ ≤ ε := hf
       exact Set.mem_iUnion₂.mpr ⟨_, hmem, Metric.mem_closedBall.mpr hdist⟩
     exact (coveringNumber_le_card hnet).trans hcard
 

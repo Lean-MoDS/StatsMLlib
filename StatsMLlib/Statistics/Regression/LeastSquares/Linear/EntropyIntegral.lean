@@ -129,7 +129,7 @@ lemma metricEntropy_linearLocalizedBall_le (hn : 0 < n) (hd : 0 < d)
   -- Step 2: Use linearCoveringNumber_le_euclideanBall_d
   have hcov_lin := linearCoveringNumber_le_euclideanBall_d (s := ε) (δ := δ) hn hd x hinj
   -- Step 3: Get the Euclidean ball covering number bound (need Nonempty Fin d)
-  haveI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp hd
+  have : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp hd
   have hball_bound := coveringNumber_euclideanBall_le (ι := Fin d)
     (mul_nonneg hδ_nonneg (le_of_lt hsqrt_pos)) hε_scaled
   -- Step 4: The RHS simplifies because (δ√n)/(ε√n) = δ/ε
@@ -681,7 +681,7 @@ lemma metricEntropy_linearLocalizedBall_rank_le (hn : 0 < n)
   -- Step 2: Use linearCoveringNumber_le_euclideanBall_rank
   have hcov_lin := linearCoveringNumber_le_euclideanBall_rank (s := ε) (δ := δ) hn x hr
   -- Step 3: Get the Euclidean ball covering number bound (need Nonempty Fin r)
-  haveI : Nonempty (Fin (designMatrixRank x)) := Fin.pos_iff_nonempty.mp hr
+  have : Nonempty (Fin (designMatrixRank x)) := Fin.pos_iff_nonempty.mp hr
   have hball_bound := coveringNumber_euclideanBall_le (ι := Fin (designMatrixRank x))
     (mul_nonneg hδ_nonneg (le_of_lt hsqrt_pos)) hε_scaled
   -- Step 4: The RHS simplifies because (δ√n)/(ε√n) = δ/ε

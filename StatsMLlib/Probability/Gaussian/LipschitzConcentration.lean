@@ -84,7 +84,7 @@ lemma lipschitz_gradNormSq_bound {f : (Fin n → ℝ) → ℝ} {L : ℝ} (hL : 0
   have h_sum_sq : ∑ i, (fderiv ℝ f' (e.symm x) (b i))^2 = ‖fderiv ℝ f' (e.symm x)‖^2 := by
     -- Use Riesz representation: L = ⟨a, ·⟩ where a = toDual.symm L
     -- Then L(b i) = ⟨a, b i⟩ and ∑ᵢ |L(b i)|² = ‖a‖² = ‖L‖²
-    haveI : CompleteSpace E := inferInstance
+    have : CompleteSpace E := inferInstance
     let L := fderiv ℝ f' (e.symm x)
     -- L is continuous, so it has a Riesz representative
     let a : E := (InnerProductSpace.toDual ℝ E).symm L
@@ -146,7 +146,7 @@ lemma lipschitz_integral_gradNormSq_bound {f : (Fin n → ℝ) → ℝ} {L : ℝ
     (hf_lip : LipschitzWith (Real.toNNReal L) f)
     (hf_C1 : ContDiff ℝ 1 f) :
     ∫ x, GaussianLSI.gradNormSq n f x ∂(stdGaussianPi n) ≤ L^2 := by
-  haveI : IsProbabilityMeasure (stdGaussianPi n) :=
+  have : IsProbabilityMeasure (stdGaussianPi n) :=
     stdGaussianPi_isProbabilityMeasure
   calc ∫ x, GaussianLSI.gradNormSq n f x ∂(stdGaussianPi n)
       ≤ ∫ _, L^2 ∂(stdGaussianPi n) := by
@@ -305,7 +305,7 @@ lemma ratio_bound_gronwall (φ : ℝ → ℝ) (t : ℝ) (ht : 0 < t)
       ContinuousAt.div (hφ_diff t).continuousAt continuousAt_id (ne_of_gt ht)
     have h_tendsto : Filter.Tendsto (fun y => φ y / y) (nhdsWithin t (Set.Iio t)) (nhds (φ t / t)) :=
       h_ratio_cont.tendsto.mono_left nhdsWithin_le_nhds
-    haveI : (nhdsWithin t (Set.Iio t)).NeBot := inferInstance
+    have : (nhdsWithin t (Set.Iio t)).NeBot := inferInstance
     apply le_of_tendsto h_tendsto
     filter_upwards [Ioo_mem_nhdsLT hs.2] with y hy
     exact h_mvt hs ⟨lt_trans hs.1 hy.1, hy.2⟩ (le_of_lt hy.1)
@@ -548,7 +548,7 @@ theorem cgf_bound {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
   have h_entropy_bound : LogSobolev.entropy μ (fun x => exp (t * f_c x)) ≤
       (t^2 * σ^2 / 2) * ∫ x, exp (t * f_c x) ∂μ :=
     entropy_bound_exp_scaled hσ hf_lip hL_lip hf_C1 h_grad_bound t
-  haveI : IsProbabilityMeasure μ := stdGaussianPi_isProbabilityMeasure
+  have : IsProbabilityMeasure μ := stdGaussianPi_isProbabilityMeasure
   have h_exp_int : Integrable (fun x => exp (t * f_c x)) μ :=
     lipschitz_exp_integrable (le_of_lt hL_lip) hf_lip t
   have h_mgf_def : mgf f_c μ t = ∫ x, exp (t * f_c x) ∂μ := by simp only [mgf, mul_comm t]
@@ -569,7 +569,7 @@ theorem cgf_bound {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
   rw [h_mgf_def]
   have h_intExpSet : integrableExpSet f_c μ = Set.univ := by
     ext s
-    simp only [integrableExpSet, Set.mem_setOf_eq, Set.mem_univ, iff_true]
+    simp only [integrableExpSet, Set.mem_ofPred_eq, Set.mem_univ, iff_true]
     exact lipschitz_exp_integrable (le_of_lt hL_lip) hf_lip s
 
   have h_in_interior : ∀ s, s ∈ interior (integrableExpSet f_c μ) := by
@@ -820,7 +820,7 @@ lemma lipschitz_gradNormSq_bound_E {f : EuclideanSpace ℝ (Fin n) → ℝ} {L :
     exact this
   let b := EuclideanSpace.basisFun (Fin n) ℝ
   have h_sum_sq : ∑ i, (fderiv ℝ f x (b i))^2 = ‖fderiv ℝ f x‖^2 := by
-    haveI : CompleteSpace (EuclideanSpace ℝ (Fin n)) := inferInstance
+    have : CompleteSpace (EuclideanSpace ℝ (Fin n)) := inferInstance
     let Lf := fderiv ℝ f x
     let a : EuclideanSpace ℝ (Fin n) := (InnerProductSpace.toDual ℝ _).symm Lf
     have ha : ∀ v, Lf v = @inner ℝ _ _ a v := fun v => InnerProductSpace.toDual_symm_apply.symm
@@ -1100,7 +1100,7 @@ lemma cgf_mollify_tendsto_of_lipschitz {f : 𝔼 → ℝ} {L : ℝ≥0}
   let μ := stdGaussianE n
   simp only [cgf, mgf]
   have h_mgf_conv := centered_mgf_mollify_tendsto_of_lipschitz (n := n) hf t
-  haveI : IsProbabilityMeasure μ := stdGaussianE_isProbabilityMeasure
+  have : IsProbabilityMeasure μ := stdGaussianE_isProbabilityMeasure
   have h_centered_int : Integrable (fun x => exp (t * (f x - ∫ y, f y ∂μ))) μ := by
     have h_eq : ∀ x, exp (t * (f x - ∫ y, f y ∂μ)) =
         exp (-t * ∫ y, f y ∂μ) * exp (t * f x) := by
@@ -1283,7 +1283,7 @@ theorem gaussian_lipschitz_concentration_one_sided {f : 𝔼 → ℝ} {L : ℝ�
     let μ := stdGaussianE n
     (μ {x | t ≤ f x - ∫ y, f y ∂μ}).toReal ≤ exp (-t^2 / (2 * (L : ℝ)^2)) := by
   let μ := stdGaussianE n
-  haveI : IsProbabilityMeasure μ := stdGaussianE_isProbabilityMeasure
+  have : IsProbabilityMeasure μ := stdGaussianE_isProbabilityMeasure
   have h_cgf : ∀ s, cgf (fun x => f x - ∫ y, f y ∂μ) μ s ≤ s^2 * (L : ℝ)^2 / 2 :=
     fun s => lipschitz_cgf_bound hn hL hf s
   have h_int : ∀ s, Integrable (fun x => exp (s * (f x - ∫ y, f y ∂μ))) μ :=
@@ -1296,13 +1296,13 @@ theorem gaussian_lipschitz_concentration {f : 𝔼 → ℝ} {L : ℝ≥0}
     let μ := stdGaussianE n
     (μ {x | t ≤ |f x - ∫ y, f y ∂μ|}).toReal ≤ 2 * exp (-t^2 / (2 * (L : ℝ)^2)) := by
   let μ := stdGaussianE n
-  haveI : IsProbabilityMeasure μ := stdGaussianE_isProbabilityMeasure
+  have : IsProbabilityMeasure μ := stdGaussianE_isProbabilityMeasure
   have h_neg_lip : LipschitzWith L (fun x => -f x) := hf.neg
   have h_union : {x : 𝔼 | t ≤ |f x - ∫ y, f y ∂μ|} ⊆
       {x | t ≤ f x - ∫ y, f y ∂μ} ∪ {x | t ≤ -(f x - ∫ y, f y ∂μ)} := by
     intro x hx
-    simp only [Set.mem_setOf_eq] at hx ⊢
-    simp only [Set.mem_union, Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq] at hx ⊢
+    simp only [Set.mem_union, Set.mem_ofPred_eq]
     rcases le_or_gt 0 (f x - ∫ y, f y ∂μ) with hpos | hneg
     · left; rwa [abs_of_nonneg hpos] at hx
     · right; rw [abs_of_neg hneg] at hx; linarith
@@ -1322,7 +1322,7 @@ theorem gaussian_lipschitz_concentration {f : 𝔼 → ℝ} {L : ℝ≥0}
   have h_neg : (μ {x | t ≤ -(f x - ∫ y, f y ∂μ)}).toReal ≤ exp (-t^2 / (2 * (L : ℝ)^2)) := by
     have h := gaussian_lipschitz_concentration_one_sided hn hL h_neg_lip t ht
     have h_eq : {x : 𝔼 | t ≤ -f x - ∫ y, -f y ∂μ} = {x | t ≤ -(f x - ∫ y, f y ∂μ)} := by
-      ext x; simp only [Set.mem_setOf_eq, h_neg_mean]; ring_nf
+      ext x; simp only [Set.mem_ofPred_eq, h_neg_mean]; ring_nf
     simp only [μ] at h h_eq ⊢
     convert h using 1
     exact congrArg (fun s => (stdGaussianE n s).toReal) h_eq.symm

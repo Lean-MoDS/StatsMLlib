@@ -293,7 +293,7 @@ theorem small_ball_prob {ι : Type*} [Fintype ι] (X : ι → Ω → ℝ)
     simp only [Finset.sum_apply]
   -- Each mgf bounded by ε
   have h_mgf_bound (i : ι) : mgf (X i) μ (-ε⁻¹) ≤ ε := by
-    haveI := hX_pdf i
+    have := hX_pdf i
     have h := mgf_neg_le_inv_of_pdf_bounded (hX_meas i) (hX_nn i) (hX_pdf_le i) ε⁻¹ ht
     simp only [one_div] at h
     convert h using 2; field_simp

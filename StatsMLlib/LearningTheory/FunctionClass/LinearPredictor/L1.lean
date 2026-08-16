@@ -114,7 +114,7 @@ theorem linear_predictor_l1_bound'
   classical
 
   -- (1) coordinate-signed class bound via Massart
-  letI : Nonempty (Fin d × Bool) := ⟨(⟨0, d_pos⟩, true)⟩
+  let : Nonempty (Fin d × Bool) := ⟨(⟨0, d_pos⟩, true)⟩
   have hs : (Finset.univ : Finset (Fin d × Bool)).Nonempty :=
     Finset.univ_nonempty
 
@@ -153,6 +153,7 @@ theorem linear_predictor_l1_bound'
         intro jb hj i
         -- |sign*x_j| ≤ X∞
         have hx := (Y' i).2 jb.1
+        rw [show (Subtype.val ∘ Y') i = (Y' i).1 by rfl]
         simpa [coordSigned, abs_mul, abs_boolSign] using hx)
       hs
 
@@ -197,6 +198,7 @@ theorem linear_predictor_l1_bound'
       intro i
       have hxi : |coordSigned (d := d) jb ((Subtype.val ∘ Y') i)| ≤ Xinf := by
         have hx := (Y' i).2 jb.1
+        rw [show (Subtype.val ∘ Y') i = (Y' i).1 by rfl]
         simpa [coordSigned, abs_mul, abs_boolSign] using hx
       have hmuli :
           (n : ℝ)⁻¹ * |coordSigned (d := d) jb ((Subtype.val ∘ Y') i)| ≤ (n : ℝ)⁻¹ * Xinf := by

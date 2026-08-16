@@ -105,7 +105,7 @@ project the domain onto the leading `k`-dimensional eigenspace of `T†T`, then 
 noncomputable def eckartYoungMirskyApproximant
     (T : E →ₗ[𝕜] F) {n k : ℕ} (hn : finrank 𝕜 E = n) (hk : k ≤ n) : E →ₗ[𝕜] F :=
   let L : Submodule 𝕜 E := T.isSymmetric_adjoint_comp_self.leadingEigenSubspace hn hk
-  haveI : CompleteSpace L := FiniteDimensional.complete 𝕜 L
+  have : CompleteSpace L := FiniteDimensional.complete 𝕜 L
   T.comp ((L.starProjection : E →L[𝕜] E) : E →ₗ[𝕜] E)
 
 /-- The Eckart-Young-Mirsky approximant has rank at most `k`. -/
@@ -113,7 +113,7 @@ theorem finrank_range_eckartYoungMirskyApproximant_le
     (T : E →ₗ[𝕜] F) {n k : ℕ} (hn : finrank 𝕜 E = n) (hk : k ≤ n) :
     finrank 𝕜 (T.eckartYoungMirskyApproximant hn hk).range ≤ k := by
   let L : Submodule 𝕜 E := T.isSymmetric_adjoint_comp_self.leadingEigenSubspace hn hk
-  haveI : CompleteSpace L := FiniteDimensional.complete 𝕜 L
+  have : CompleteSpace L := FiniteDimensional.complete 𝕜 L
   unfold eckartYoungMirskyApproximant
   change finrank 𝕜 (LinearMap.range (T.comp ((L.starProjection : E →L[𝕜] E) : E →ₗ[𝕜] E))) ≤ k
   rw [LinearMap.range_comp, Submodule.range_starProjection]
@@ -128,7 +128,7 @@ theorem finrank_range_eckartYoungMirskyApproximant_eq_of_finrank_range_eq
     (hTfull : finrank 𝕜 T.range = n) (hk : k ≤ n) :
     finrank 𝕜 (T.eckartYoungMirskyApproximant hn hk).range = k := by
   let L : Submodule 𝕜 E := T.isSymmetric_adjoint_comp_self.leadingEigenSubspace hn hk
-  haveI : CompleteSpace L := FiniteDimensional.complete 𝕜 L
+  have : CompleteSpace L := FiniteDimensional.complete 𝕜 L
   have hkerdim : finrank 𝕜 T.ker = 0 := by
     have h := T.finrank_range_add_finrank_ker
     rw [hTfull, hn] at h
@@ -168,7 +168,7 @@ theorem finrank_range_eckartYoungMirskyApproximant_eq_of_le_finrank_range
   · have hle := finrank_range_eckartYoungMirskyApproximant_le T hd hkdim
     omega
   let L : Submodule 𝕜 E := T.isSymmetric_adjoint_comp_self.leadingEigenSubspace hd hkdim
-  haveI : CompleteSpace L := FiniteDimensional.complete 𝕜 L
+  have : CompleteSpace L := FiniteDimensional.complete 𝕜 L
   let TL : L →ₗ[𝕜] F := T.comp L.subtype
   have hkpos : 0 < k := Nat.pos_of_ne_zero hk0
   have hTLinj : Function.Injective TL := by
@@ -280,7 +280,7 @@ theorem eckartYoungMirskyApproximant_opNorm_error_le
   let i : Fin n := ⟨k, hk⟩
   let L : Submodule 𝕜 E :=
     T.isSymmetric_adjoint_comp_self.leadingEigenSubspace hn (Nat.le_of_lt hk)
-  haveI : CompleteSpace L := FiniteDimensional.complete 𝕜 L
+  have : CompleteSpace L := FiniteDimensional.complete 𝕜 L
   let B : E →ₗ[𝕜] F := T.eckartYoungMirskyApproximant hn (Nat.le_of_lt hk)
   refine ((T - B).toContinuousLinearMap).opNorm_le_bound (T.singularValues_nonneg k) ?_
   intro x

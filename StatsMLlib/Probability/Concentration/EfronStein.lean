@@ -1230,8 +1230,8 @@ theorem efronStein (f : (Fin n → Ω) → ℝ) (hf : MemLp f 2 μˢ) :
     simp only [Fin.sum_univ_zero]
     have hconst : f = fun _ => f default :=
       funext (fun x => congr_arg f (Subsingleton.elim x default))
-    haveI : ∀ i : Fin 0, IsProbabilityMeasure (μs i) := fun i => i.elim0
-    haveI : IsProbabilityMeasure μˢ := inferInstance
+    have : ∀ i : Fin 0, IsProbabilityMeasure (μs i) := fun i => i.elim0
+    have : IsProbabilityMeasure μˢ := inferInstance
     rw [hconst, variance, evariance]
     simp only [integral_const, probReal_univ, one_smul, sq, sub_self]
     simp
@@ -1285,11 +1285,11 @@ theorem efronStein (f : (Fin n → Ω) → ℝ) (hf : MemLp f 2 μˢ) :
       congr 1 with y
   | k + 2 =>
     let μ_curr : Measure (Fin (k+2) → Ω) := Measure.pi μs
-    haveI hPM : ∀ i : Fin (k+2), IsProbabilityMeasure (μs i) := hPM_section
-    haveI : IsProbabilityMeasure μ_curr := inferInstance
-    haveI : SFinite μ_curr := inferInstance
-    haveI : ∀ i : Fin (k+2), SFinite (μs i) := fun i => inferInstance
-    haveI : ∀ i : Fin (k+2), IsFiniteMeasure (μs i) := fun i => inferInstance
+    have hPM : ∀ i : Fin (k+2), IsProbabilityMeasure (μs i) := hPM_section
+    have : IsProbabilityMeasure μ_curr := inferInstance
+    have : SFinite μ_curr := inferInstance
+    have : ∀ i : Fin (k+2), SFinite (μs i) := fun i => inferInstance
+    have : ∀ i : Fin (k+2), IsFiniteMeasure (μs i) := fun i => inferInstance
 
     have hcond_int_i : ∀ i : Fin ((k+1)+1), Integrable (condExpExceptCoord (μs := μs) i f) μ_curr := by
       intro i

@@ -184,9 +184,9 @@ lemma mollify_tendsto_pointwise {n : ℕ} {g : E n → ℝ} (hg_cont : Continuou
         ext i; exact Fin.elim0 i
       rw [h_const, integral_const, smul_eq_mul]
       have h_vol_one : (volume : Measure (E 0)).real Set.univ = 1 := by
-        haveI : Subsingleton (E 0) := by
-          haveI : IsEmpty (Fin 0) := Fin.isEmpty
-          haveI : Unique (Fin 0 → ℝ) := Pi.uniqueOfIsEmpty _
+        have : Subsingleton (E 0) := by
+          have : IsEmpty (Fin 0) := Fin.isEmpty
+          have : Unique (Fin 0 → ℝ) := Pi.uniqueOfIsEmpty _
           exact (Equiv.subsingleton_congr (EuclideanSpace.equiv (Fin 0) ℝ).toEquiv).mpr
             Unique.instSubsingleton
         have h_univ_eq : (Set.univ : Set (E 0)) = {0} := Set.eq_singleton_iff_unique_mem.mpr
@@ -679,14 +679,14 @@ lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (h
           have h_rad_pos : (0 : ℝ) < 2 * R + 1 := by linarith
           by_cases hn : n = 0
           · subst hn
-            haveI : IsEmpty (Fin 0) := inferInstance
-            haveI : Subsingleton (E 0) := inferInstance
+            have : IsEmpty (Fin 0) := inferInstance
+            have : Subsingleton (E 0) := inferInstance
             have h_univ : Metric.closedBall (0 : E 0) (2 * R + 1) = Set.univ := by
               ext x; simp [Metric.mem_closedBall, Subsingleton.elim x 0, dist_self, h_rad_pos.le]
             rw [h_univ] at hvol
             have h_ne : (volume : Measure (E 0)) ≠ 0 := NeZero.ne volume
             exact (MeasureTheory.Measure.measure_univ_ne_zero.mpr h_ne) hvol
-          · haveI : Nonempty (Fin n) := ⟨⟨0, Nat.pos_of_ne_zero hn⟩⟩
+          · have : Nonempty (Fin n) := ⟨⟨0, Nat.pos_of_ne_zero hn⟩⟩
             rw [EuclideanSpace.volume_closedBall] at hvol
             simp only [mul_eq_zero] at hvol
             rcases hvol with h_pow | h_const
@@ -778,7 +778,7 @@ lemma mollify_L2_convergence_gaussian_continuous {n : ℕ} {g : E n → ℝ} {R 
     have h_int_nonempty : (interior K).Nonempty := ⟨0, h_0_in_K⟩
     have h_int_open : IsOpen (interior K) := isOpen_interior
     -- Gaussian measure has full support, so positive on non-empty open sets
-    haveI : (stdGaussianE n).IsOpenPosMeasure := GaussianSobolev.stdGaussianE_isOpenPosMeasure
+    have : (stdGaussianE n).IsOpenPosMeasure := GaussianSobolev.stdGaussianE_isOpenPosMeasure
     calc 0 < stdGaussianE n (interior K) := h_int_open.measure_pos _ h_int_nonempty
       _ ≤ stdGaussianE n K := measure_mono interior_subset
   -- Now we can proceed with the positive measure case
@@ -842,7 +842,7 @@ lemma mollify_L2_convergence_gaussian_continuous {n : ℕ} {g : E n → ℝ} {R 
               have hxy_ball : x - y ∈ Metric.closedBall 0 (2 * R) := hg_supp hxy_in
               rw [Metric.mem_closedBall, dist_zero_right] at hxy_ball
               have hx_norm : ‖x‖ > 2 * R + 1 := by
-                rw [hK_def, Metric.closedBall, Set.mem_setOf] at hx
+                rw [hK_def, Metric.closedBall, Set.mem_ofPred] at hx
                 push Not at hx
                 rw [dist_zero_right] at hx
                 exact hx

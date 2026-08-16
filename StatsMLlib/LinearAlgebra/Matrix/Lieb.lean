@@ -184,7 +184,7 @@ theorem realToCStarMatrixStarAlgHom_le_iff {A B : Matrix n n ℝ} :
 theorem realToCStarMatrixStarAlgHom_map_log_of_posDef {X : Matrix n n ℝ} (hX : X.PosDef) :
     realMatrixToCStarMatrixStarAlgHom (n := n) (CFC.log X) =
       CFC.log (realMatrixToCStarMatrixStarAlgHom (n := n) X) := by
-  letI : IsometricContinuousFunctionalCalculus ℝ (CStarMatrix n n ℂ) IsSelfAdjoint :=
+  let : IsometricContinuousFunctionalCalculus ℝ (CStarMatrix n n ℂ) IsSelfAdjoint :=
     IsSelfAdjoint.instIsometricContinuousFunctionalCalculus (A := CStarMatrix n n ℂ)
   let φ := realMatrixToCStarMatrixStarAlgHom (n := n)
   have hXsa : IsSelfAdjoint X := hX.isHermitian
@@ -215,7 +215,7 @@ theorem realToCStarMatrixStarAlgHom_isStrictlyPositive_of_posDef
 theorem cfc_log_le_log_of_le_posDef {X Y : Matrix n n ℝ}
     (hX : X.PosDef) (hXY : X ≤ Y) :
     CFC.log X ≤ CFC.log Y := by
-  letI : IsometricContinuousFunctionalCalculus ℝ (CStarMatrix n n ℂ) IsSelfAdjoint :=
+  let : IsometricContinuousFunctionalCalculus ℝ (CStarMatrix n n ℂ) IsSelfAdjoint :=
     IsSelfAdjoint.instIsometricContinuousFunctionalCalculus (A := CStarMatrix n n ℂ)
   let φ := realMatrixToCStarMatrixStarAlgHom (n := n)
   have hY : Y.PosDef := by
@@ -328,10 +328,10 @@ theorem loewner_functionalCalculus_order_hdp
     hX.cfc f ≤ hX.cfc g := by
   rw [← hX.cfc_eq f, ← hX.cfc_eq g]
   have hfcont : ContinuousOn f (spectrum ℝ X) := by
-    rw [continuousOn_iff_continuous_restrict]
+    rw [continuousOn_iff_continuous_domRestrict]
     fun_prop
   have hgcont : ContinuousOn g (spectrum ℝ X) := by
-    rw [continuousOn_iff_continuous_restrict]
+    rw [continuousOn_iff_continuous_domRestrict]
     fun_prop
   refine (cfc_le_iff f g X (ha := (show IsSelfAdjoint X from hX))
     (hf := hfcont) (hg := hgcont)).mpr ?_
@@ -375,7 +375,7 @@ theorem positiveDefiniteSymmetricMatrices_convex :
 theorem continuousOn_cfc_log_positiveDefiniteSymmetricMatrices :
     ContinuousOn (fun X : Matrix n n ℝ => CFC.log X)
       (positiveDefiniteSymmetricMatrices n) := by
-  letI : IsometricContinuousFunctionalCalculus ℝ (CStarMatrix n n ℂ) IsSelfAdjoint :=
+  let : IsometricContinuousFunctionalCalculus ℝ (CStarMatrix n n ℂ) IsSelfAdjoint :=
     IsSelfAdjoint.instIsometricContinuousFunctionalCalculus (A := CStarMatrix n n ℂ)
   let φ := realMatrixToCStarMatrixStarAlgHom (n := n)
   have hφ_cont : ContinuousOn (fun X : Matrix n n ℝ => φ X)
@@ -479,7 +479,7 @@ theorem continuousOn_liebTraceFunction (H : Matrix n n ℝ) :
   unfold liebTraceFunction
   have hinside : ContinuousOn (fun X : Matrix n n ℝ => H + CFC.log X)
       (positiveDefiniteSymmetricMatrices n) := continuousOn_const.add hlog
-  letI : NormedAlgebra ℚ (Matrix n n ℝ) := NormedAlgebra.restrictScalars ℚ ℝ (Matrix n n ℝ)
+  let : NormedAlgebra ℚ (Matrix n n ℝ) := NormedAlgebra.restrictScalars ℚ ℝ (Matrix n n ℝ)
   have hexp : Continuous (fun A : Matrix n n ℝ => exp A) := exp_continuous
   have htrace : Continuous (fun A : Matrix n n ℝ => trace A) := by fun_prop
   exact htrace.comp_continuousOn (hexp.comp_continuousOn hinside)
@@ -789,11 +789,15 @@ theorem leftRightDenominatorMatrix_twoSidedUnitary_diagonal_solve_mulVec_vec
   intro W
   rw [leftRightDenominatorMatrix_twoSidedUnitary_mulVec_vec]
   apply congr_arg Matrix.vec
-  congr 2
+  apply congr_arg (fun Z : Matrix n n ℝ =>
+    (U : Matrix n n ℝ) * Z * star (V : Matrix n n ℝ))
   ext i j
   have hden : d i + t * e j ≠ 0 := by
     exact ne_of_gt (add_pos_of_pos_of_nonneg (hd i) (mul_nonneg ht (le_of_lt (he j))))
-  simp [W, Matrix.diagonal_mul, Matrix.mul_diagonal, div_eq_mul_inv]
+  simp only [Matrix.add_apply, smul_apply, smul_eq_mul]
+  rw [Matrix.diagonal_mul, Matrix.mul_diagonal]
+  change d i * (Y i j * (d i + t * e j)⁻¹) +
+    t * (Y i j * (d i + t * e j)⁻¹ * e j) = Y i j
   calc
     d i * (Y i j * (d i + t * e j)⁻¹) +
         t * (Y i j * (d i + t * e j)⁻¹ * e j) =

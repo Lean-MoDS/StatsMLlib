@@ -185,7 +185,7 @@ theorem rayleighQuotient_eq_of_mem_span_singleton [FiniteDimensional 𝕜 E]
 theorem minRayleighQuotientOn_span_singleton [FiniteDimensional 𝕜 E]
     (T : E →ₗ[𝕜] E) {x : E} (hx : x ≠ 0) :
     minRayleighQuotientOn T (𝕜 ∙ x) = rayleighQuotient T x := by
-  haveI : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
+  have : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
     ⟨⟨⟨x, Submodule.mem_span_singleton_self x⟩, hx⟩⟩
   unfold minRayleighQuotientOn
   apply le_antisymm
@@ -198,7 +198,7 @@ theorem minRayleighQuotientOn_span_singleton [FiniteDimensional 𝕜 E]
 theorem maxRayleighQuotientOn_span_singleton [FiniteDimensional 𝕜 E]
     (T : E →ₗ[𝕜] E) {x : E} (hx : x ≠ 0) :
     maxRayleighQuotientOn T (𝕜 ∙ x) = rayleighQuotient T x := by
-  haveI : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
+  have : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
     ⟨⟨⟨x, Submodule.mem_span_singleton_self x⟩, hx⟩⟩
   unfold maxRayleighQuotientOn
   apply le_antisymm
@@ -212,10 +212,10 @@ theorem minRayleighQuotientOn_top [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] E) :
     minRayleighQuotientOn T (⊤ : Submodule 𝕜 E) =
       ⨅ x : { x : E // x ≠ 0 }, rayleighQuotient T x := by
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
-  haveI : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
+  have : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨⟨x, trivial⟩, hx⟩⟩
   unfold minRayleighQuotientOn
@@ -231,10 +231,10 @@ theorem maxRayleighQuotientOn_top [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] E) :
     maxRayleighQuotientOn T (⊤ : Submodule 𝕜 E) =
       ⨆ x : { x : E // x ≠ 0 }, rayleighQuotient T x := by
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
-  haveI : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
+  have : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨⟨x, trivial⟩, hx⟩⟩
   unfold maxRayleighQuotientOn
@@ -268,7 +268,7 @@ theorem courantFischerMaxMin_finrank [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] E) :
     courantFischerMaxMin T (finrank 𝕜 E) =
       ⨅ x : { x : E // x ≠ 0 }, rayleighQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
     ⟨⟨⊤, by rw [finrank_top]⟩⟩
   unfold courantFischerMaxMin
   apply le_antisymm
@@ -299,7 +299,7 @@ theorem courantFischerMinMax_finrank [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] E) :
     courantFischerMinMax T (finrank 𝕜 E) =
       ⨆ x : { x : E // x ≠ 0 }, rayleighQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
     ⟨⟨⊤, by rw [finrank_top]⟩⟩
   unfold courantFischerMinMax
   apply le_antisymm
@@ -330,10 +330,10 @@ theorem courantFischerMaxMin_one [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] E) :
     courantFischerMaxMin T 1 =
       ⨆ x : { x : E // x ≠ 0 }, rayleighQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨𝕜 ∙ x, finrank_span_singleton hx⟩⟩
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
   unfold courantFischerMaxMin
@@ -371,10 +371,10 @@ theorem courantFischerMinMax_one [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] E) :
     courantFischerMinMax T 1 =
       ⨅ x : { x : E // x ≠ 0 }, rayleighQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨𝕜 ∙ x, finrank_span_singleton hx⟩⟩
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
   unfold courantFischerMinMax
@@ -498,7 +498,7 @@ theorem singularQuotient_eq_of_mem_span_singleton [FiniteDimensional 𝕜 E]
 theorem minSingularQuotientOn_span_singleton [FiniteDimensional 𝕜 E]
     (T : E →ₗ[𝕜] F) {x : E} (hx : x ≠ 0) :
     minSingularQuotientOn T (𝕜 ∙ x) = singularQuotient T x := by
-  haveI : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
+  have : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
     ⟨⟨⟨x, Submodule.mem_span_singleton_self x⟩, hx⟩⟩
   unfold minSingularQuotientOn
   apply le_antisymm
@@ -511,7 +511,7 @@ theorem minSingularQuotientOn_span_singleton [FiniteDimensional 𝕜 E]
 theorem maxSingularQuotientOn_span_singleton [FiniteDimensional 𝕜 E]
     (T : E →ₗ[𝕜] F) {x : E} (hx : x ≠ 0) :
     maxSingularQuotientOn T (𝕜 ∙ x) = singularQuotient T x := by
-  haveI : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
+  have : Nonempty { y : (𝕜 ∙ x : Submodule 𝕜 E) // (y : E) ≠ 0 } :=
     ⟨⟨⟨x, Submodule.mem_span_singleton_self x⟩, hx⟩⟩
   unfold maxSingularQuotientOn
   apply le_antisymm
@@ -525,10 +525,10 @@ theorem minSingularQuotientOn_top [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] F) :
     minSingularQuotientOn T (⊤ : Submodule 𝕜 E) =
       ⨅ x : { x : E // x ≠ 0 }, singularQuotient T x := by
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
-  haveI : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
+  have : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨⟨x, trivial⟩, hx⟩⟩
   unfold minSingularQuotientOn
@@ -544,10 +544,10 @@ theorem maxSingularQuotientOn_top [FiniteDimensional 𝕜 E] [Nontrivial E]
     (T : E →ₗ[𝕜] F) :
     maxSingularQuotientOn T (⊤ : Submodule 𝕜 E) =
       ⨆ x : { x : E // x ≠ 0 }, singularQuotient T x := by
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
-  haveI : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
+  have : Nonempty { x : (⊤ : Submodule 𝕜 E) // (x : E) ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨⟨x, trivial⟩, hx⟩⟩
   unfold maxSingularQuotientOn
@@ -580,7 +580,7 @@ theorem singularCourantFischerMaxMin_finrank [FiniteDimensional 𝕜 E] [Nontriv
     (T : E →ₗ[𝕜] F) :
     singularCourantFischerMaxMin T (finrank 𝕜 E) =
       ⨅ x : { x : E // x ≠ 0 }, singularQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
     ⟨⟨⊤, by rw [finrank_top]⟩⟩
   unfold singularCourantFischerMaxMin
   apply le_antisymm
@@ -611,7 +611,7 @@ theorem singularCourantFischerMinMax_finrank [FiniteDimensional 𝕜 E] [Nontriv
     (T : E →ₗ[𝕜] F) :
     singularCourantFischerMinMax T (finrank 𝕜 E) =
       ⨆ x : { x : E // x ≠ 0 }, singularQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = finrank 𝕜 E } :=
     ⟨⟨⊤, by rw [finrank_top]⟩⟩
   unfold singularCourantFischerMinMax
   apply le_antisymm
@@ -642,10 +642,10 @@ theorem singularCourantFischerMaxMin_one [FiniteDimensional 𝕜 E] [Nontrivial 
     (T : E →ₗ[𝕜] F) :
     singularCourantFischerMaxMin T 1 =
       ⨆ x : { x : E // x ≠ 0 }, singularQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨𝕜 ∙ x, finrank_span_singleton hx⟩⟩
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
   unfold singularCourantFischerMaxMin
@@ -683,10 +683,10 @@ theorem singularCourantFischerMinMax_one [FiniteDimensional 𝕜 E] [Nontrivial 
     (T : E →ₗ[𝕜] F) :
     singularCourantFischerMinMax T 1 =
       ⨅ x : { x : E // x ≠ 0 }, singularQuotient T x := by
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = 1 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨𝕜 ∙ x, finrank_span_singleton hx⟩⟩
-  haveI : Nonempty { x : E // x ≠ 0 } := by
+  have : Nonempty { x : E // x ≠ 0 } := by
     obtain ⟨x, hx⟩ := exists_ne (0 : E)
     exact ⟨⟨x, hx⟩⟩
   unfold singularCourantFischerMinMax
@@ -1013,9 +1013,9 @@ theorem eigenvalues_eq_courantFischerMaxMin_succ {n : ℕ}
       hT.eigenvectorBasis_mem_leadingEigenSubspace hn (Nat.succ_le_of_lt i.2) ii
   have hb0 : hT.eigenvectorBasis hn i ≠ 0 := by
     simpa using (hT.eigenvectorBasis hn).toBasis.ne_zero i
-  haveI : Nonempty { x : L // (x : E) ≠ 0 } :=
+  have : Nonempty { x : L // (x : E) ≠ 0 } :=
     ⟨⟨⟨hT.eigenvectorBasis hn i, hLmem⟩, hb0⟩⟩
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = i.1 + 1 } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = i.1 + 1 } :=
     ⟨⟨L, hLdim⟩⟩
   have hbd :
       BddAbove (Set.range fun U : { U : Submodule 𝕜 E // finrank 𝕜 U = i.1 + 1 } =>
@@ -1025,7 +1025,7 @@ theorem eigenvalues_eq_courantFischerMaxMin_succ {n : ℕ}
     have hUpos : 0 < finrank 𝕜 (U : Submodule 𝕜 E) := by
       rw [U.property]
       omega
-    haveI : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
+    have : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
     obtain ⟨x, hx0U⟩ := exists_ne (0 : (U : Submodule 𝕜 E))
     have hx0 : (x : E) ≠ 0 := by
       intro hx
@@ -1077,9 +1077,9 @@ theorem eigenvalues_eq_courantFischerMinMax_sub {n : ℕ}
     simpa [R, hcast] using hT.eigenvectorBasis_mem_trailingEigenSubspace hn i j0
   have hb0 : hT.eigenvectorBasis hn i ≠ 0 := by
     simpa using (hT.eigenvectorBasis hn).toBasis.ne_zero i
-  haveI : Nonempty { x : R // (x : E) ≠ 0 } :=
+  have : Nonempty { x : R // (x : E) ≠ 0 } :=
     ⟨⟨⟨hT.eigenvectorBasis hn i, hRmem⟩, hb0⟩⟩
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = n - i.1 } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = n - i.1 } :=
     ⟨⟨R, hRdim⟩⟩
   have hbd :
       BddBelow (Set.range fun U : { U : Submodule 𝕜 E // finrank 𝕜 U = n - i.1 } =>
@@ -1089,7 +1089,7 @@ theorem eigenvalues_eq_courantFischerMinMax_sub {n : ℕ}
     have hUpos : 0 < finrank 𝕜 (U : Submodule 𝕜 E) := by
       rw [U.property]
       omega
-    haveI : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
+    have : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
     obtain ⟨x, hx0U⟩ := exists_ne (0 : (U : Submodule 𝕜 E))
     have hx0 : (x : E) ≠ 0 := by
       intro hx
@@ -1385,9 +1385,9 @@ theorem singularValues_eq_singularCourantFischerMaxMin_succ
         (Nat.succ_le_of_lt i.2) ii
   have hb0 : T.isSymmetric_adjoint_comp_self.eigenvectorBasis hn i ≠ 0 := by
     simpa using (T.isSymmetric_adjoint_comp_self.eigenvectorBasis hn).toBasis.ne_zero i
-  haveI : Nonempty { x : L // (x : E) ≠ 0 } :=
+  have : Nonempty { x : L // (x : E) ≠ 0 } :=
     ⟨⟨⟨T.isSymmetric_adjoint_comp_self.eigenvectorBasis hn i, hLmem⟩, hb0⟩⟩
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = i.1 + 1 } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = i.1 + 1 } :=
     ⟨⟨L, hLdim⟩⟩
   have hbd :
       BddAbove (Set.range fun U : { U : Submodule 𝕜 E // finrank 𝕜 U = i.1 + 1 } =>
@@ -1397,7 +1397,7 @@ theorem singularValues_eq_singularCourantFischerMaxMin_succ
     have hUpos : 0 < finrank 𝕜 (U : Submodule 𝕜 E) := by
       rw [U.property]
       omega
-    haveI : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
+    have : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
     obtain ⟨x, hx0U⟩ := exists_ne (0 : (U : Submodule 𝕜 E))
     have hx0 : (x : E) ≠ 0 := by
       intro hx
@@ -1451,9 +1451,9 @@ theorem singularValues_eq_singularCourantFischerMinMax_sub
       T.isSymmetric_adjoint_comp_self.eigenvectorBasis_mem_trailingEigenSubspace hn i j0
   have hb0 : T.isSymmetric_adjoint_comp_self.eigenvectorBasis hn i ≠ 0 := by
     simpa using (T.isSymmetric_adjoint_comp_self.eigenvectorBasis hn).toBasis.ne_zero i
-  haveI : Nonempty { x : R // (x : E) ≠ 0 } :=
+  have : Nonempty { x : R // (x : E) ≠ 0 } :=
     ⟨⟨⟨T.isSymmetric_adjoint_comp_self.eigenvectorBasis hn i, hRmem⟩, hb0⟩⟩
-  haveI : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = n - i.1 } :=
+  have : Nonempty { U : Submodule 𝕜 E // finrank 𝕜 U = n - i.1 } :=
     ⟨⟨R, hRdim⟩⟩
   have hbd :
       BddBelow (Set.range fun U : { U : Submodule 𝕜 E // finrank 𝕜 U = n - i.1 } =>
@@ -1463,7 +1463,7 @@ theorem singularValues_eq_singularCourantFischerMinMax_sub
     have hUpos : 0 < finrank 𝕜 (U : Submodule 𝕜 E) := by
       rw [U.property]
       exact hpos
-    haveI : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
+    have : Nontrivial (U : Submodule 𝕜 E) := Module.nontrivial_of_finrank_pos hUpos
     obtain ⟨x, hx0U⟩ := exists_ne (0 : (U : Submodule 𝕜 E))
     have hx0 : (x : E) ≠ 0 := by
       intro hx
