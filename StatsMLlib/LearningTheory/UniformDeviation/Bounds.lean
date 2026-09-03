@@ -717,4 +717,48 @@ theorem uniform_deviation_tail_bound_separable_of_sample_empirical_le
     _ ≤ _ :=
       uniform_deviation_tail_bound_separable_of_empirical_complexity
         (μ := μ) F hF_meas X hX hb hF_bound hF_cont hε
+
+/-! ## Examples
+
+Worked uses of this module's public API. They are elaborated with the library, so they
+double as acceptance tests that these statements stay usable as written.
+-/
+
+/-!
+## The observed empirical complexity
+
+The basic sample-dependent theorem keeps the empirical Rademacher complexity
+of the observed sample in the threshold:
+
+$$
+\Pr\!\left\{
+  \operatorname{UD}_n(F;S)
+  \ge 2\widehat{\mathfrak R}_n(F;S)+3\varepsilon
+\right\}
+\le
+2\exp\!\left(-\frac{n\varepsilon^2}{2b^2}\right).
+$$
+
+Thus this single statement exhibits the three commonly used variants
+requested at once: a separable hypothesis class, a high-probability estimate,
+and empirical rather than expected Rademacher complexity.
+-/
+
+/-- Basic separable high-probability bound using observed empirical complexity. -/
+example
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
+    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
+    [IsProbabilityMeasure μ]
+    (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
+    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    {ε : ℝ} (hε : 0 ≤ ε) :
+    (μⁿ {S : Fin n → Ω |
+      2 * empiricalRademacherComplexity n F (X ∘ S) + 3 * ε ≤
+        uniformDeviation n F μ X (X ∘ S)}).toReal ≤
+      2 * (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
+  exact uniform_deviation_tail_bound_separable_of_empirical_complexity
+    (μ := μ) F hF_meas X hX hb hF_bound hF_cont hε
+
 end

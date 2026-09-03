@@ -45,6 +45,31 @@ Representative declarations include `dudley`, `truncated_dudley_entropy_bound`, 
 `RMT.matrix_bernstein_inequality_hdp_all`, `expectation_le_rademacher`, and
 `master_error_bound`.
 
+## Generalization bounds
+
+The Rademacher-complexity route from a fixed-sample bound to a high-probability
+generalization bound. Each entry names the endpoint; every module listed carries acceptance
+`example`s of the same statements under an `## Examples` heading.
+
+| Model | Module | Endpoint |
+| --- | --- | --- |
+| any countable class | `LearningTheory/UniformDeviation/Confidence` | `uniform_deviation_tail_bound_countable_of_empirical_le_delta` |
+| any separable class | `LearningTheory/UniformDeviation/Confidence` | `uniform_deviation_tail_bound_separable_of_empirical_le_delta` |
+| `ℓ₂` linear predictors | `LearningTheory/FunctionClass/LinearPredictor/L2` | `linear_predictor_l2_uniform_deviation_tail_bound_delta` |
+| `ℓ₁/ℓ∞` linear predictors | `LearningTheory/FunctionClass/LinearPredictor/L1` | `linear_predictor_l1_uniform_deviation_tail_bound_delta` |
+| feature-map RKHS predictors | `LearningTheory/FunctionClass/KernelPredictor` | `rkhs_uniformDeviation_tail_bound_kernelTrace_delta` |
+| via Dudley's entropy integral | `LearningTheory/Rademacher/Dudley` | `uniform_deviation_tail_bound_separable_of_dudley_delta` |
+| finite hypothesis classes | `LearningTheory/Rademacher/FiniteClass` | `uniform_deviation_tail_bound_finite_of_dudley_quarter_delta` |
+| Lipschitz-parametrized families | `LearningTheory/Rademacher/LipschitzParameter` | `uniform_deviation_tail_bound_lipschitzParameter_dudley_delta` |
+| approximate ERM, excess risk | `LearningTheory/EmpiricalRiskMinimization/Generalization` | `approxERM_excessRisk_tail_bound_separable_of_sample_empirical_le_delta` |
+| the same over an RKHS ball | `LearningTheory/EmpiricalRiskMinimization/KernelPredictor` | `finite_rkhs_approxERM_excessRisk_tail_bound_delta` |
+
+Supporting notions: `empiricalRademacherComplexity` and `rademacherComplexity`
+(`LearningTheory/Rademacher/Defs`), `uniformDeviation`
+(`LearningTheory/UniformDeviation/Defs`), `coveringNumber`
+(`Topology/MetricSpace/CoveringNumber/Basic`), `IsERM` and `excessRisk`
+(`LearningTheory/EmpiricalRiskMinimization/Defs`).
+
 ## Getting started
 
 StatsMLlib is pinned to Lean and Mathlib `v4.33.0`.

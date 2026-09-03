@@ -414,4 +414,51 @@ theorem uniform_deviation_tail_bound_lipschitzParameter_dudley_delta
   · exact hδ
   · exact hδ_one
 
+
+/-! ## Examples
+
+Worked uses of this module's public API. They are elaborated with the library, so they
+double as acceptance tests that these statements stay usable as written.
+-/
+
+/-!
+For a continuously parameterized family $F_t$, $t\in[-W,W]$, satisfying
+
+$$
+|F_t(x)-F_s(x)|\leq L|t-s|,
+$$
+
+an equally spaced grid gives
+
+$$
+N(F,\varepsilon)
+\leq
+\left\lceil\frac{2WL}{\varepsilon}\right\rceil+1.
+$$
+
+Freezing this estimate at the Dudley truncation scale $\alpha$ yields the
+following confidence bound, again with no unevaluated covering number.
+-/
+
+/-- Explicit Dudley generalization bound for a Lipschitz parameter family. -/
+example
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [IsProbabilityMeasure μ]
+    (hn : 0 < n)
+    {W L : ℝ} (hW : 0 ≤ W) (hL : 0 < L)
+    (F : Set.Icc (-W) W → 𝒳 → ℝ)
+    (hF_meas : ∀ t, Measurable (F t))
+    (hF_lip : ∀ t s x, |F t x - F s x| ≤ L * |t.1 - s.1|)
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b c α δ : ℝ} (hb : 0 < b) (hF_bound : ∀ t x, |F t x| ≤ b)
+    (hα : 0 < α) (hαc : α < c / 2)
+    (hNorm : ∀ (S : Fin n → 𝒳) t, empiricalNorm S (F t) ≤ c)
+    (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 * lipschitzParameterDudleyEstimate n W L α c +
+          3 * sampleConfidenceRadius b δ n ≤
+        uniformDeviation n F μ X (X ∘ S)}).toReal ≤ δ := by
+  exact uniform_deviation_tail_bound_lipschitzParameter_dudley_delta
+    hn hW hL F hF_meas hF_lip X hX hb hF_bound
+    hα hαc hNorm hδ hδ_one
+
 end

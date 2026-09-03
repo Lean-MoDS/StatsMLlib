@@ -1990,4 +1990,58 @@ theorem uniform_deviation_tail_bound_separable_of_dudley_delta
       hδ hδ_one
 
 
+
+/-! ## Examples
+
+Worked uses of this module's public API. They are elaborated with the library, so they
+double as acceptance tests that these statements stay usable as written.
+-/
+
+/-!
+## Dudley entropy integral
+
+For
+
+$$
+D_\alpha(F,S)
+=4\alpha+\frac{12}{\sqrt n}
+  \int_\alpha^{c/2}\sqrt{\log N(F\cup(-F),x)}\,dx,
+$$
+
+the entropy route ends in the directly usable statement
+
+$$
+\Pr\!\left\{
+  \operatorname{UD}_n(F;S)
+  \ge 2D_\alpha(F,S)
+    +3b\sqrt{\frac{2\log(2/\delta)}{n}}
+\right\}\le\delta.
+$$
+
+No sample-uniform deterministic upper bound on the entropy integral is
+required in this form.
+-/
+
+/-- Main sample-dependent Dudley entropy-integral example. -/
+example
+    [MeasurableSpace 𝒳] [Nonempty 𝒳]
+    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
+    [IsProbabilityMeasure μ]
+    (F : ι → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b c α : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
+    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
+    (htb : ∀ S : Fin n → 𝒳,
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    (hnorm : ∀ (S : Fin n → 𝒳) (h : ι), empiricalNorm S (F h) ≤ c)
+    {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 * dudleyEntropyEstimate F (X ∘ S) (htb (X ∘ S)) α c +
+        3 * (b * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
+          uniformDeviation n F μ X (X ∘ S)}).toReal ≤ δ := by
+  exact uniform_deviation_tail_bound_separable_of_dudley_delta
+    F hF_meas X hX hb hF_bound hF_cont hn hα hαc
+    htb hnorm hδ hδ_one
+
 end Generalization

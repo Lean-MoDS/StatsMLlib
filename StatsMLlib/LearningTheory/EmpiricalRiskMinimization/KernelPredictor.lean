@@ -165,4 +165,74 @@ theorem finite_rkhs_approxERM_excessRisk_tail_bound_delta
       hC gstar hδ hδ_one
   simpa only [lossClass, predictor, C, Function.comp_apply] using htail
 
+
+/-! ## Examples
+
+Worked uses of this module's public API. They are elaborated with the library, so they
+double as acceptance tests that these statements stay usable as written.
+-/
+
+/-!
+For a finite collection of weights in an RKHS ball, the finite-class
+contraction theorem also connects a centered Lipschitz loss to the kernel
+trace estimate.  If the loss vanishes at zero, then
+
+$$
+\widehat{\mathfrak R}_n(\ell\circ F;S)
+\le
+2L\,\frac{\Lambda}{n}
+\sqrt{\sum_k K(x_k,x_k)}
+$$
+
+Combining this with the approximate-ERM oracle inequality yields an excess
+risk statement.  The finiteness assumption here belongs to the currently
+proved contraction theorem; the RKHS trace estimate itself applies to the
+entire Hilbert ball.
+-/
+
+/-- RKHS, Lipschitz-loss, and approximate-ERM end-to-end example. -/
+example
+    [MeasurableSpace (𝒳 × 𝒴)] [Nonempty (𝒳 × 𝒴)]
+    [IsProbabilityMeasure μ]
+    (hn : 0 < n)
+    (Φ : 𝒳 → E)
+    (Λ r : ℝ) (hΛ : 0 < Λ) (hr : 0 < r)
+    (hdiag : ∀ x, kernelOfFeatureMap Φ x x ≤ r ^ 2)
+    (weights : G → Metric.closedBall (0 : E) Λ)
+    (loss : ℝ → 𝒴 → ℝ)
+    {L b η : ℝ} (hL : 0 ≤ L)
+    (hloss_zero : ∀ y, loss 0 y = 0)
+    (hloss_lip : ∀ y u v, |loss u y - loss v y| ≤ L * |u - v|)
+    (hclass_meas :
+      ∀ g, Measurable
+        (supervisedLossClass
+          (fun g x ↦ rkhsPredictor Φ (weights g) x) loss g))
+    (hb : 0 < b)
+    (hclass_bound :
+      ∀ g z,
+        |supervisedLossClass
+          (fun g x ↦ rkhsPredictor Φ (weights g) x) loss g z| ≤ b)
+    (Z : Ω → 𝒳 × 𝒴) (hZ : Measurable Z)
+    (A : (Fin n → 𝒳 × 𝒴) → G)
+    (hA : ∀ S,
+      IsApproxERM η n
+        (supervisedLossClass
+          (fun g x ↦ rkhsPredictor Φ (weights g) x) loss)
+        S (A S))
+    (gstar : G) {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      4 *
+          (2 * L *
+            (Λ * (n : ℝ)⁻¹ *
+              Real.sqrt
+                (kernelTrace Φ (fun k ↦ (Z (S k)).1)))) +
+          6 * sampleConfidenceRadius b δ n + η ≤
+        excessRisk
+          (supervisedLossClass
+            (fun g x ↦ rkhsPredictor Φ (weights g) x) loss)
+          μ Z (A (Z ∘ S)) gstar}).toReal ≤ δ := by
+  exact finite_rkhs_approxERM_excessRisk_tail_bound_delta
+    hn Φ Λ r hΛ hr hdiag weights loss hL hloss_zero hloss_lip
+    hclass_meas hb hclass_bound Z hZ A hA gstar hδ hδ_one
+
 end
