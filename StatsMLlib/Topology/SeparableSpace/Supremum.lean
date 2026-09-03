@@ -8,8 +8,9 @@ import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.Topology.Order.Lattice
 import Mathlib.Data.Real.Basic
 import Mathlib.Topology.Algebra.Ring.Real
+import Mathlib.MeasureTheory.MeasurableSpace.Basic
 
-universe u v
+universe u v w
 
 open TopologicalSpace
 
@@ -78,3 +79,40 @@ theorem separableSpaceSup_eq_real {X : Type u} [TopologicalSpace X] [SeparableSp
     calc
       _ = 0 := Real.iSup_of_not_bddAbove bdd
       _ = _ := (Real.iSup_of_not_bddAbove this).symm
+
+/--
+Restriction of a family to Mathlib's chosen countable dense sequence.
+
+The definition includes its value, rather than merely introducing a type:
+
+`denseRestriction F = F ∘ denseSeq H`.
+-/
+noncomputable abbrev denseRestriction
+    {H : Type u} {α : Type w}
+    [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
+    (F : H → α) : ℕ → α :=
+  F ∘ denseSeq H
+
+@[simp]
+lemma denseRestriction_apply
+    {H : Type u} {α : Type w}
+    [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
+    (F : H → α) (i : ℕ) :
+    denseRestriction F i = F (denseSeq H i) :=
+  rfl
+
+lemma measurable_denseRestriction_apply
+    {H : Type u} {α : Type w} {β : Type*}
+    [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
+    [MeasurableSpace α] [MeasurableSpace β]
+    {F : H → α → β} (hF : ∀ h, Measurable (F h)) (i : ℕ) :
+    Measurable (denseRestriction F i) :=
+  hF (denseSeq H i)
+
+lemma abs_denseRestriction_le
+    {H : Type u} {α : Type w}
+    [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
+    {F : H → α → ℝ} {b : ℝ}
+    (hF : ∀ h x, |F h x| ≤ b) :
+    ∀ i x, |denseRestriction F i x| ≤ b :=
+  fun i x ↦ hF (denseSeq H i) x
