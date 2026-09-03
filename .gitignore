@@ -8,3 +8,14 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Editor and script backup files. `sed -i.bak` leaves these under StatsMLlib/,
+# where they are invisible to `lake build` (the lakefile globs `.lean` only) and
+# would otherwise ride along into a commit.
+*.bak
+*.bak[0-9]
+
+# Local porting state: the ledger and migration notes for the lean-rademacher
+# port. Working artifacts, not library content. The scripts beside them
+# (gate.sh, decls.sh) are deliberately not ignored.
+/.claude/port/*.md

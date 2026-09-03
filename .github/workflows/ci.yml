@@ -16,3 +16,11 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           check-reservoir-eligibility: true
+          # CONTRIBUTING.md forbids `sorry`, `axiom`, `admit` and `native_decide`,
+          # but nothing enforced it: `sorry` is only a warning, so `lake build`
+          # exits 0 and the job stays green. `axiom-audit` fails the build when a
+          # declaration transitively depends on an axiom outside
+          # `propext,Classical.choice,Quot.sound` — which catches `sorryAx` from
+          # `sorry`/`admit`, the per-declaration axiom `native_decide` introduces,
+          # and any hand-written `axiom`.
+          axiom-audit: true
