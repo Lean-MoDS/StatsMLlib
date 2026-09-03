@@ -136,7 +136,6 @@ theorem uniform_deviation_tail_bound_countable_of_pos
     (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
       (- ε ^ 2 * n / (2 * b ^ 2)).exp := by
   let t := 1 / (2 * b ^ 2)
-  have ht : 0 ≤ t := div_nonneg (by norm_num) (mul_nonneg (by norm_num) (sq_nonneg b))
   have ht' : t * b ^ 2 ≤ 1 / 2 := le_of_eq (by dsimp only [t]; field_simp)
   calc
     _ ≤ (- ε ^ 2 * t * n).exp :=
@@ -232,7 +231,6 @@ theorem uniform_deviation_tail_bound_separable_of_pos
     (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
       (- ε ^ 2 * n / (2 * b ^ 2)).exp := by
   let t := 1 / (2 * b ^ 2)
-  have ht : 0 ≤ t := div_nonneg (by norm_num) (mul_nonneg (by norm_num) (sq_nonneg b))
   have ht' : t * b ^ 2 ≤ 1 / 2 := le_of_eq (by dsimp only [t]; field_simp)
   calc
     _ ≤ (- ε ^ 2 * t * n).exp :=

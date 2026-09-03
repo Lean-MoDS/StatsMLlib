@@ -18,7 +18,7 @@ Two-level design: ENNReal `entropyIntegralENNReal` (canonical) with real wrapper
 
 ## Main definitions
 
-* `metricEntropy` / `metricEntropyENNReal`: log N(ε, s)
+* `metricEntropy`: log N(ε, s)
 * `dudleyIntegrand`: √log N(ε, s) as ENNReal
 * `entropyIntegralENNReal`: ∫₀^D √log N(ε, s) dε (canonical)
 * `entropyIntegral`: Real-valued wrapper via `.toReal`
@@ -397,20 +397,15 @@ lemma sum_shifted_le_two_sum {f : ℕ → ℝ} (hf : ∀ k, 0 ≤ f k) (K : ℕ)
     _ = 2 * ∑ k ∈ Finset.range (K + 2), f k := by ring
 
 /-!
-## ENNReal Metric Entropy and Dudley Integrand
+## Dudley Integrand
 -/
-
-/-- Metric entropy as ENNReal: max(0, log N(ε, s)).
-    This is the non-negative part of the logarithm of the covering number. -/
-def metricEntropyENNReal (eps : ℝ) (s : Set A) : ℝ≥0∞ :=
-  ENNReal.ofReal (metricEntropy eps s)
 
 /-- Dudley integrand: √(log N(ε, s)), as ENNReal.
     This is the integrand for Dudley's entropy integral. -/
 def dudleyIntegrand (eps : ℝ) (s : Set A) : ℝ≥0∞ :=
   ENNReal.ofReal (sqrtEntropy eps s)
 
-lemma dudleyIntegrand_eq_sqrt_metricEntropyENNReal (eps : ℝ) (s : Set A) :
+lemma dudleyIntegrand_eq_ofReal_sqrt_metricEntropy (eps : ℝ) (s : Set A) :
     dudleyIntegrand eps s = ENNReal.ofReal (Real.sqrt (metricEntropy eps s)) := rfl
 
 /-- Dudley integrand is monotone in epsilon (anti-monotone: larger eps → smaller value). -/
