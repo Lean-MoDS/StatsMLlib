@@ -1720,6 +1720,22 @@ lemma coveringNumber_signSymmetrization_le_two_mul
         push_cast
         ring
 omit [Nonempty ι] in
+/-- `ℕ`-valued form of `coveringNumber_signSymmetrization_le_two_mul`, for the
+total-boundedness carrying `coveringNumberNat` that the Dudley estimates use. -/
+lemma coveringNumberNat_signSymmetrization_le_two_mul
+    (h : TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    {ε : ℝ} (hε : 0 < ε) :
+    coveringNumberNat
+        (signSymmetrization_totallyBounded (F := F) (S := S) h) ε ≤
+      2 * coveringNumberNat h ε := by
+  have h' := coveringNumber_signSymmetrization_le_two_mul (F := F) (S := S) h hε
+  rw [← coe_coveringNumberNat
+        (signSymmetrization_totallyBounded (F := F) (S := S) h) hε,
+      ← coe_coveringNumberNat h hε] at h'
+  exact_mod_cast h'
+
+
+omit [Nonempty ι] in
 private lemma abs_apply_le_mul_sqrt_of_empiricalNorm_le
     (m_pos : 0 < m) (cs : ∀ i : ι, empiricalNorm S (F i) ≤ c)
     (i : ι) (j : Fin m) :
