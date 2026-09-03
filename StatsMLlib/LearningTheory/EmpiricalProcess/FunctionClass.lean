@@ -181,9 +181,9 @@ lemma card_empiricalFunctionSpace [Fintype ι] :
     Fintype.card (EmpiricalFunctionSpace F S) = Fintype.card ι :=
   Fintype.card_congr empiricalFunctionSpaceEquiv
 
--- The left-hand side has a variable head, so v4.33 warns that this would be
--- tried on every `simp` step. Upstream marks it `@[simp]` and later modules may
--- rely on that implicitly, so keep the attribute and silence the warning here.
+-- The left-hand side has a variable head, so Lean warns that this would be tried
+-- on every `simp` step. Later modules rely on it firing implicitly, so the
+-- attribute is kept and the warning silenced here rather than dropping it.
 set_option warning.simp.varHead false in
 @[simp] lemma EmpiricalFunctionSpace.coe_apply
     (q : EmpiricalFunctionSpace F S) :

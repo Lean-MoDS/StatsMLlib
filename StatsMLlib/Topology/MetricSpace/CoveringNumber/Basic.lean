@@ -329,8 +329,8 @@ lemma coe_coveringNumberNat {s : Set A} (hs : TotallyBounded s) {eps : ℝ} (hep
   exact WithTop.coe_untop _ _
 
 /-- `ℕ`-valued form of `coveringNumber_le_card_of_cover`, for the total-boundedness
-carrying `coveringNumberNat`. §11-4 states new covering-number results on the canonical
-`coveringNumber` and derives this side through `coe_coveringNumberNat`. -/
+carrying `coveringNumberNat`. Results are stated on the canonical `coveringNumber`;
+this side is derived from them through `coe_coveringNumberNat`. -/
 lemma coveringNumberNat_le_card_of_cover {s : Set A}
     (hs : TotallyBounded s) {eps : ℝ} (heps : 0 < eps) (t : Finset A)
     (ht : s ⊆ ⋃ y ∈ t, Metric.ball y eps) :

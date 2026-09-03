@@ -475,8 +475,8 @@ theorem uniform_deviation_tail_bound_countable_of_sample_empirical_le
         (μ := μ) f hf X hX hb hf' hε
 
 
--- The separable results below are indexed by a topological hypothesis space,
--- which upstream calls `H`; the countable results above use `ι`. They play
+-- The separable results below are indexed by a topological hypothesis space `H`,
+-- while the countable results above use a bare index type `ι`. The two play
 -- different roles, so both names are kept.
 variable {H : Type v}
 
