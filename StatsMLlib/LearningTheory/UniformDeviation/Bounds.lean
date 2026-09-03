@@ -71,7 +71,7 @@ theorem uniform_deviation_mcdiarmid_tail
     [IsProbabilityMeasure μ]
     {X : Ω → 𝒳} (hX : Measurable X)
     (hf : ∀ i, Measurable (f i))
-    {b : ℝ} (hb : 0 ≤ b) (hf': ∀ i x, |f i x| ≤ b)
+    {b : ℝ} (hf': ∀ i x, |f i x| ≤ b)
     {t : ℝ} (ht' : t * b ^ 2 ≤ 1 / 2)
     {ε : ℝ} (hε : 0 ≤ ε) :
     (μⁿ (fun ω : Fin n → Ω ↦ uniformDeviation n f μ X (X ∘ ω) -
@@ -95,7 +95,7 @@ theorem uniform_deviation_mcdiarmid_tail
   have hfX : ∀ i, Measurable (f i ∘ X) := fun i => (hf i).comp hX
   calc
     _ ≤ (-2 * ε ^ 2 * (n * t / 2)).exp :=
-      mcdiarmid_inequality_pos' hX (uniformDeviation_bounded_difference hn X hfX hb hf')
+      mcdiarmid_inequality_pos' hX (uniformDeviation_bounded_difference hn X hfX hf')
         (uniformDeviation_measurable X hf) hε ht'
     _ = _ := congr_arg _ (by ring)
 
@@ -115,7 +115,7 @@ theorem uniform_deviation_tail_bound_countable
     change μⁿ.real _ ≤ 1
     exact measureReal_le_one
   have hn : 0 < n := Nat.pos_of_ne_zero hn
-  apply le_trans _ (uniform_deviation_mcdiarmid_tail (μ := μ) hX hf hb hf' ht' hε)
+  apply le_trans _ (uniform_deviation_mcdiarmid_tail (μ := μ) hX hf hf' ht' hε)
   apply ENNReal.toReal_mono (measure_ne_top _ _)
   apply measure_mono
   intro ω h
