@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 -/
 import StatsMLlib.LearningTheory.EmpiricalProcess.Metric
+import StatsMLlib.LearningTheory.EmpiricalRiskMinimization.Defs
 import StatsMLlib.Probability.Gaussian.Basic
 import Mathlib
 
@@ -122,5 +123,28 @@ lemma RegressionModel.sq_σ_pos (M : RegressionModel n X) : 0 < M.σ ^ 2 :=
 /-- σ is non-negative -/
 lemma RegressionModel.σ_nonneg (M : RegressionModel n X) : 0 ≤ M.σ :=
   le_of_lt M.hσ_pos
+
+/-- Least-squares estimation is empirical risk minimisation.
+
+Appendix B-6 of the porting plan keeps `isLeastSquaresEstimator` as the squared-loss
+specialisation and adds `IsERM` as the general predicate; this is the bridge between
+them.
+
+The bridge lives here rather than beside `IsERM` because `ARCHITECTURE.md` puts
+`LearningTheory` below `Statistics` in the import order, so only this side can see both.
+
+Three gaps are closed in the statement. The general predicate quantifies over a whole
+hypothesis type, so the class `F` is used as one via `↥F`. The general predicate
+normalises by `n⁻¹`, which is positive and so preserves the inequality. And the sample
+is a single family of observations, so the pairs `(x k, y k)` are packaged as one. -/
+theorem isLeastSquaresEstimator.isERM {n : ℕ} {y : Fin n → ℝ} {F : Set (X → ℝ)}
+    {x : Fin n → X} {f_hat : X → ℝ} (h : isLeastSquaresEstimator y F x f_hat) :
+    IsERM n (fun f : ↥F ↦ fun p : X × ℝ ↦ (p.2 - (f : X → ℝ) p.1) ^ 2)
+      (fun k ↦ (x k, y k)) ⟨f_hat, h.1⟩ := by
+  intro f
+  have hle : ∑ k : Fin n, (y k - f_hat (x k)) ^ 2 ≤
+      ∑ k : Fin n, (y k - (f : X → ℝ) (x k)) ^ 2 := h.le_of_mem f.2
+  have hn : (0 : ℝ) ≤ (n : ℝ)⁻¹ := by positivity
+  simpa [empiricalRisk] using mul_le_mul_of_nonneg_left hle hn
 
 end LeastSquares

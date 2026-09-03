@@ -21,7 +21,7 @@ The current second-level organization is:
 ```text
 StatsMLlib/
 ├── Analysis/{MetricEntropy,NormedSpace}
-├── LearningTheory/{EmpiricalProcess,FunctionClass,Rademacher,UniformDeviation}
+├── LearningTheory/{EmpiricalProcess,EmpiricalRiskMinimization,FunctionClass,Rademacher,UniformDeviation}
 ├── LinearAlgebra/Matrix
 ├── MeasureTheory/{Function,Integral,Measure}
 ├── Order
