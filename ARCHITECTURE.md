@@ -59,8 +59,8 @@ In particular:
   log-Sobolev inequalities are under `Probability.Concentration.LogSobolev`;
 - the metric entropy integral is owned by `Analysis.MetricEntropy`, whose
   `entropyIntegralTrunc` is the canonical form; the Dudley bounds in
-  `LearningTheory.Rademacher` and `Probability.Process` state their own spellings and are
-  related back to it by bridging lemmas rather than by redefining it;
+  `LearningTheory.Rademacher` and `Probability.Process` state their own spellings, which
+  are related back to it by bridging lemmas rather than replaced;
 - deterministic matrix spectral theory is under `LinearAlgebra.Matrix`, while random-matrix
   theorems are under `Probability.RandomMatrix`.
 

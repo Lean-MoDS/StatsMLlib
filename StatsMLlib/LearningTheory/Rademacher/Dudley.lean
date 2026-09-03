@@ -1853,6 +1853,26 @@ noncomputable def dudleyEntropyEstimate
           (F := F) (S := S) hTotallyBounded) x)))
 
 /--
+The Dudley entropy estimate written through the canonical truncated entropy integral of
+`Analysis.MetricEntropy`, applied to the sign symmetrization of the class.
+
+This is what keeps `dudleyEntropyEstimate` a packaging of the canonical integral —
+truncation width plus a scaled entropy integral — rather than an independent notion.
+-/
+theorem dudleyEntropyEstimate_eq_entropyIntegralTrunc
+    {n : ℕ} {ι : Type v} {𝒳 : Type*}
+    (F : ι → 𝒳 → ℝ) (S : Fin n → 𝒳)
+    (h : TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    {α c : ℝ} (hα : 0 < α) (hαc : α ≤ c / 2) :
+    dudleyEntropyEstimate F S h α c =
+      4 * α + (12 / Real.sqrt n) *
+        entropyIntegralTrunc
+          (Set.univ : Set (EmpiricalFunctionSpace (signSymmetrization F) S)) α (c / 2) := by
+  unfold dudleyEntropyEstimate
+  rw [entropyIntegralTrunc_eq_intervalIntegral
+    (signSymmetrization_totallyBounded (F := F) (S := S) h) hα hαc]
+
+/--
 Fixed-sample Dudley estimate for absolute empirical Rademacher complexity:
 
 `R̂ₙ(F;S) ≤ Dα(F,S)`.
