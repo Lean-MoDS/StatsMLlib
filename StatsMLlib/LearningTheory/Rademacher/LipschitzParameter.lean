@@ -353,8 +353,8 @@ theorem empiricalRademacherComplexity_le_lipschitzParameterDudleyEstimate
 
 end
 
--- §0.3 merges upstream's fixed-sample module and its generalization module
--- into this one; the declarations below come from the second.
+-- The declarations below carry the fixed-sample entropy bound above into
+-- generalization bounds.
 
 /-!
 # Generalization bounds for one-dimensional Lipschitz families

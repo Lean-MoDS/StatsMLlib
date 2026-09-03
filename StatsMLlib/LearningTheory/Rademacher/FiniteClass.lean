@@ -170,8 +170,8 @@ theorem empiricalRademacherComplexity_le_finiteClassDudleyEstimate_quarter
 
 end
 
--- §0.3 merges upstream's fixed-sample module and its generalization module
--- into this one; the declarations below come from the second.
+-- The declarations below carry the fixed-sample entropy bound above into
+-- generalization bounds.
 
 /-!
 # Generalization bounds from explicit finite-class entropy

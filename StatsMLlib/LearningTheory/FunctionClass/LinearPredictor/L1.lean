@@ -884,10 +884,9 @@ theorem linear_predictor_l1_empirical_bound
         (d := d) (n := n) (Xinf := Xinf) (W := W)
         hX hW d_pos n_pos S id
 
--- Upstream keeps the fixed-sample estimates and the generalization bounds in two
--- modules with separate preambles; §0.3 merges them here. This section supplies
--- what the second one needs: the sample index implicit rather than explicit, the
--- probability space, and the product-measure notation.
+-- The generalization bounds below need a different context from the fixed-sample
+-- estimates above: the sample index implicit rather than explicit, a probability
+-- space, and the product-measure notation.
 section Generalization
 
 universe u

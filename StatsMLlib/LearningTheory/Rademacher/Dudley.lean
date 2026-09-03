@@ -1658,10 +1658,9 @@ omit [Nonempty ι] in
 Adjoining pointwise negatives increases a positive-radius covering number by
 at most a factor of two.
 
-Stated on StatsMLlib's canonical `coveringNumber`, which takes no total-boundedness
-proof term and lands in `WithTop ℕ`; §11-4 requires new covering-number results to be
-phrased there rather than on `coveringNumberNat`. Total boundedness is still needed to
-produce an optimal net, so it stays as a hypothesis.
+Stated on the canonical `coveringNumber`, which takes no total-boundedness proof term
+and lands in `WithTop ℕ`; the `coveringNumberNat` form is derived from it below. Total
+boundedness is still needed to produce an optimal net, so it stays as a hypothesis.
 -/
 lemma coveringNumber_signSymmetrization_le_two_mul
     (h : TotallyBounded
@@ -1798,9 +1797,8 @@ theorem dudley_entropy_integral_abs_of_neg_closed {ε : ℝ}
     (mul_nonneg (le_of_lt c_pos) (Real.sqrt_nonneg _)) hsample hneg]
   exact dudley_entropy_integral' ε_pos h' m_pos cs ε_le_c_div_2
 
--- Upstream keeps the entropy-integral bound and its generalization consequences in
--- two modules with separate preambles; §0.3 merges them here. This section carries
--- the second one's context.
+-- The generalization consequences of the entropy-integral bound need a probability
+-- space and the product-measure notation, which this section supplies.
 section Generalization
 
 universe w

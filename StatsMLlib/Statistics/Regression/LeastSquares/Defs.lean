@@ -126,9 +126,8 @@ lemma RegressionModel.σ_nonneg (M : RegressionModel n X) : 0 ≤ M.σ :=
 
 /-- Least-squares estimation is empirical risk minimisation.
 
-Appendix B-6 of the porting plan keeps `isLeastSquaresEstimator` as the squared-loss
-specialisation and adds `IsERM` as the general predicate; this is the bridge between
-them.
+`isLeastSquaresEstimator` is the squared-loss specialisation of the general predicate
+`IsERM`; this is the bridge between them.
 
 The bridge lives here rather than beside `IsERM` because `ARCHITECTURE.md` puts
 `LearningTheory` below `Statistics` in the import order, so only this side can see both.
