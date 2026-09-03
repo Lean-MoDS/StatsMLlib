@@ -6,6 +6,7 @@ Authors: Kei Tsukamoto, Kazumi Kasaura, Naoto Onda, Yuma Mizuno, Sho Sonoda
 import StatsMLlib.LearningTheory.Rademacher.Defs
 import StatsMLlib.LearningTheory.EmpiricalProcess.FunctionClass
 import StatsMLlib.LearningTheory.Rademacher.Massart
+import StatsMLlib.Analysis.MetricEntropy.Basic
 import StatsMLlib.LearningTheory.UniformDeviation.Confidence
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 import Mathlib.Analysis.InnerProductSpace.PiL2
@@ -1595,6 +1596,26 @@ theorem dudley_entropy_integral_bound
         ∫ x : ℝ in ε..(c / 2), √(Real.log (coveringNumberNat h' x)) := by
   exact dudley_entropy_integral' ε_pos h' n_pos cs ε_le_c_div_2
 
+/--
+The Dudley entropy bound with its integral written as the canonical truncated entropy
+integral of `Analysis.MetricEntropy`, rather than as an explicit integral of
+`√(log N(·))`.
+
+`entropyIntegralTrunc` is the library's entropy integral; this states the same bound in
+those terms, so that results phrased either way can be compared without unfolding.
+-/
+theorem dudley_entropy_integral_bound_entropyIntegralTrunc
+    {Z : Type v} {n : ℕ} {ι : Type u} [Nonempty ι]
+    {F : ι → Z → ℝ} {S : Fin n → Z} {c ε : ℝ}
+    (ε_pos : 0 < ε) (h' : TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    (n_pos : 0 < n) (cs : ∀ f : ι, empiricalNorm S (F f) ≤ c)
+    (ε_le_c_div_2 : ε < c / 2) :
+    empiricalRademacherComplexity_without_abs n F S ≤
+      4 * ε + (12 / Real.sqrt n) *
+        entropyIntegralTrunc (Set.univ : Set (EmpiricalFunctionSpace F S)) ε (c / 2) := by
+  rw [entropyIntegralTrunc_eq_intervalIntegral h' ε_pos ε_le_c_div_2.le]
+  exact dudley_entropy_integral_bound ε_pos h' n_pos cs ε_le_c_div_2
+
 private def signSymmetrizationPosMap :
     EmpiricalFunctionSpace F S →
       EmpiricalFunctionSpace (signSymmetrization F) S :=
@@ -1830,6 +1851,26 @@ noncomputable def dudleyEntropyEstimate
       Real.sqrt (Real.log (coveringNumberNat
         (signSymmetrization_totallyBounded
           (F := F) (S := S) hTotallyBounded) x)))
+
+/--
+The Dudley entropy estimate written through the canonical truncated entropy integral of
+`Analysis.MetricEntropy`, applied to the sign symmetrization of the class.
+
+This is what keeps `dudleyEntropyEstimate` a packaging of the canonical integral —
+truncation width plus a scaled entropy integral — rather than an independent notion.
+-/
+theorem dudleyEntropyEstimate_eq_entropyIntegralTrunc
+    {n : ℕ} {ι : Type v} {𝒳 : Type*}
+    (F : ι → 𝒳 → ℝ) (S : Fin n → 𝒳)
+    (h : TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    {α c : ℝ} (hα : 0 < α) (hαc : α ≤ c / 2) :
+    dudleyEntropyEstimate F S h α c =
+      4 * α + (12 / Real.sqrt n) *
+        entropyIntegralTrunc
+          (Set.univ : Set (EmpiricalFunctionSpace (signSymmetrization F) S)) α (c / 2) := by
+  unfold dudleyEntropyEstimate
+  rw [entropyIntegralTrunc_eq_intervalIntegral
+    (signSymmetrization_totallyBounded (F := F) (S := S) h) hα hαc]
 
 /--
 Fixed-sample Dudley estimate for absolute empirical Rademacher complexity:
