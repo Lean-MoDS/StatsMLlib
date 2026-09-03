@@ -6,6 +6,9 @@ Authors: Kei Tsukamoto, Kazumi Kasaura, Naoto Onda, Yuma Mizuno, Sho Sonoda
 import StatsMLlib.LearningTheory.Rademacher.Symmetrization
 import StatsMLlib.LearningTheory.Rademacher.Signs
 import Mathlib.Analysis.InnerProductSpace.PiL2
+import StatsMLlib.LearningTheory.FunctionClass.HilbertPredictor
+import StatsMLlib.LearningTheory.UniformDeviation.Confidence
+import StatsMLlib.LearningTheory.Rademacher.Reindex
 
 /-!
 # Rademacher Complexity of L2 Linear Predictors
@@ -374,3 +377,302 @@ theorem linear_predictor_l2_bound
       n (fun (i : ι) a ↦ ⟪((Subtype.val ∘ w') i), a⟫) (Subtype.val ∘ Y') ≤
     X * W / √(n : ℝ) := by
   exact linear_predictor_l2_bound' (d := d) (n := n) (W := W) (X := X) hx hw Y' w'
+
+/-- Linear prediction with both the weight and input restricted to closed Euclidean balls. -/
+noncomputable def linearPredictorL2
+    {d : ℕ} {W X : ℝ}
+    (w : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W)
+    (x : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) : ℝ :=
+  ⟪(w : EuclideanSpace ℝ (Fin d)), (x : EuclideanSpace ℝ (Fin d))⟫
+
+lemma continuous_linearPredictorL2_weight
+    {d : ℕ} {W X : ℝ}
+    (x : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :
+    Continuous fun w : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W ↦
+      linearPredictorL2 w x := by
+  unfold linearPredictorL2
+  fun_prop
+
+lemma continuous_linearPredictorL2_input
+    {d : ℕ} {W X : ℝ}
+    (w : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :
+    Continuous fun x : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X ↦
+      linearPredictorL2 w x := by
+  unfold linearPredictorL2
+  fun_prop
+
+/-- Pointwise boundedness needed by the generalization theorem. -/
+lemma abs_linearPredictorL2_le
+    {d : ℕ} {W X : ℝ} (hW : 0 ≤ W)
+    (w : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W)
+    (x : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :
+    |linearPredictorL2 w x| ≤ X * W := by
+  calc
+    |linearPredictorL2 w x|
+        ≤ ‖(w : EuclideanSpace ℝ (Fin d))‖ *
+            ‖(x : EuclideanSpace ℝ (Fin d))‖ := by
+          exact abs_real_inner_le_norm
+            (w : EuclideanSpace ℝ (Fin d)) (x : EuclideanSpace ℝ (Fin d))
+    _ ≤ W * X := by
+      apply mul_le_mul
+      · exact mem_closedBall_zero_iff.mp w.property
+      · exact mem_closedBall_zero_iff.mp x.property
+      · exact norm_nonneg (x : EuclideanSpace ℝ (Fin d))
+      · exact hW
+    _ = X * W := mul_comm W X
+
+/--
+Sample-dependent empirical Rademacher-complexity bound for the full class of
+`ℓ₂`-bounded linear predictors.
+-/
+theorem linear_predictor_l2_empirical_bound_of_sample
+    (d n : ℕ) (W X : ℝ) (hW : 0 ≤ W)
+    (S : Fin n → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :
+    empiricalRademacherComplexity n
+        (linearPredictorL2 :
+          Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ) S
+      ≤ W * (n : ℝ)⁻¹ *
+        Real.sqrt
+          (∑ k : Fin n, ‖(S k : EuclideanSpace ℝ (Fin d))‖ ^ 2) := by
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :=
+    (Metric.nonempty_closedBall.mpr hW).to_subtype
+  change empiricalRademacherComplexity n
+    (fun (w : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W)
+        (x : Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) ↦
+      ⟪(w : EuclideanSpace ℝ (Fin d)), (x : EuclideanSpace ℝ (Fin d))⟫) S
+      ≤ W * (n : ℝ)⁻¹ *
+        Real.sqrt
+          (∑ k : Fin n, ‖(S k : EuclideanSpace ℝ (Fin d))‖ ^ 2)
+  rw [empiricalRademacherComplexity_comp]
+  exact hilbertPredictor_empiricalRademacherComplexity_le
+    (H := EuclideanSpace ℝ (Fin d)) W hW (Subtype.val ∘ S)
+
+/--
+Empirical Rademacher-complexity bound for the full class of `ℓ₂`-bounded
+linear predictors on an `ℓ₂`-bounded input space.
+-/
+theorem linear_predictor_l2_empirical_bound
+    (d n : ℕ) (W X : ℝ) (hX : 0 ≤ X) (hW : 0 ≤ W)
+    (S : Fin n → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :
+    empiricalRademacherComplexity n
+        (linearPredictorL2 :
+          Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ) S
+      ≤ X * W / Real.sqrt (n : ℝ) := by
+  calc
+    empiricalRademacherComplexity n
+        (linearPredictorL2 :
+          Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ) S ≤
+        W * (n : ℝ)⁻¹ *
+          Real.sqrt
+            (∑ k : Fin n,
+              ‖(S k : EuclideanSpace ℝ (Fin d))‖ ^ 2) :=
+      linear_predictor_l2_empirical_bound_of_sample d n W X hW S
+    _ ≤ W * (n : ℝ)⁻¹ * Real.sqrt (∑ _k : Fin n, X ^ 2) := by
+      gcongr with k
+      exact mem_closedBall_zero_iff.mp (S k).property
+    _ = W * (n : ℝ)⁻¹ * Real.sqrt ((n : ℝ) * X ^ 2) := by simp
+    _ = W * (n : ℝ)⁻¹ * (Real.sqrt (n : ℝ) * X) := by
+      rw [Real.sqrt_mul (Nat.cast_nonneg n), Real.sqrt_sq_eq_abs,
+        abs_of_nonneg hX]
+    _ = X * W / Real.sqrt (n : ℝ) := by
+      by_cases hn : 0 < n
+      · have hsqrt : Real.sqrt (n : ℝ) ≠ 0 := by positivity
+        field_simp [hsqrt]
+        rw [Real.sq_sqrt (Nat.cast_nonneg n)]
+      · have hn0 : n = 0 := Nat.eq_zero_of_not_pos hn
+        subst n
+        simp
+
+-- Upstream keeps the fixed-sample estimates and the generalization bounds in two
+-- modules with separate preambles; §0.3 merges them here. This section supplies what
+-- the second one needs: the sample index implicit rather than explicit, the
+-- probability space, and the product-measure notation.
+section Generalization
+
+universe u
+
+open MeasureTheory ProbabilityTheory
+
+variable {n : ℕ}
+variable {Ω : Type u} [MeasurableSpace Ω] {μ : Measure Ω}
+
+set_option hygiene false in
+local notation "μⁿ" => Measure.pi (fun _ ↦ μ)
+
+/--
+Expected Rademacher-complexity bound for the full `ℓ₂`-bounded linear class:
+
+`Rₙ(F₂,W; μ) ≤ X * W / √n`.
+-/
+theorem linear_predictor_l2_rademacher_complexity_bound
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (W X : ℝ) (hX : 0 ≤ X) (hW : 0 ≤ W)
+    (Z : Ω → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X)
+    (hZ : Measurable Z) :
+    rademacherComplexity n
+        (linearPredictorL2 :
+          Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+        μ Z
+      ≤ X * W / Real.sqrt (n : ℝ) := by
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :=
+    (Metric.nonempty_closedBall.mpr hW).to_subtype
+  apply rademacherComplexity_le_of_empirical_le_separable
+    (F := linearPredictorL2) (X := Z)
+  · intro w
+    exact (continuous_linearPredictorL2_input w).measurable.comp hZ
+  · exact mul_nonneg hX hW
+  · exact fun w x ↦ abs_linearPredictorL2_le hW w x
+  · exact continuous_linearPredictorL2_weight
+  · exact linear_predictor_l2_empirical_bound d n W X hX hW
+
+/--
+Expected uniform-deviation bound for the full `ℓ₂`-bounded linear class:
+
+`𝔼[UDₙ] ≤ 2 * X * W / √n`.
+-/
+theorem linear_predictor_l2_uniform_deviation_expectation_bound
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (W X : ℝ) (hn : 0 < n) (hX : 0 ≤ X) (hW : 0 ≤ W)
+    (Z : Ω → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X)
+    (hZ : Measurable Z) :
+    μⁿ[fun S : Fin n → Ω ↦
+      uniformDeviation n
+        (linearPredictorL2 :
+          Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+        μ Z (Z ∘ S)]
+      ≤ 2 * (X * W / Real.sqrt (n : ℝ)) := by
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :=
+    (Metric.nonempty_closedBall.mpr hW).to_subtype
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
+    (Metric.nonempty_closedBall.mpr hX).to_subtype
+  apply uniform_deviation_expectation_le_of_empirical_le_separable
+    (F := linearPredictorL2) hn
+  · exact fun w ↦ (continuous_linearPredictorL2_input w).measurable
+  · exact hZ
+  · exact mul_nonneg hX hW
+  · exact fun w x ↦ abs_linearPredictorL2_le hW w x
+  · exact continuous_linearPredictorL2_weight
+  · exact linear_predictor_l2_empirical_bound d n W X hX hW
+
+/--
+High-probability `ε`-form bound for the full `ℓ₂` linear class:
+
+`Pr{UDₙ ≥ 2 X W / √n + ε} ≤ exp (-n ε² / (2 (X W)²))`.
+-/
+theorem linear_predictor_l2_uniform_deviation_tail_bound
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (W X : ℝ) (_hn : 0 < n) (hX : 0 < X) (hW : 0 < W)
+    (Z : Ω → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X)
+    (hZ : Measurable Z) {ε : ℝ} (hε : 0 ≤ ε) :
+    (μⁿ {S |
+      2 * (X * W / Real.sqrt (n : ℝ)) + ε ≤
+        uniformDeviation n
+          (linearPredictorL2 :
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+              Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+          μ Z (Z ∘ S)}).toReal
+      ≤ (-ε ^ 2 * n / (2 * (X * W) ^ 2)).exp := by
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :=
+    (Metric.nonempty_closedBall.mpr hW.le).to_subtype
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
+    (Metric.nonempty_closedBall.mpr hX.le).to_subtype
+  apply uniform_deviation_tail_bound_separable_of_empirical_le
+    (F := linearPredictorL2)
+  · exact fun w ↦ (continuous_linearPredictorL2_input w).measurable
+  · exact hZ
+  · exact mul_pos hX hW
+  · exact fun w x ↦ abs_linearPredictorL2_le hW.le w x
+  · exact continuous_linearPredictorL2_weight
+  · exact linear_predictor_l2_empirical_bound d n W X hX.le hW.le
+  · exact hε
+
+/--
+End-to-end confidence bound for the full `ℓ₂`-bounded linear class:
+
+`Pr{UDₙ ≥ 2 X W / √n + X W √(2 log(1/δ)/n)} ≤ δ`.
+
+The first term is the Rademacher-complexity contribution and the second is
+the concentration contribution.
+-/
+theorem linear_predictor_l2_uniform_deviation_tail_bound_delta
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (W X : ℝ) (hn : 0 < n) (hX : 0 < X) (hW : 0 < W)
+    (Z : Ω → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X)
+    (hZ : Measurable Z) {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 * (X * W / Real.sqrt (n : ℝ)) +
+          (X * W) * Real.sqrt (2 * Real.log (1 / δ) / n) ≤
+        uniformDeviation n
+          (linearPredictorL2 :
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+              Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+          μ Z (Z ∘ S)}).toReal ≤ δ := by
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :=
+    (Metric.nonempty_closedBall.mpr hW.le).to_subtype
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
+    (Metric.nonempty_closedBall.mpr hX.le).to_subtype
+  apply uniform_deviation_tail_bound_separable_of_empirical_le_delta
+    (μ := μ) hn (F := linearPredictorL2)
+  · exact fun w ↦ (continuous_linearPredictorL2_input w).measurable
+  · exact hZ
+  · exact mul_pos hX hW
+  · exact fun w x ↦ abs_linearPredictorL2_le hW.le w x
+  · exact continuous_linearPredictorL2_weight
+  · exact linear_predictor_l2_empirical_bound d n W X hX.le hW.le
+  · exact hδ
+  · exact hδ_one
+
+/--
+Sample-dependent end-to-end confidence bound for the full `ℓ₂` class:
+
+`Pr{UDₙ ≥ (2W/n) √(∑ₖ ‖Zₖ‖²)
+    + 3 X W √(2 log(2/δ)/n)} ≤ δ`.
+
+The empirical norm sum is retained instead of being replaced by `n X²`.
+-/
+theorem linear_predictor_l2_uniform_deviation_tail_bound_of_sample_delta
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (W X : ℝ) (hn : 0 < n) (hX : 0 < X) (hW : 0 < W)
+    (Z : Ω → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X)
+    (hZ : Measurable Z) {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 *
+          (W * (n : ℝ)⁻¹ *
+            Real.sqrt
+              (∑ k : Fin n,
+                ‖(Z (S k) : EuclideanSpace ℝ (Fin d))‖ ^ 2)) +
+        3 * ((X * W) * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
+          uniformDeviation n
+            (linearPredictorL2 :
+              Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+                Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+            μ Z (Z ∘ S)}).toReal ≤ δ := by
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :=
+    (Metric.nonempty_closedBall.mpr hW.le).to_subtype
+  let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
+    (Metric.nonempty_closedBall.mpr hX.le).to_subtype
+  have htail :=
+    uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+      (μ := μ) (n := n) hn
+      (linearPredictorL2 :
+        Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+          Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+      (fun w ↦ (continuous_linearPredictorL2_input w).measurable)
+      Z hZ
+      (fun S ↦
+        W * (n : ℝ)⁻¹ *
+          Real.sqrt
+            (∑ k : Fin n, ‖(S k : EuclideanSpace ℝ (Fin d))‖ ^ 2))
+      (mul_pos hX hW)
+      (fun w x ↦ abs_linearPredictorL2_le hW.le w x)
+      continuous_linearPredictorL2_weight
+      (linear_predictor_l2_empirical_bound_of_sample d n W X hW.le)
+      hδ hδ_one
+  simpa only [Function.comp_apply] using htail
+
+end Generalization
