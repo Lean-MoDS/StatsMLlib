@@ -62,6 +62,31 @@ lemma coveringNumber_le_card {A : Type*} [PseudoMetricSpace A] {t : Finset A} {e
     ⟨t, h, rfl⟩
   simpa using (sInf_le this)
 
+/-- An explicit finite open-ball cover bounds the covering number by its cardinality.
+
+`coveringNumber_le_card` asks for an `IsENet`, which is phrased with closed balls; a
+cover by open balls of the same radius is a stronger hypothesis, so it is often the one
+available at a use site. -/
+lemma coveringNumber_le_card_of_cover {A : Type*} [PseudoMetricSpace A] {t : Finset A} {eps : ℝ} {s : Set A}
+    (ht : s ⊆ ⋃ y ∈ t, Metric.ball y eps) :
+    coveringNumber eps s ≤ (t.card : WithTop ℕ) := by
+  refine coveringNumber_le_card ?_
+  intro x hx
+  obtain ⟨y, hy, hxy⟩ := by simpa only [Set.mem_iUnion] using ht hx
+  simp only [Set.mem_iUnion]
+  exact ⟨y, hy, Metric.ball_subset_closedBall hxy⟩
+
+/-- Every subset of a finite pseudometric space is covered by taking all of its points
+as centres, so its covering number is at most the cardinality of the type. -/
+lemma coveringNumber_le_fintype_card {A : Type*} [PseudoMetricSpace A] [Fintype A] {eps : ℝ} (heps : 0 < eps) (s : Set A) :
+    coveringNumber eps s ≤ (Fintype.card A : WithTop ℕ) := by
+  classical
+  refine le_trans (coveringNumber_le_card (t := Finset.univ) ?_) ?_
+  · intro x _
+    simp only [Set.mem_iUnion]
+    exact ⟨x, Finset.mem_univ x, by simpa using heps.le⟩
+  · simp [Finset.card_univ]
+
 lemma coveringNumber_empty {A : Type*} [PseudoMetricSpace A] (eps : ℝ) :
     coveringNumber eps (∅ : Set A) = 0 := by
   refine le_antisymm ?upper ?lower
@@ -302,6 +327,25 @@ lemma coe_coveringNumberNat {s : Set A} (hs : TotallyBounded s) {eps : ℝ} (hep
     (coveringNumberNat hs eps : WithTop ℕ) = coveringNumber eps s := by
   simp only [coveringNumberNat, dif_pos heps]
   exact WithTop.coe_untop _ _
+
+/-- `ℕ`-valued form of `coveringNumber_le_card_of_cover`, for the total-boundedness
+carrying `coveringNumberNat`. §11-4 states new covering-number results on the canonical
+`coveringNumber` and derives this side through `coe_coveringNumberNat`. -/
+lemma coveringNumberNat_le_card_of_cover {s : Set A}
+    (hs : TotallyBounded s) {eps : ℝ} (heps : 0 < eps) (t : Finset A)
+    (ht : s ⊆ ⋃ y ∈ t, Metric.ball y eps) :
+    coveringNumberNat hs eps ≤ t.card := by
+  have h := coveringNumber_le_card_of_cover ht
+  rw [← coe_coveringNumberNat hs heps] at h
+  exact_mod_cast h
+
+/-- `ℕ`-valued form of `coveringNumber_le_fintype_card`. -/
+lemma coveringNumberNat_le_fintype_card [Fintype A] {s : Set A}
+    (hs : TotallyBounded s) {eps : ℝ} (heps : 0 < eps) :
+    coveringNumberNat hs eps ≤ Fintype.card A := by
+  have h := coveringNumber_le_fintype_card heps s
+  rw [← coe_coveringNumberNat hs heps] at h
+  exact_mod_cast h
 
 /-- The natural-valued covering number is antitone on positive radii. -/
 theorem coveringNumber_antitone {s : Set A} (hs : TotallyBounded s) :
