@@ -44,7 +44,7 @@ theorem uniform_deviation_expectation_le_two_smul_rademacher_complexity
     (hn : 0 < n) (X : Ω → 𝒳)
     (hf : ∀ i, Measurable (f i ∘ X))
     {b : ℝ} (hb : 0 ≤ b) (hf' : ∀ i x, |f i x| ≤ b) :
-    μⁿ[fun ω : Fin n → Ω ↦ uniformDeviation n f μ X (X ∘ ω)] ≤ 2 • rademacherComplexity n f μ X := by
+    μⁿ[fun ω : Fin n → Ω ↦ uniformDeviation n f μ X (X ∘ ω)] ≤ 2 * rademacherComplexity n f μ X := by
   apply le_of_mul_le_mul_left _ (Nat.cast_pos.mpr hn)
   calc
     (n : ℝ) * μⁿ[fun ω : Fin n → Ω ↦ uniformDeviation n f μ X (X ∘ ω)] =
@@ -61,7 +61,7 @@ theorem uniform_deviation_expectation_le_two_smul_rademacher_complexity
       field_simp
     _ ≤ (2 * n) • rademacherComplexity n f μ X :=
       expectation_le_rademacher (μ := μ) (n := n) hf hb hf'
-    _ = (n : ℝ) * (2 • rademacherComplexity n f μ X) := by
+    _ = (n : ℝ) * (2 * rademacherComplexity n f μ X) := by
       simp only [nsmul_eq_mul, Nat.cast_mul, Nat.cast_ofNat]
       ring
 
@@ -107,7 +107,7 @@ theorem uniform_deviation_tail_bound_countable
     {b : ℝ} (hb : 0 ≤ b) (hf' : ∀ i x, |f i x| ≤ b)
     {t : ℝ} (ht' : t * b ^ 2 ≤ 1 / 2)
     {ε : ℝ} (hε : 0 ≤ ε) :
-    (μⁿ (fun ω ↦ 2 • rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
+    (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
       (- ε ^ 2 * t * n).exp := by
   by_cases hn : n = 0
   · subst n
@@ -119,8 +119,8 @@ theorem uniform_deviation_tail_bound_countable
   apply ENNReal.toReal_mono (measure_ne_top _ _)
   apply measure_mono
   intro ω h
-  have : 2 • rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω) := h
-  have : μⁿ[fun ω ↦ uniformDeviation n f μ X (X ∘ ω)] ≤ 2 • rademacherComplexity n f μ X :=
+  have : 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω) := h
+  have : μⁿ[fun ω ↦ uniformDeviation n f μ X (X ∘ ω)] ≤ 2 * rademacherComplexity n f μ X :=
     uniform_deviation_expectation_le_two_smul_rademacher_complexity hn X (fun i ↦ (hf i).comp hX) hb hf'
   show ε ≤ uniformDeviation n f μ X (X ∘ ω) - μⁿ[fun ω ↦ uniformDeviation n f μ X (X ∘ ω)]
   linarith
@@ -132,7 +132,7 @@ theorem uniform_deviation_tail_bound_countable_of_pos
     (X : Ω → 𝒳) (hX : Measurable X)
     {b : ℝ} (hb : 0 < b) (hf' : ∀ i x, |f i x| ≤ b)
     {ε : ℝ} (hε : 0 ≤ ε) :
-    (μⁿ (fun ω ↦ 2 • rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
+    (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
       (- ε ^ 2 * n / (2 * b ^ 2)).exp := by
   let t := 1 / (2 * b ^ 2)
   have ht : 0 ≤ t := div_nonneg (by norm_num) (mul_nonneg (by norm_num) (sq_nonneg b))
@@ -203,11 +203,11 @@ theorem uniform_deviation_tail_bound_separable
     (hf'' : ∀ x : 𝒳, Continuous fun i ↦ f i x)
     {t : ℝ} (ht' : t * b ^ 2 ≤ 1 / 2)
     {ε : ℝ} (hε : 0 ≤ ε) :
-    (μⁿ (fun ω ↦ 2 • rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
+    (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
       (- ε ^ 2 * t * n).exp := by
   let f' := f ∘ denseSeq ι
   calc
-    _ = (μⁿ (fun ω ↦ 2 • rademacherComplexity n f' μ X + ε ≤ uniformDeviation n f' μ X (X ∘ ω))).toReal := by
+    _ = (μⁿ (fun ω ↦ 2 * rademacherComplexity n f' μ X + ε ≤ uniformDeviation n f' μ X (X ∘ ω))).toReal := by
       congr
       ext ω
       rw [RademacherComplexity_eq n f hf'' μ X]
@@ -228,7 +228,7 @@ theorem uniform_deviation_tail_bound_separable_of_pos
     {b : ℝ} (hb : 0 < b) (hf' : ∀ i x, |f i x| ≤ b)
     (hf'' : ∀ x : 𝒳, Continuous fun i ↦ f i x)
     {ε : ℝ} (hε : 0 ≤ ε) :
-    (μⁿ (fun ω ↦ 2 • rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
+    (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
       (- ε ^ 2 * n / (2 * b ^ 2)).exp := by
   let t := 1 / (2 * b ^ 2)
   have ht : 0 ≤ t := div_nonneg (by norm_num) (mul_nonneg (by norm_num) (sq_nonneg b))
