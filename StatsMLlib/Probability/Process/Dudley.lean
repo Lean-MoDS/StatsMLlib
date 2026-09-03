@@ -68,7 +68,9 @@ lemma sup_subtype_eq_iSup_denseSeq {s : Set A} (hs : TotallyBounded s) (hsne : s
     ⨆ (t : ↥s), f t.1 = ⨆ n : ℕ, f (denseSeqInTB hs hsne n).1 := by
   let : Nonempty (↥s) := hsne.to_subtype
   let : SeparableSpace (↥s) := hs.isSeparable.separableSpace
-  unfold denseSeqInTB
+  rw [show (fun n : ℕ ↦ f (denseSeqInTB hs hsne n).1)
+        = denseRestriction (fun t : ↥s ↦ f t.1) from
+      denseSeqInTB_eq_denseRestriction hs hsne (fun t : ↥s ↦ f t.1)]
   exact separableSpaceSup_eq_denseRestriction hcont
 
 omit [MeasurableSpace Ω] in
