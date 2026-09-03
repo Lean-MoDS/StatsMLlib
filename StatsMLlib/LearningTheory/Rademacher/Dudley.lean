@@ -6,6 +6,7 @@ Authors: Kei Tsukamoto, Kazumi Kasaura, Naoto Onda, Yuma Mizuno, Sho Sonoda
 import StatsMLlib.LearningTheory.Rademacher.Defs
 import StatsMLlib.LearningTheory.EmpiricalProcess.FunctionClass
 import StatsMLlib.LearningTheory.Rademacher.Massart
+import StatsMLlib.LearningTheory.UniformDeviation.Confidence
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Algebra.Order.Group.CompleteLattice
@@ -1593,3 +1594,386 @@ theorem dudley_entropy_integral_bound
       4 * ε + (12 / Real.sqrt n) *
         ∫ x : ℝ in ε..(c / 2), √(Real.log (coveringNumberNat h' x)) := by
   exact dudley_entropy_integral' ε_pos h' n_pos cs ε_le_c_div_2
+
+private def signSymmetrizationPosMap :
+    EmpiricalFunctionSpace F S →
+      EmpiricalFunctionSpace (signSymmetrization F) S :=
+  fun q ↦ ⟨(q.index, true)⟩
+
+private def signSymmetrizationNegMap :
+    EmpiricalFunctionSpace F S →
+      EmpiricalFunctionSpace (signSymmetrization F) S :=
+  fun q ↦ ⟨(q.index, false)⟩
+
+omit [Nonempty ι] in
+private lemma signSymmetrizationPosMap_isometry :
+    Isometry (signSymmetrizationPosMap (F := F) (S := S)) := by
+  apply Isometry.of_dist_eq
+  intro q r
+  rfl
+
+omit [Nonempty ι] in
+private lemma signSymmetrizationNegMap_isometry :
+    Isometry (signSymmetrizationNegMap (F := F) (S := S)) := by
+  apply Isometry.of_dist_eq
+  intro q r
+  exact empiricalDist_neg_neg S (F q.index) (F r.index)
+
+omit [Nonempty ι] in
+/-- Total boundedness is preserved when a class is enlarged by all of its negatives. -/
+theorem signSymmetrization_totallyBounded
+    (h : TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S))) :
+    TotallyBounded
+      (Set.univ : Set (EmpiricalFunctionSpace (signSymmetrization F) S)) := by
+  have hpos :
+      TotallyBounded
+        (signSymmetrizationPosMap (F := F) (S := S) ''
+          (Set.univ : Set (EmpiricalFunctionSpace F S))) :=
+    h.image signSymmetrizationPosMap_isometry.uniformContinuous
+  have hneg :
+      TotallyBounded
+        (signSymmetrizationNegMap (F := F) (S := S) ''
+          (Set.univ : Set (EmpiricalFunctionSpace F S))) :=
+    h.image signSymmetrizationNegMap_isometry.uniformContinuous
+  rw [show
+    (Set.univ : Set (EmpiricalFunctionSpace (signSymmetrization F) S)) =
+      signSymmetrizationPosMap (F := F) (S := S) ''
+          (Set.univ : Set (EmpiricalFunctionSpace F S)) ∪
+        signSymmetrizationNegMap (F := F) (S := S) ''
+          (Set.univ : Set (EmpiricalFunctionSpace F S)) by
+    ext q
+    constructor
+    · intro _
+      rcases q with ⟨⟨i, b⟩⟩
+      cases b
+      · right
+        exact ⟨⟨i⟩, Set.mem_univ _, rfl⟩
+      · left
+        exact ⟨⟨i⟩, Set.mem_univ _, rfl⟩
+    · simp]
+  exact hpos.union hneg
+
+omit [Nonempty ι] in
+/--
+Adjoining pointwise negatives increases a positive-radius covering number by
+at most a factor of two.
+
+Stated on StatsMLlib's canonical `coveringNumber`, which takes no total-boundedness
+proof term and lands in `WithTop ℕ`; §11-4 requires new covering-number results to be
+phrased there rather than on `coveringNumberNat`. Total boundedness is still needed to
+produce an optimal net, so it stays as a hypothesis.
+-/
+lemma coveringNumber_signSymmetrization_le_two_mul
+    (h : TotallyBounded
+      (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    {ε : ℝ} (hε : 0 < ε) :
+    coveringNumber ε
+        (Set.univ : Set (EmpiricalFunctionSpace (signSymmetrization F) S)) ≤
+      2 * coveringNumber ε (Set.univ : Set (EmpiricalFunctionSpace F S)) := by
+  classical
+  set t := coveringFinset h hε with ht
+  set centers :=
+    t.image (signSymmetrizationPosMap (F := F) (S := S)) ∪
+      t.image (signSymmetrizationNegMap (F := F) (S := S)) with hcenters
+  have hnet :
+      IsENet centers ε
+        (Set.univ : Set (EmpiricalFunctionSpace (signSymmetrization F) S)) := by
+    intro q _
+    rcases q with ⟨⟨i, b⟩⟩
+    have hcover := coveringFinset_cover h hε
+      (show (⟨i⟩ : EmpiricalFunctionSpace F S) ∈ Set.univ by simp)
+    simp only [Set.mem_iUnion] at hcover ⊢
+    obtain ⟨y, hyt, hyball⟩ := hcover
+    cases b
+    · refine ⟨signSymmetrizationNegMap (F := F) (S := S) y, ?_, ?_⟩
+      · exact Finset.mem_union_right _ (Finset.mem_image.2 ⟨y, hyt, rfl⟩)
+      · calc dist
+              (signSymmetrizationNegMap (F := F) (S := S)
+                (⟨i⟩ : EmpiricalFunctionSpace F S))
+              (signSymmetrizationNegMap (F := F) (S := S) y)
+            = dist (⟨i⟩ : EmpiricalFunctionSpace F S) y :=
+              (signSymmetrizationNegMap_isometry (F := F) (S := S)).dist_eq _ _
+          _ ≤ ε := hyball
+    · refine ⟨signSymmetrizationPosMap (F := F) (S := S) y, ?_, ?_⟩
+      · exact Finset.mem_union_left _ (Finset.mem_image.2 ⟨y, hyt, rfl⟩)
+      · calc dist
+              (signSymmetrizationPosMap (F := F) (S := S)
+                (⟨i⟩ : EmpiricalFunctionSpace F S))
+              (signSymmetrizationPosMap (F := F) (S := S) y)
+            = dist (⟨i⟩ : EmpiricalFunctionSpace F S) y :=
+              (signSymmetrizationPosMap_isometry (F := F) (S := S)).dist_eq _ _
+          _ ≤ ε := hyball
+  have hcard : centers.card ≤ 2 * coveringNumberNat h ε := by
+    calc
+      centers.card ≤ (t.image (signSymmetrizationPosMap (F := F) (S := S))).card +
+          (t.image (signSymmetrizationNegMap (F := F) (S := S))).card :=
+        Finset.card_union_le _ _
+      _ ≤ t.card + t.card := add_le_add Finset.card_image_le Finset.card_image_le
+      _ = 2 * coveringNumberNat h ε := by
+        rw [ht, coveringFinset_card h hε]
+        ring
+  refine (coveringNumber_le_card hnet).trans ?_
+  calc (centers.card : WithTop ℕ)
+      ≤ ((2 * coveringNumberNat h ε : ℕ) : WithTop ℕ) := by exact_mod_cast hcard
+    _ = 2 * coveringNumber ε (Set.univ : Set (EmpiricalFunctionSpace F S)) := by
+        rw [← coe_coveringNumberNat h hε]
+        push_cast
+        ring
+omit [Nonempty ι] in
+private lemma abs_apply_le_mul_sqrt_of_empiricalNorm_le
+    (m_pos : 0 < m) (cs : ∀ i : ι, empiricalNorm S (F i) ≤ c)
+    (i : ι) (j : Fin m) :
+    |F i (S j)| ≤ c * Real.sqrt m := by
+  have hsqrt : 0 < Real.sqrt (m : ℝ) :=
+    Real.sqrt_pos.2 (Nat.cast_pos.mpr m_pos)
+  have hdiv : |F i (S j)| / Real.sqrt m ≤ c :=
+    (empiricalDist_proj S (F i) j).trans (cs i)
+  exact (div_le_iff₀ hsqrt).mp hdiv
+
+/--
+Absolute empirical Rademacher complexity satisfies Dudley's entropy-integral
+estimate after adjoining the pointwise negatives of the class.
+-/
+theorem dudley_entropy_integral_abs {ε : ℝ} (ε_pos : 0 < ε)
+    (h' : TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    (m_pos : 0 < m) (cs : ∀ f : ι, empiricalNorm S (F f) ≤ c)
+    (ε_le_c_div_2 : ε < c / 2) :
+    empiricalRademacherComplexity m F S ≤
+      (4 * ε + (12 / Real.sqrt m) *
+        (∫ (x : ℝ) in ε..(c / 2),
+          √(Real.log (coveringNumberNat
+            (signSymmetrization_totallyBounded (F := F) (S := S) h') x)))) := by
+  have c_pos : 0 < c := by linarith
+  have hsample : ∀ i j, |F i (S j)| ≤ c * Real.sqrt m :=
+    abs_apply_le_mul_sqrt_of_empiricalNorm_le m_pos cs
+  rw [empiricalRademacherComplexity_eq_without_abs_signSymmetrization
+    m F S (c * Real.sqrt m)
+    (mul_nonneg (le_of_lt c_pos) (Real.sqrt_nonneg _)) hsample]
+  apply dudley_entropy_integral'
+    (F := signSymmetrization F)
+    (h' := signSymmetrization_totallyBounded (F := F) (S := S) h')
+    ε_pos m_pos
+  · rintro ⟨i, b⟩
+    cases b
+    · change empiricalNorm S (-F i) ≤ c
+      simpa using cs i
+    · change empiricalNorm S (F i) ≤ c
+      exact cs i
+  · exact ε_le_c_div_2
+
+/--
+For a class closed under pointwise negation, Dudley's original covering
+numbers already estimate the absolute empirical Rademacher complexity.
+-/
+theorem dudley_entropy_integral_abs_of_neg_closed {ε : ℝ}
+    (ε_pos : 0 < ε)
+    (h' : TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    (m_pos : 0 < m) (cs : ∀ f : ι, empiricalNorm S (F f) ≤ c)
+    (ε_le_c_div_2 : ε < c / 2) (hneg : IsNegClosed F) :
+    empiricalRademacherComplexity m F S ≤
+      (4 * ε + (12 / Real.sqrt m) *
+        (∫ (x : ℝ) in ε..(c / 2),
+          √(Real.log (coveringNumberNat h' x)))) := by
+  have c_pos : 0 < c := by linarith
+  have hsample : ∀ i j, |F i (S j)| ≤ c * Real.sqrt m :=
+    abs_apply_le_mul_sqrt_of_empiricalNorm_le m_pos cs
+  rw [empiricalRademacherComplexity_eq_without_abs_of_neg_closed
+    m F S (c * Real.sqrt m)
+    (mul_nonneg (le_of_lt c_pos) (Real.sqrt_nonneg _)) hsample hneg]
+  exact dudley_entropy_integral' ε_pos h' m_pos cs ε_le_c_div_2
+
+-- Upstream keeps the entropy-integral bound and its generalization consequences in
+-- two modules with separate preambles; §0.3 merges them here. This section carries
+-- the second one's context.
+section Generalization
+
+universe w
+
+open MeasureTheory Real TopologicalSpace
+open scoped ENNReal
+
+variable {n : ℕ}
+variable {Ω : Type w} [MeasurableSpace Ω] {𝒳 : Type*}
+variable {μ : Measure Ω}
+
+set_option hygiene false in
+local notation "μⁿ" => Measure.pi (fun _ ↦ μ)
+/--
+The Dudley entropy estimate for absolute empirical Rademacher complexity:
+
+`Dα(F,S) = 4α + (12 / √n) ∫_[α,c/2] √(log N(F ∪ -F, x)) dx`.
+
+The proof `hTotallyBounded` supplies the finite covering-number construction.
+-/
+noncomputable def dudleyEntropyEstimate
+    {n : ℕ} {ι : Type v} {𝒳 : Type*}
+    (F : ι → 𝒳 → ℝ) (S : Fin n → 𝒳)
+    (hTotallyBounded :
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    (α c : ℝ) : ℝ :=
+  4 * α + (12 / Real.sqrt n) *
+    (∫ x : ℝ in α..(c / 2),
+      Real.sqrt (Real.log (coveringNumberNat
+        (signSymmetrization_totallyBounded
+          (F := F) (S := S) hTotallyBounded) x)))
+
+/--
+Fixed-sample Dudley estimate for absolute empirical Rademacher complexity:
+
+`R̂ₙ(F;S) ≤ Dα(F,S)`.
+-/
+theorem dudley_entropy_integral_bound_abs
+    {n : ℕ} {ι : Type u} [Nonempty ι]
+    {F : ι → 𝒳 → ℝ} {S : Fin n → 𝒳} {c ε : ℝ}
+    (hε : 0 < ε)
+    (hTotallyBounded :
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    (hn : 0 < n) (hNorm : ∀ h : ι, empiricalNorm S (F h) ≤ c)
+    (hεc : ε < c / 2) :
+    empiricalRademacherComplexity n F S ≤
+      dudleyEntropyEstimate F S hTotallyBounded ε c := by
+  exact dudley_entropy_integral_abs
+    hε hTotallyBounded hn hNorm hεc
+
+/--
+For a class closed under pointwise negation, the entropy of the original
+class suffices for the absolute empirical Rademacher estimate.
+-/
+theorem dudley_entropy_integral_bound_abs_of_neg_closed
+    {n : ℕ} {ι : Type u} [Nonempty ι]
+    {F : ι → 𝒳 → ℝ} {S : Fin n → 𝒳} {c ε : ℝ}
+    (hε : 0 < ε)
+    (hTotallyBounded :
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace F S)))
+    (hn : 0 < n) (hNorm : ∀ h : ι, empiricalNorm S (F h) ≤ c)
+    (hεc : ε < c / 2) (hneg : IsNegClosed F) :
+    empiricalRademacherComplexity n F S ≤
+      4 * ε + (12 / Real.sqrt n) *
+        (∫ x : ℝ in ε..(c / 2),
+          Real.sqrt (Real.log (coveringNumberNat hTotallyBounded x))) := by
+  exact dudley_entropy_integral_abs_of_neg_closed
+    hε hTotallyBounded hn hNorm hεc hneg
+
+omit [Nonempty ι] in
+/--
+A sample-uniform Dudley estimate bounds expected Rademacher complexity:
+
+`(∀ S, Dα(F,S) ≤ C) → Rₙ(F;μ) ≤ C`.
+-/
+theorem rademacher_complexity_le_dudley_of_uniform_entropy
+    [Nonempty ι] [TopologicalSpace ι] [SeparableSpace ι]
+    [IsProbabilityMeasure μ]
+    (f : ι → 𝒳 → ℝ) (X : Ω → 𝒳)
+    (hf : ∀ h, Measurable (f h ∘ X))
+    {b c α C : ℝ} (hb : 0 ≤ b) (hf_bound : ∀ h x, |f h x| ≤ b)
+    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
+    (htb : ∀ S : Fin n → 𝒳,
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
+    (hnorm : ∀ (S : Fin n → 𝒳) (h : ι), empiricalNorm S (f h) ≤ c)
+    (hentropy : ∀ S : Fin n → 𝒳,
+      dudleyEntropyEstimate f S (htb S) α c ≤ C) :
+    rademacherComplexity n f μ X ≤ C := by
+  apply rademacherComplexity_le_of_empirical_le_separable
+    f X hf hb hf_bound hf_cont
+  intro S
+  exact (dudley_entropy_integral_bound_abs
+    hα (htb S) hn (hnorm S) hαc).trans (hentropy S)
+
+omit [Nonempty ι] in
+/--
+A sample-uniform Dudley estimate yields
+
+`Pr{UDₙ ≥ 2 C + ε} ≤ exp (-n ε² / (2b²))`.
+-/
+theorem uniform_deviation_tail_bound_separable_of_uniform_dudley
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
+    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
+    [IsProbabilityMeasure μ]
+    (f : ι → 𝒳 → ℝ) (hf : ∀ h, Measurable (f h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b c α C : ℝ} (hb : 0 < b) (hf_bound : ∀ h x, |f h x| ≤ b)
+    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
+    (htb : ∀ S : Fin n → 𝒳,
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
+    (hnorm : ∀ (S : Fin n → 𝒳) (h : ι), empiricalNorm S (f h) ≤ c)
+    (hentropy : ∀ S : Fin n → 𝒳,
+      dudleyEntropyEstimate f S (htb S) α c ≤ C)
+    {ε : ℝ} (hε : 0 ≤ ε) :
+    (μⁿ {S |
+      2 * C + ε ≤ uniformDeviation n f μ X (X ∘ S)}).toReal ≤
+      (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
+  apply uniform_deviation_tail_bound_separable_of_empirical_le
+    (F := f) hf X hX hb hf_bound hf_cont
+  · intro S
+    exact (dudley_entropy_integral_bound_abs
+      hα (htb S) hn (hnorm S) hαc).trans (hentropy S)
+  · exact hε
+
+omit [Nonempty ι] in
+/--
+Sample-dependent Dudley generalization estimate:
+
+`Pr{UDₙ ≥ 2 Dα(F,S) + 3ε} ≤ 2 exp (-n ε² / (2b²))`.
+-/
+theorem uniform_deviation_tail_bound_separable_of_dudley
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
+    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
+    [IsProbabilityMeasure μ]
+    (f : ι → 𝒳 → ℝ) (hf : ∀ h, Measurable (f h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b c α : ℝ} (hb : 0 < b) (hf_bound : ∀ h x, |f h x| ≤ b)
+    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
+    (htb : ∀ S : Fin n → 𝒳,
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
+    (hnorm : ∀ (S : Fin n → 𝒳) (h : ι), empiricalNorm S (f h) ≤ c)
+    {ε : ℝ} (hε : 0 ≤ ε) :
+    (μⁿ {S : Fin n → Ω |
+      2 * dudleyEntropyEstimate f (X ∘ S) (htb (X ∘ S)) α c +
+        3 * ε ≤ uniformDeviation n f μ X (X ∘ S)}).toReal ≤
+      2 * (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
+  exact
+    uniform_deviation_tail_bound_separable_of_sample_empirical_le
+      (μ := μ) f hf X hX
+      (fun S ↦ dudleyEntropyEstimate f S (htb S) α c)
+      hb hf_bound hf_cont
+      (fun S ↦ dudley_entropy_integral_bound_abs
+        hα (htb S) hn (hnorm S) hαc)
+      hε
+
+omit [Nonempty ι] in
+/--
+Confidence form of the sample-dependent Dudley estimate:
+
+`Pr{UDₙ ≥ 2 Dα(F,S) + 3b √(2 log(2/δ)/n)} ≤ δ`.
+-/
+theorem uniform_deviation_tail_bound_separable_of_dudley_delta
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
+    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
+    [IsProbabilityMeasure μ]
+    (f : ι → 𝒳 → ℝ) (hf : ∀ h, Measurable (f h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b c α : ℝ} (hb : 0 < b) (hf_bound : ∀ h x, |f h x| ≤ b)
+    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
+    (htb : ∀ S : Fin n → 𝒳,
+      TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
+    (hnorm : ∀ (S : Fin n → 𝒳) (h : ι), empiricalNorm S (f h) ≤ c)
+    {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 * dudleyEntropyEstimate f (X ∘ S) (htb (X ∘ S)) α c +
+        3 * (b * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
+          uniformDeviation n f μ X (X ∘ S)}).toReal ≤ δ := by
+  exact
+    uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+      (μ := μ) hn f hf X hX
+      (fun S ↦ dudleyEntropyEstimate f S (htb S) α c)
+      hb hf_bound hf_cont
+      (fun S ↦ dudley_entropy_integral_bound_abs
+        hα (htb S) hn (hnorm S) hαc)
+      hδ hδ_one
+
+
+end Generalization
