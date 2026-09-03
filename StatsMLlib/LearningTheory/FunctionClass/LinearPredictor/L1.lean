@@ -57,14 +57,6 @@ lemma abs_boolSign (b : Bool) : |boolSign b| = 1 := by
 noncomputable def coordSigned (jb : Fin d × Bool) (x : EuclideanSpace ℝ (Fin d)) : ℝ :=
   boolSign jb.2 * x jb.1
 
--- restriction to a finite set via Massart's F_on (we take univ)
-abbrev CoordIndex (d : Nat) :=
-  { jb : Fin d × Bool // jb ∈ (Finset.univ : Finset (Fin d × Bool)) }
-
-noncomputable def coordSignedOn (x : EuclideanSpace ℝ (Fin d)) :
-    CoordIndex d → ℝ :=
-  fun jb => coordSigned (d := d) jb.1 x
-
 -- helper: |sum_j w_j z_j| ≤ (∑|w_j|)*M if |z_j|≤M
 lemma abs_sum_mul_le_l1_mul {w z : EuclideanSpace ℝ (Fin d)} {M : ℝ}
     (hM : ∀ j : Fin d, |z j| ≤ M) :
