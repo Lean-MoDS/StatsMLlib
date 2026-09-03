@@ -1513,4 +1513,60 @@ lemma dyadicRHS_le_four_times_entropyIntegral
     _ = 4 * entropyIntegral s D := by ring
 
 
+/-- `metricEntropyOfNat` is `Real.log` on the nose: the guard against `n ≤ 1` is
+redundant because `Real.log 0 = Real.log 1 = 0`. -/
+lemma metricEntropyOfNat_eq_log (n : ℕ) : metricEntropyOfNat n = Real.log n := by
+  unfold metricEntropyOfNat
+  by_cases h : n ≤ 1
+  · rw [if_pos h]
+    interval_cases n
+    · simp
+    · simp
+  · rw [if_neg h]
+
+/-- On a totally bounded set at a positive radius, the metric entropy is the logarithm
+of the natural-valued covering number. -/
+lemma metricEntropy_eq_log_coveringNumberNat {s : Set A} (hs : TotallyBounded s) {eps : ℝ}
+    (heps : 0 < eps) :
+    metricEntropy eps s = Real.log (coveringNumberNat hs eps) := by
+  have hcov : coveringNumber eps s = ((coveringNumberNat hs eps : ℕ) : WithTop ℕ) :=
+    (coe_coveringNumberNat hs heps).symm
+  unfold metricEntropy
+  rw [hcov]
+  exact metricEntropyOfNat_eq_log _
+
+/-- Square-root entropy in terms of the natural-valued covering number. -/
+lemma sqrtEntropy_eq_sqrt_log_coveringNumberNat {s : Set A} (hs : TotallyBounded s) {eps : ℝ}
+    (heps : 0 < eps) :
+    sqrtEntropy eps s = Real.sqrt (Real.log (coveringNumberNat hs eps)) := by
+  unfold sqrtEntropy
+  rw [metricEntropy_eq_log_coveringNumberNat hs heps]
+
+/-- The truncated entropy integral, written as an interval integral of
+`√(log N(·))` against the natural-valued covering number.
+
+This is the bridge between the canonical entropy integral of this module and the
+spelling used by the Dudley bounds, which carry the total-boundedness proof term. -/
+theorem entropyIntegralTrunc_eq_intervalIntegral {s : Set A} (hs : TotallyBounded s)
+    {δ D : ℝ} (hδ : 0 < δ) (hδD : δ ≤ D) :
+    entropyIntegralTrunc s δ D =
+      ∫ x in δ..D, Real.sqrt (Real.log (coveringNumberNat hs x)) := by
+  have hint : IntervalIntegrable (fun x => sqrtEntropy x s) MeasureTheory.volume δ D :=
+    sqrtEntropy_intervalIntegrable_of_totallyBounded hs (by simpa [min_eq_left hδD] using hδ)
+  have hmeas : MeasureTheory.IntegrableOn (fun x => sqrtEntropy x s) (Set.Ioc δ D) :=
+    (intervalIntegrable_iff_integrableOn_Ioc_of_le hδD).1 hint
+  have hnonneg : ∀ x, 0 ≤ sqrtEntropy x s := fun x => sqrtEntropy_nonneg x s
+  -- the ENNReal integral is the Bochner integral of the same nonnegative function
+  have hlint :
+      entropyIntegralTrunc s δ D = ∫ x in Set.Ioc δ D, sqrtEntropy x s := by
+    unfold entropyIntegralTrunc entropyIntegralENNRealTrunc
+    rw [MeasureTheory.integral_eq_lintegral_of_nonneg_ae
+      (Filter.Eventually.of_forall fun x => hnonneg x) hmeas.aestronglyMeasurable]
+    simp only [dudleyIntegrand, sqrtEntropy]
+  rw [hlint, ← intervalIntegral.integral_of_le hδD]
+  refine intervalIntegral.integral_congr_ae ?_
+  filter_upwards with x hx
+  rw [Set.uIoc_of_le hδD] at hx
+  exact sqrtEntropy_eq_sqrt_log_coveringNumberNat hs (hδ.trans hx.1)
+
 end
