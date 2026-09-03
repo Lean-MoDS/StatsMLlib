@@ -677,8 +677,8 @@ theorem linear_predictor_l2_uniform_deviation_tail_bound_of_sample_delta
 
 /-! ## Examples
 
-Acceptance examples for the public API of this module, distributed here from
-upstream's `FoML/Main.lean` per plan §13.6.
+Worked uses of this module's public API. They are elaborated with the library, so they
+double as acceptance tests that these statements stay usable as written.
 -/
 
 /-!
