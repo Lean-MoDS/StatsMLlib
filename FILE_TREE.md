@@ -1,20 +1,21 @@
 # StatsMLlib file tree
 
 This document presents the public Lean source tree after the Mathlib-style subject refactor.
-`StatsMLlib/` contains 90 Lean modules under seven layer-one directories and no root-level Lean
+`StatsMLlib/` contains 94 Lean modules under eight layer-one directories and no root-level Lean
 files. A filesystem path such as `StatsMLlib/Probability/Process/Dudley.lean` corresponds to the Lean
 module `StatsMLlib.Probability.Process.Dudley`.
 
 | Layer | Modules |
 | --- | ---: |
-| `Analysis` | 4 |
+| `Analysis` | 5 |
 | `LearningTheory` | 13 |
 | `LinearAlgebra` | 5 |
-| `MeasureTheory` | 2 |
-| `Probability` | 43 |
+| `MeasureTheory` | 3 |
+| `Order` | 1 |
+| `Probability` | 44 |
 | `Statistics` | 21 |
 | `Topology` | 2 |
-| **Total** | **90** |
+| **Total** | **94** |
 
 ```text
 StatsMLlib/
@@ -22,10 +23,11 @@ StatsMLlib/
 │   ├── MetricEntropy/
 │   │   ├── Basic.lean
 │   │   └── Chaining.lean
-│   └── NormedSpace/
-│       └── CoveringNumber/
-│           ├── Euclidean.lean
-│           └── L1.lean
+│   ├── NormedSpace/
+│   │   └── CoveringNumber/
+│   │       ├── Euclidean.lean
+│   │       └── L1.lean
+│   └── FiniteSample.lean
 ├── LearningTheory/
 │   ├── EmpiricalProcess/
 │   │   ├── FunctionClass.lean
@@ -55,8 +57,12 @@ StatsMLlib/
 ├── MeasureTheory/
 │   ├── Function/
 │   │   └── L1Subsequence.lean
-│   └── Integral/
-│       └── LayerCake.lean
+│   ├── Integral/
+│   │   └── LayerCake.lean
+│   └── Measure/
+│       └── Real.lean
+├── Order/
+│   └── IndexedSupremum.lean
 ├── Probability/
 │   ├── Concentration/
 │   │   ├── LogSobolev/
@@ -67,6 +73,7 @@ StatsMLlib/
 │   │   │   └── TwoPoint.lean
 │   │   ├── Bernstein.lean
 │   │   ├── Chernoff.lean
+│   │   ├── Confidence.lean
 │   │   ├── EfronStein.lean
 │   │   ├── HansonWright.lean
 │   │   ├── Hoeffding.lean
