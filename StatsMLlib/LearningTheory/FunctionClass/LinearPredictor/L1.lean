@@ -155,7 +155,6 @@ theorem linear_predictor_l1_bound'
         have hx := (Y' i).2 jb.1
         rw [show (Subtype.val ∘ Y') i = (Y' i).1 by rfl]
         simpa [coordSigned, abs_mul, abs_boolSign] using hx)
-      hs
 
   -- (2) bound the sup term by X∞/sqrt(n)
   have hsup :

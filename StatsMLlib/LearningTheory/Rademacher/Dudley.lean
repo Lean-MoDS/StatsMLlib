@@ -835,7 +835,6 @@ private lemma massart_bound_for_increment_term (c_pos : 0 < c) (h' : TotallyBoun
           have : Real.sqrt (i (S j) ^ 2) ≤ Real.sqrt (∑ x : Fin m, i (S x) ^ 2) := by
             exact Real.sqrt_le_sqrt hsq
           simpa [Real.sqrt_sq_eq_abs] using this
-      · exact incrementFinset_nonempty c_pos h' n j
     · have : √(2 * Real.log ((Set.Finite.toFinset (finite_incrementSet c_pos h' n j)).card)) = √(2 * Real.log ↑(incrementFinset c_pos h' n j).card) := by
         apply congrArg
         apply congrArg

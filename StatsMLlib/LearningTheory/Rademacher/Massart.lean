@@ -172,14 +172,13 @@ theorem massart_lemma_pmf.sign_mean_zero {Z : Type v} {m : ℕ}
 
 lemma massart_lemma_pmf
     (f : Finset ι) (hs : f.Nonempty) (m_pos : 0 < m)
-    (C : ℝ) (hC : ∀ i ∈ f, ∀ j, |F i (S j)| ≤ C)
-    (hsR : f.Nonempty) :
+    (C : ℝ) (hC : ∀ i ∈ f, ∀ j, |F i (S j)| ≤ C) :
     empiricalRademacherComplexity_pmf_without_abs m (F_on (ι:=ι) (Z:=Z) F f) S
       ≤ (Finset.sup' f hs fun j => Real.sqrt (∑ i : Fin m,
             ((m : ℝ)⁻¹ * |F j (S i)|) ^ 2)) * Real.sqrt (2 * Real.log f.card) := by
     have hbridge :
         empiricalRademacherComplexity_pmf_without_abs m (F_on (ι:=ι) (Z:=Z) F f) S
-          = ∫ σ, Finset.sup' f hsR
+          = ∫ σ, Finset.sup' f hs
                 (fun j => MassartNotation.X (F:=F) (S:=S) (m:=m) (ι:=ι) j σ) ∂(signVecPMF m).toMeasure := by
       dsimp [empiricalRademacherComplexity_pmf_without_abs]
       dsimp [MassartNotation.X]
@@ -262,7 +261,7 @@ lemma massart_lemma_pmf
       (n := f.card)
       (s := (Finset.univ : Finset (Fin m)))
       (s' := f)
-      hsR
+      hs
       rfl
       (X := MassartNotation.X (F:=F) (S:=S) (m:=m) (ι:=ι))
       (Y := MassartNotation.Y (F:=F) (S:=S) (m:=m) (ι:=ι))
