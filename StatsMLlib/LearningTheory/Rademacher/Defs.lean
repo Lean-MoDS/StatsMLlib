@@ -16,6 +16,9 @@ Core definitions for empirical Rademacher complexity and uniform deviations.
 * `Signs`: finite vectors of Rademacher signs.
 * `empiricalRademacherComplexity`: empirical Rademacher complexity of a function class.
 * `rademacherComplexity`: expected empirical Rademacher complexity.
+* `normalizedRademacherSum`: the normalized signed sample sum for one hypothesis.
+* `empiricalRademacherFunctional`: the common functional `φ`-averaging those sums,
+  specializing to the absolute and one-sided complexities at `φ = abs` and `φ = id`.
 
 ## Main results
 
@@ -62,5 +65,45 @@ def rademacherComplexity (n : ℕ) (f : ι → 𝒳 → ℝ) (μ : Measure Ω) (
 def empiricalRademacherComplexity_without_abs (n : ℕ) (f : ι → 𝒳 → ℝ) (S : Fin n → 𝒳) : ℝ :=
   (Fintype.card (Signs n) : ℝ)⁻¹ *
     ∑ σ : Signs n, ⨆ i, (n : ℝ)⁻¹ * ∑ k : Fin n, (σ k : ℝ) * f i (S k)
+
+/--
+The normalized signed sample sum associated with a hypothesis `h`:
+
+`normalizedRademacherSum n F S σ h =
+  n⁻¹ * ∑ k, σ k * F h (S k)`.
+-/
+def normalizedRademacherSum
+    (n : ℕ) (F : ι → 𝒳 → ℝ) (S : Fin n → 𝒳)
+    (σ : Signs n) (h : ι) : ℝ :=
+  (n : ℝ)⁻¹ * ∑ k : Fin n, (σ k : ℝ) * F h (S k)
+
+/--
+The common finite-sign functional underlying empirical Rademacher
+complexities:
+
+`empiricalRademacherFunctional n φ F S =
+  |Signs n|⁻¹ * ∑ σ, ⨆ h, φ (normalizedRademacherSum n F S σ h)`.
+
+Taking `φ = abs` gives absolute empirical Rademacher complexity, while
+`φ = id` gives the one-sided version.
+-/
+def empiricalRademacherFunctional
+    (n : ℕ) (φ : ℝ → ℝ) (F : ι → 𝒳 → ℝ) (S : Fin n → 𝒳) : ℝ :=
+  (Fintype.card (Signs n) : ℝ)⁻¹ *
+    ∑ σ : Signs n, ⨆ h, φ (normalizedRademacherSum n F S σ h)
+
+@[simp]
+theorem empiricalRademacherFunctional_abs
+    (n : ℕ) (f : ι → 𝒳 → ℝ) (S : Fin n → 𝒳) :
+    empiricalRademacherFunctional n abs f S =
+      empiricalRademacherComplexity n f S :=
+  rfl
+
+@[simp]
+theorem empiricalRademacherFunctional_id
+    (n : ℕ) (f : ι → 𝒳 → ℝ) (S : Fin n → 𝒳) :
+    empiricalRademacherFunctional n id f S =
+      empiricalRademacherComplexity_without_abs n f S :=
+  rfl
 
 end
