@@ -5,6 +5,8 @@ Authors: Kei Tsukamoto, Kazumi Kasaura, Naoto Onda, Yuma Mizuno, Sho Sonoda
 -/
 import StatsMLlib.LearningTheory.Rademacher.Complexity
 import StatsMLlib.LearningTheory.UniformDeviation.Defs
+import StatsMLlib.Analysis.FiniteSample
+import StatsMLlib.Order.IndexedSupremum
 
 /-!
 # Bounded Differences for Uniform Deviations
@@ -291,3 +293,76 @@ theorem uniformDeviation_measurable [Countable ι] [MeasurableSpace 𝒳]
     Measurable (uniformDeviation n f μ X) :=
   .iSup fun i ↦ ((measurable_const.mul (Finset.univ.measurable_sum fun j _ ↦
     (hf i).comp (measurable_pi_apply j))).add_const (-∫ (x : Ω), (fun ω' ↦ f i (X ω')) x ∂μ)).abs
+
+/--
+Replacing one observation changes absolute empirical Rademacher complexity by
+at most `2 * b / n` for a class bounded in absolute value by `b`.
+-/
+theorem empiricalRademacherComplexity_bounded_difference
+    [Nonempty ι]
+    (hn : 0 < n) {b : ℝ}
+    (hf' : ∀ i, ∀ z : 𝒳, |f i z| ≤ b)
+    (j : Fin n) (S : Fin n → 𝒳) (x' : 𝒳) :
+    |empiricalRademacherComplexity n f S -
+      empiricalRademacherComplexity n f (Function.update S j x')| ≤
+      (n : ℝ)⁻¹ * 2 * b := by
+  classical
+  let A (σ : Signs n) (i : ι) :=
+    (n : ℝ)⁻¹ * ∑ k : Fin n, (σ k : ℝ) * f i (S k)
+  let B (σ : Signs n) (i : ι) :=
+    (n : ℝ)⁻¹ * ∑ k : Fin n,
+      (σ k : ℝ) * f i (Function.update S j x' k)
+  have hnorm :
+      ∀ (T : Fin n → 𝒳) (σ : Signs n) (i : ι),
+        |(n : ℝ)⁻¹ * ∑ k : Fin n, (σ k : ℝ) * f i (T k)| ≤ b := by
+    intro T σ i
+    apply abs_normalized_fin_sum_le hn
+      (fun k x ↦ (σ k : ℝ) * f i x) T
+    intro k x
+    simpa [abs_mul, abs_sigma] using hf' i x
+  have hpoint :
+      ∀ (σ : Signs n) (i : ι),
+        |A σ i - B σ i| ≤ (n : ℝ)⁻¹ * 2 * b := by
+    intro σ i
+    exact abs_normalized_fin_sum_update_sub_le hn
+      (fun k x ↦ (σ k : ℝ) * f i x)
+      (fun k x ↦ by simpa [abs_mul, abs_sigma] using hf' i x)
+      j S x'
+  have hsup :
+      ∀ σ : Signs n,
+        |((⨆ i, |A σ i|) - (⨆ i, |B σ i|))| ≤
+          (n : ℝ)⁻¹ * 2 * b := by
+    intro σ
+    have hAbdd : BddAbove (Set.range fun i ↦ |A σ i|) :=
+      ⟨b, by
+        rintro _ ⟨i, rfl⟩
+        exact hnorm S σ i⟩
+    have hBbdd : BddAbove (Set.range fun i ↦ |B σ i|) :=
+      ⟨b, by
+        rintro _ ⟨i, rfl⟩
+        exact hnorm (Function.update S j x') σ i⟩
+    exact abs_ciSup_sub_ciSup_le hAbdd hBbdd fun i ↦
+      (abs_abs_sub_abs_le_abs_sub (A σ i) (B σ i)).trans (hpoint σ i)
+  dsimp only [empiricalRademacherComplexity]
+  rw [← mul_sub, ← Finset.sum_sub_distrib, abs_mul]
+  have hcard : 0 < (Fintype.card (Signs n) : ℝ) := by
+    rw [Signs.card]
+    positivity
+  rw [abs_of_pos (inv_pos.mpr hcard)]
+  calc
+    (Fintype.card (Signs n) : ℝ)⁻¹ *
+        |∑ σ : Signs n,
+          ((⨆ i, |A σ i|) - (⨆ i, |B σ i|))|
+        ≤ (Fintype.card (Signs n) : ℝ)⁻¹ *
+            ∑ σ : Signs n,
+              |((⨆ i, |A σ i|) - (⨆ i, |B σ i|))| := by
+          gcongr
+          exact Finset.abs_sum_le_sum_abs
+            (fun σ : Signs n ↦ (⨆ i, |A σ i|) - (⨆ i, |B σ i|)) Finset.univ
+    _ ≤ (Fintype.card (Signs n) : ℝ)⁻¹ *
+          ∑ _σ : Signs n, ((n : ℝ)⁻¹ * 2 * b) := by
+          gcongr with σ
+          exact hsup σ
+    _ = (n : ℝ)⁻¹ * 2 * b := by simp
+
+end
