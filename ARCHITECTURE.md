@@ -1,12 +1,13 @@
 # StatsMLlib architecture
 
 StatsMLlib follows a subject-first filesystem modeled on Mathlib. Every Lean module lives below one of
-seven layer-one directories; there are no Lean files directly in `StatsMLlib/`.
+eight layer-one directories; there are no Lean files directly in `StatsMLlib/`.
 
 ## Layer-one ownership
 
 | Layer | Owns |
 | --- | --- |
+| `Order` | Order-theoretic results with no measure, topology, or algebraic structure, such as estimates for indexed suprema in conditionally complete lattices. |
 | `MeasureTheory` | Reusable measure, integral, and convergence results that do not require probabilistic structure. |
 | `Topology` | General topological and pseudo-metric constructions, including covering and packing numbers. |
 | `LinearAlgebra` | Deterministic matrix, operator, singular-value, and spectral results. |
@@ -22,7 +23,8 @@ StatsMLlib/
 ├── Analysis/{MetricEntropy,NormedSpace}
 ├── LearningTheory/{EmpiricalProcess,FunctionClass,Rademacher,UniformDeviation}
 ├── LinearAlgebra/Matrix
-├── MeasureTheory/{Function,Integral}
+├── MeasureTheory/{Function,Integral,Measure}
+├── Order
 ├── Probability/{Concentration,Entropy,Gaussian,Independence,Moments,Process,RandomMatrix}
 ├── Statistics/Regression/LeastSquares
 └── Topology/{MetricSpace,SeparableSpace}
@@ -33,7 +35,7 @@ StatsMLlib/
 The local import graph is tiered as follows:
 
 ```text
-{MeasureTheory, Topology, LinearAlgebra}
+{Order, MeasureTheory, Topology, LinearAlgebra}
                     ↓
                  Analysis
                     ↓
