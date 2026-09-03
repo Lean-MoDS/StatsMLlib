@@ -348,4 +348,94 @@ theorem rkhs_uniformDeviation_tail_bound_kernelTrace_delta
     hδ hδ_one
 
 
+
+/-! ## Examples
+
+Acceptance examples for the public API of this module, distributed here from
+upstream's `FoML/Main.lean` per plan §13.6.
+-/
+
+/-!
+## Feature-map RKHS predictors
+
+Let $\Phi:\mathcal X\to\mathcal H$ map into a real Hilbert space and define
+
+$$
+K(x,y)=\langle\Phi(x),\Phi(y)\rangle,
+\qquad
+f_w(x)=\langle w,\Phi(x)\rangle,
+\qquad
+\lVert w\rVert\le\Lambda.
+$$
+
+The sample-dependent form of Mohri, Rostamizadeh, and Talwalkar,
+Theorem 6.12 retains the observed kernel trace:
+
+$$
+\Pr\!\left\{
+  \operatorname{UD}_n
+  \ge \frac{2\Lambda}{n}
+      \sqrt{\sum_k K(X_k,X_k)}
+    +3r\Lambda\sqrt{\frac{2\log(2/\delta)}{n}}
+\right\}\le\delta.
+$$
+-/
+
+/-- Main RKHS example retaining the observed kernel trace. -/
+example
+    [Nonempty 𝒳]
+    [IsProbabilityMeasure μ]
+    (hn : 0 < n)
+    (Φ : 𝒳 → H) (hΦ : Measurable Φ)
+    (Λ r : ℝ) (hΛ : 0 < Λ) (hr : 0 < r)
+    (hdiag : ∀ x, kernelOfFeatureMap Φ x x ≤ r ^ 2)
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 * (Λ * (n : ℝ)⁻¹ * Real.sqrt (kernelTrace Φ (X ∘ S))) +
+          3 * ((r * Λ) *
+            Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
+        uniformDeviation n
+          (rkhsPredictor Φ :
+            Metric.closedBall (0 : H) Λ → 𝒳 → ℝ)
+          μ X (X ∘ S)}).toReal ≤ δ := by
+  exact rkhs_uniformDeviation_tail_bound_kernelTrace_delta
+    hn Φ hΦ Λ r hΛ hr hdiag X hX hδ hδ_one
+
+/-!
+Replacing every diagonal value by $K(x,x)\le r^2$ gives the deterministic
+endpoint
+
+$$
+\Pr\!\left\{
+  \operatorname{UD}_n
+  \ge \frac{2r\Lambda}{\sqrt n}
+    +r\Lambda\sqrt{\frac{2\log(1/\delta)}{n}}
+\right\}\le\delta.
+$$
+
+Completeness records the Hilbert-space interpretation; separability is used
+only when the bounded weight ball is reduced to a countable dense subclass.
+-/
+
+/-- Main RKHS example using only a uniform kernel-diagonal bound. -/
+example
+    [Nonempty 𝒳]
+    [IsProbabilityMeasure μ]
+    (hn : 0 < n)
+    (Φ : 𝒳 → H) (hΦ : Measurable Φ)
+    (Λ r : ℝ) (hΛ : 0 < Λ) (hr : 0 < r)
+    (hdiag : ∀ x, kernelOfFeatureMap Φ x x ≤ r ^ 2)
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 * (r * Λ / Real.sqrt (n : ℝ)) +
+          (r * Λ) * Real.sqrt (2 * Real.log (1 / δ) / n) ≤
+        uniformDeviation n
+          (rkhsPredictor Φ :
+            Metric.closedBall (0 : H) Λ → 𝒳 → ℝ)
+          μ X (X ∘ S)}).toReal ≤ δ := by
+  exact rkhs_uniformDeviation_tail_bound_delta
+    hn Φ hΦ Λ r hΛ hr hdiag X hX hδ hδ_one
+
 end Generalization

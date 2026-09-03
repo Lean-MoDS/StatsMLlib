@@ -675,4 +675,79 @@ theorem linear_predictor_l2_uniform_deviation_tail_bound_of_sample_delta
       hδ hδ_one
   simpa only [Function.comp_apply] using htail
 
+
+/-! ## Examples
+
+Acceptance examples for the public API of this module, distributed here from
+upstream's `FoML/Main.lean` per plan §13.6.
+-/
+
+/-!
+## `ℓ₂` linear predictors
+
+For weights with $\lVert w\rVert_2\le W$ and inputs with
+$\lVert x\rVert_2\le X$, the deterministic end-to-end estimate is
+
+$$
+\Pr\!\left\{
+  \operatorname{UD}_n
+  \ge \frac{2XW}{\sqrt n}
+    +XW\sqrt{\frac{2\log(1/\delta)}{n}}
+\right\}\le\delta.
+$$
+
+`linear_predictor_l2_uniform_deviation_tail_bound_delta` obtains this result
+by composing the fixed-sample linear estimate with the generic bridge.
+-/
+
+/-- Main deterministic-threshold example for the `ℓ₂` linear class. -/
+example
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (W X : ℝ) (hn : 0 < n) (hX : 0 < X) (hW : 0 < W)
+    (Z : Ω → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X)
+    (hZ : Measurable Z) {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 * (X * W / Real.sqrt (n : ℝ)) +
+          (X * W) * Real.sqrt (2 * Real.log (1 / δ) / n) ≤
+        uniformDeviation n
+          (linearPredictorL2 :
+            Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+              Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+          μ Z (Z ∘ S)}).toReal ≤ δ := by
+  exact linear_predictor_l2_uniform_deviation_tail_bound_delta
+    d W X hn hX hW Z hZ hδ hδ_one
+
+/-!
+The sample-dependent variant retains the observed quadratic radius:
+
+$$
+\Pr\!\left\{
+  \operatorname{UD}_n
+  \ge \frac{2W}{n}\sqrt{\sum_k\lVert Z_k\rVert_2^2}
+    +3XW\sqrt{\frac{2\log(2/\delta)}{n}}
+\right\}\le\delta.
+$$
+-/
+
+/-- Main sample-dependent example for the `ℓ₂` linear class. -/
+example
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (W X : ℝ) (hn : 0 < n) (hX : 0 < X) (hW : 0 < W)
+    (Z : Ω → Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X)
+    (hZ : Measurable Z) {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 *
+          (W * (n : ℝ)⁻¹ *
+            Real.sqrt
+              (∑ k : Fin n,
+                ‖(Z (S k) : EuclideanSpace ℝ (Fin d))‖ ^ 2)) +
+        3 * ((X * W) * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
+          uniformDeviation n
+            (linearPredictorL2 :
+              Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
+                Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X → ℝ)
+            μ Z (Z ∘ S)}).toReal ≤ δ := by
+  exact linear_predictor_l2_uniform_deviation_tail_bound_of_sample_delta
+    d W X hn hX hW Z hZ hδ hδ_one
+
 end Generalization

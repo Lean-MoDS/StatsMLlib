@@ -252,4 +252,44 @@ theorem uniform_deviation_tail_bound_finite_of_dudley_quarter_delta
   · exact hδ
   · exact hδ_one
 
+
+/-! ## Examples
+
+Acceptance examples for the public API of this module, distributed here from
+upstream's `FoML/Main.lean` per plan §13.6.
+-/
+
+/-!
+For a finite hypothesis class, taking every hypothesis as a cover center gives
+$N(F^\pm,\varepsilon)\leq2|H|$.  Choosing $\alpha=c/4$ in Dudley's estimate
+removes the covering number completely:
+
+$$
+\widehat{\mathfrak R}_n(F;S)
+\leq
+c+\frac{3c}{\sqrt n}\sqrt{\log(2|H|)}.
+$$
+
+The following high-probability example has no unevaluated entropy term.
+-/
+
+/-- Explicit finite-class Dudley generalization bound. -/
+example
+    [MeasurableSpace 𝒳] [Nonempty 𝒳]
+    [Fintype H] [Nonempty H] [IsProbabilityMeasure μ]
+    (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b c δ : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
+    (hn : 0 < n) (hc : 0 < c)
+    (hNorm : ∀ (S : Fin n → 𝒳) h, empiricalNorm S (F h) ≤ c)
+    (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 *
+          (c + (3 * c / Real.sqrt n) *
+            Real.sqrt (Real.log (2 * Fintype.card H))) +
+          3 * sampleConfidenceRadius b δ n ≤
+        uniformDeviation n F μ X (X ∘ S)}).toReal ≤ δ := by
+  exact uniform_deviation_tail_bound_finite_of_dudley_quarter_delta
+    F hF_meas X hX hb hF_bound hn hc hNorm hδ hδ_one
+
 end

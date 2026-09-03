@@ -1069,4 +1069,51 @@ theorem linear_predictor_l1_uniform_deviation_tail_bound_of_sample_delta
       hδ hδ_one
 
 
+
+/-! ## Examples
+
+Acceptance examples for the public API of this module, distributed here from
+upstream's `FoML/Main.lean` per plan §13.6.
+-/
+
+/-!
+## `ℓ₁/ℓ∞` linear predictors
+
+For $\lVert w\rVert_1\le W$ and $\lVert x\rVert_\infty\le X_\infty$, let
+
+$$
+Q_\infty(S)
+=\frac1n\sup_{j<d}\sqrt{\sum_k |S_{k,j}|^2}.
+$$
+
+The sample-dependent estimate is
+
+$$
+\Pr\!\left\{
+  \operatorname{UD}_n
+  \ge 2WQ_\infty(S)\sqrt{2\log(2d)}
+    +3X_\infty W\sqrt{\frac{2\log(2/\delta)}{n}}
+\right\}\le\delta.
+$$
+-/
+
+/-- Main sample-dependent example for the `ℓ₁/ℓ∞` linear class. -/
+example
+    [IsProbabilityMeasure μ]
+    (d : ℕ) (Xinf W : ℝ) (hX : 0 < Xinf) (hW : 0 < W)
+    (hd : 0 < d) (hn : 0 < n)
+    (Z : Ω → LinftyBall (d := d) Xinf) (hZ : Measurable Z)
+    {δ : ℝ} (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
+    (μⁿ {S : Fin n → Ω |
+      2 *
+          (W * linearPredictorL1SampleRadius (Z ∘ S) *
+            Real.sqrt (2 * Real.log (2 * d))) +
+        3 * ((Xinf * W) * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
+          uniformDeviation n
+            (linearPredictorL1 :
+              L1Ball (d := d) W → LinftyBall (d := d) Xinf → ℝ)
+            μ Z (Z ∘ S)}).toReal ≤ δ := by
+  exact linear_predictor_l1_uniform_deviation_tail_bound_of_sample_delta
+    d Xinf W hX hW hd hn Z hZ hδ hδ_one
+
 end Generalization
