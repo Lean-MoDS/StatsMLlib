@@ -116,3 +116,12 @@ lemma abs_denseRestriction_le
     (hF : ∀ h x, |F h x| ≤ b) :
     ∀ i x, |denseRestriction F i x| ≤ b :=
   fun i x ↦ hF (denseSeq H i) x
+
+/-- Canonical form of `separableSpaceSup_eq_real`: the supremum of a continuous family
+over a separable space is the supremum of its restriction to the chosen countable dense
+sequence. -/
+theorem separableSpaceSup_eq_denseRestriction {X : Type u}
+    [TopologicalSpace X] [SeparableSpace X] [Nonempty X]
+    {f : X → ℝ} (hf : Continuous f) :
+    ⨆ x : X, f x = ⨆ n : ℕ, denseRestriction f n :=
+  separableSpaceSup_eq_real hf
