@@ -137,8 +137,8 @@ Mohri, Rostamizadeh, and Talwalkar, Theorem 6.12, in kernel-trace form:
 `Rhatₙ ≤ Λ / n * sqrt (∑ₖ K(Sₖ,Sₖ))`.
 
 The feature space is assumed complete here to match the Hilbert/RKHS
-interpretation.  The underlying dimension-free theorem in
-`FoML.Model.HilbertPredictor` does not require completeness.
+interpretation. The underlying dimension-free theorem,
+`hilbertPredictor_empiricalRademacherComplexity_le`, does not require completeness.
 -/
 theorem rkhs_empiricalRademacherComplexity_le_kernelTrace
     [CompleteSpace H]
@@ -195,10 +195,9 @@ theorem rkhs_empiricalRademacherComplexity_le
 
 end
 
--- Upstream splits the fixed-sample kernel estimates and the generalization bounds
--- into two modules with separate preambles; §0.3 merges them into this one. The
--- section below carries the second module's context verbatim, including its own
--- universe assignment, which differs from the one above.
+-- The fixed-sample kernel estimates above and the generalization bounds below are
+-- kept in one module. The section that follows carries the context the second group
+-- needs, including its own universe assignment, which differs from the one above.
 noncomputable section Generalization
 
 universe u v w
