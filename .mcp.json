@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "lean-lsp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "lean-lsp-mcp",
+        "lean-lsp-mcp",
+        "--lean-project-path",
+        "."
+      ],
+      "env": {}
+    }
+  }
+}
