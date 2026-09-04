@@ -2094,6 +2094,78 @@ end TDudley
 
 export TDudley (globalOsc localOsc)
 
+/-! ## The truncated entropy integral is bounded by the internal-net integral
+
+`entropyIntegralTrunc` is built from `coveringNumber`, whose nets may have centers anywhere,
+while `dudleyEntropyIntegral` is built from `subsetENetCard`, whose nets must have centers in
+the set. Forgetting that the centers lie in the set is free, so the covering number is the
+smaller of the two and the entropy integral is the smaller of the two integrals.
+
+What that argument needs is that an internal net exists at all: without one,
+`subsetENetCard` is an infimum over an empty set and collapses to `0`. Mathlib's
+`TotallyBounded.exists_subset` already supplies the centers inside the set, so total
+boundedness is the whole hypothesis. -/
+
+/-- A totally bounded set admits a finite `ε`-net whose centers lie in the set itself.
+
+No nonemptiness is required: for the empty set the empty net serves. -/
+lemma TDudley.exists_isSubsetENet {α : Type*} [PseudoMetricSpace α] {T : Set α}
+    (hT : TotallyBounded T) {ε : ℝ} (hε : 0 < ε) :
+    ∃ u : Set α, u.Finite ∧ TDudley.IsSubsetENet T u ε := by
+  obtain ⟨t, hts, htfin, hcov⟩ := hT.exists_subset (Metric.dist_mem_uniformity hε)
+  refine ⟨t, htfin, TDudley.IsSubsetENet.of_exists_dist htfin hts ?_⟩
+  intro x hx
+  obtain ⟨y, hy, hd⟩ := mem_iUnion₂.1 (hcov hx)
+  exact ⟨y, hy, le_of_lt hd⟩
+
+/-- An internal `ε`-net is in particular an `ε`-net, so the covering number never exceeds the
+size of a minimal internal net.
+
+This is the direction opposite to `TDudley.subsetENetCard_le_coveringNumber_half`, and unlike
+that one it costs nothing in the radius: forgetting that the centers lie in `T` is free, while
+recovering that property is what forces the halving there. -/
+lemma TDudley.coveringNumber_le_subsetENetCard {α : Type*} [PseudoMetricSpace α] {T : Set α}
+    (hT : TotallyBounded T) {ε : ℝ} (hε : 0 < ε) :
+    _root_.coveringNumber ε T ≤ (TDudley.subsetENetCard T ε : WithTop ℕ) := by
+  obtain ⟨u, hufin, hunet, hucard⟩ :=
+    exists_minimal_covering_of_finite_covering (TDudley.exists_isSubsetENet hT hε)
+  obtain ⟨hfin, hnet⟩ := hunet.2
+  have hcard : hfin.toFinset.card = TDudley.subsetENetCard T ε := by
+    rw [← hucard, Set.ncard_eq_toFinset_card u hufin]
+  exact hcard ▸ coveringNumber_le_card hnet
+
+/-- Pointwise: the entropy integrand is bounded by the internal-net integrand. -/
+lemma TDudley.sqrtEntropy_le_sqrt_log_subsetENetCard {α : Type*} [PseudoMetricSpace α]
+    {T : Set α} (hT : TotallyBounded T) {ε : ℝ} (hε : 0 < ε) :
+    sqrtEntropy ε T ≤ Real.sqrt (Real.log (TDudley.subsetENetCard T ε)) := by
+  rw [sqrtEntropy_eq_sqrt_log_coveringNumberNat hT hε]
+  have hle : coveringNumberNat hT ε ≤ TDudley.subsetENetCard T ε := by
+    have h := TDudley.coveringNumber_le_subsetENetCard hT hε
+    rwa [← coe_coveringNumberNat hT hε, Nat.cast_le] at h
+  rcases Nat.eq_zero_or_pos (coveringNumberNat hT ε) with h0 | hpos
+  · simp only [h0, Nat.cast_zero, Real.log_zero, Real.sqrt_zero]
+    exact Real.sqrt_nonneg _
+  · exact Real.sqrt_le_sqrt
+      (Real.log_le_log (by exact_mod_cast hpos) (by exact_mod_cast hle))
+
+/-- The internal-net integrand is antitone in the radius. -/
+lemma TDudley.antitoneOn_sqrt_log_subsetENetCard {α : Type*} [PseudoMetricSpace α]
+    {T : Set α} (hT : TotallyBounded T) {δ D : ℝ} (hδ : 0 < δ) :
+    AntitoneOn (fun ε => Real.sqrt (Real.log (TDudley.subsetENetCard T ε))) (Set.Icc δ D) := by
+  have h_finite_cov : ∀ ε > 0, ∃ u : Set α, u.Finite ∧ TDudley.IsSubsetENet T u ε :=
+    fun _ hε => TDudley.exists_isSubsetENet hT hε
+  intro x hx y hy hxy
+  by_cases hy_zero : TDudley.subsetENetCard T y = 0 <;>
+    by_cases hx_zero : TDudley.subsetENetCard T x = 0 <;> simp_all +decide
+  · exact False.elim <| by
+      simpa [hy_zero, hx_zero] using
+        TDudley.subsetENetCard_antitoneOn_Ioc h_finite_cov
+          ⟨lt_of_lt_of_le hδ hx.1, hx.2⟩ ⟨lt_of_lt_of_le hδ hy.1, hy.2⟩ hxy
+  · exact Real.sqrt_le_sqrt (Real.log_le_log
+      (Nat.cast_pos.mpr (Nat.pos_of_ne_zero hy_zero))
+      (Nat.cast_le.mpr (TDudley.subsetENetCard_antitoneOn_Ioc h_finite_cov
+        ⟨lt_of_lt_of_le hδ hx.1, hx.2⟩ ⟨lt_of_lt_of_le hδ hy.1, hy.2⟩ hxy)))
+
 lemma TDudley.subsetENetCard_le_coveringNumber_half
   {α : Type*} [PseudoMetricSpace α] {T : Set α}
   (hT_totallyBounded : TotallyBounded T) (h_T_nonempty : T.Nonempty)
@@ -2142,24 +2214,8 @@ lemma TDudley.dudleyEntropyIntegral_le_sqrtEntropyIntegral_half
         rw [mem_iUnion₂] at hx_cover
         obtain ⟨y, hy_mem, hy_ball⟩ := hx_cover
         exact ⟨y, hy_mem, mem_closedBall.mp hy_ball⟩)
-  have hf_antitone : AntitoneOn f (Set.Icc δ D) := by
-    intro x hx y hy hxy
-    simp only [f]
-    by_cases hy_zero : TDudley.subsetENetCard T y = 0 <;>
-      by_cases hx_zero : TDudley.subsetENetCard T x = 0 <;> simp_all +decide
-    · exact False.elim <| by
-        simpa [hy_zero, hx_zero] using
-          TDudley.subsetENetCard_antitoneOn_Ioc h_finite_cov
-            ⟨lt_of_lt_of_le hδ hx.1, hx.2⟩
-            ⟨lt_of_lt_of_le hδ hy.1, hy.2⟩
-            hxy
-    · exact Real.sqrt_le_sqrt (Real.log_le_log
-        (Nat.cast_pos.mpr (Nat.pos_of_ne_zero hy_zero))
-        (Nat.cast_le.mpr
-          (TDudley.subsetENetCard_antitoneOn_Ioc h_finite_cov
-            ⟨lt_of_lt_of_le hδ hx.1, hx.2⟩
-            ⟨lt_of_lt_of_le hδ hy.1, hy.2⟩
-            hxy)))
+  have hf_antitone : AntitoneOn f (Set.Icc δ D) :=
+    TDudley.antitoneOn_sqrt_log_subsetENetCard hT_totallyBounded hδ
   have hg_antitone : AntitoneOn g (Set.Icc δ D) := by
     intro x hx y hy hxy
     simp only [g]
@@ -2225,3 +2281,31 @@ theorem truncated_dudley_entropy_bound
     _ ≤ 2 * ∫ ω, localOsc (X ω) T δ ∂P +
           32 * ∫ ε in Set.Icc (δ / 4) D, sqrtEntropy (ε / 2) T := by
         gcongr
+
+/-- The truncated entropy integral is bounded by the internal-net Dudley integral.
+
+This is the inequality left open when `entropyIntegralTrunc` was related to the Dudley bounds:
+the two integrals differ only in whether the nets counted are required to have their centers
+inside the set, and requiring that can only make the count larger. -/
+theorem TDudley.entropyIntegralTrunc_le_dudleyEntropyIntegral {α : Type*} [PseudoMetricSpace α]
+    {T : Set α} (hT : TotallyBounded T) {δ D : ℝ} (hδ : 0 < δ) (hδD : δ ≤ D) :
+    entropyIntegralTrunc T δ D ≤ TDudley.dudleyEntropyIntegral T δ D := by
+  have hent_anti : AntitoneOn (fun ε => sqrtEntropy ε T) (Set.Icc δ D) :=
+    fun _ hx _ _ hxy => sqrtEntropy_anti_eps_of_totallyBounded (lt_of_lt_of_le hδ hx.1) hxy hT
+  have hent_int : MeasureTheory.IntegrableOn (fun ε => sqrtEntropy ε T) (Set.Icc δ D) :=
+    hent_anti.integrableOn_isCompact isCompact_Icc
+  have hnet_int :
+      MeasureTheory.IntegrableOn
+        (fun ε => Real.sqrt (Real.log (TDudley.subsetENetCard T ε))) (Set.Icc δ D) :=
+    (TDudley.antitoneOn_sqrt_log_subsetENetCard hT (D := D) hδ).integrableOn_isCompact
+      isCompact_Icc
+  have hlhs : entropyIntegralTrunc T δ D = ∫ ε in Set.Icc δ D, sqrtEntropy ε T := by
+    rw [entropyIntegralTrunc_eq_intervalIntegral hT hδ hδD,
+      intervalIntegral.integral_of_le hδD,
+      ← MeasureTheory.setIntegral_congr_set MeasureTheory.Ioc_ae_eq_Icc]
+    refine MeasureTheory.setIntegral_congr_fun measurableSet_Ioc (fun ε hε => ?_)
+    exact (sqrtEntropy_eq_sqrt_log_coveringNumberNat hT (lt_trans hδ hε.1)).symm
+  rw [hlhs]
+  unfold TDudley.dudleyEntropyIntegral
+  exact MeasureTheory.setIntegral_mono_on hent_int hnet_int measurableSet_Icc
+    (fun ε hε => TDudley.sqrtEntropy_le_sqrt_log_subsetENetCard hT (lt_of_lt_of_le hδ hε.1))
