@@ -62,7 +62,7 @@ generalization bound. Each entry names the endpoint; every module listed carries
 | finite hypothesis classes | `LearningTheory/Rademacher/FiniteClass` | `uniform_deviation_tail_bound_finite_of_dudley_quarter_delta` |
 | Lipschitz-parametrized families | `LearningTheory/Rademacher/LipschitzParameter` | `uniform_deviation_tail_bound_lipschitzParameter_dudley_delta` |
 | approximate ERM, excess risk | `LearningTheory/EmpiricalRiskMinimization/Generalization` | `approxERM_excessRisk_tail_bound_separable_of_sample_empirical_le_delta` |
-| the same over an RKHS ball | `LearningTheory/EmpiricalRiskMinimization/KernelPredictor` | `finite_rkhs_approxERM_excessRisk_tail_bound_delta` |
+| the same over an RKHS ball | `LearningTheory/EmpiricalRiskMinimization/KernelPredictor` | `rkhs_approxERM_excessRisk_tail_bound_delta` |
 
 Supporting notions: `empiricalRademacherComplexity` and `rademacherComplexity`
 (`LearningTheory/Rademacher/Defs`), `uniformDeviation`

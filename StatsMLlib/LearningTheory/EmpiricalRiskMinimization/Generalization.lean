@@ -326,8 +326,8 @@ example
     A hA hC hstar hδ hδ_one
 
 /-!
-For a finite hypothesis type, a centered $L$-Lipschitz loss satisfies the
-absolute-complexity contraction estimate
+For a uniformly bounded predictor class, a centered $L$-Lipschitz loss
+satisfies the absolute-complexity contraction estimate
 
 $$
 \widehat{\mathfrak R}_n((\ell-\ell(0,\cdot))\circ F;S)
@@ -341,9 +341,10 @@ The corresponding one-sided theorem has factor `L`.
 
 /-- Main contraction example for a centered supervised loss. -/
 example
-    {𝒴 : Type*} [Fintype H] [Nonempty H]
+    {𝒴 : Type*} [Nonempty H]
     (F : H → 𝒵 → ℝ) (loss : ℝ → 𝒴 → ℝ)
-    (S : Fin n → 𝒵 × 𝒴) {L : ℝ} (hL : 0 ≤ L)
+    (S : Fin n → 𝒵 × 𝒴) {L b : ℝ} (hL : 0 ≤ L) (hb : 0 ≤ b)
+    (hF : ∀ h x, |F h x| ≤ b)
     (hloss : ∀ y u v, |loss u y - loss v y| ≤ L * |u - v|) :
     empiricalRademacherComplexity n
         (supervisedLossClass F (centeredLoss loss)) S ≤
@@ -351,6 +352,6 @@ example
         empiricalRademacherComplexity n
           (fun (h : H) (z : 𝒵 × 𝒴) ↦ F h z.1) S := by
   exact empiricalRademacherComplexity_centered_supervisedLossClass_le
-    n F loss S hL hloss
+    n F loss S hL hb hF hloss
 
 end
