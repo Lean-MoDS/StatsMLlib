@@ -792,26 +792,13 @@ theorem integrable_norm_sup_abs_sum_sub [Nonempty ι] [Countable ι] {X : Ω →
   simp only [abs_abs]
   apply bounded_difference_of_bounded hf'
 
-theorem measurable_signed_sup_sum_prod_fst [Countable ι] {X : Ω → Z} (hf : ∀ (i : ι), Measurable (f i ∘ X)) :
-    Measurable (fun ω : (Fin n → Ω) × (Fin n → Ω) ↦ (↑(Fintype.card (Signs n)))⁻¹ * ∑ σ : Signs n, ⨆ i, |∑ k : Fin n, ↑↑(σ k) * f i (X (ω.1 k))|) := by
-  apply Measurable.mul measurable_const
-  apply Finset.univ.measurable_sum
-  intro σ _
-  apply Measurable.iSup
-  intro i
-  apply Measurable.abs
-  apply Finset.univ.measurable_sum
-  intro k _
-  apply measurable_const.mul
-  apply (hf i).comp
-  apply measurable_fst.eval
 
 theorem integrable_signed_sup_sum_prod_fst [Nonempty ι] [Countable ι] {X : Ω → Z} (hf : ∀ (i : ι), Measurable (f i ∘ X))
     {b : ℝ} (hf' : ∀ (i : ι) (z : Z), |f i z| ≤ b) :
     Integrable (fun ω : (Fin n → Ω) × (Fin n → Ω) ↦ (↑(Fintype.card (Signs n)))⁻¹ * ∑ σ : Signs n, ⨆ i, |∑ k : Fin n, ↑↑(σ k) * f i (X (ω.1 k))|)
       (μⁿ.prod μⁿ) := by
   simp_rw [← memLp_one_iff_integrable]
-  apply MemLp.of_bound (measurable_signed_sup_sum_prod_fst hf).aestronglyMeasurable (n * b)
+  apply MemLp.of_bound (measurable_signed_sup_sum_fst hf).aestronglyMeasurable (n * b)
   filter_upwards with ω
   simp only [Signs.card, Nat.cast_pow, Nat.cast_ofNat, Int.reduceNeg, norm_mul, norm_inv, norm_pow,
     norm_ofNat, norm_eq_abs]

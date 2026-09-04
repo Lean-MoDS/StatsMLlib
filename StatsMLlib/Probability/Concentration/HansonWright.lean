@@ -4281,60 +4281,6 @@ theorem hanson_wright_inequality {μ : Measure Ω} [IsProbabilityMeasure μ]
         ring
       exact hHW.2 l hl') ht
 
-private lemma hanson_wright_scaled_rhs_le {K C F O t : ℝ} (hK : 0 < K)
-    (hC : 0 < C) (hF : 0 < F) (hO : 0 < O) (ht : 0 ≤ t) :
-    2 * exp (-(1 / (4 * (C / 16))) *
-        min (t ^ 2 / ((2 * K) ^ 4 * F ^ 2))
-          (t / ((2 * K) ^ 2 * O))) ≤
-      2 * exp (-(1 / (4 * C)) *
-        min (t ^ 2 / (K ^ 4 * F ^ 2))
-          (t / (K ^ 2 * O))) := by
-  set q : ℝ := t ^ 2 / (K ^ 4 * F ^ 2) with hq_def
-  set r : ℝ := t / (K ^ 2 * O) with hr_def
-  have hq_nonneg : 0 ≤ q := by
-    rw [hq_def]
-    positivity
-  have hr_nonneg : 0 ≤ r := by
-    rw [hr_def]
-    positivity
-  have hq_scaled :
-      t ^ 2 / ((2 * K) ^ 4 * F ^ 2) = q / 16 := by
-    rw [hq_def]
-    field_simp [hK.ne', hF.ne']
-    ring
-  have hr_scaled :
-      t / ((2 * K) ^ 2 * O) = r / 4 := by
-    rw [hr_def]
-    field_simp [hK.ne', hO.ne']
-    ring
-  have hcoef : 1 / (4 * (C / 16)) = 4 / C := by
-    field_simp [hC.ne']
-    ring
-  have hmin_scaled : min q r / 16 ≤ min (q / 16) (r / 4) := by
-    apply le_min
-    · exact div_le_div_of_nonneg_right (min_le_left q r) (by norm_num)
-    · calc
-        min q r / 16 ≤ r / 16 :=
-          div_le_div_of_nonneg_right (min_le_right q r) (by norm_num)
-        _ ≤ r / 4 := by nlinarith [hr_nonneg]
-  have harg :
-      -(1 / (4 * (C / 16))) *
-        min (t ^ 2 / ((2 * K) ^ 4 * F ^ 2)) (t / ((2 * K) ^ 2 * O)) ≤
-      -(1 / (4 * C)) *
-        min (t ^ 2 / (K ^ 4 * F ^ 2)) (t / (K ^ 2 * O)) := by
-    rw [hq_scaled, hr_scaled, hcoef]
-    change -(4 / C) * min (q / 16) (r / 4) ≤ -(1 / (4 * C)) * min q r
-    have hneg : -(4 / C) ≤ 0 := by
-      have hpos : 0 ≤ 4 / C := by positivity
-      linarith
-    calc
-      -(4 / C) * min (q / 16) (r / 4)
-          ≤ -(4 / C) * (min q r / 16) :=
-            mul_le_mul_of_nonpos_left hmin_scaled hneg
-      _ = -(1 / (4 * C)) * min q r := by
-          field_simp [hC.ne']
-          ring
-  exact mul_le_mul_of_nonneg_left (exp_le_exp.mpr harg) (by norm_num)
 
 /-- Hanson-Wright inequality in the HDP normalization.
 

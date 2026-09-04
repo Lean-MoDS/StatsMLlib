@@ -149,7 +149,7 @@ lemma mgf_max_bound {α : Type*} [MeasurableSpace α]
     · refine' MeasureTheory.integral_mono_of_nonneg _ _ _;
       · exact Filter.Eventually.of_forall fun x => Real.exp_nonneg _;
       · refine' MeasureTheory.integrable_finsetSum _ fun i _ => _;
-        exact sub_gaussian_integrable (h_sg i) t;
+        exact (h_sg i).integrable_exp_mul t;
       · filter_upwards [ ] with x;
 
         have h_max_exp : Real.exp (t * ⨆ k, Y k x) ≤ ∑ k, Real.exp (t * Y k x) := by
@@ -160,7 +160,7 @@ lemma mgf_max_bound {α : Type*} [MeasurableSpace α]
                 (Set.nonempty_of_mem <| Set.mem_range_self ⟨0, hM⟩))
           exact le_trans ( by rw [ ← h_max.choose_spec ] ) ( Finset.single_le_sum ( fun k _ => Real.exp_nonneg ( t * Y k x ) ) ( Finset.mem_univ _ ) );
         exact h_max_exp;
-    · exact fun k _ => sub_gaussian_integrable ( h_sg k ) t;
+    · exact fun k _ => (h_sg k).integrable_exp_mul t;
 
   have h_sub_gaussian_bound : ∀ k, ∫ x, Real.exp (t * Y k x) ∂μ ≤ Real.exp (σ_sq * t^2 / 2) := by
     intro k
@@ -204,7 +204,7 @@ lemma metric_entropy_bound_for_sub_gaussian_maxima
           · exact Filter.Eventually.of_forall fun x => Set.mem_univ _;
           · exact h_integrable.const_mul t;
           · have h_integrable_exp : ∀ k, MeasureTheory.Integrable (fun x => Real.exp (t * Y k x)) μ := by
-              exact fun k => sub_gaussian_integrable (h_sg k) t;
+              exact fun k => (h_sg k).integrable_exp_mul t;
             refine' MeasureTheory.Integrable.mono' ( MeasureTheory.integrable_finsetSum _ fun k _ => h_integrable_exp k ) _ _;
             exact Finset.univ;
             · exact Real.continuous_exp.comp_aestronglyMeasurable ( h_integrable.aestronglyMeasurable.const_mul _ );
@@ -517,7 +517,7 @@ lemma expectation_bound_chain_step
           refine' ⟨ _, _ ⟩;
           exact sq_nonneg _;
           refine' ⟨ _, fun t => _ ⟩;
-          · exact fun t => sub_gaussian_integrable h_sg t;
+          · exact fun t => h_sg.integrable_exp_mul t;
           · refine' le_trans ( h_sg.choose_spec.2 t ) _;
             exact Real.exp_le_exp.mpr ( by
               gcongr
@@ -809,24 +809,6 @@ lemma dudley_chain_bound_pointwise
       · exact chain_projection_mem L pi_map v hv h_chain 1 ( by linarith );
     linarith [ h_chain_bound u hu, h_chain_bound v hv, abs_sub_comm ( X v1 ) ( X v ) ]
 
-/-
-Pointwise bound for the difference of a process along a Dudley chain.
--/
-lemma dudley_chain_bound_pointwise_v2
-  {α : Type*}
-  {X : α → ℝ}
-  {L : ℕ} (hL : 1 ≤ L)
-  {U_seq : ℕ → Set α}
-  {pi_map : ℕ → α → α}
-  (hU_finite : ∀ m, (U_seq m).Finite)
-  (h_chain : ∀ m < L, ∀ u ∈ U_seq (m + 1), pi_map m u ∈ U_seq m)
-  (u : α) (hu : u ∈ U_seq L)
-  (v : α) (hv : v ∈ U_seq L)
-  :
-  |X u - X v| ≤
-  (⨆ x ∈ U_seq 1, ⨆ y ∈ U_seq 1, |X x - X y|) +
-  2 * ∑ k ∈ Finset.range (L - 1), (⨆ z ∈ U_seq (k + 2), |X z - X (pi_map (k + 1) z)|) := by
-    convert dudley_chain_bound_pointwise hL hU_finite h_chain u hu v hv using 1
 
 /-
 Linearity of expectation applied to the Dudley chain bound.
@@ -1511,14 +1493,6 @@ lemma dudley_step_bound_tight
           exact Real.sqrt_le_sqrt hmul_le
       nlinarith
 
-lemma dudley_sum_bound_tight
-  {f : ℝ → ℝ}
-  {D : ℝ} (hD : 0 < D)
-  (hf_antitone : AntitoneOn f (Set.Icc 0 D))
-  (L : ℕ) (hL : 1 ≤ L) :
-  ∑ k ∈ Finset.range (L - 1), 4 * (D * 2 ^ (-(k + 1 : ℝ))) * f (D * 2 ^ (-(k + 2 : ℝ))) ≤
-  16 * ∫ x in Set.Icc (D * 2 ^ (-(L + 1 : ℝ))) (D * 2 ^ (-2 : ℝ)), f x := by
-    convert dudley_sum_bound hD hf_antitone L hL using 1
 
 /-
 Entropy integral monotonicity: integrating √(log N(·,T)) over a larger domain gives a larger value.
@@ -1948,7 +1922,7 @@ lemma chaining_entropy_bound
             simp only [heps_def]; push_cast; rfl)
         rw [h_sum_rw]
 
-        have h_sum_bound := dudley_sum_bound_tight hD hg_antitone L hL_ge_1
+        have h_sum_bound := dudley_sum_bound hD hg_antitone L hL_ge_1
 
         have hg_eq_on : ∀ x ∈ Set.Icc (D * 2 ^ (-(↑L + 1 : ℝ))) (D * 2 ^ (-2 : ℝ)),
             g x = Real.sqrt (Real.log (subsetENetCard T x)) := by

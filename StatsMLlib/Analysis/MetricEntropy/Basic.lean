@@ -521,12 +521,6 @@ lemma entropyIntegral_mono_set_of_totallyBounded {s₁ s₂ : Set A} {D : ℝ}
   intro eps heps _
   exact coveringNumber_lt_top_of_totallyBounded heps hs₂
 
-/-- Entropy integral is monotone in D for totally bounded sets (with finiteness). -/
-lemma entropyIntegral_mono_D_of_totallyBounded {s : Set A} {D₁ D₂ : ℝ}
-    (hD : D₁ ≤ D₂)
-    (hfinite₂ : entropyIntegralENNReal s D₂ ≠ ⊤) :
-    entropyIntegral s D₁ ≤ entropyIntegral s D₂ :=
-  entropyIntegral_mono_D hD hfinite₂
 
 /-!
 ## Integrability and Real-ENNReal Connection

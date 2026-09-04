@@ -187,12 +187,6 @@ lemma IsSubGaussian.integrable_exp_mul {Ω : Type*} [MeasurableSpace Ω]
   obtain ⟨_, h_mgf⟩ := h_sg
   exact h_mgf.integrable_exp_mul t
 
-/-- Compatibility name for exponential integrability of sub-Gaussian random variables. -/
-lemma sub_gaussian_integrable {Ω : Type*} [MeasurableSpace Ω]
-    {X : Ω → ℝ} {σ_sq : ℝ} {μ : Measure Ω} [IsFiniteMeasure μ]
-    (h_sg : IsSubGaussian X σ_sq μ) (t : ℝ) :
-    Integrable (fun x => Real.exp (t * X x)) μ :=
-  h_sg.integrable_exp_mul t
 
 /-- A sub-Gaussian real random variable is integrable. -/
 lemma IsSubGaussian.integrable {Ω : Type*} [MeasurableSpace Ω]

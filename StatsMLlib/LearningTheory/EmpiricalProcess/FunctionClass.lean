@@ -40,10 +40,6 @@ lemma empiricalNorm_def (S : Fin n → 𝒳) (f : 𝒳 → ℝ) :
 noncomputable def empiricalDist (S : Fin n → 𝒳) (f g : 𝒳 → ℝ) : ℝ :=
   empiricalNorm S (f - g)
 
-@[simp]
-lemma empiricalDist_def (S : Fin n → 𝒳) (f g : 𝒳 → ℝ) :
-    empiricalDist S f g = empiricalNorm S (f - g) :=
-  rfl
 
 @[reducible] noncomputable def empiricalPMet (S : Fin n → 𝒳) :
     PseudoMetricSpace (𝒳 → ℝ) :=

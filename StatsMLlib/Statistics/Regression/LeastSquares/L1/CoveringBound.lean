@@ -1054,12 +1054,6 @@ The empirical image of the localized ball is totally bounded because it's contai
 in a closed ball of finite radius.
 -/
 
-/-- The empirical image of l1LocalizedBall is contained in a closed ball of radius δ -/
-lemma l1EmpiricalImage_subset_closedBall {d : ℕ} {R δ : ℝ} {θ_star : EuclideanSpace ℝ (Fin d)}
-    {x : Fin n → EuclideanSpace ℝ (Fin d)} :
-    l1EmpiricalImage x '' (l1LocalizedBall d R δ θ_star x) ⊆
-    Metric.closedBall (0 : EmpiricalSpace n) δ :=
-  l1LocalizedBallImage_subset
 
 /-- The closed ball in EmpiricalSpace is bounded -/
 lemma EmpiricalSpace_closedBall_bounded (n : ℕ) (r : ℝ) :
@@ -1070,7 +1064,7 @@ lemma EmpiricalSpace_closedBall_bounded (n : ℕ) (r : ℝ) :
 theorem l1LocalizedBallImage_bounded {d : ℕ} {R δ : ℝ}
     {θ_star : EuclideanSpace ℝ (Fin d)} (x : Fin n → EuclideanSpace ℝ (Fin d)) :
     Bornology.IsBounded (l1EmpiricalImage x '' (l1LocalizedBall d R δ θ_star x)) :=
-  Bornology.IsBounded.subset (EmpiricalSpace_closedBall_bounded n δ) l1EmpiricalImage_subset_closedBall
+  Bornology.IsBounded.subset (EmpiricalSpace_closedBall_bounded n δ) l1LocalizedBallImage_subset
 
 /-! ## Localized ℓ₁ Ball Image Covering Bound
 
