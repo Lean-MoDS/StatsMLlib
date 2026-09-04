@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kei Tsukamoto, Kazumi Kasaura, Naoto Onda, Yuma Mizuno, Sho Sonoda
 -/
 import StatsMLlib.Probability.Concentration.Hoeffding
+import StatsMLlib.Probability.Process.FiniteMaximum
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.Probability.Notation
 import Mathlib.Probability.Independence.Basic
@@ -21,7 +22,11 @@ This module uses Mathlib's cumulant-generating-function predicates.
 
 ## Main results
 
-* `ProbabilityTheory.maximal_inequality_finset`: maximal inequality over a finite index set.
+* `ProbabilityTheory.maximal_inequality_finset`: maximal inequality over a finite index set,
+  stated with the sub-Gaussian bound in lower-integral form. It is a corollary of
+  `expected_max_subGaussian` in `Probability.Process.FiniteMaximum`, which states the same
+  bound with the hypothesis phrased through `ProbabilityTheory.cgf`; the two differ only in
+  how sub-Gaussianity is spelled, and this module supplies the translation.
 * `ProbabilityTheory.maximal_inequality_supR`: supremum form of the maximal inequality.
 -/
 
@@ -34,42 +39,6 @@ universe u
 variable {Ω : Type u} [m : MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
 variable {ι : Type*} [DecidableEq ι]
 
-private theorem convexon_exp (t : ℝ) : ConvexOn ℝ Set.univ fun x ↦ rexp (t * x) := by
-  rw [(by funext; simp : (fun x ↦ rexp (t * x)) = rexp ∘ (fun x ↦ (t * x)))]
-  apply ConvexOn.comp
-  simp only [Set.image_univ]
-  by_cases h : t = 0
-  case pos =>
-    rw [h]
-    simp only [zero_mul, Set.range_const]
-    constructor
-    intro x hx
-    intro y hy a b ha hb hab
-    simp only [Set.mem_singleton_iff] at hx
-    simp only [Set.mem_singleton_iff] at hy
-    simp only [smul_eq_mul, Set.mem_singleton_iff]
-    rw [hx, hy]
-    simp only [mul_zero, add_zero]
-    intro x hx y hy a b ha hb hab
-    simp only [Set.mem_singleton_iff] at hx
-    simp only [Set.mem_singleton_iff] at hy
-    rw [hx, hy]
-    simp only [smul_eq_mul, mul_zero, add_zero, exp_zero, mul_one]
-    rw [hab]
-  case neg =>
-    suffices (Set.range fun x ↦ t * x) = Set.univ from by
-      rw [this]
-      exact convexOn_exp
-    apply Function.Surjective.range_eq
-    exact mul_left_surjective₀ h
-  dsimp [ConvexOn]
-  constructor
-  exact convex_univ
-  intro x hx y hy a b ha hb hab
-  rw [(by ring : t * (a * x + b * y) = a * (t * x) + b * (t * y))]
-  simp only [Set.image_univ]
-  intro a ha b hb hab
-  exact exp_le_exp.mpr hab
 
 omit [IsProbabilityMeasure μ] [DecidableEq ι] in
 theorem integrable_of_subgaussian (X : ι → Ω → ℝ) (j : ι) (r : ℝ)
@@ -135,376 +104,31 @@ private theorem integrable_exp_of_subgaussian
   rw [lintegral_congr (by intro a; rw [enorm_eq_ofReal_abs]; simp : ∀ a, ‖rexp (t * X j a)‖ₑ = ENNReal.ofReal (rexp (t * X j a)))]
   exact trans (p t) ENNReal.ofReal_lt_top
 
-private lemma enorm_mono (a b : ℝ) (p : a ≤ b) (q : 0 ≤ a):
-    ‖a‖ₑ ≤ ‖b‖ₑ := by
-  rw [← ofReal_norm]
-  rw [← ofReal_norm]
-  rw [ENNReal.ofReal_le_ofReal_iff]
-  simp only [norm_eq_abs]
-  exact abs_le_abs_of_nonneg q p
-  exact norm_nonneg b
 
-private lemma enorm_nonneg (a : ℝ) : 0 ≤ ‖a‖ₑ := by
-  exact bot_le
 
-omit [IsProbabilityMeasure μ] [DecidableEq ι] in
-private theorem Finset.aemeasurable_sup' {s : Finset ι} (hs : s.Nonempty) {f : ι → Ω → ℝ}
-    (hf : ∀ n ∈ s, AEMeasurable (f n) μ) : AEMeasurable (s.sup' hs f) μ  := by
-  let p (x : Ω → ℝ) := AEMeasurable x μ
-  change p (s.sup' hs f)
-  apply Finset.sup'_induction
-  intro a_1
-  intro r
-  intro a_2
-  intro r0
-  exact AEMeasurable.sup r r0
-  exact hf
 
-omit [IsProbabilityMeasure μ] [DecidableEq ι] in
-private lemma aemeasurable_sup_pointwise
-  {s : Finset ι} (H : s.Nonempty) {X : ι → Ω → ℝ}
-  (hX : ∀ i ∈ s, AEMeasurable (X i) μ) :
-  AEMeasurable (fun ω ↦ s.sup' H (fun j ↦ X j ω)) μ := by
-  have hEq : (fun ω ↦ s.sup' H (fun j ↦ X j ω)) = s.sup' H X := by
-    funext ω
-    exact Eq.symm (Finset.sup'_apply H X ω)
-  rw [hEq]
-  apply Finset.aemeasurable_sup'
-  exact hX
 
 omit [DecidableEq ι] in
-lemma maximal_inequality_finset (n : ℕ) (s : Finset ι) (n_car : s.card = n) (X : ι → Ω → ℝ) (r : ℝ)
-    (n_pos : 1 < n) (r_pos : 0 < r) (H : s.Nonempty)
-    (p : ∀ j ∈ s, ∀ t, ∫⁻ (ω : Ω), ENNReal.ofReal (Real.exp (t * ((X j) ω))) ∂μ ≤ ENNReal.ofReal (Real.exp (t ^ 2 * r ^ 2 / 2)))
-    (q7 : ∀ j ∈ s, AEMeasurable (X j) μ):
+lemma maximal_inequality_finset (n : ℕ) (s : Finset ι) (n_car : s.card = n) (X : ι → Ω → ℝ)
+    (r : ℝ) (n_pos : 1 < n) (r_pos : 0 < r) (H : s.Nonempty)
+    (p : ∀ j ∈ s, ∀ t, ∫⁻ (ω : Ω), ENNReal.ofReal (Real.exp (t * ((X j) ω))) ∂μ ≤
+      ENNReal.ofReal (Real.exp (t ^ 2 * r ^ 2 / 2)))
+    (q7 : ∀ j ∈ s, AEMeasurable (X j) μ) :
     ∫ (ω : Ω), Finset.sup' s H (fun j => (X j) ω) ∂μ ≤ r * Real.sqrt (2 * Real.log n) := by
-  have l'' : AEStronglyMeasurable (fun ω ↦ s.sup' H fun j ↦ X j ω) μ := by
-    apply AEMeasurable.aestronglyMeasurable
-    apply aemeasurable_sup_pointwise
-    exact q7
-  have q : ∀ j ∈ s, Integrable (X j) μ := fun j hj ↦ integrable_of_subgaussian μ X j r (p j hj) (q7 j hj)
-  have p9 : 0 < √(2 * log ↑n) / r := by
-    apply div_pos
-    simp only [Nat.ofNat_nonneg, sqrt_mul, sqrt_pos, Nat.ofNat_pos, mul_pos_iff_of_pos_left]
-    refine log_pos ?ha.hx
-    norm_cast
-    exact r_pos
-  have qq : ∀ t x, 0 ≤ t → rexp (s.sup' H fun j ↦ t * X j x) = s.sup' H fun j ↦ rexp (t * X j x) := by
-    intro t x ht
-    have s0 : rexp (s.sup' H fun j ↦ t * X j x) ≤ s.sup' H fun j ↦ rexp (t * X j x) := by
-      rw [Finset.le_sup'_iff]
-      have s0' : ∃ i ∈ s, (s.sup' H fun j ↦ X j x) = X i x := by
-        apply Finset.exists_mem_eq_sup'
-      obtain ⟨i, ⟨v, w⟩⟩ := s0'
-      use i
-      constructor
-      exact v
-      rw [<- w]
-      simp only [exp_le_exp, Finset.sup'_le_iff]
-      intro g gs
-      apply mul_le_mul_of_nonneg_left
-      rw [Finset.le_sup'_iff]
-      use g
-      exact ht
-    have s1 : (s.sup' H fun j ↦ rexp (t * X j x)) ≤ rexp (s.sup' H fun j ↦ t * X j x) := by
-      rw [Finset.sup'_le_iff]
-      intro b bs
-      rw [Real.exp_le_exp]
-      rw [Finset.le_sup'_iff]
-      use b
-    apply LE.le.antisymm s0 s1
-  have p0 : ∀ t , 0 ≤ t → Real.exp (t * ∫ (ω : Ω), Finset.sup' s H (fun j => (X j) ω) ∂μ) ≤
-            n * Real.exp (t ^ 2 * r ^ 2 / 2) := by
-    intro t ht
-    calc
-    _ ≤ ∫ (ω : Ω), Real.exp (t * Finset.sup' s H (fun j => (X j) ω)) ∂μ := by
-      set g := fun x => rexp (t * x)
-      set f := fun (ω : Ω) => s.sup' H fun j ↦ X j ω
-      suffices g (∫ (ω : Ω), f ω ∂μ) ≤ ∫ (ω : Ω), g (f ω) ∂μ from by
-        exact this
-      apply ConvexOn.map_integral_le
-      dsimp [g]
-      exact (by apply convexon_exp)
-      dsimp [g]
-      apply ContinuousOn.rexp
-      apply ContinuousOn.mul
-      exact continuousOn_const
-      exact continuousOn_id' Set.univ
-      simp only [isClosed_univ]
-      simp only [Set.mem_univ, Filter.eventually_true]
-      · constructor
-        · dsimp [f]
-          exact l''
-        · dsimp [f]
-          dsimp [HasFiniteIntegral]
-          calc
-          _ ≤ ∫⁻ (a : Ω), s.sup' H fun j ↦ ‖X j a‖ₑ ∂μ := by
-            apply lintegral_mono
-            refine Pi.le_def.mpr ?_
-            intro i
-            refine (Finset.le_sup'_iff H).mpr ?_
-            obtain ⟨b, hb⟩ := Finset.exists_mem_eq_sup' H fun j ↦ X j i
-            use b
-            constructor
-            exact hb.1
-            rw [hb.2]
-          _ ≤ ∫⁻ (a : Ω), ∑ j ∈ s, ‖X j a‖ₑ ∂μ := by
-            apply lintegral_mono
-            refine Pi.le_def.mpr ?_
-            intro i
-            suffices ∀ j ∈ s, ‖X j i‖ₑ ≤ ∑ j ∈ s, ‖X j i‖ₑ from by
-              exact Finset.sup'_le H (fun j ↦ ‖X j i‖ₑ) this
-            intro j hj
-            let f := fun j => ‖X j i‖ₑ
-            suffices f j ≤ ∑ j ∈ s, f j from by
-              exact this
-            apply Finset.single_le_sum
-            intro i is
-            dsimp [f]
-            simp only [zero_le, *]
-            exact hj
-          _ = ∑ j ∈ s, ∫⁻ (a : Ω), ‖X j a‖ₑ ∂μ := by
-            refine lintegral_finsetSum' s ?_
-            intro b bs
-            exact AEMeasurable.enorm (q7 b bs)
-          _ < ⊤ := by
-            refine ENNReal.sum_lt_top.mpr ?_
-            intro a as
-            refine hasFiniteIntegral_iff_enorm.mp ?_
-            exact Integrable.hasFiniteIntegral (q a as)
-      · constructor
-        · change AEStronglyMeasurable (fun x => g (f x)) μ
-          apply Continuous.comp_aestronglyMeasurable
-          · subst n_car
-            simp_all only [Nat.ofNat_nonneg, sqrt_mul, div_pos_iff_of_pos_right, sqrt_pos, Nat.ofNat_pos, mul_pos_iff_of_pos_left,
-              f, g]
-            apply Continuous.comp'
-            · apply Real.continuous_exp
-            · apply continuous_const_mul
-          · exact l''
-        · dsimp [HasFiniteIntegral]
-          dsimp [g, f]
-          have q' : ∫⁻ (a : Ω), ‖rexp (t * s.sup' H fun j ↦ X j a)‖ₑ ∂μ < ⊤ := by
-            calc
-            _ ≤ ∫⁻ (a : Ω), s.sup' H fun j ↦ ‖rexp (t * X j a)‖ₑ ∂μ := by
-              apply lintegral_mono
-              refine Pi.le_def.mpr ?_
-              intro i
-              rw [Finset.le_sup'_iff]
-              obtain ⟨b,bs,w0⟩ := Finset.exists_mem_eq_sup' H fun j ↦ X j i
-              use b
-              constructor
-              exact bs
-              rw [w0]
-            _ ≤ ∫⁻ (a : Ω), ∑ j ∈ s, ‖rexp (t * X j a)‖ₑ ∂μ := by
-              apply lintegral_mono
-              refine Pi.le_def.mpr ?_
-              intro i
-              have v : ∀ k ∈ s, ‖rexp (t * X k i)‖ₑ ≤ ∑ j ∈ s, ‖rexp (t * X j i)‖ₑ := by
-                intro k ks
-                let y (k : ι) := ‖rexp (t * X k i)‖ₑ
-                have v0 : y k ≤ ∑ j ∈ s, y j := by
-                  apply Finset.single_le_sum
-                  intro i' is
-                  dsimp [y]
-                  apply enorm_nonneg
-                  exact ks
-                exact v0
-              exact Finset.sup'_le H (fun j ↦ ‖rexp (t * X j i)‖ₑ) v
-            _ = ∑ j ∈ s, ∫⁻ (a : Ω), ‖rexp (t * X j a)‖ₑ ∂μ := by
-              refine lintegral_finsetSum' s ?_
-              intro b bs
-              subst n_car
-              simp_all only [Nat.ofNat_nonneg, sqrt_mul, div_pos_iff_of_pos_right, sqrt_pos, Nat.ofNat_pos, mul_pos_iff_of_pos_left,f]
-              apply AEMeasurable.coe_nnreal_ennreal
-              apply AEMeasurable.nnnorm
-              apply AEMeasurable.exp
-              apply AEMeasurable.const_mul
-              simp_all only
-            _ ≤ ∑ j ∈ s, ‖rexp (t ^ 2 * r ^ 2 / 2)‖ₑ := by
-              refine Finset.sum_le_sum ?_
-              intro i is
-              have q0 : ∀ s, ‖rexp s‖ₑ = ENNReal.ofReal (rexp s) := by
-                intro s
-                rw [Real.enorm_eq_ofReal]
-                exact exp_nonneg s
-              rw [q0]
-              have q1 : ∫⁻ (a : Ω), ‖rexp (t * X i a)‖ₑ ∂μ = ∫⁻ (a : Ω), ENNReal.ofReal (rexp (t * X i a)) ∂μ := by
-                apply lintegral_congr
-                intro a
-                exact q0 (t * X i a)
-              rw [q1]
-              exact p i is t
-            _ < ⊤ := by
-              refine ENNReal.sum_lt_top.mpr ?_
-              intro a as
-              exact enorm_lt_top
-          assumption
-    _ = ∫ (ω : Ω), Real.exp (Finset.sup' s H (fun j => t * (X j) ω)) ∂μ := by
-      apply congrArg
-      funext x
-      apply congrArg
-      have s0 : (t * s.sup' H fun j ↦ X j x) ≤ s.sup' H fun j ↦ t * X j x := by
-        rw [Finset.le_sup'_iff]
-        have s0' : ∃ i ∈ s, (s.sup' H fun j ↦ X j x) = X i x := by
-          apply Finset.exists_mem_eq_sup'
-        obtain ⟨i, ⟨v, w⟩⟩ := s0'
-        rw [w]
-        use i
-      have s1 : (s.sup' H fun j ↦ t * X j x) ≤ (t * s.sup' H fun j ↦ X j x) := by
-        rw [Finset.sup'_le_iff]
-        intro b bs
-        suffices X b x ≤ s.sup' H fun j ↦ X j x from by
-          exact mul_le_mul_of_nonneg_left this ht
-        rw [Finset.le_sup'_iff]
-        use b
-      linarith
-    _ = ∫ (ω : Ω), Finset.sup' s H (fun j => Real.exp (t * (X j) ω)) ∂μ := by
-      apply congrArg
-      funext x
-      exact qq t x ht
-    _ ≤ ∫ (ω : Ω), ∑ j ∈ s, Real.exp (t * (X j) ω) ∂μ := by
-      have w : ∀ ω, Finset.sup' s H (fun j => Real.exp (t * (X j) ω)) ≤ ∑ j ∈ s, rexp (t * X j ω) := by
-        intro ω
-        suffices ∀ k ∈ s, (rexp (t * X k ω) ≤ ∑ j ∈ s, (rexp (t * X j ω))) from by
-          rw [Finset.sup'_le_iff]
-          intro b xb
-          exact this b xb
-        intro k hk
-        let f := rexp ∘ (fun j => t * X j ω)
-        have g : f k ≤ ∑ j ∈ s, f j := by
-          apply Finset.single_le_sum ?_ hk
-          intro i hi
-          exact exp_nonneg (t * X i ω)
-        exact g
-      apply integral_mono_of_nonneg
-      filter_upwards
-      intro a
-      simp only [Pi.zero_apply]
-      · rw [Finset.le_sup'_iff]
-        have ⟨x, H'⟩ := Finset.Nonempty.exists_mem H
-        use x
-        constructor
-        exact H'
-        exact exp_nonneg (t * X x a)
-      · refine integrable_finsetSum s ?hgi.hf
-        intro i hi
-        exact ProbabilityTheory.integrable_exp_of_subgaussian μ X i r (p i hi) t (q7 i hi)
-      · filter_upwards
-        intro a
-        exact w a
-    _ = (∑ j ∈ s, ∫ (ω : Ω), Real.exp (t * (X j) ω) ∂μ) := by
-      refine integral_finsetSum s ?_
-      intro i hi
-      exact ProbabilityTheory.integrable_exp_of_subgaussian μ X i r (p i hi) t (q7 i hi)
-    _ ≤ (∑ j ∈ s, Real.exp (t ^ 2 * r ^ 2 / 2)) := by
-      apply Finset.sum_le_sum
-      intro j js
-      suffices ENNReal.ofReal (∫ (ω : Ω), rexp (t * X j ω) ∂μ) ≤ ENNReal.ofReal (rexp (t ^ 2 * r ^ 2 / 2)) from by
-        rw [ENNReal.ofReal_le_ofReal_iff] at this
-        exact this
-        exact exp_nonneg (t ^ 2 * r ^ 2 / 2)
-      have w : ENNReal.ofReal (∫ (ω : Ω), rexp (t * X j ω) ∂μ) = ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ := by
-        apply ofReal_integral_eq_lintegral_ofReal
-        exact ProbabilityTheory.integrable_exp_of_subgaussian μ X j r (p j js) t (q7 j js)
-        filter_upwards
-        intro a
-        simp only [Pi.zero_apply]
-        exact exp_nonneg (t * X j a)
-      rw [w]
-      exact p j js t
-    _ = n * Real.exp (t ^ 2 * r ^ 2 / 2) := by
-      norm_cast
-      rw [Finset.sum_const]
-      simp
-      exact n_car
-  have p1 : ∀ t, 0 ≤ t → t * ∫ (ω : Ω),Finset.sup' s H (fun j => (X j) ω) ∂μ ≤ t * ((Real.log n) / t + (t * r ^ 2 / 2)) := by
-    intro t ht
-    by_cases h : t = 0
-    case pos =>
-      rw [h]
-      simp
-    case neg =>
-      have h' : 0 < t := by
-        apply lt_of_le_of_ne
-        exact ht
-        symm
-        intro q
-        exact h q
-      suffices ∫ (ω : Ω), Finset.sup' s H (fun j => (X j) ω) ∂μ ≤ (log ↑n / t + t * r ^ 2 / 2) from by
-        exact (mul_le_mul_iff_of_pos_left h').mpr this
-      have p1' := p0 t ht
-      have p1'' : (t * ∫ (ω : Ω), Finset.sup' s H (fun j => (X j) ω) ∂μ) ≤ Real.log (↑n * rexp (t ^ 2 * r ^ 2 / 2)) := by
-        rw [Real.le_log_iff_exp_le]
-        exact p1'
-        apply mul_pos
-        norm_cast
-        linarith [n_pos]
-        exact exp_pos (t ^ 2 * r ^ 2 / 2)
-      have p1''' : Real.log (↑n * rexp (t ^ 2 * r ^ 2 / 2)) = Real.log ↑n + t ^ 2 * r ^ 2 / 2 := by
-        calc
-        _ = Real.log ↑n + Real.log (rexp (t ^ 2 * r ^ 2 / 2)) := by
-          apply Real.log_mul
-          norm_cast
-          linarith
-          exact exp_ne_zero (t ^ 2 * r ^ 2 / 2)
-        _ = Real.log ↑n + t ^ 2 * r ^ 2 / 2 := by rw [Real.log_exp]
-      rw [p1'''] at p1''
-      have p1'''' : t * ((Real.log ↑n) / t + (t * r ^ 2 / 2)) = Real.log ↑n + t ^ 2 * r ^ 2 / 2 := by
-        calc
-        _ = t * Real.log ↑n / t + t * t * r ^ 2 / 2 := by ring
-        _ = Real.log ↑n + t * t * r ^ 2 / 2 := by
-          rw [add_right_cancel_iff]
-          field_simp
-        _ = Real.log ↑n + t ^ 2 * r ^ 2 / 2 := by ring
-      rw [<- p1''''] at p1''
-      apply le_of_mul_le_mul_left
-      exact p1''
-      exact h'
-  have p2 : ((Real.sqrt (2 * Real.log n)) / r) * ∫ (ω : Ω), Finset.sup' s H (fun j => (X j) ω) ∂μ ≤
-          ((Real.sqrt (2 * Real.log n)) / r) * (log ↑n / ((Real.sqrt (2 * Real.log n)) / r) +
-          ((Real.sqrt (2 * Real.log n)) / r) * ↑r ^ 2 / 2) := by
-    apply p1
-    suffices 0 ≤ √(2 * log ↑n) from by
-      apply div_nonneg
-      exact this
-      exact le_of_lt r_pos
-    simp
-  have p3 : log ↑n / (√(2 * log ↑n) / ↑r) + √(2 * log ↑n) / ↑r * ↑r ^ 2 / 2
-            = ↑r * √(2 * log ↑n) := by
-    have p3' : log ↑n / (√(2 * log ↑n) / ↑r) = ↑r * √(log ↑n) / √2 := by
-      calc
-      _ = (log ↑n / √(2 * log ↑n)) * ↑r := by field_simp
-      _ = ↑r * (log ↑n) / √(2 * log ↑n) := by ring
-      _ = ↑r * (log ↑n) / (√2 * √(log ↑n)) := by simp
-      _ = (↑r / √2) * (log ↑n / √(log ↑n)) := by ring
-      _ = ↑r / √2 * √(log ↑n) := by simp
-      _ = ↑r * √(log ↑n) / √2 := by ring
-    have p3'' : √(2 * log ↑n) / ↑r * ↑r ^ 2 / 2 = ↑r * √(log ↑n) / √2 := by
-      calc
-      _ = √2 * √(log ↑n) / ↑r * ↑r ^ 2 / 2 := by simp
-      _ = (√(log ↑n) / ↑r * ↑r ^ 2) * (√2 / 2) := by ring
-      _ = (√(log ↑n) / ↑r * ↑r ^ 2) * (1 / √2) := by
-        have p3''' : √2 / 2 = 1 / √2 := by field_simp; simp
-        rw [p3''']
-      _ = √(log ↑n) / ↑r * ↑r ^ 2 / √2 := by ring
-      _ = √(log ↑n) * (↑r ^ 2 / ↑r) / √2 := by ring
-      _ = √(log ↑n) * ↑r / √2 := by
-        have p3'''' : ↑r ^ 2 / ↑r = ↑r :=
-          calc
-          _ = ↑r * ↑r / ↑r := by ring
-          _ = ↑r := by simp
-        rw [p3'''']
-      _ = ↑r * √(log ↑n) / √2 := by ring
-    rw [p3', p3'']
-    calc
-    _ = 2 * ↑r * √(log ↑n) / √2 := by ring
-    _ = (2 / √2) * ↑r * √(log ↑n) := by ring
-    _ = √2 * ↑r * √(log ↑n) := by simp
-    _ = ↑r * (√2 * √(log ↑n)) := by ring
-    _ = ↑r * √(2 * log ↑n) := by simp
-  rw [p3] at p2
-  exact le_of_mul_le_mul_left p2 p9
+  subst n_car
+  refine expected_max_subGaussian r_pos H n_pos q7
+    (fun j hj => integrable_of_subgaussian μ X j r (p j hj) (q7 j hj)) ?_
+    (fun j hj t => integrable_exp_of_subgaussian μ X j r (p j hj) t (q7 j hj))
+  intro j hj t
+  have hint := integrable_exp_of_subgaussian μ X j r (p j hj) t (q7 j hj)
+  have hmgf : mgf (X j) μ t ≤ Real.exp (t ^ 2 * r ^ 2 / 2) := by
+    have h := p j hj t
+    rw [← ofReal_integral_eq_lintegral_ofReal hint
+      (Filter.Eventually.of_forall fun _ => Real.exp_nonneg _)] at h
+    exact (ENNReal.ofReal_le_ofReal_iff (Real.exp_nonneg _)).1 h
+  calc cgf (X j) μ t = Real.log (mgf (X j) μ t) := rfl
+    _ ≤ Real.log (Real.exp (t ^ 2 * r ^ 2 / 2)) := Real.log_le_log (mgf_pos hint) hmgf
+    _ = t ^ 2 * r ^ 2 / 2 := Real.log_exp _
 
 omit [DecidableEq ι] in
 lemma sup'_pow (s : Finset ι)

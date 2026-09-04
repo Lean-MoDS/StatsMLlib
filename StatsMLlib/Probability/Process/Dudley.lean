@@ -810,7 +810,7 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
         calc ∫ ω, SΔ_trans k ω ∂μ
           _ ≤ (σ * dyadicScale D k) * Real.sqrt (2 * Real.log (h_chain_trans_finite k).toFinset.card) :=
               expected_max_subGaussian hσ'_pos h_ne hcard_trans
-                (fun p _ => (hX_meas p.2).sub (hX_meas p.1))
+                (fun p _ => ((hX_meas p.2).sub (hX_meas p.1)).aemeasurable)
                 (fun p _ => hX_int p.2 p.1)
                 hY_cgf (fun p _ t => hX_int_exp p.2 p.1 t)
           _ ≤ (σ * dyadicScale D k) * Real.sqrt (2 * Real.log (dn.nets (k + 1)).card) := by

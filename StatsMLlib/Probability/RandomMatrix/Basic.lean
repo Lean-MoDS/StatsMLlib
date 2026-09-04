@@ -4465,7 +4465,8 @@ theorem norm_subgaussian_matrices_expectation_hdp_of_pos {m n : ℕ} (hm : 0 < m
             ring
   have hmax :=
     expected_max_subGaussian (μ := μ) (X := Z) (σ := 2 * K) hK2
-      (s := signed) hsigned_nonempty hsigned_card hZ_meas hZ_int hZ_cgf hZ_exp
+      (s := signed) hsigned_nonempty hsigned_card
+      (fun q hq => (hZ_meas q hq).aemeasurable) hZ_int hZ_cgf hZ_exp
   have hsup_int :
       Integrable (fun ω => signed.sup' hsigned_nonempty (fun q => Z q ω)) μ := by
     refine Integrable.mono
