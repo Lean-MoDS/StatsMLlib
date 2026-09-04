@@ -9,13 +9,13 @@ import StatsMLlib.LearningTheory.FunctionClass.KernelPredictor
 import StatsMLlib.LearningTheory.Rademacher.Reindex
 
 /-!
-# Finite RKHS model selection with a Lipschitz loss
+# RKHS model selection with a Lipschitz loss
 
-The contraction theorem currently proved in this repository treats finite
-hypothesis types.  This module combines it with the feature-map RKHS trace
-estimate and the approximate-ERM oracle inequality.  Thus it provides a fully
-proved loss-to-excess-risk endpoint while leaving the extension of contraction
-to an arbitrary separable Hilbert ball as a separate task.
+This module combines the contraction theorem with the feature-map RKHS trace
+estimate and the approximate-ERM oracle inequality, giving a loss-to-excess-risk
+endpoint for a weight family indexed by an arbitrary separable, first-countable
+parameter space.  The uniform bound the contraction step needs comes from the
+kernel diagonal bound.
 -/
 
 noncomputable section
@@ -30,15 +30,15 @@ variable {Ω : Type u} [MeasurableSpace Ω]
 variable {𝒳 : Type v} {𝒴 : Type w}
 variable {E : Type x} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
-variable {G : Type y} [Fintype G] [Nonempty G]
-  [TopologicalSpace G] [DiscreteTopology G]
+variable {G : Type y} [Nonempty G]
+  [TopologicalSpace G] [SeparableSpace G] [FirstCountableTopology G]
 variable {μ : Measure Ω}
 
 local notation "μⁿ" => Measure.pi (fun _ ↦ μ)
 
 /--
-Sample-dependent excess-risk bound for an approximate ERM over a finite
-collection of RKHS weights.
+Sample-dependent excess-risk bound for an approximate ERM over a continuously
+parametrized family of RKHS weights.
 
 The loss must vanish at prediction zero and be `L`-Lipschitz.  The resulting
 threshold contains
@@ -48,14 +48,14 @@ threshold contains
 where the factor `2` is the contraction constant for this repository's
 absolute empirical Rademacher complexity.
 -/
-theorem finite_rkhs_approxERM_excessRisk_tail_bound_delta
+theorem rkhs_approxERM_excessRisk_tail_bound_delta
     [MeasurableSpace (𝒳 × 𝒴)] [Nonempty (𝒳 × 𝒴)]
     [IsProbabilityMeasure μ]
     (hn : 0 < n)
     (Φ : 𝒳 → E)
     (Λ r : ℝ) (hΛ : 0 < Λ) (hr : 0 < r)
     (hdiag : ∀ x, kernelOfFeatureMap Φ x x ≤ r ^ 2)
-    (weights : G → Metric.closedBall (0 : E) Λ)
+    (weights : G → Metric.closedBall (0 : E) Λ) (hweights : Continuous weights)
     (loss : ℝ → 𝒴 → ℝ)
     {L b η : ℝ} (hL : 0 ≤ L)
     (hloss_zero : ∀ y, loss 0 y = 0)
@@ -105,9 +105,10 @@ theorem finite_rkhs_approxERM_excessRisk_tail_bound_delta
           2 * L *
             empiricalRademacherComplexity n
               (fun (g : G) (z : 𝒳 × 𝒴) ↦ predictor g z.1) S := by
-      apply empiricalRademacherComplexity_contraction_finite
+      apply empiricalRademacherComplexity_contraction
         n (fun (g : G) (z : 𝒳 × 𝒴) ↦ predictor g z.1)
-          (fun z u ↦ loss u z.2) S hL
+          (fun z u ↦ loss u z.2) S hL (mul_nonneg hr.le hΛ.le)
+        (fun g z ↦ abs_rkhsPredictor_le Φ hΛ.le hr.le hdiag (weights g) z.1)
       · exact fun z ↦ hloss_zero z.2
       · exact fun z u v ↦ hloss_lip z.2 u v
     have hsubclass :
@@ -153,13 +154,25 @@ theorem finite_rkhs_approxERM_excessRisk_tail_bound_delta
         gcongr
         exact hsubclass.trans htrace
       _ = C S := rfl
+  have hloss_cont : ∀ y : 𝒴, Continuous fun u : ℝ ↦ loss u y := by
+    intro y
+    have hlip : LipschitzWith ⟨L, hL⟩ fun u : ℝ ↦ loss u y := by
+      apply LipschitzWith.of_dist_le_mul
+      intro u v
+      rw [Real.dist_eq, Real.dist_eq]
+      exact hloss_lip y u v
+    exact hlip.continuous
+  have hclass_cont : ∀ z : 𝒳 × 𝒴, Continuous fun g ↦ lossClass g z := by
+    intro z
+    exact (hloss_cont z.2).comp
+      ((continuous_rkhsPredictor_weight Φ z.1).comp hweights)
   have htail :=
     approxERM_excessRisk_tail_bound_separable_of_sample_empirical_le_delta
       (μ := μ) hn lossClass
       (by simpa only [lossClass, predictor] using hclass_meas)
       Z hZ C hb
       (by simpa only [lossClass, predictor] using hclass_bound)
-      (fun _ ↦ continuous_of_discreteTopology)
+      hclass_cont
       A
       (by simpa only [lossClass, predictor] using hA)
       hC gstar hδ hδ_one
@@ -173,7 +186,7 @@ double as acceptance tests that these statements stay usable as written.
 -/
 
 /-!
-For a finite collection of weights in an RKHS ball, the finite-class
+For a continuously parametrized family of weights in an RKHS ball, the
 contraction theorem also connects a centered Lipschitz loss to the kernel
 trace estimate.  If the loss vanishes at zero, then
 
@@ -185,9 +198,7 @@ $$
 $$
 
 Combining this with the approximate-ERM oracle inequality yields an excess
-risk statement.  The finiteness assumption here belongs to the currently
-proved contraction theorem; the RKHS trace estimate itself applies to the
-entire Hilbert ball.
+risk statement.
 -/
 
 /-- RKHS, Lipschitz-loss, and approximate-ERM end-to-end example. -/
@@ -198,7 +209,7 @@ example
     (Φ : 𝒳 → E)
     (Λ r : ℝ) (hΛ : 0 < Λ) (hr : 0 < r)
     (hdiag : ∀ x, kernelOfFeatureMap Φ x x ≤ r ^ 2)
-    (weights : G → Metric.closedBall (0 : E) Λ)
+    (weights : G → Metric.closedBall (0 : E) Λ) (hweights : Continuous weights)
     (loss : ℝ → 𝒴 → ℝ)
     {L b η : ℝ} (hL : 0 ≤ L)
     (hloss_zero : ∀ y, loss 0 y = 0)
@@ -231,8 +242,8 @@ example
           (supervisedLossClass
             (fun g x ↦ rkhsPredictor Φ (weights g) x) loss)
           μ Z (A (Z ∘ S)) gstar}).toReal ≤ δ := by
-  exact finite_rkhs_approxERM_excessRisk_tail_bound_delta
-    hn Φ Λ r hΛ hr hdiag weights loss hL hloss_zero hloss_lip
+  exact rkhs_approxERM_excessRisk_tail_bound_delta
+    hn Φ Λ r hΛ hr hdiag weights hweights loss hL hloss_zero hloss_lip
     hclass_meas hb hclass_bound Z hZ A hA gstar hδ hδ_one
 
 end
