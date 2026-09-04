@@ -124,12 +124,9 @@ noncomputable def Y (i : Fin m) (j : ι) : Ωᵣ → ℝ :=
 noncomputable def X (j : ι) : Ωᵣ → ℝ :=
   fun σ => ∑ i : Fin m, Y (F:=F) (S:=S) i j σ
 
--- per-sample envelope r i (independent of j), and its ℓ2-aggregate r′
+-- per-sample envelope r i (independent of j)
 noncomputable def r (f : Finset ι) (hs : f.Nonempty) (i : Fin m) : ℝ :=
   (m : ℝ)⁻¹ * Finset.sup' f hs (fun j => |F j (S i)|)
-
-noncomputable def r' (i : Fin m) (j : ι) : ℝ :=
-  (m : ℝ)⁻¹ * |F j (S i)|
 
 end MassartNotation
 
