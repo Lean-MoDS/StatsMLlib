@@ -47,6 +47,20 @@ def denseSeqInTB {s : Set A} (hs : TotallyBounded s) (hsne : s.Nonempty) (n : �
   letI : SeparableSpace (↥s) := hs.isSeparable.separableSpace
   denseSeq (↥s) n
 
+/-- `denseSeqInTB` restricts along the same sequence `denseRestriction` uses.
+
+`denseSeqInTB` supplies the `Nonempty` and `SeparableSpace` instances from total
+boundedness at the point of definition, while `denseRestriction` takes them from the
+context. Both classes are `Prop`s, so proof irrelevance makes the two agree and this
+holds by `rfl`. It is what lets a statement in either spelling be read as the other. -/
+lemma denseSeqInTB_eq_denseRestriction {s : Set A} (hs : TotallyBounded s)
+    (hsne : s.Nonempty) {β : Type*} (f : ↥s → β) :
+    (fun n ↦ f (denseSeqInTB hs hsne n)) =
+      letI : Nonempty (↥s) := hsne.to_subtype
+      letI : SeparableSpace (↥s) := hs.isSeparable.separableSpace
+      denseRestriction f :=
+  rfl
+
 /-- For a continuous function on a totally bounded nonempty set, the supremum equals
     the supremum over the dense sequence. -/
 lemma sup_subtype_eq_iSup_denseSeq {s : Set A} (hs : TotallyBounded s) (hsne : s.Nonempty)
@@ -54,8 +68,10 @@ lemma sup_subtype_eq_iSup_denseSeq {s : Set A} (hs : TotallyBounded s) (hsne : s
     ⨆ (t : ↥s), f t.1 = ⨆ n : ℕ, f (denseSeqInTB hs hsne n).1 := by
   let : Nonempty (↥s) := hsne.to_subtype
   let : SeparableSpace (↥s) := hs.isSeparable.separableSpace
-  unfold denseSeqInTB
-  exact separableSpaceSup_eq_real hcont
+  rw [show (fun n : ℕ ↦ f (denseSeqInTB hs hsne n).1)
+        = denseRestriction (fun t : ↥s ↦ f t.1) from
+      denseSeqInTB_eq_denseRestriction hs hsne (fun t : ↥s ↦ f t.1)]
+  exact separableSpaceSup_eq_denseRestriction hcont
 
 omit [MeasurableSpace Ω] in
 /-- Pathwise equality: the supremum over s equals supremum over denseSeq for each ω. -/
