@@ -79,6 +79,14 @@ theorem exp_sup'_le_sum {ι : Type*} {s : Finset ι} (hs : s.Nonempty) (f : ι �
   rw [hmax]
   exact Finset.single_le_sum (fun i _ => (exp_pos (f i)).le) hj
 
+/-- A `Finset.sup'` of a.e.-measurable functions is a.e.-measurable. -/
+private theorem Finset.aemeasurable_sup' {ι : Type*} {μ : Measure Ω} {s : Finset ι}
+    (hs : s.Nonempty) {f : ι → Ω → ℝ} (hf : ∀ n ∈ s, AEMeasurable (f n) μ) :
+    AEMeasurable (s.sup' hs f) μ := by
+  let p (x : Ω → ℝ) := AEMeasurable x μ
+  change p (s.sup' hs f)
+  refine Finset.sup'_induction _ _ (fun _ hr _ hr0 => AEMeasurable.sup hr hr0) hf
+
 /-- Scaled soft-max: `exp(t · sup' f) ≤ ∑ exp(t · fᵢ)`. -/
 theorem exp_mul_sup'_le_sum {ι : Type*} {s : Finset ι} (hs : s.Nonempty)
     (f : ι → ℝ) (t : ℝ) :
@@ -104,7 +112,7 @@ theorem expected_max_subGaussian {ι : Type*}
     {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : ι → Ω → ℝ} {σ : ℝ} (hσ : 0 < σ)
     {s : Finset ι} (hs : s.Nonempty) (hs_card : 2 ≤ s.card)
-    (hX_meas : ∀ i ∈ s, Measurable (X i))
+    (hX_meas : ∀ i ∈ s, AEMeasurable (X i) μ)
     (hX_int_basic : ∀ i ∈ s, Integrable (X i) μ)
     (hX_sgb : ∀ i ∈ s, ∀ t, ProbabilityTheory.cgf (X i) μ t ≤ t^2 * σ^2 / 2)
     (hX_int_exp : ∀ i ∈ s, ∀ t, Integrable (fun ω => exp (t * X i ω)) μ) :
@@ -139,7 +147,7 @@ theorem expected_max_subGaussian {ι : Type*}
   -- Step 1: Integrability of sup'
   have hsup_int : Integrable (fun ω => s.sup' hs (fun i => X i ω)) μ := by
     refine Integrable.mono (integrable_finsetSum s (fun i hi => (hX_int_basic i hi).abs)) ?_ ?_
-    · convert (Finset.measurable_sup' hs (fun i hi => hX_meas i hi)).aestronglyMeasurable using 1
+    · convert (Finset.aemeasurable_sup' hs (fun i hi => hX_meas i hi)).aestronglyMeasurable using 1
       funext ω
       simp only [Finset.sup'_apply]
     · refine ae_of_all μ (fun ω => ?_)
@@ -177,10 +185,10 @@ theorem expected_max_subGaussian {ι : Type*}
   -- Step 4: Integrability of exp(t·sup')
   have hsup_exp_int : Integrable (fun ω => exp (t_opt * s.sup' hs (fun i => X i ω))) μ := by
     apply Integrable.mono' hsum_int
-    · apply Measurable.aestronglyMeasurable
-      apply Measurable.exp
-      apply Measurable.const_mul
-      convert Finset.measurable_sup' hs (fun i hi => hX_meas i hi) using 1
+    · apply AEMeasurable.aestronglyMeasurable
+      apply AEMeasurable.exp
+      apply AEMeasurable.const_mul
+      convert Finset.aemeasurable_sup' hs (fun i hi => hX_meas i hi) using 1
       funext ω
       simp only [Finset.sup'_apply]
     · refine ae_of_all μ (fun ω => ?_)

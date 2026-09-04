@@ -106,18 +106,6 @@ private theorem integrable_exp_of_subgaussian
 
 
 
-omit [IsProbabilityMeasure μ] [DecidableEq ι] in
-private theorem Finset.aemeasurable_sup' {s : Finset ι} (hs : s.Nonempty) {f : ι → Ω → ℝ}
-    (hf : ∀ n ∈ s, AEMeasurable (f n) μ) : AEMeasurable (s.sup' hs f) μ  := by
-  let p (x : Ω → ℝ) := AEMeasurable x μ
-  change p (s.sup' hs f)
-  apply Finset.sup'_induction
-  intro a_1
-  intro r
-  intro a_2
-  intro r0
-  exact AEMeasurable.sup r r0
-  exact hf
 
 
 omit [DecidableEq ι] in
@@ -125,14 +113,14 @@ lemma maximal_inequality_finset (n : ℕ) (s : Finset ι) (n_car : s.card = n) (
     (r : ℝ) (n_pos : 1 < n) (r_pos : 0 < r) (H : s.Nonempty)
     (p : ∀ j ∈ s, ∀ t, ∫⁻ (ω : Ω), ENNReal.ofReal (Real.exp (t * ((X j) ω))) ∂μ ≤
       ENNReal.ofReal (Real.exp (t ^ 2 * r ^ 2 / 2)))
-    (q7 : ∀ j ∈ s, Measurable (X j)) :
+    (q7 : ∀ j ∈ s, AEMeasurable (X j) μ) :
     ∫ (ω : Ω), Finset.sup' s H (fun j => (X j) ω) ∂μ ≤ r * Real.sqrt (2 * Real.log n) := by
   subst n_car
-  refine expected_max_subGaussian r_pos H n_pos (fun j hj => q7 j hj)
-    (fun j hj => integrable_of_subgaussian μ X j r (p j hj) (q7 j hj).aemeasurable) ?_
-    (fun j hj t => integrable_exp_of_subgaussian μ X j r (p j hj) t (q7 j hj).aemeasurable)
+  refine expected_max_subGaussian r_pos H n_pos q7
+    (fun j hj => integrable_of_subgaussian μ X j r (p j hj) (q7 j hj)) ?_
+    (fun j hj t => integrable_exp_of_subgaussian μ X j r (p j hj) t (q7 j hj))
   intro j hj t
-  have hint := integrable_exp_of_subgaussian μ X j r (p j hj) t (q7 j hj).aemeasurable
+  have hint := integrable_exp_of_subgaussian μ X j r (p j hj) t (q7 j hj)
   have hmgf : mgf (X j) μ t ≤ Real.exp (t ^ 2 * r ^ 2 / 2) := by
     have h := p j hj t
     rw [← ofReal_integral_eq_lintegral_ofReal hint
@@ -391,9 +379,9 @@ lemma maximal_inequality_supR'
     exact hj
   · intro j hj
     rw [xy j hj]
-    rw [show (∑ i ∈ s, Y i j) = fun ω => ∑ i ∈ s, Y i j ω from
-      funext fun ω => Finset.sum_apply ω s (fun i => Y i j)]
-    exact Finset.measurable_sum s fun i _ => y_mea i j
+    refine Finset.aemeasurable_sum s ?q7.hf
+    intro i hi
+    exact Measurable.aemeasurable (y_mea i j)
 
 lemma maximal_inequality_supR
   {ι ι' : Type*} [DecidableEq ι']

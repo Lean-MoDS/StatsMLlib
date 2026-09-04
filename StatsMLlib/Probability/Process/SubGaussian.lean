@@ -723,7 +723,7 @@ theorem subGaussian_finite_max_bound {μ : Measure Ω} [IsProbabilityMeasure μ]
       _ ≤ log (exp (l^2 * σ'^2 / 2)) := log_le_log h_mgf_pos h_mgf_bound
       _ = l^2 * σ'^2 / 2 := log_exp _
   have h_result := expected_max_subGaussian (ι := A) (s := T) hσ' hT hT_card
-    (fun t ht => hX_meas t)
+    (fun t ht => (hX_meas t).aemeasurable)
     (fun t ht => hX_int t ht)
     (fun t ht l => h_cgf_bound t ht l)
     (fun t ht l => hX_int_exp t ht l)
