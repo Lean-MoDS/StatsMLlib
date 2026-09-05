@@ -25,6 +25,9 @@ Basic definitions of epsilon-nets, covering numbers, and packing numbers for pse
 ## Main results
 
 * `coveringNumber_lt_top_of_totallyBounded`: finiteness at positive radius.
+* `packingNumber_two_mul_le_coveringNumber` and
+  `coveringNumber_le_packingNumber_of_maximal`: the two-sided comparison
+  `M(2 eps) ≤ N(eps) ≤ M(eps)` between packing and covering numbers.
 * `coveringNumber_image_le_of_lipschitz`: covering numbers under Lipschitz maps.
 -/
 
@@ -152,6 +155,45 @@ lemma isENet_of_maximal {t : Finset A} {eps : ℝ} {s : Set A}
   · exact mem_iUnion₂.mpr ⟨a, hat, mem_closedBall_self heps⟩
   · obtain ⟨x, hx_mem, hx_dist⟩ := hmax a ha hat
     exact mem_iUnion₂.mpr ⟨x, hx_mem, mem_closedBall.mpr hx_dist⟩
+
+/-- Part (a) of the covering-packing comparison: a `2 * eps`-packing is no larger than an
+`eps`-net, because each net ball contains at most one packing point. -/
+lemma packingNumber_two_mul_le_coveringNumber {eps : ℝ} {s : Set A} :
+    packingNumber (2 * eps) s ≤ coveringNumber eps s := by
+  refine sSup_le ?_
+  rintro n ⟨t, ht, rfl⟩
+  refine le_sInf ?_
+  rintro n ⟨u, hu, rfl⟩
+  have hnear : ∀ x : A, ∃ y : A, x ∈ t → y ∈ u ∧ dist x y ≤ eps := by
+    intro x
+    by_cases hx : x ∈ t
+    · obtain ⟨y, hy, hball⟩ := mem_iUnion₂.mp (hu (ht.1 hx))
+      exact ⟨y, fun _ => ⟨hy, mem_closedBall.mp hball⟩⟩
+    · exact ⟨x, fun h => absurd h hx⟩
+  choose f hf using hnear
+  have hcard : t.card ≤ u.card := by
+    refine Finset.card_le_card_of_injOn f (fun x hx => (hf x hx).1) ?_
+    intro x hx x' hx' hfx
+    by_contra hne
+    have hsep : 2 * eps < dist x x' := ht.2 hx hx' hne
+    have h1 : dist x (f x) ≤ eps := (hf x hx).2
+    have h2 : dist x' (f x') ≤ eps := (hf x' hx').2
+    have htri : dist x x' ≤ dist x (f x) + dist (f x) x' := dist_triangle _ _ _
+    have hcomm : dist (f x) x' = dist x' (f x') := by
+      rw [hfx, dist_comm]
+    rw [hcomm] at htri
+    linarith
+  exact_mod_cast hcard
+
+/-- Part (b) of the covering-packing comparison: a maximal `eps`-packing is an `eps`-net, so
+the covering number is at most the packing number.  Existence of a maximal packing on a
+totally bounded set is `exists_maximal_packing`. -/
+lemma coveringNumber_le_packingNumber_of_maximal {t : Finset A} {eps : ℝ} {s : Set A}
+    (heps : 0 ≤ eps) (ht : IsPacking t eps s)
+    (hmax : ∀ a ∈ s, a ∉ t → ∃ x ∈ t, dist a x ≤ eps) :
+    coveringNumber eps s ≤ packingNumber eps s :=
+  le_trans (coveringNumber_le_card (isENet_of_maximal heps hmax))
+    (le_sSup ⟨t, ht, rfl⟩)
 
 /-!
 ## Covering numbers for totally bounded sets

@@ -26,7 +26,8 @@ StatsMLlib/
 │   ├── NormedSpace/
 │   │   └── CoveringNumber/
 │   │       ├── Euclidean.lean
-│   │       └── L1.lean
+│   │       ├── L1.lean
+│   │       └── LipschitzBall.lean
 │   └── FiniteSample.lean
 ├── LearningTheory/
 │   ├── EmpiricalRiskMinimization/
@@ -49,8 +50,10 @@ StatsMLlib/
 │   │   ├── Defs.lean
 │   │   ├── Dudley.lean
 │   │   ├── FiniteClass.lean
+│   │   ├── LipschitzBall.lean
 │   │   ├── LipschitzParameter.lean
 │   │   ├── Massart.lean
+│   │   ├── OneStep.lean
 │   │   ├── Reindex.lean
 │   │   ├── Signs.lean
 │   │   └── Symmetrization.lean

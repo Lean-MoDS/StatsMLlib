@@ -390,6 +390,16 @@ lemma exists_maximal_packing {E : Type*} [PseudoMetricSpace E]
   obtain ⟨t, _, ht_pack, ht_max⟩ := iterate bound ∅ hempty_pack hgap
   exact ⟨t, ht_pack, ht_max⟩
 
+/-- On a totally bounded set the covering number is at most the packing number at the same
+radius: a maximal packing exists and is an `eps`-net.  Together with
+`packingNumber_two_mul_le_coveringNumber` this is the two-sided comparison
+`M(2 eps) ≤ N(eps) ≤ M(eps)`. -/
+lemma coveringNumber_le_packingNumber {E : Type*} [PseudoMetricSpace E]
+    {s : Set E} {eps : ℝ} (heps : 0 < eps) (hs : TotallyBounded s) :
+    coveringNumber eps s ≤ packingNumber eps s := by
+  obtain ⟨t, ht, hmax⟩ := exists_maximal_packing eps heps hs
+  exact coveringNumber_le_packingNumber_of_maximal heps.le ht hmax
+
 /-- The covering number of the Euclidean ball B(0, R) satisfies N(ε, B(0,R)) ≤ (1 + 2R/ε)^d.
     The metric (2-norm) is implicitly determined by the type EuclideanSpace ℝ ι.
     This version casts the covering number to ℝ for a clean bound without ceilings. -/
