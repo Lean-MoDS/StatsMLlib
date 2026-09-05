@@ -1,21 +1,21 @@
 # StatsMLlib file tree
 
 This document presents the public Lean source tree after the Mathlib-style subject refactor.
-`StatsMLlib/` contains 109 Lean modules under eight layer-one directories and no root-level Lean
+`StatsMLlib/` contains 114 Lean modules under eight layer-one directories and no root-level Lean
 files. A filesystem path such as `StatsMLlib/Probability/Process/Dudley.lean` corresponds to the Lean
 module `StatsMLlib.Probability.Process.Dudley`.
 
 | Layer | Modules |
 | --- | ---: |
-| `Analysis` | 5 |
-| `LearningTheory` | 24 |
+| `Analysis` | 6 |
+| `LearningTheory` | 28 |
 | `LinearAlgebra` | 5 |
 | `MeasureTheory` | 3 |
 | `Order` | 1 |
-| `Probability` | 44 |
+| `Probability` | 48 |
 | `Statistics` | 21 |
 | `Topology` | 2 |
-| **Total** | **105** |
+| **Total** | **114** |
 
 ```text
 StatsMLlib/
@@ -42,6 +42,9 @@ StatsMLlib/
 │   │   ├── LinearPredictor/
 │   │   │   ├── L1.lean
 │   │   │   └── L2.lean
+│   │   ├── NeuralNetwork/
+│   │   │   ├── HiddenUnit.lean
+│   │   │   └── PathNorm.lean
 │   │   ├── HilbertPredictor.lean
 │   │   └── KernelPredictor.lean
 │   ├── Rademacher/
@@ -94,7 +97,8 @@ StatsMLlib/
 │   │   ├── HansonWright.lean
 │   │   ├── Hoeffding.lean
 │   │   ├── Maximal.lean
-│   │   └── McDiarmid.lean
+│   │   ├── McDiarmid.lean
+│   │   └── SubExponential.lean
 │   ├── Entropy/
 │   │   ├── Conditional/
 │   │   │   ├── Basic.lean
@@ -106,7 +110,6 @@ StatsMLlib/
 │   ├── Gaussian/
 │   │   ├── Poincare/
 │   │   │   ├── EfronStein.lean
-│   │   ├── EuclideanNorm.lean
 │   │   │   ├── LevyContinuity.lean
 │   │   │   ├── Limit.lean
 │   │   │   ├── RademacherApproximation.lean
