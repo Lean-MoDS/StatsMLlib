@@ -792,6 +792,119 @@ lemma matrixOperatorNorm_le_two_mul_of_quarter_centered_bilinear_net {m n : ℕ}
     matrixOperatorNorm A ≤ u / (1 - 2 * (1 / 4 : ℝ)) := h
     _ = 2 * u := by ring
 
+/-- If all unit-vector images of a rectangular matrix have norm at most `B`, then its
+operator norm is bounded by `B`. -/
+lemma matrixOperatorNorm_le_of_forall_unit_norm_le {m n : ℕ}
+    (A : Matrix (Fin m) (Fin n) ℝ) {B : ℝ} (hB : 0 ≤ B)
+    (h : ∀ x : EuclideanSpace ℝ (Fin n), ‖x‖ = 1 → ‖A.toEuclideanLin x‖ ≤ B) :
+    matrixOperatorNorm A ≤ B := by
+  unfold matrixOperatorNorm
+  refine ContinuousLinearMap.opNorm_le_of_unit_norm hB ?_
+  intro x hx
+  simpa using h x hx
+
+/--
+Deterministic net reduction for rectangular operator norms. If all image norms `‖Ax‖` are
+bounded by `u` on an `ε`-net of the unit sphere of the domain, then the operator norm is
+bounded by `u / (1 - ε)`.
+-/
+lemma matrixOperatorNorm_le_of_net {m n : ℕ} {ε u : ℝ}
+    (A : Matrix (Fin m) (Fin n) ℝ) (N : MatrixBilinearNet m n ε)
+    (hε_nonneg : 0 ≤ ε) (hε : ε < 1) (hu : 0 ≤ u)
+    (hnet : ∀ x ∈ N.domainNet, ‖A.toEuclideanLin x‖ ≤ u) :
+    matrixOperatorNorm A ≤ u / (1 - ε) := by
+  let M := matrixOperatorNorm A
+  have hM_nonneg : 0 ≤ M := norm_nonneg _
+  have hden : 0 < 1 - ε := by linarith
+  have hstep : M ≤ u + ε * M := by
+    unfold M
+    refine matrixOperatorNorm_le_of_forall_unit_norm_le A
+      (add_nonneg hu (mul_nonneg hε_nonneg hM_nonneg)) ?_
+    intro x hx
+    have hx_sphere : x ∈ euclideanUnitSphere n := by
+      simpa [euclideanUnitSphere, dist_eq_norm] using hx
+    obtain ⟨x₀, hx₀_mem, hx₀_dist⟩ := N.exists_domain_near hx_sphere
+    have hAx₀ : ‖A.toEuclideanLin x₀‖ ≤ u := hnet x₀ hx₀_mem
+    have hA_dx : ‖A.toEuclideanLin (x - x₀)‖ ≤ M * ‖x - x₀‖ := by
+      simpa [M, matrixOperatorNorm] using
+        A.toEuclideanLin.toContinuousLinearMap.le_opNorm (x - x₀)
+    have hdecomp :
+        A.toEuclideanLin x = A.toEuclideanLin x₀ + A.toEuclideanLin (x - x₀) := by
+      rw [← map_add]
+      congr 1
+      abel
+    calc
+      ‖A.toEuclideanLin x‖
+          ≤ ‖A.toEuclideanLin x₀‖ + ‖A.toEuclideanLin (x - x₀)‖ := by
+        rw [hdecomp]
+        exact norm_add_le _ _
+      _ ≤ u + M * ε := by
+        have hle : M * ‖x - x₀‖ ≤ M * ε := mul_le_mul_of_nonneg_left hx₀_dist hM_nonneg
+        linarith
+      _ = u + ε * M := by ring
+  have hmul' : M * (1 - ε) ≤ u := by nlinarith
+  exact (le_div_iff₀ hden).mpr (by simpa [M] using hmul')
+
+/-- Net points of a centered net are in the unit ball, so their images are bounded by the
+operator norm. -/
+lemma norm_toEuclideanLin_le_matrixOperatorNorm_of_mem_domainNet {m n : ℕ} {ε : ℝ}
+    (A : Matrix (Fin m) (Fin n) ℝ) (N : CenteredMatrixBilinearNet m n ε)
+    {x : EuclideanSpace ℝ (Fin n)} (hx : x ∈ N.domainNet) :
+    ‖A.toEuclideanLin x‖ ≤ matrixOperatorNorm A := by
+  have hx_norm : ‖x‖ ≤ 1 :=
+    norm_le_one_of_mem_euclideanUnitBall (N.domain_subset_unitBall hx)
+  have hle : ‖A.toEuclideanLin x‖ ≤ matrixOperatorNorm A * ‖x‖ := by
+    simpa [matrixOperatorNorm] using A.toEuclideanLin.toContinuousLinearMap.le_opNorm x
+  have hM : 0 ≤ matrixOperatorNorm A := norm_nonneg _
+  nlinarith
+
+/-- The bilinear form of a centered net pair is bounded by the operator norm. -/
+lemma abs_inner_toEuclideanLin_le_matrixOperatorNorm_of_mem_net {m n : ℕ} {ε : ℝ}
+    (A : Matrix (Fin m) (Fin n) ℝ) (N : CenteredMatrixBilinearNet m n ε)
+    {x : EuclideanSpace ℝ (Fin n)} {y : EuclideanSpace ℝ (Fin m)}
+    (hx : x ∈ N.domainNet) (hy : y ∈ N.codomainNet) :
+    |inner ℝ (A.toEuclideanLin x) y| ≤ matrixOperatorNorm A := by
+  have hy_norm : ‖y‖ ≤ 1 :=
+    norm_le_one_of_mem_euclideanUnitBall (N.codomain_subset_unitBall hy)
+  have hxle := norm_toEuclideanLin_le_matrixOperatorNorm_of_mem_domainNet A N hx
+  calc
+    |inner ℝ (A.toEuclideanLin x) y| ≤ ‖A.toEuclideanLin x‖ * ‖y‖ :=
+      abs_real_inner_le_norm _ _
+    _ ≤ matrixOperatorNorm A * 1 :=
+      mul_le_mul hxle hy_norm (norm_nonneg _) (norm_nonneg _)
+    _ = matrixOperatorNorm A := by ring
+
+/-- Two-sided comparison of the operator norm with the supremum of `‖A x‖` over a centered
+`ε`-net of the unit sphere of the domain. -/
+lemma matrixOperatorNorm_sup'_bounds_of_net {m n : ℕ} {ε : ℝ}
+    (A : Matrix (Fin m) (Fin n) ℝ) (N : CenteredMatrixBilinearNet m n ε)
+    (hne : N.domainNet.Nonempty) (hε_nonneg : 0 ≤ ε) (hε : ε < 1) :
+    N.domainNet.sup' hne (fun x => ‖A.toEuclideanLin x‖) ≤ matrixOperatorNorm A ∧
+      matrixOperatorNorm A ≤
+        (1 - ε)⁻¹ * N.domainNet.sup' hne (fun x => ‖A.toEuclideanLin x‖) := by
+  refine ⟨Finset.sup'_le _ _ fun x hx =>
+    norm_toEuclideanLin_le_matrixOperatorNorm_of_mem_domainNet A N hx, ?_⟩
+  have hu : 0 ≤ N.domainNet.sup' hne (fun x => ‖A.toEuclideanLin x‖) := by
+    obtain ⟨x, hx⟩ := hne
+    exact le_trans (norm_nonneg _)
+      (Finset.le_sup' (fun x => ‖A.toEuclideanLin x‖) hx)
+  have h := matrixOperatorNorm_le_of_net A N.toMatrixBilinearNet hε_nonneg hε hu
+    (fun x hx => Finset.le_sup' (fun x => ‖A.toEuclideanLin x‖) hx)
+  rwa [div_eq_inv_mul] at h
+
+/-! Acceptance test: the `ε = 1/2` specialisation of the image-norm net reduction, the
+analogue of the `ε = 1/4` bilinear reduction above. -/
+example {m n : ℕ} {u : ℝ} (A : Matrix (Fin m) (Fin n) ℝ)
+    (N : MatrixBilinearNet m n (1 / 2)) (hu : 0 ≤ u)
+    (hnet : ∀ x ∈ N.domainNet, ‖A.toEuclideanLin x‖ ≤ u) :
+    matrixOperatorNorm A ≤ 2 * u := by
+  have h :=
+    matrixOperatorNorm_le_of_net (A := A) (N := N)
+      (by norm_num : 0 ≤ (1 / 2 : ℝ)) (by norm_num : (1 / 2 : ℝ) < 1) hu hnet
+  calc
+    matrixOperatorNorm A ≤ u / (1 - (1 / 2 : ℝ)) := h
+    _ = 2 * u := by ring
+
 omit [MeasurableSpace Ω] in
 lemma matrix_toEuclideanLin_isSymmetric_of_isSymm {n : ℕ}
     {A : Matrix (Fin n) (Fin n) ℝ} (hA : A.IsSymm) :
@@ -1155,6 +1268,36 @@ lemma CenteredMatrixBilinearNet.pairs_nonempty_of_pos {m n : ℕ} {ε : ℝ}
   have hcodomain : N.codomainNet.Nonempty :=
     N.toMatrixBilinearNet.codomainNet_nonempty_of_pos hm
   simpa [CenteredMatrixBilinearNet.pairs] using hdomain.product hcodomain
+
+/-- The absolute bilinear form evaluated on a domain-codomain pair. -/
+def absBilinearValue {m n : ℕ} (A : Matrix (Fin m) (Fin n) ℝ) :
+    MatrixBilinearPair m n → ℝ :=
+  fun p => |inner ℝ (A.toEuclideanLin p.1) p.2|
+
+/-- Two-sided comparison of the operator norm with the supremum of `|⟪A x, y⟫|` over a
+centered `ε`-net of the two unit spheres. -/
+lemma matrixOperatorNorm_sup'_bounds_of_bilinear_net {m n : ℕ} {ε : ℝ}
+    (A : Matrix (Fin m) (Fin n) ℝ) (N : CenteredMatrixBilinearNet m n ε)
+    (hne : N.pairs.Nonempty) (hε_nonneg : 0 ≤ ε) (hε : 2 * ε < 1) :
+    N.pairs.sup' hne (absBilinearValue A) ≤ matrixOperatorNorm A ∧
+      matrixOperatorNorm A ≤
+        (1 - 2 * ε)⁻¹ * N.pairs.sup' hne (absBilinearValue A) := by
+  have hmem : ∀ {x : EuclideanSpace ℝ (Fin n)} {y : EuclideanSpace ℝ (Fin m)},
+      x ∈ N.domainNet → y ∈ N.codomainNet → (x, y) ∈ N.pairs := by
+    intro x y hx hy
+    have hprod : (x, y) ∈ N.domainNet ×ˢ N.codomainNet :=
+      Finset.mem_product.mpr ⟨hx, hy⟩
+    simpa [CenteredMatrixBilinearNet.pairs] using hprod
+  refine ⟨Finset.sup'_le _ _ fun p hp => ?_, ?_⟩
+  · have hp' : p.1 ∈ N.domainNet ∧ p.2 ∈ N.codomainNet := by
+      simpa [CenteredMatrixBilinearNet.pairs, Finset.mem_product] using hp
+    exact abs_inner_toEuclideanLin_le_matrixOperatorNorm_of_mem_net A N hp'.1 hp'.2
+  · have hu : 0 ≤ N.pairs.sup' hne (absBilinearValue A) := by
+      obtain ⟨p, hp⟩ := hne
+      exact le_trans (abs_nonneg _) (Finset.le_sup' (absBilinearValue A) hp)
+    have h := matrixOperatorNorm_le_of_centered_bilinear_net A N hε_nonneg hε hu
+      (fun x hx y hy => Finset.le_sup' (absBilinearValue A) (hmem hx hy))
+    rwa [div_eq_inv_mul] at h
 
 omit [MeasurableSpace Ω] in
 lemma CenteredMatrixBilinearNet.signedPairs_card_ge_two_of_pos {m n : ℕ} {ε : ℝ}
