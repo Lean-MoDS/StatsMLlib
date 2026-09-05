@@ -30,13 +30,16 @@ is to evaluate the integral on one cell, which is `sawtooth_sub_sawtooth_of_mem_
 * `sawtoothSlope`, `sawtooth`: the piecewise constant slope and its primitive.
 * `signVector`: the `±1`-valued sign sequence attached to a `Bool` vector.
 * `lipschitzBall`, `sawtoothMap`: the Lipschitz ball and the sawtooth family inside it.
+* `greedyLevel`, `greedyVector`: the sign choice that tracks a given member of the ball.
 
 ## Main results
 
 * `sawtooth_sub_sawtooth_of_mem_cell`: the sawtooth is affine with slope `L * s k` on cell `k`.
 * `sawtooth_grid`: the sawtooth at a grid point is `L / n` times a partial sign sum.
 * `isPacking_sawtoothFamily`: the sawtooth family is an `L / n`-packing of the Lipschitz ball.
+* `isENet_sawtoothFamily`: the same family is an `L / n`-net of the Lipschitz ball.
 * `le_coveringNumber_lipschitzBall`: `2 ^ n ≤ N(L / (2 * n), F_L)`.
+* `coveringNumber_lipschitzBall_le`: `N(L / n, F_L) ≤ 2 ^ n`.
 -/
 
 noncomputable section
@@ -295,11 +298,196 @@ theorem le_coveringNumber_lipschitzBall {L : ℝ} (hL : 0 < L) {n : ℕ} (hn : 0
   refine le_trans ?_ (le_trans (hhalf ▸ hpack) packingNumber_two_mul_le_coveringNumber)
   norm_cast
 
+/-!
+## The greedy cover
+-/
+
+open Classical in
+/-- The greedy grid level.  `L / n * greedyLevel L n g k` is the sawtooth value at `k / n`
+produced by always moving the sawtooth toward the next grid value of `g`. -/
+def greedyLevel (L : ℝ) (n : ℕ) (g : ℝ → ℝ) : ℕ → ℝ
+  | 0 => 0
+  | k + 1 => greedyLevel L n g k +
+      (if 0 ≤ g (((k : ℝ) + 1) / n) - L / n * greedyLevel L n g k then 1 else -1)
+
+open Classical in
+/-- The sign the greedy choice uses on cell `k`. -/
+def greedySign (L : ℝ) (n : ℕ) (g : ℝ → ℝ) (k : ℕ) : Bool :=
+  if 0 ≤ g (((k : ℝ) + 1) / n) - L / n * greedyLevel L n g k then true else false
+
+/-- The sign vector of the greedy choice, as an index of the sawtooth family. -/
+def greedyVector (L : ℝ) (n : ℕ) (g : ℝ → ℝ) : Fin n → Bool :=
+  fun i => greedySign L n g i
+
+lemma greedyLevel_succ (L : ℝ) (n : ℕ) (g : ℝ → ℝ) (k : ℕ) :
+    greedyLevel L n g (k + 1) =
+      greedyLevel L n g k + (if greedySign L n g k then (1 : ℝ) else -1) := by
+  classical
+  rw [greedyLevel, greedySign]
+  split_ifs <;> simp_all
+
+lemma signVector_greedyVector {L : ℝ} {n : ℕ} {g : ℝ → ℝ} {k : ℕ} (hk : k < n) :
+    signVector n (greedyVector L n g) k = if greedySign L n g k then (1 : ℝ) else -1 := by
+  rw [signVector_of_lt _ hk, greedyVector]
+
+/-- The sawtooth of the greedy sign vector reaches exactly the greedy levels. -/
+lemma sum_signVector_greedyVector {L : ℝ} {n : ℕ} {g : ℝ → ℝ} {k : ℕ} (hk : k ≤ n) :
+    ∑ j ∈ Finset.range k, signVector n (greedyVector L n g) j = greedyLevel L n g k := by
+  induction k with
+  | zero => simp [greedyLevel]
+  | succ k ih =>
+    rw [Finset.sum_range_succ, ih (Nat.le_of_succ_le hk), greedyLevel_succ,
+      signVector_greedyVector (Nat.lt_of_succ_le hk)]
+
+/-- The greedy invariant: at every grid point the greedy sawtooth stays within `L / n`
+of `g`.  Each step overshoots by at most `L / n` because the gap it has to close is at
+most `2 * L / n`. -/
+lemma abs_sub_greedyLevel_le {L : ℝ} (hL : 0 ≤ L) {n : ℕ} (hn : 0 < n) {g : ℝ → ℝ}
+    (hg0 : g 0 = 0) (hglip : ∀ x y : ℝ, |g x - g y| ≤ L * |x - y|) (k : ℕ) :
+    |g ((k : ℝ) / n) - L / n * greedyLevel L n g k| ≤ L / n := by
+  classical
+  have hn' : (0 : ℝ) < n := by exact_mod_cast hn
+  have hLn : 0 ≤ L / n := by positivity
+  induction k with
+  | zero => simpa [greedyLevel, hg0] using hLn
+  | succ k ih =>
+    have hcast : ((k + 1 : ℕ) : ℝ) = (k : ℝ) + 1 := by push_cast; ring
+    have hgrid : |g (((k : ℝ) + 1) / n) - g ((k : ℝ) / n)| ≤ L / n := by
+      have h := hglip (((k : ℝ) + 1) / n) ((k : ℝ) / n)
+      rwa [show |((k : ℝ) + 1) / n - (k : ℝ) / n| = 1 / n by
+        rw [div_sub_div_same, add_sub_cancel_left, abs_of_nonneg (by positivity)],
+        mul_one_div] at h
+    have hdle : |g (((k : ℝ) + 1) / n) - L / n * greedyLevel L n g k| ≤ 2 * (L / n) :=
+      calc |g (((k : ℝ) + 1) / n) - L / n * greedyLevel L n g k|
+          ≤ |g (((k : ℝ) + 1) / n) - g ((k : ℝ) / n)|
+            + |g ((k : ℝ) / n) - L / n * greedyLevel L n g k| := abs_sub_le _ _ _
+        _ ≤ L / n + L / n := add_le_add hgrid ih
+        _ = 2 * (L / n) := by ring
+    rw [abs_le] at hdle
+    rw [hcast, greedyLevel, mul_add, abs_le]
+    split_ifs with hpos
+    · constructor <;> linarith
+    · rw [not_le] at hpos
+      constructor <;> linarith
+
+/-- Every point of `[0, 1]` lies in one of the `n` cells. -/
+lemma exists_cell {n : ℕ} (hn : 0 < n) {y : ℝ} (hy0 : 0 ≤ y) (hy1 : y ≤ 1) :
+    ∃ k : ℕ, k < n ∧ (k : ℝ) / n ≤ y ∧ y ≤ ((k : ℝ) + 1) / n := by
+  have hn' : (0 : ℝ) < n := by exact_mod_cast hn
+  by_cases hfl : ⌊y * n⌋₊ < n
+  · refine ⟨⌊y * n⌋₊, hfl, ?_, ?_⟩
+    · rw [div_le_iff₀ hn']
+      exact Nat.floor_le (by positivity)
+    · rw [le_div_iff₀ hn']
+      exact (Nat.lt_floor_add_one (y * n)).le
+  · rw [not_lt] at hfl
+    have hy : y = 1 := by
+      by_contra hne
+      have hlt : y < 1 := lt_of_le_of_ne hy1 hne
+      have hfloor : ⌊y * n⌋₊ < n := by
+        rw [Nat.floor_lt (by positivity)]
+        calc y * (n : ℝ) < 1 * n := by gcongr
+          _ = n := one_mul _
+      omega
+    subst hy
+    have hone : (1 : ℕ) ≤ n := hn
+    have hcast : ((n - 1 : ℕ) : ℝ) = (n : ℝ) - 1 := by
+      rw [Nat.cast_sub hone, Nat.cast_one]
+    refine ⟨n - 1, Nat.sub_lt hn one_pos, ?_, ?_⟩
+    · rw [hcast, div_le_one hn']
+      linarith
+    · rw [hcast, le_div_iff₀ hn']
+      linarith
+
+/-- On a cell the difference between an `L`-Lipschitz function and a sawtooth of slope `±L`
+is monotone, so it is largest at the endpoints of the cell. -/
+lemma abs_sub_sawtooth_le_of_mem_cell {L : ℝ} {n : ℕ} {s : ℕ → ℝ} (hn : 0 < n)
+    (hs : ∀ i, |s i| ≤ 1) {k : ℕ} (hsk : s k = 1 ∨ s k = -1) {g : ℝ → ℝ}
+    (hglip : ∀ x y : ℝ, |g x - g y| ≤ L * |x - y|) {y : ℝ}
+    (hy1 : (k : ℝ) / n ≤ y) (hy2 : y ≤ ((k : ℝ) + 1) / n)
+    (hA : |g ((k : ℝ) / n) - sawtooth L n s ((k : ℝ) / n)| ≤ L / n)
+    (hB : |g (((k : ℝ) + 1) / n) - sawtooth L n s (((k : ℝ) + 1) / n)| ≤ L / n) :
+    |g y - sawtooth L n s y| ≤ L / n := by
+  have hstepA : sawtooth L n s y - sawtooth L n s ((k : ℝ) / n) = L * s k * (y - (k : ℝ) / n) :=
+    sawtooth_sub_sawtooth_of_mem_cell hs hn k le_rfl hy1 hy2
+  have hstepB : sawtooth L n s (((k : ℝ) + 1) / n) - sawtooth L n s y =
+      L * s k * (((k : ℝ) + 1) / n - y) :=
+    sawtooth_sub_sawtooth_of_mem_cell hs hn k hy1 hy2 le_rfl
+  have hgA : |g y - g ((k : ℝ) / n)| ≤ L * (y - (k : ℝ) / n) := by
+    simpa [abs_of_nonneg (sub_nonneg.2 hy1)] using hglip y ((k : ℝ) / n)
+  have hgB : |g (((k : ℝ) + 1) / n) - g y| ≤ L * (((k : ℝ) + 1) / n - y) := by
+    simpa [abs_of_nonneg (sub_nonneg.2 hy2)] using hglip (((k : ℝ) + 1) / n) y
+  rw [abs_le] at hA hB hgA hgB ⊢
+  rcases hsk with hsk | hsk <;> rw [hsk] at hstepA hstepB
+  · exact ⟨by nlinarith [hstepB, hB.2, hgB.2], by nlinarith [hstepA, hA.1, hgA.2]⟩
+  · exact ⟨by nlinarith [hstepA, hA.1, hgA.1], by nlinarith [hstepB, hB.2, hgB.1]⟩
+
+/-- The sawtooth family is an `L / n`-net of the Lipschitz ball: the greedy sign choice
+tracks any member of the ball to within `L / n`. -/
+lemma isENet_sawtoothFamily {L : ℝ} (hL : 0 < L) {n : ℕ} (hn : 0 < n) :
+    IsENet (sawtoothFamily L n) (L / n) (lipschitzBall L) := by
+  classical
+  have hn' : (0 : ℝ) < n := by exact_mod_cast hn
+  intro f hf
+  obtain ⟨hf0, hflip⟩ := hf
+  set g : ℝ → ℝ := fun y => f (Set.projIcc 0 1 zero_le_one y) with hg
+  have hgproj : ∀ x : I, g (x : ℝ) = f x := by
+    intro x
+    rw [hg]
+    simp [Set.projIcc_of_mem _ x.2]
+  have hg0 : g 0 = 0 := by
+    have h0 := hgproj 0
+    rw [hf0, show ((0 : I) : ℝ) = 0 by norm_num] at h0
+    exact h0
+  have hglip : ∀ x y : ℝ, |g x - g y| ≤ L * |x - y| := by
+    intro x y
+    have hproj : |((Set.projIcc 0 1 zero_le_one x : I) : ℝ) -
+        ((Set.projIcc 0 1 zero_le_one y : I) : ℝ)| ≤ |x - y| := by
+      have h := (LipschitzWith.projIcc (a := (0 : ℝ)) (b := 1) zero_le_one).dist_le_mul x y
+      simpa [Subtype.dist_eq, Real.dist_eq] using h
+    exact le_trans (hflip _ _) (mul_le_mul_of_nonneg_left hproj hL.le)
+  set β : Fin n → Bool := greedyVector L n g with hβ
+  set s : ℕ → ℝ := signVector n β with hs
+  have hsbound : ∀ i, |s i| ≤ 1 := abs_signVector_le_one n β
+  have hgridclose : ∀ k : ℕ, k ≤ n →
+      |g ((k : ℝ) / n) - sawtooth L n s ((k : ℝ) / n)| ≤ L / n := by
+    intro k hk
+    rw [sawtooth_grid hsbound hn k, hs, sum_signVector_greedyVector hk]
+    exact abs_sub_greedyLevel_le hL.le hn hg0 hglip k
+  refine Set.mem_iUnion₂.2 ⟨sawtoothMap L n β, mem_sawtoothFamily.2 ⟨β, rfl⟩, ?_⟩
+  rw [Metric.mem_closedBall, dist_comm, ContinuousMap.dist_le (by positivity)]
+  intro x
+  obtain ⟨k, hkn, hk1, hk2⟩ := exists_cell hn x.2.1 x.2.2
+  have hsk : s k = 1 ∨ s k = -1 := by
+    rw [hs, signVector_of_lt β hkn]
+    split <;> simp
+  have hkn1 : ((k : ℕ) + 1 : ℕ) ≤ n := hkn
+  have hgridA := hgridclose k (Nat.le_of_succ_le hkn1)
+  have hgridB : |g (((k : ℝ) + 1) / n) - sawtooth L n s (((k : ℝ) + 1) / n)| ≤ L / n := by
+    have := hgridclose (k + 1) hkn1
+    rwa [Nat.cast_add, Nat.cast_one] at this
+  have hclose := abs_sub_sawtooth_le_of_mem_cell hn hsbound hsk hglip hk1 hk2 hgridA hgridB
+  rw [Real.dist_eq, sawtoothMap_apply, ← hs, ← hgproj x, abs_sub_comm]
+  exact hclose
+
+/-- The upper bound on the covering number of the Lipschitz ball: the same `2 ^ n`
+sawtooths that separate the ball also cover it at radius `L / n`. -/
+theorem coveringNumber_lipschitzBall_le {L : ℝ} (hL : 0 < L) {n : ℕ} (hn : 0 < n) :
+    coveringNumber (L / n) (lipschitzBall L) ≤ (2 ^ n : ℕ) := by
+  have := coveringNumber_le_card (isENet_sawtoothFamily hL hn)
+  rwa [card_sawtoothFamily hL hn] at this
+
 /-- A concrete instance: four cells of the unit interval give sixteen `1`-Lipschitz functions
-no `1 / 8`-net can cover with fewer centres. -/
-example : (16 : WithTop ℕ) ≤ coveringNumber (1 / 8 : ℝ) (lipschitzBall 1) := by
-  have := le_coveringNumber_lipschitzBall (L := 1) one_pos (n := 4) (by norm_num)
-  norm_num at this
-  exact this
+that cover the unit ball at radius `1 / 4` and that no `1 / 8`-net can cover with fewer
+centres. -/
+example : coveringNumber (1 / 4 : ℝ) (lipschitzBall 1) ≤ 16 ∧
+    (16 : WithTop ℕ) ≤ coveringNumber (1 / 8 : ℝ) (lipschitzBall 1) := by
+  constructor
+  · have h := coveringNumber_lipschitzBall_le (L := 1) one_pos (n := 4) (by norm_num)
+    norm_num at h
+    exact h
+  · have h := le_coveringNumber_lipschitzBall (L := 1) one_pos (n := 4) (by norm_num)
+    norm_num at h
+    exact h
 
 end LipschitzBall
