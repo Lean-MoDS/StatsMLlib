@@ -317,6 +317,98 @@ lemma exists_normalized_of_mem_pathBall {R D : ℝ}
     simp only [reluUnit, affineUnit, hilbertPredictor]
     ring
 
+/-!
+## The loss class
+
+Lipschitz contraction is not free in the convention where `empiricalRademacherComplexity`
+takes an absolute value inside the supremum.  A constant loss `ℓ ≡ M` is `0`-Lipschitz, and
+its loss class is the single function `(x, y) ↦ M`, whose absolute empirical Rademacher
+complexity is `M * E |n⁻¹ ∑ εᵢ| > 0`; a bound of the form `G * (…)` would force `0`.  So a
+`G`-Lipschitz loss costs a bare `G` only in the one-sided convention, and in the absolute
+convention it costs `2 * G` after the loss is centered at prediction zero.
+
+Both forms are recorded below.  They differ by exactly the factor `2`.
+-/
+
+/--
+The loss class of a path-norm ball, in the one-sided convention:
+
+`Rhat⁻ₙ(𝒢) ≤ 2 √2 G D R / √n`.
+
+No centering is needed here, because the one-sided contraction principle does not require
+the loss to vanish at prediction zero, and because the class is closed under negation.
+-/
+theorem empiricalRademacherComplexity_without_abs_supervisedLossClass_pathBall_le
+    {𝒴 : Type*} (R D G : ℝ) (hR : 0 ≤ R) (hD : 0 ≤ D) (hG : 0 ≤ G)
+    (loss : ℝ → 𝒴 → ℝ) (hloss : ∀ y u v, |loss u y - loss v y| ≤ G * |u - v|)
+    (S : Fin n → Metric.closedBall (0 : E) R × 𝒴) :
+    empiricalRademacherComplexity_without_abs n
+        (supervisedLossClass (pathBallClass R D) loss) S ≤
+      2 * Real.sqrt 2 * G * D * R / Real.sqrt (n : ℝ) := by
+  have hne : Nonempty (pathBall (E := E) R D) := ⟨⟨0, zero_mem_pathBall R hD⟩⟩
+  have hb : (0 : ℝ) ≤ Real.sqrt 2 * R * D := by positivity
+  have hbnd : ∀ (h : pathBall (E := E) R D) (z : Metric.closedBall (0 : E) R × 𝒴),
+      |pathBallClass R D h z.1| ≤ Real.sqrt 2 * R * D :=
+    fun h z ↦ abs_pathBallClass_le R D hR h z.1
+  have hneg : IsNegClosed (fun (h : pathBall (E := E) R D)
+      (z : Metric.closedBall (0 : E) R × 𝒴) ↦ pathBallClass R D h z.1) :=
+    fun i ↦ ⟨⟨-(i : Metric.closedBall (0 : E) R → ℝ), neg_mem_pathBall i.2⟩, rfl⟩
+  have hcontract : empiricalRademacherComplexity_without_abs n
+      (supervisedLossClass (pathBallClass R D) loss) S ≤
+        G * empiricalRademacherComplexity_without_abs n
+          (fun (h : pathBall (E := E) R D)
+            (z : Metric.closedBall (0 : E) R × 𝒴) ↦ pathBallClass R D h z.1) S :=
+    empiricalRademacherComplexity_without_abs_contraction n
+      (fun (h : pathBall (E := E) R D)
+        (z : Metric.closedBall (0 : E) R × 𝒴) ↦ pathBallClass R D h z.1)
+      (fun z u ↦ loss u z.2) S hG hbnd (fun z u v ↦ hloss z.2 u v)
+  have habs : empiricalRademacherComplexity_without_abs n
+      (fun (h : pathBall (E := E) R D)
+        (z : Metric.closedBall (0 : E) R × 𝒴) ↦ pathBallClass R D h z.1) S =
+      empiricalRademacherComplexity n (pathBallClass R D) (Prod.fst ∘ S) :=
+    (empiricalRademacherComplexity_eq_without_abs_of_neg_closed n
+      (fun (h : pathBall (E := E) R D)
+        (z : Metric.closedBall (0 : E) R × 𝒴) ↦ pathBallClass R D h z.1) S
+      (Real.sqrt 2 * R * D) hb (fun i j ↦ hbnd i (S j)) hneg).symm.trans
+      (empiricalRademacherComplexity_comp n (pathBallClass R D) Prod.fst S)
+  rw [habs] at hcontract
+  refine hcontract.trans ?_
+  calc G * empiricalRademacherComplexity n (pathBallClass R D) (Prod.fst ∘ S)
+      ≤ G * (2 * Real.sqrt 2 * D * R / Real.sqrt (n : ℝ)) := by
+        gcongr
+        exact empiricalRademacherComplexity_pathBall_le R D hR hD _
+    _ = 2 * Real.sqrt 2 * G * D * R / Real.sqrt (n : ℝ) := by ring
+
+/--
+The loss class of a path-norm ball, in the absolute convention, with the loss centered at
+prediction zero:
+
+`Rhatₙ(𝒢) ≤ 4 √2 G D R / √n`.
+
+The extra factor `2` relative to the one-sided form is the contraction constant that the
+absolute convention forces, and the centering is what makes the contraction map vanish at
+zero.  Neither can be dropped; see the discussion above.
+-/
+theorem empiricalRademacherComplexity_centered_supervisedLossClass_pathBall_le
+    {𝒴 : Type*} (R D G : ℝ) (hR : 0 ≤ R) (hD : 0 ≤ D) (hG : 0 ≤ G)
+    (loss : ℝ → 𝒴 → ℝ) (hloss : ∀ y u v, |loss u y - loss v y| ≤ G * |u - v|)
+    (S : Fin n → Metric.closedBall (0 : E) R × 𝒴) :
+    empiricalRademacherComplexity n
+        (supervisedLossClass (pathBallClass R D) (centeredLoss loss)) S ≤
+      4 * Real.sqrt 2 * G * D * R / Real.sqrt (n : ℝ) := by
+  have hne : Nonempty (pathBall (E := E) R D) := ⟨⟨0, zero_mem_pathBall R hD⟩⟩
+  have hb : (0 : ℝ) ≤ Real.sqrt 2 * R * D := by positivity
+  have hcontract := empiricalRademacherComplexity_centered_supervisedLossClass_le n
+    (pathBallClass (E := E) R D) loss S hG hb
+    (fun h x ↦ abs_pathBallClass_le R D hR h x) hloss
+  refine hcontract.trans ?_
+  rw [empiricalRademacherComplexity_comp n (pathBallClass R D) Prod.fst S]
+  calc 2 * G * empiricalRademacherComplexity n (pathBallClass R D) (Prod.fst ∘ S)
+      ≤ 2 * G * (2 * Real.sqrt 2 * D * R / Real.sqrt (n : ℝ)) := by
+        gcongr
+        exact empiricalRademacherComplexity_pathBall_le R D hR hD _
+    _ = 4 * Real.sqrt 2 * G * D * R / Real.sqrt (n : ℝ) := by ring
+
 /-! ## Examples
 
 Worked uses of this module's public API. They are elaborated with the library, so they
@@ -334,6 +426,41 @@ example (S : Fin n → Metric.closedBall (0 : E) 1) :
   refine (empiricalRademacherComplexity_pathBall_le 1 1 zero_le_one zero_le_one S).trans ?_
   gcongr
   linarith
+
+/-- The absolute-deviation loss is `1`-Lipschitz in its prediction, so the one-sided
+Rademacher complexity of its loss class over the unit path-norm ball is at most `3 / √n`. -/
+example (S : Fin n → Metric.closedBall (0 : E) 1 × ℝ) :
+    empiricalRademacherComplexity_without_abs n
+        (supervisedLossClass (pathBallClass (E := E) 1 1) fun u y ↦ |u - y|) S ≤
+      3 / Real.sqrt (n : ℝ) := by
+  have h2 : Real.sqrt 2 ≤ 3 / 2 := by
+    rw [show (3 : ℝ) / 2 = Real.sqrt ((3 / 2) ^ 2) from (Real.sqrt_sq (by norm_num)).symm]
+    exact Real.sqrt_le_sqrt (by norm_num)
+  refine (empiricalRademacherComplexity_without_abs_supervisedLossClass_pathBall_le
+    1 1 1 zero_le_one zero_le_one zero_le_one _ (fun y u v ↦ ?_) S).trans ?_
+  · have h := abs_abs_sub_abs_le_abs_sub (u - y) (v - y)
+    rw [sub_sub_sub_cancel_right] at h
+    linarith
+  · gcongr
+    linarith
+
+/-- The same loss in the absolute convention, centered at prediction zero, costs the
+further factor `2`: the bound becomes `6 / √n`. -/
+example (S : Fin n → Metric.closedBall (0 : E) 1 × ℝ) :
+    empiricalRademacherComplexity n
+        (supervisedLossClass (pathBallClass (E := E) 1 1)
+          (centeredLoss fun u y ↦ |u - y|)) S ≤
+      6 / Real.sqrt (n : ℝ) := by
+  have h2 : Real.sqrt 2 ≤ 3 / 2 := by
+    rw [show (3 : ℝ) / 2 = Real.sqrt ((3 / 2) ^ 2) from (Real.sqrt_sq (by norm_num)).symm]
+    exact Real.sqrt_le_sqrt (by norm_num)
+  refine (empiricalRademacherComplexity_centered_supervisedLossClass_pathBall_le
+    1 1 1 zero_le_one zero_le_one zero_le_one _ (fun y u v ↦ ?_) S).trans ?_
+  · have h := abs_abs_sub_abs_le_abs_sub (u - y) (v - y)
+    rw [sub_sub_sub_cancel_right] at h
+    linarith
+  · gcongr
+    linarith
 
 end NeuralNetwork
 
