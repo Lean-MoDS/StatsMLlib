@@ -36,6 +36,7 @@ is to evaluate the integral on one cell, which is `sawtooth_sub_sawtooth_of_mem_
 
 * `sawtooth_sub_sawtooth_of_mem_cell`: the sawtooth is affine with slope `L * s k` on cell `k`.
 * `sawtooth_grid`: the sawtooth at a grid point is `L / n` times a partial sign sum.
+* `abs_le_of_mem_lipschitzBall`: members of the ball are bounded by `L`.
 * `isPacking_sawtoothFamily`: the sawtooth family is an `L / n`-packing of the Lipschitz ball.
 * `isENet_sawtoothFamily`: the same family is an `L / n`-net of the Lipschitz ball.
 * `le_coveringNumber_lipschitzBall`: `2 ^ n ≤ N(L / (2 * n), F_L)`.
@@ -174,6 +175,21 @@ lemma abs_signVector_sub_of_ne {n : ℕ} {β β' : Fin n → Bool} {i : ℕ} (h 
 `L`-Lipschitz. -/
 def lipschitzBall (L : ℝ) : Set C(I, ℝ) :=
   {f | f 0 = 0 ∧ ∀ x y : I, |f x - f y| ≤ L * |(x : ℝ) - (y : ℝ)|}
+
+lemma nonneg_of_mem_lipschitzBall {L : ℝ} {f : C(I, ℝ)} (hf : f ∈ lipschitzBall L) : 0 ≤ L := by
+  have h := hf.2 1 0
+  rw [hf.1, show ((1 : I) : ℝ) = 1 by norm_num, show ((0 : I) : ℝ) = 0 by norm_num] at h
+  simp only [sub_zero, abs_one, mul_one] at h
+  exact le_trans (abs_nonneg _) h
+
+/-- Every member of the Lipschitz ball is bounded by `L`, since it vanishes at `0`. -/
+lemma abs_le_of_mem_lipschitzBall {L : ℝ} {f : C(I, ℝ)} (hf : f ∈ lipschitzBall L) (x : I) :
+    |f x| ≤ L := by
+  have hL : 0 ≤ L := nonneg_of_mem_lipschitzBall hf
+  have h := hf.2 x 0
+  rw [hf.1, sub_zero, show ((0 : I) : ℝ) = 0 by norm_num, sub_zero,
+    abs_of_nonneg x.2.1] at h
+  exact h.trans (by nlinarith [x.2.2])
 
 /-- The member of the sawtooth family attached to a sign vector. -/
 def sawtoothMap (L : ℝ) (n : ℕ) (β : Fin n → Bool) : C(I, ℝ) :=

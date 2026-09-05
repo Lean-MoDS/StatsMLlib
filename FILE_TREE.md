@@ -50,6 +50,7 @@ StatsMLlib/
 │   │   ├── Defs.lean
 │   │   ├── Dudley.lean
 │   │   ├── FiniteClass.lean
+│   │   ├── LipschitzBall.lean
 │   │   ├── LipschitzParameter.lean
 │   │   ├── Massart.lean
 │   │   ├── OneStep.lean
