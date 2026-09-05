@@ -13,7 +13,7 @@ import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
 # Properties of sub-Gaussian random variables
 
 Tail and moment estimates for the Orlicz norms of
-`StatsMLlib.Probability.Moments.Orlicz`, following HDP Section 2.6-2.8.
+`StatsMLlib.Probability.Moments.Orlicz`.
 
 ## Main definitions
 
@@ -23,24 +23,22 @@ This module introduces no new definitions.
 
 * `measure_abs_ge_le_of_hasOrliczPsi2Bound`: the sub-Gaussian tail estimate for
   an admissible scale, and `measure_abs_ge_le_orliczPsi2Norm` for the norm
-  itself (HDP Proposition 2.6.6(i)).
+  itself.
 * `HasOrliczPsi2Bound.mul`: the product of two admissible `ψ₂` scales is an
   admissible `ψ₁` scale for the product.
 * `orliczPsi1Norm_mul_le`: `‖X Y‖_{ψ₁} ≤ ‖X‖_{ψ₂} ‖Y‖_{ψ₂}`
-  (HDP Lemma 2.8.6), and `orliczPsi1Norm_sq_le` its diagonal case.
+  and `orliczPsi1Norm_sq_le` its diagonal case.
 * `integral_abs_le_orliczPsi2Norm` and `integral_sq_le_orliczPsi2Norm`: the
-  cases `p = 1` and `p = 2` of HDP Proposition 2.6.6(ii), with a cruder
-  absolute constant than the textbook's `C √p`.
-* `orliczPsi2Norm_sub_integral_le` and `orliczPsi1Norm_sub_integral_le`: the
-  centering lemmas, HDP Lemma 2.7.8 and its `ψ₁` counterpart.
+  first and second absolute moments, with an explicit absolute constant.
+* `orliczPsi2Norm_sub_integral_le` and `orliczPsi1Norm_sub_integral_le`:
+  centering changes either norm by at most an absolute factor.
 * `integral_rpow_abs_le_of_hasOrliczPsi2Bound` and
-  `integral_rpow_abs_rpow_inv_le_orliczPsi2Norm`: HDP Proposition 2.6.6(ii) for
-  a general exponent `p ≥ 1`, in integral and `L^p` form.
+  `integral_rpow_abs_rpow_inv_le_orliczPsi2Norm`: the `p`-th absolute moment for
+  a general exponent `p ≥ 1`, in integral and `L^p` form; the `L^p` norm grows
+  at most like `√p`.
 * `hasOrliczPsi2Bound_of_measure_abs_ge_le` and
-  `orliczPsi2Norm_le_of_measure_abs_ge_le`: the converse of Proposition
-  2.6.6(i), obtained from the layer-cake formula.  The textbook calls the tail
-  form "equivalent" to the norm form but proves only one direction; this is the
-  other one.
+  `orliczPsi2Norm_le_of_measure_abs_ge_le`: the converse direction, recovering a
+  `ψ₂` bound from a Gaussian tail bound.
 -/
 
 open MeasureTheory Real
@@ -54,8 +52,7 @@ variable {Ω : Type u} [MeasurableSpace Ω]
 
 /-! ## Tails -/
 
-/-- HDP Proposition 2.6.6(i) for an admissible scale: a sub-Gaussian variable
-has Gaussian tails. -/
+/-- A sub-Gaussian variable has Gaussian tails, at an admissible scale. -/
 lemma measure_abs_ge_le_of_hasOrliczPsi2Bound {μ : Measure Ω} [IsFiniteMeasure μ]
     {X : Ω → ℝ} {K : ℝ} (hXm : AEMeasurable X μ) (hK : HasOrliczPsi2Bound X μ K)
     {t : ℝ} (ht : 0 ≤ t) :
@@ -88,8 +85,8 @@ lemma measure_abs_ge_le_of_hasOrliczPsi2Bound {μ : Measure Ω} [IsFiniteMeasure
   rw [neg_div, exp_neg, ← div_eq_mul_inv, le_div_iff₀ hexp]
   linarith [hreal, mul_comm ((μ {ω | t ≤ |X ω|}).toReal) (exp (t ^ 2 / K ^ 2))]
 
-/-- HDP Proposition 2.6.6(i): a sub-Gaussian variable has Gaussian tails with
-the `ψ₂` norm as the scale. -/
+/-- A sub-Gaussian variable has Gaussian tails with the `ψ₂` norm as the
+scale. -/
 lemma measure_abs_ge_le_orliczPsi2Norm {μ : Measure Ω} [IsFiniteMeasure μ]
     {X : Ω → ℝ} (hXm : AEMeasurable X μ) (hfin : HasFiniteOrliczPsi2Norm X μ)
     (hpos : 0 < orliczPsi2Norm X μ) {t : ℝ} (ht : 0 ≤ t) :
@@ -164,7 +161,7 @@ lemma HasOrliczPsi2Bound.mul {μ : Measure Ω} [IsProbabilityMeasure μ]
       rw [← add_mul, ← ENNReal.ofReal_add (by norm_num) (by norm_num)]
       norm_num
 
-/-- HDP Lemma 2.8.6: `‖X Y‖_{ψ₁} ≤ ‖X‖_{ψ₂} ‖Y‖_{ψ₂}`. -/
+/-- `‖X Y‖_{ψ₁} ≤ ‖X‖_{ψ₂} ‖Y‖_{ψ₂}`. -/
 lemma orliczPsi1Norm_mul_le {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X Y : Ω → ℝ} (hXm : AEMeasurable X μ) (hYm : AEMeasurable Y μ)
     (hXfin : HasFiniteOrliczPsi2Norm X μ) (hYfin : HasFiniteOrliczPsi2Norm Y μ) :
@@ -195,7 +192,7 @@ lemma orliczPsi1Norm_mul_le {μ : Measure Ω} [IsProbabilityMeasure μ]
     nlinarith [ha.pos, hb.pos, hδpos, hδ1, hδε, hA, hB]
   linarith
 
-/-- The diagonal case of HDP Lemma 2.8.6: `‖X²‖_{ψ₁} ≤ ‖X‖_{ψ₂}²`. -/
+/-- The diagonal case of the product bound: `‖X²‖_{ψ₁} ≤ ‖X‖_{ψ₂}²`. -/
 lemma orliczPsi1Norm_sq_le {μ : Measure Ω} [IsProbabilityMeasure μ] {X : Ω → ℝ}
     (hXm : AEMeasurable X μ) (hXfin : HasFiniteOrliczPsi2Norm X μ) :
     orliczPsi1Norm (fun ω => X ω ^ 2) μ ≤ orliczPsi2Norm X μ ^ 2 := by
@@ -226,7 +223,7 @@ private lemma le_exp_self (u : ℝ) : u ≤ exp u := by
   linarith
 
 /-- The first absolute moment of a sub-Gaussian variable, for an admissible
-scale.  This is HDP Proposition 2.6.6(ii) at `p = 1`, with a cruder constant. -/
+scale. -/
 lemma integral_abs_le_of_hasOrliczPsi2Bound {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : Ω → ℝ} {K : ℝ} (hXm : AEMeasurable X μ) (hK : HasOrliczPsi2Bound X μ K) :
     ∫ ω, |X ω| ∂μ ≤ 2 * K := by
@@ -265,7 +262,7 @@ lemma integral_abs_le_orliczPsi2Norm {μ : Measure Ω} [IsProbabilityMeasure μ]
   linarith
 
 /-- The second moment of a sub-Gaussian variable, for an admissible scale.
-This is HDP Proposition 2.6.6(ii) at `p = 2`, with a cruder constant. -/
+-/
 lemma integral_sq_le_of_hasOrliczPsi2Bound {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : Ω → ℝ} {K : ℝ} (hXm : AEMeasurable X μ) (hK : HasOrliczPsi2Bound X μ K) :
     ∫ ω, X ω ^ 2 ∂μ ≤ 2 * K ^ 2 := by
@@ -317,8 +314,7 @@ lemma integral_sq_le_orliczPsi2Norm {μ : Measure Ω} [IsProbabilityMeasure μ]
 
 /-! ## Centering -/
 
-/-- HDP Lemma 2.7.8: centering changes the `ψ₂` norm by at most an absolute
-factor. -/
+/-- Centering changes the `ψ₂` norm by at most an absolute factor. -/
 lemma orliczPsi2Norm_sub_integral_le {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : Ω → ℝ} (hXm : AEMeasurable X μ) (hfin : HasFiniteOrliczPsi2Norm X μ) :
     orliczPsi2Norm (fun ω => X ω - ∫ ω, X ω ∂μ) μ
@@ -391,7 +387,7 @@ lemma integral_abs_le_orliczPsi1Norm {μ : Measure Ω} [IsProbabilityMeasure μ]
   have haA : a < orliczPsi1Norm X μ + ε / 2 := halt
   linarith
 
-/-- HDP Lemma 2.7.10, the `ψ₁` centering lemma. -/
+/-- Centering changes the `ψ₁` norm by at most an absolute factor. -/
 lemma orliczPsi1Norm_sub_integral_le {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : Ω → ℝ} (hXm : AEMeasurable X μ) (hfin : HasFiniteOrliczPsi1Norm X μ) :
     orliczPsi1Norm (fun ω => X ω - ∫ ω, X ω ∂μ) μ
@@ -442,8 +438,8 @@ private lemma rpow_le_const_mul_exp {u s : ℝ} (hu : 0 ≤ u) (hs : 0 < s) :
       ← Real.exp_add]
     exact exp_le_exp.mpr hkey
 
-/-- HDP Proposition 2.6.6(ii), integral form: the `p`-th absolute moment of a
-sub-Gaussian variable, for an admissible scale. -/
+/-- The `p`-th absolute moment of a sub-Gaussian variable, for an admissible
+scale. -/
 lemma integral_rpow_abs_le_of_hasOrliczPsi2Bound {μ : Measure Ω}
     [IsProbabilityMeasure μ] {X : Ω → ℝ} {K p : ℝ} (hXm : AEMeasurable X μ)
     (hK : HasOrliczPsi2Bound X μ K) (hp : 0 < p) :
@@ -498,8 +494,7 @@ lemma integral_rpow_abs_le_of_hasOrliczPsi2Bound {μ : Measure Ω}
       rw [hEq, ENNReal.ofReal_mul hCpos.le]
       norm_num
 
-/-- HDP Proposition 2.6.6(ii): the `L^p` norm of a sub-Gaussian variable grows
-at most like `√p`. -/
+/-- The `L^p` norm of a sub-Gaussian variable grows at most like `√p`. -/
 lemma integral_rpow_abs_rpow_inv_le_orliczPsi2Norm {μ : Measure Ω}
     [IsProbabilityMeasure μ] {X : Ω → ℝ} {K p : ℝ} (hXm : AEMeasurable X μ)
     (hK : HasOrliczPsi2Bound X μ K) (hp : 1 ≤ p) :
@@ -602,10 +597,8 @@ private lemma intervalIntegral_layercake_kernel {K : ℝ} (hK : 0 < K) (a : ℝ)
   simp
 
 
-/-- HDP Proposition 2.6.6, converse direction: a Gaussian tail bound with scale
-`L` makes `2 * L` an admissible `ψ₂` scale.  The textbook proof of Theorem 3.1.1
-uses this when it calls the tail form "equivalent" to the norm form; it is the
-only direction the text does not prove. -/
+/-- A Gaussian tail bound with scale `L` makes `2 * L` an admissible `ψ₂`
+scale: the converse of the tail estimate. -/
 lemma hasOrliczPsi2Bound_of_measure_abs_ge_le {μ : Measure Ω}
     [IsProbabilityMeasure μ] {X : Ω → ℝ} {L : ℝ} (hXm : AEMeasurable X μ)
     (hL : 0 < L)

@@ -8,9 +8,8 @@ import StatsMLlib.Probability.Concentration.SubExponential
 /-!
 # Concentration of the Euclidean norm
 
-HDP Theorem 3.1.1: for a random vector with independent sub-Gaussian
-coordinates of unit second moment, `‖X‖₂` concentrates around `√n` at the
-sub-Gaussian scale `K ^ 2`.
+For a random vector with independent sub-Gaussian coordinates of unit second
+moment, `‖X‖₂` concentrates around `√n` at the sub-Gaussian scale `K ^ 2`.
 
 ## Main definitions
 
@@ -18,17 +17,15 @@ sub-Gaussian scale `K ^ 2`.
 
 ## Main results
 
-* `hasOrliczPsi1Bound_sq_sub_one`: Step 1 of the textbook proof, that the
-  centred squares are sub-exponential.
-* `sq_norm_concentration`: Step 2, concentration of `n⁻¹ ‖X‖₂²` around `1`.
+* `hasOrliczPsi1Bound_sq_sub_one`: the centred squares `Xᵢ² - 1` are
+  sub-exponential.
+* `sq_norm_concentration`: concentration of `n⁻¹ ‖X‖₂²` around `1`.
 * `norm_concentration_tail`: the tail form,
   `P{|‖X‖₂ - √n| ≥ t} ≤ 2 exp (-c t² / K⁴)`.
-* `norm_concentration_hdp`: the `ψ₂`-norm form of HDP Theorem 3.1.1.
+* `norm_concentration_hdp`: the `ψ₂`-norm form.
 
-The textbook proof calls the tail form "equivalent" to the norm form.  Only one
-direction of that equivalence is proved in the text; the other is
 `orliczPsi2Norm_le_of_measure_abs_ge_le` in
-`StatsMLlib.Probability.Moments.SubGaussianOrlicz`, and it is what turns
+`StatsMLlib.Probability.Moments.SubGaussianOrlicz` is what turns
 `norm_concentration_tail` into `norm_concentration_hdp`.
 -/
 
@@ -41,8 +38,8 @@ universe u
 
 variable {Ω : Type u} [MeasurableSpace Ω]
 
-/-- Step 3 of the textbook proof: for `z, δ ≥ 0`, a deviation of `z` from `1`
-forces a deviation of `z ^ 2` from `1`. -/
+/-- For `z, δ ≥ 0`, a deviation of `z` from `1` forces a deviation of `z ^ 2`
+from `1`. -/
 private lemma max_le_abs_sq_sub_one {z δ : ℝ} (hz : 0 ≤ z) (hδ : 0 ≤ δ)
     (h : δ ≤ |z - 1|) : max δ (δ ^ 2) ≤ |z ^ 2 - 1| := by
   have hfac : |z ^ 2 - 1| = |z - 1| * (z + 1) := by
@@ -83,8 +80,8 @@ lemma one_le_centredSqScale {K : ℝ} (hK : 1 ≤ 2 * K ^ 2) :
     nlinarith
   nlinarith
 
-/-- Step 1 of the textbook proof: the centred squares of a sub-Gaussian family
-are sub-exponential at scale `centredSqScale K`. -/
+/-- The centred squares of a sub-Gaussian family are sub-exponential at scale
+`centredSqScale K`. -/
 lemma hasOrliczPsi1Bound_sq_sub_one {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : Ω → ℝ} {K : ℝ} (hXm : AEMeasurable X μ)
     (hK : HasOrliczPsi2Bound X μ K) (hK2 : 1 ≤ 2 * K ^ 2) :
@@ -116,7 +113,7 @@ lemma hasOrliczPsi1Bound_sq_sub_one {μ : Measure Ω} [IsProbabilityMeasure μ]
   nlinarith
 
 
-/-- Step 2 of the textbook proof: concentration of `n⁻¹ ‖X‖₂²` around `1`. -/
+/-- Concentration of `n⁻¹ ‖X‖₂²` around `1`. -/
 theorem sq_norm_concentration {n : ℕ} (hn : 0 < n) {μ : Measure Ω}
     [IsProbabilityMeasure μ] (X : Fin n → Ω → ℝ)
     (hXm : ∀ i, AEMeasurable (X i) μ) (h_indep : iIndepFun X μ)
@@ -188,7 +185,7 @@ theorem sq_norm_concentration {n : ℕ} (hn : 0 < n) {μ : Measure Ω}
   rw [div_div_eq_mul_div, div_div_eq_mul_div]
 
 
-/-- Steps 3 of the textbook proof: the tail form of HDP Theorem 3.1.1. -/
+/-- The tail form: `‖X‖₂` concentrates around `√n`. -/
 theorem norm_concentration_tail {n : ℕ} (hn : 0 < n) {μ : Measure Ω}
     [IsProbabilityMeasure μ] (X : Fin n → Ω → ℝ)
     (hXm : ∀ i, AEMeasurable (X i) μ) (h_indep : iIndepFun X μ)
@@ -268,8 +265,8 @@ theorem norm_concentration_tail {n : ℕ} (hn : 0 < n) {μ : Measure Ω}
   gcongr
 
 
-/-- HDP Theorem 3.1.1, concentration of the norm: for a random vector with
-independent sub-Gaussian coordinates of unit second moment,
+/-- Concentration of the norm: for a random vector with independent
+sub-Gaussian coordinates of unit second moment,
 `‖ ‖X‖₂ - √n ‖_{ψ₂} ≤ C K ^ 2`. -/
 theorem norm_concentration_hdp {n : ℕ} (hn : 0 < n) {μ : Measure Ω}
     [IsProbabilityMeasure μ] (X : Fin n → Ω → ℝ)
@@ -316,8 +313,7 @@ Worked uses of this module's public API.  They are elaborated with the library,
 so they double as acceptance tests that these statements stay usable as written.
 -/
 
-/-- Theorem 3.1.1 in the form the textbook states it: the deviation of the norm
-from `√n` is sub-Gaussian at scale `K ^ 2`. -/
+/-- The deviation of the norm from `√n` is sub-Gaussian at scale `K ^ 2`. -/
 example {n : ℕ} (hn : 0 < n) {μ : Measure Ω} [IsProbabilityMeasure μ]
     (X : Fin n → Ω → ℝ) (hXm : ∀ i, AEMeasurable (X i) μ)
     (h_indep : iIndepFun X μ) {K : ℝ}
@@ -328,8 +324,7 @@ example {n : ℕ} (hn : 0 < n) {μ : Measure Ω} [IsProbabilityMeasure μ]
   obtain ⟨C, hC, _, hle⟩ := norm_concentration_hdp hn X hXm h_indep hK hsecond
   exact ⟨C, hC, hle⟩
 
-/-- The coordinates of such a vector necessarily have `2 K ^ 2 ≥ 1`; this is the
-`K ≳ 1` remark used in Step 2 of the textbook proof. -/
+/-- The coordinates of such a vector necessarily have `2 K ^ 2 ≥ 1`. -/
 example {n : ℕ} (hn : 0 < n) {μ : Measure Ω} [IsProbabilityMeasure μ]
     (X : Fin n → Ω → ℝ) (hXm : ∀ i, AEMeasurable (X i) μ) {K : ℝ}
     (hK : ∀ i, HasOrliczPsi2Bound (X i) μ K)

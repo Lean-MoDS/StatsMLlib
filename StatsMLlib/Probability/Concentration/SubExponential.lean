@@ -9,15 +9,14 @@ import StatsMLlib.Probability.Concentration.Bernstein
 /-!
 # Bernstein's inequality for sub-exponential variables
 
-HDP Section 2.9.  A centred variable with finite `ψ₁` norm has a quadratic
+A centred variable with finite `ψ₁` norm has a quadratic
 cumulant-generating function on a neighbourhood of the origin, and feeding that
 into the generic Bernstein tail optimiser of
 `StatsMLlib.Probability.Concentration.Bernstein` gives the two-scale tail bound.
 
 The single-variable moment-generating bound is obtained from the pointwise
-estimate `exp u ≤ 1 + u + u ^ 2 * exp |u|` rather than from the term-by-term
-expansion used in the textbook; this avoids an expectation/series interchange
-at the cost of a larger absolute constant.
+estimate `exp u ≤ 1 + u + u ^ 2 * exp |u|`, which needs no interchange of
+expectation and infinite sum.
 
 ## Main definitions
 
@@ -26,13 +25,13 @@ This module introduces no new definitions.
 ## Main results
 
 * `cgf_le_of_hasOrliczPsi1Bound`: the local quadratic cumulant bound.
-* `bernstein_subExponential`: HDP Theorem 2.9.1.
-* `bernstein_subExponential_smul`: HDP Corollary 2.9.2.  The weights are
-  assumed nonzero: a coordinate with `a i = 0` contributes an almost surely
-  vanishing summand and no positive `ψ₁` scale of the form `|a i| * K`, so such
+* `bernstein_subExponential`: the two-scale tail bound for an independent sum.
+* `bernstein_subExponential_smul`: its weighted form.  The weights are assumed
+  nonzero: a coordinate with `a i = 0` contributes an almost surely vanishing
+  summand and no positive `ψ₁` scale of the form `|a i| * K`, so such
   coordinates are removed from the index set rather than carried.
-* `bernstein_inequality_two_sided`: the two-sided form of HDP Theorem 2.9.5,
-  the only part of the bounded Bernstein inequality missing from
+* `bernstein_inequality_two_sided`: the two-sided form of the bounded
+  Bernstein inequality, the only part missing from
   `StatsMLlib.Probability.Concentration.Bernstein`.
 -/
 
@@ -277,7 +276,7 @@ private lemma integrable_exp_mul_sum₀ {ι : Type*} {μ : Measure Ω}
 
 /-! ## Bernstein's inequality -/
 
-/-- HDP Theorem 2.9.1, Bernstein's inequality for sub-exponential variables. -/
+/-- Bernstein's inequality for sub-exponential variables. -/
 theorem bernstein_subExponential {ι : Type*} [Fintype ι] {μ : Measure Ω}
     [IsProbabilityMeasure μ] {X : ι → Ω → ℝ} {Ki : ι → ℝ} {b v t : ℝ}
     (hXm : ∀ i, AEMeasurable (X i) μ) (h_indep : iIndepFun X μ)
@@ -315,7 +314,8 @@ theorem bernstein_subExponential {ι : Type*} [Fintype ι] {μ : Measure Ω}
   refine hmain.trans (le_of_eq ?_)
   norm_num
 
-/-- HDP Corollary 2.9.2: the weighted form of Bernstein's inequality. -/
+/-- The weighted form of Bernstein's inequality for sub-exponential
+variables. -/
 theorem bernstein_subExponential_smul {ι : Type*} [Fintype ι] {μ : Measure Ω}
     [IsProbabilityMeasure μ] {X : ι → Ω → ℝ} {a : ι → ℝ} {K b v t : ℝ}
     (hXm : ∀ i, AEMeasurable (X i) μ) (h_indep : iIndepFun X μ)
@@ -339,9 +339,8 @@ theorem bernstein_subExponential_smul {ι : Type*} [Fintype ι] {μ : Measure Ω
   exact bernstein_subExponential hYm hYindep hYcenter hYK hbpos hb hvpos hv ht
 
 
-/-- HDP Theorem 2.9.5, the two-sided bounded Bernstein inequality.  The
-one-sided half is `bernstein_inequality`; only the two-sided packaging is added
-here. -/
+/-- The two-sided bounded Bernstein inequality.  The one-sided half is
+`bernstein_inequality`; only the two-sided packaging is added here. -/
 theorem bernstein_inequality_two_sided {ι : Type*} [Fintype ι] {μ : Measure Ω}
     [IsProbabilityMeasure μ] {X : ι → Ω → ℝ} {b v t : ℝ}
     (hb : 0 ≤ b) (hv : 0 < v) (ht : 0 ≤ t)

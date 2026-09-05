@@ -38,9 +38,9 @@ should, and monotonicity in `K` is immediate.
 * `orliczPsi2Norm_const_mul`: absolute homogeneity.
 * `HasOrliczPsi2Bound.add` and `orliczPsi2Norm_add_le`: subadditivity, the
   Luxemburg triangle inequality for the Young function `t ↦ exp (t ^ 2)`.
-* `orliczPsi2Norm_const`: `‖c‖_{ψ₂} = |c| / √(log 2)` (HDP Exercise 2.24(a)).
-* `orliczPsi2Norm_le_of_abs_le`: a bounded variable is sub-Gaussian
-  (HDP Exercise 2.24(b)).
+* `orliczPsi2Norm_const`: `‖c‖_{ψ₂} = |c| / √(log 2)`.
+* `orliczPsi2Norm_le_of_abs_le`: an almost surely bounded variable is
+  sub-Gaussian.
 
 Each of these has a `ψ₁` counterpart with `log 2` in place of `√(log 2)`.
 -/
@@ -149,7 +149,7 @@ lemma hasOrliczPsi2Bound_const_iff {μ : Measure Ω} [IsProbabilityMeasure μ]
   · intro hle
     exact ⟨hK, by rw [hint]; exact hstep.mpr (hstep2.mpr hle)⟩
 
-/-- Exercise 2.24(a): the `ψ₂` norm of an almost surely constant variable. -/
+/-- The `ψ₂` norm of an almost surely constant variable. -/
 lemma orliczPsi2Norm_const {μ : Measure Ω} [IsProbabilityMeasure μ] (c : ℝ) :
     orliczPsi2Norm (fun _ : Ω => c) μ = |c| / √(Real.log 2) := by
   have hsqrt : (0 : ℝ) < √(Real.log 2) := Real.sqrt_pos.mpr log_two_pos
@@ -166,7 +166,7 @@ lemma orliczPsi2Norm_const {μ : Measure Ω} [IsProbabilityMeasure μ] (c : ℝ)
     (le_csInf ⟨|c| / √(Real.log 2) + 1, by constructor <;> linarith⟩ fun _ hK => hK.2)
   exact csInf_le hbdd ⟨by linarith, by linarith⟩
 
-/-- Exercise 2.24(b): an almost surely bounded variable is sub-Gaussian. -/
+/-- An almost surely bounded variable is sub-Gaussian. -/
 lemma orliczPsi2Norm_le_of_abs_le {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : Ω → ℝ} {b : ℝ} (hb : 0 ≤ b) (hX : ∀ᵐ ω ∂μ, |X ω| ≤ b) :
     orliczPsi2Norm X μ ≤ b / √(Real.log 2) := by
