@@ -26,7 +26,8 @@ StatsMLlib/
 │   ├── NormedSpace/
 │   │   └── CoveringNumber/
 │   │       ├── Euclidean.lean
-│   │       └── L1.lean
+│   │       ├── L1.lean
+│   │       └── LipschitzBall.lean
 │   └── FiniteSample.lean
 ├── LearningTheory/
 │   ├── EmpiricalRiskMinimization/
