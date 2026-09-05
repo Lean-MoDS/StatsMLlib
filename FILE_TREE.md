@@ -42,6 +42,8 @@ StatsMLlib/
 │   │   ├── LinearPredictor/
 │   │   │   ├── L1.lean
 │   │   │   └── L2.lean
+│   │   ├── NeuralNetwork/
+│   │   │   └── HiddenUnit.lean
 │   │   ├── HilbertPredictor.lean
 │   │   └── KernelPredictor.lean
 │   ├── Rademacher/
