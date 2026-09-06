@@ -325,7 +325,6 @@ lemma ratio_bound_gronwall (φ : ℝ → ℝ) (t : ℝ) (ht : 0 < t)
   have h9 : |φ s / s| ≥ φ s / s := le_abs_self _
   linarith
 
-set_option maxHeartbeats 400000 in
 /-- Ent[exp(sf_c)] ≤ (s²σ²/2)·E[exp(sf_c)] via LSI. -/
 lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
     (_ : 0 < σ)
@@ -488,7 +487,6 @@ lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
         apply mul_le_mul_of_nonneg_left h_grad_int (by norm_num : (0 : ℝ) ≤ 2)
     _ = s^2 * σ^2 / 2 * ∫ x, (g x)^2 ∂μ := by ring
 
-set_option maxHeartbeats 600000 in
 /-- CGF bound via Herbst: cgf(f-Ef,t) ≤ t²σ²/2 for C¹ f with |∇f|²≤σ². -/
 theorem cgf_bound {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
     (hσ : 0 < σ)

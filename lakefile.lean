@@ -10,7 +10,9 @@ abbrev linter : Array LeanOption := #[
   ⟨`linter.longLine, true⟩,
   ⟨`linter.oldObtain, true,⟩,
   ⟨`linter.refine, true⟩,
-  ⟨`linter.setOption, true⟩
+  ⟨`linter.setOption, true⟩,
+  ⟨`linter.style.setOption, true⟩,
+  ⟨`linter.style.maxHeartbeats, true⟩
 ]
 
 /-- Lean and linter options used throughout StatsMLlib. -/

@@ -807,7 +807,6 @@ lemma fderiv_zero_at_ball_boundary {R : ℝ} {f g : E n → ℝ} {x : E n}
 
 /-! ### Main Cutoff Theorem -/
 
-set_option maxHeartbeats 2000000 in
 /-- Helper for triangle inequality with norm composition. -/
 lemma eLpNorm_norm_add_le {α : Type*} [MeasurableSpace α] {μ : Measure α}
     {E : Type*} [NormedAddCommGroup E] {f g : α → E}
@@ -822,7 +821,6 @@ lemma eLpNorm_norm_add_le {α : Type*} [MeasurableSpace α] {μ : Measure α}
   simp only [eLpNorm_norm] at hadd
   exact hadd
 
-set_option maxHeartbeats 8000000 in
 /-- The cutoff f^(R) = f·χ_R converges to f in the W^{1,2}(γ) Sobolev norm as R → ∞. -/
 theorem tendsto_cutoff_W12 (f : E n → ℝ) (hf : MemW12Gaussian n f (stdGaussianE n)) :
     Filter.Tendsto (fun R =>
