@@ -879,7 +879,6 @@ lemma integral_dudley_chain_bound
 Analytical bound for the Dudley sum.
 The sum of $2 \epsilon_k f(\epsilon_{k+1})$ is bounded by $8 \int f$.
 -/
-set_option maxHeartbeats 0 in
 lemma dudley_analytical_sum_bound
   {f : ℝ → ℝ}
   {D : ℝ} (hD : 0 < D)
@@ -916,7 +915,24 @@ lemma dudley_analytical_sum_bound
             · exact ⟨ hD.le, mul_le_of_le_one_right hD.le ( by linarith [ inv_le_one_of_one_le₀ ( one_le_pow₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) : ( 1 : ℝ ) ≤ 2 ^ L ) ] ) ⟩;
         convert h_integral_bound using 1 ; norm_num [ Real.rpow_add, Real.rpow_neg ] ; ring_nf;
         exact Or.inl ( mul_le_mul_of_nonneg_left ( by norm_num ) ( by positivity ) );
-      norm_num [ Finset.sum_range_succ, Real.rpow_add, Real.rpow_neg ] at * ; ring_nf at * ; linarith!;
+      have hp1 : (2:ℝ) ^ (-((L:ℝ) + 1)) = 2 ^ (-(L:ℝ)) / 2 := by
+        rw [show (-((L:ℝ) + 1)) = -(L:ℝ) + -1 by ring,
+          Real.rpow_add (by norm_num : (0:ℝ) < 2)]
+        norm_num
+        ring
+      have hp2 : (2:ℝ) ^ (-((L:ℝ) + 2)) = 2 ^ (-(L:ℝ)) / 4 := by
+        rw [show (-((L:ℝ) + 2)) = -(L:ℝ) + -2 by ring,
+          Real.rpow_add (by norm_num : (0:ℝ) < 2)]
+        norm_num
+        ring
+      have hcoef : D * 2 ^ (-((L:ℝ) + 1)) - D * 2 ^ (-((L:ℝ) + 2))
+          = 2 * D * 2 ^ (-(L:ℝ)) / 8 := by
+        rw [hp1, hp2]; ring
+      rw [hcoef] at h_integral_bound
+      rw [Finset.sum_range_succ]
+      push_cast
+      rw [show (-((L:ℝ) + 1 + 1)) = -((L:ℝ) + 2) by ring, h_split]
+      linarith
 
 /-
 If `u` is a centered `δ`-net, it is also a centered `δ'`-net for `δ ≤ δ'`.
@@ -1690,7 +1706,6 @@ lemma integrable_pairwise_sup_of_subGaussian
 Chaining entropy bound: the expected pairwise sup over a finite cover is bounded by the entropy integral.
 This is the core technical lemma combining the chain construction with the base and step bounds.
 -/
-set_option maxHeartbeats 0 in
 lemma chaining_entropy_bound
   {α : Type*} [PseudoMetricSpace α]
   {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [IsProbabilityMeasure P]
@@ -1997,20 +2012,23 @@ lemma chaining_entropy_bound
       have hf_antitone : AntitoneOn f (Set.Icc (δ' / 4) D) := by
         intro x hx y hy hxy
         simp only [f]
-        by_cases h : subsetENetCard T y = 0 <;>
-          by_cases h' : subsetENetCard T x = 0 <;> simp_all +decide
-        · exact False.elim <| by
-            simpa [h, h'] using
-              subsetENetCard_antitoneOn_Ioc h_finite_cov
+        rcases eq_or_ne (subsetENetCard T y) 0 with h | h
+        · rw [h]
+          simp only [Nat.cast_zero, Real.log_zero, Real.sqrt_zero]
+          exact Real.sqrt_nonneg _
+        · by_cases h' : subsetENetCard T x = 0
+          · exact False.elim <| by
+              simpa [h, h'] using
+                subsetENetCard_antitoneOn_Ioc h_finite_cov
+                  ⟨lt_of_lt_of_le (div_pos hδ' (by norm_num : (0:ℝ) < 4)) hx.1, hx.2⟩
+                  ⟨lt_of_lt_of_le (div_pos hδ' (by norm_num : (0:ℝ) < 4)) hy.1, hy.2⟩
+                  hxy
+          · exact Real.sqrt_le_sqrt (Real.log_le_log
+              (Nat.cast_pos.mpr (Nat.pos_of_ne_zero h))
+              (Nat.cast_le.mpr (subsetENetCard_antitoneOn_Ioc h_finite_cov
                 ⟨lt_of_lt_of_le (div_pos hδ' (by norm_num : (0:ℝ) < 4)) hx.1, hx.2⟩
                 ⟨lt_of_lt_of_le (div_pos hδ' (by norm_num : (0:ℝ) < 4)) hy.1, hy.2⟩
-                hxy
-        · exact Real.sqrt_le_sqrt (Real.log_le_log
-            (Nat.cast_pos.mpr (Nat.pos_of_ne_zero h))
-            (Nat.cast_le.mpr (subsetENetCard_antitoneOn_Ioc h_finite_cov
-              ⟨lt_of_lt_of_le (div_pos hδ' (by norm_num : (0:ℝ) < 4)) hx.1, hx.2⟩
-              ⟨lt_of_lt_of_le (div_pos hδ' (by norm_num : (0:ℝ) < 4)) hy.1, hy.2⟩
-              hxy)))
+                hxy)))
 
       have hf_int : IntegrableOn f (Set.Icc (δ' / 4) D) :=
         hf_antitone.integrableOn_isCompact isCompact_Icc
