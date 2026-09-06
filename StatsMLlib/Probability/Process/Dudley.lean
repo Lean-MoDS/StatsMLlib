@@ -146,8 +146,6 @@ lemma biSup_eq_iSup_subtype_real {s : Set A} {f : A → ℝ}
     rw [Real.iSup_of_not_bddAbove hbdd_subtype]
 
 
-set_option maxHeartbeats 400000
-
 /-- **Core Dudley Discrete Bound**
 
 Bounds the expected supremum of a sub-Gaussian process over a finite dyadic net at level K:

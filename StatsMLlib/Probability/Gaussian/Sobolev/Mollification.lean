@@ -275,7 +275,6 @@ lemma mollify_tendsto_pointwise {n : ℕ} {g : E n → ℝ} (hg_cont : Continuou
 
 /-! #### Uniform Convergence on Compact Sets -/
 
-set_option maxHeartbeats 400000 in
 /-- For uniformly continuous functions on a compact set, mollification converges uniformly. -/
 lemma mollify_tendsto_uniformly_on_compact {n : ℕ} {g : E n → ℝ} {K : Set (E n)}
     (hK : IsCompact K) (hg_cont : Continuous g) :
@@ -568,7 +567,6 @@ lemma eLpNorm_tendsto_zero_of_tendstoUniformly_general {n : ℕ} {μ : Measure (
 
 /-! ### L² Convergence for Continuous Compactly Supported Functions -/
 
-set_option maxHeartbeats 400000 in
 /-- Mollification of continuous compactly supported functions converges in L².
     This uses uniform convergence on compact sets + finite measure on the support. -/
 lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (hR : 0 < R)
@@ -739,7 +737,6 @@ lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (h
 
 /-! ### Gaussian L² Convergence for Continuous Functions -/
 
-set_option maxHeartbeats 4000000 in
 /-- For any probability measure μ, mollification of continuous compactly supported
     functions converges in L²(μ). Since stdGaussianE is a probability measure,
     μ s ≤ 1 < ⊤ for any set s, so we can use uniform convergence. -/

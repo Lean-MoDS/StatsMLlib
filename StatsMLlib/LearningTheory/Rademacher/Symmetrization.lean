@@ -431,8 +431,6 @@ theorem integrable₁ (ω : Ω × Ω) [Countable ι] [Nonempty ι]
     μ2n := by
   exact integrable₁' h𝓕 h𝓕' (boundedness₀ h𝓕' hC ω)
 
-set_option maxHeartbeats 900000
-
 theorem integrable₂ [Countable ι] [Nonempty ι]
   (h𝓕 : ∀ (I : ι), Measurable (f I ∘ X)) {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b) {n : ℕ}
   {c : ι → ℝ} {C : ℝ} (hC : ∀ (I : ι), |c I| ≤ C) :

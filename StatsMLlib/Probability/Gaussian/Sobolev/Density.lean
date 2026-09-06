@@ -167,7 +167,6 @@ lemma exists_lt_of_tendsto_nhdsWithin_right {f : ℝ → ℝ≥0∞} {b : ℝ≥
 
 /-! ### Main Approximation Theorem -/
 
-set_option maxHeartbeats 400000 in
 /-- For any f ∈ W^{1,2}(γ) with sufficient regularity (differentiable with continuous gradient)
     and δ > 0, there exists a smooth compactly supported function g
     such that ‖f - g‖_{W^{1,2}(γ)} < δ. -/
