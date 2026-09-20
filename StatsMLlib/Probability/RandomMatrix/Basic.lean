@@ -5,6 +5,7 @@ Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 -/
 import StatsMLlib.Analysis.NormedSpace.CoveringNumber.Euclidean
 import StatsMLlib.Probability.Concentration.HansonWright
+import StatsMLlib.Probability.Independence.Grouping
 import StatsMLlib.Probability.Moments.Exponential
 import StatsMLlib.Probability.Process.FiniteMaximum
 import Mathlib.Analysis.InnerProductSpace.LinearMap
@@ -24,6 +25,8 @@ This file starts the random-matrix infrastructure for HDP, Section 4.4.
 * `RMT.maxFamilySubGaussianPsi2Norm`: maximum scalar ψ₂ scale over a finite family.
 * `RMT.maxMatrixRowSubGaussianPsi2Norm`: maximum vector ψ₂ scale over the rows.
 * `RMT.HasIndependentMeanZeroSubGaussianEntries`: the entry assumptions in HDP Theorem 4.4.3.
+* `RMT.HasIndependentMeanZeroSubGaussianRows`: independent, mean-zero, sub-Gaussian rows, with
+  possibly dependent entries inside a row.
 * `RMT.HasIndependentVarianceOneSubGaussianEntries`: the entry assumptions in Exercise 4.42.
 * `RMT.HasIndependentMeanZeroSubGaussianUpperTriangle`: the symmetric entry assumptions in
   HDP Corollary 4.4.7.
@@ -32,6 +35,8 @@ This file starts the random-matrix infrastructure for HDP, Section 4.4.
 
 ## Main results
 
+* `RMT.norm_subgaussian_matrices_rows_hdp`: the operator-norm bound for a matrix with
+  independent, mean-zero, sub-Gaussian rows.
 * `RMT.norm_subgaussian_matrices_hdp`: the exact proposition stated by HDP Theorem 4.4.3.
 * `RMT.norm_subgaussian_matrices_expectation_hdp`: the exact proposition stated by
   HDP Remark 4.4.4.
@@ -2507,9 +2512,11 @@ events over all net pairs.
 -/
 lemma matrixOperatorNorm_tail_of_quarter_centered_bilinear_net {m n : ℕ}
     {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K u : ℝ}
-    (N : CenteredMatrixBilinearNet m n (1 / 4)) (hK : 0 < K)
-    (h_indep : iIndepFun (fun p : Fin m × Fin n => A p.1 p.2) μ)
-    (hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨K ^ 2, sq_nonneg K⟩ μ)
+    (N : CenteredMatrixBilinearNet m n (1 / 4))
+    (htail : ∀ x : EuclideanSpace ℝ (Fin n), ∀ y : EuclideanSpace ℝ (Fin m),
+      ‖x‖ ≤ 1 → ‖y‖ ≤ 1 →
+      (μ {ω | u ≤ |inner ℝ ((randomMatrix A ω).toEuclideanLin x) y|}).toReal ≤
+        2 * exp (-u ^ 2 / (2 * K ^ 2)))
     (hu : 0 < u) :
     (μ {ω | 2 * u < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
       2 * ((N.domainNet.card * N.codomainNet.card : ℕ) : ℝ) *
@@ -2551,10 +2558,7 @@ lemma matrixOperatorNorm_tail_of_quarter_centered_bilinear_net {m n : ℕ}
       refine ENNReal.toReal_mono (measure_ne_top μ _) (measure_mono ?_)
       intro ω hω
       exact le_of_lt (by simpa [tailEvent] using hω)
-    exact hmono.trans
-      (inner_randomMatrix_tail_of_norm_le_one
-        (A := A) (μ := μ) (K := K) hK h_indep hA_subG
-        hp_dom_norm hp_cod_norm hu)
+    exact hmono.trans (htail p.1 p.2 hp_dom_norm hp_cod_norm)
   calc
     (μ {ω | 2 * u < matrixOperatorNorm (randomMatrix A ω)}).toReal
         ≤ μ.real (⋃ p ∈ s, tailEvent p) := by
@@ -2570,19 +2574,25 @@ lemma matrixOperatorNorm_tail_of_quarter_centered_bilinear_net {m n : ℕ}
     _ = 2 * ((N.domainNet.card * N.codomainNet.card : ℕ) : ℝ) *
           exp (-u ^ 2 / (2 * K ^ 2)) := by ring
 
-lemma matrixOperatorNorm_tail_le_of_entrywise_subgaussian {m n : ℕ}
+/--
+Net-and-union-bound step of the operator-norm tail bound, abstracted over the tail bound for a
+fixed bilinear form. Both the entrywise-independent and the row-independent hypotheses feed into
+it.
+-/
+lemma matrixOperatorNorm_tail_le_of_bilinear_tail {m n : ℕ}
     (hm : 0 < m) (hn : 0 < n)
     {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K u : ℝ}
-    (hK : 0 < K)
-    (h_indep : iIndepFun (fun p : Fin m × Fin n => A p.1 p.2) μ)
-    (hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨K ^ 2, sq_nonneg K⟩ μ)
+    (htail : ∀ x : EuclideanSpace ℝ (Fin n), ∀ y : EuclideanSpace ℝ (Fin m),
+      ‖x‖ ≤ 1 → ‖y‖ ≤ 1 →
+      (μ {ω | u ≤ |inner ℝ ((randomMatrix A ω).toEuclideanLin x) y|}).toReal ≤
+        2 * exp (-u ^ 2 / (2 * K ^ 2)))
     (hu : 0 < u) :
     (μ {ω | 2 * u < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
       2 * 17 ^ (m + n) * exp (-u ^ 2 / (2 * K ^ 2)) := by
   obtain ⟨N, hN_domain, hN_codomain⟩ := exists_quarter_centeredMatrixBilinearNet m n
-  have htail :=
+  have hnet :=
     matrixOperatorNorm_tail_of_quarter_centered_bilinear_net
-      (A := A) (μ := μ) (K := K) (u := u) N hK h_indep hA_subG hu
+      (A := A) (μ := μ) (K := K) (u := u) N htail hu
   have hcard :=
     centeredMatrixBilinearNet_card_product_le_seventeen_pow_add hm hn N hN_domain hN_codomain
   have hfactor :
@@ -2594,7 +2604,23 @@ lemma matrixOperatorNorm_tail_le_of_entrywise_subgaussian {m n : ℕ}
           2 * 17 ^ (m + n) :=
       mul_le_mul_of_nonneg_left hcard (by norm_num : (0 : ℝ) ≤ 2)
     exact mul_le_mul_of_nonneg_right hleft (le_of_lt (exp_pos _))
-  exact htail.trans hfactor
+  exact hnet.trans hfactor
+
+/-- Entrywise-independent instance of `matrixOperatorNorm_tail_le_of_bilinear_tail`. -/
+lemma matrixOperatorNorm_tail_le_of_entrywise_subgaussian {m n : ℕ}
+    (hm : 0 < m) (hn : 0 < n)
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K u : ℝ}
+    (hK : 0 < K)
+    (h_indep : iIndepFun (fun p : Fin m × Fin n => A p.1 p.2) μ)
+    (hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨K ^ 2, sq_nonneg K⟩ μ)
+    (hu : 0 < u) :
+    (μ {ω | 2 * u < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
+      2 * 17 ^ (m + n) * exp (-u ^ 2 / (2 * K ^ 2)) :=
+  matrixOperatorNorm_tail_le_of_bilinear_tail hm hn
+    (fun _ _ hx hy =>
+      inner_randomMatrix_tail_of_norm_le_one (A := A) (μ := μ) (K := K)
+        hK h_indep hA_subG hx hy hu)
+    hu
 
 /-! ## HDP entry hypotheses -/
 
@@ -2752,6 +2778,366 @@ lemma matrixOperatorNorm_tail_le_of_upperTriangle_max_psi2 {n : ℕ} (hn : 0 < n
   have hden : 8 * (2 * K) ^ 2 = 32 * K ^ 2 := by ring
   simpa [hden] using htail
 
+/-! ## Grouping a bilinear form by rows -/
+
+omit [MeasurableSpace Ω] in
+/-- The projection of a random row onto `x`, written as an explicit sum. -/
+lemma inner_randomMatrixRowVector_eq_sum {m n : ℕ}
+    (A : Fin m → Fin n → Ω → ℝ) (ω : Ω) (i : Fin m) (x : EuclideanSpace ℝ (Fin n)) :
+    inner ℝ (randomMatrixRowVector A i ω) x = ∑ j : Fin n, A i j ω * x j := by
+  change inner ℝ (WithLp.toLp 2 fun j => A i j ω) x = ∑ j : Fin n, A i j ω * x j
+  rw [PiLp.inner_apply]
+  simp [mul_comm]
+
+omit [MeasurableSpace Ω] in
+/-- The bilinear form `⟪A x, y⟫` of a random matrix, grouped by rows. -/
+lemma inner_randomMatrix_eq_sum_rows {m n : ℕ}
+    (A : Fin m → Fin n → Ω → ℝ) (ω : Ω)
+    (x : EuclideanSpace ℝ (Fin n)) (y : EuclideanSpace ℝ (Fin m)) :
+    inner ℝ ((randomMatrix A ω).toEuclideanLin x) y =
+      ∑ i : Fin m, y i * inner ℝ (randomMatrixRowVector A i ω) x := by
+  rw [inner_randomMatrix_eq_sum_entries A ω x y]
+  have hprod :
+      (∑ p : Fin m × Fin n, (x p.2 * y p.1) * A p.1 p.2 ω) =
+        ∑ i : Fin m, ∑ j : Fin n, (x j * y i) * A i j ω := by
+    simpa using
+      (Finset.sum_product' (Finset.univ : Finset (Fin m)) (Finset.univ : Finset (Fin n))
+        (fun i j => (x j * y i) * A i j ω))
+  rw [hprod]
+  refine Finset.sum_congr rfl ?_
+  intro i _
+  rw [inner_randomMatrixRowVector_eq_sum, Finset.mul_sum]
+  refine Finset.sum_congr rfl ?_
+  intro j _
+  ring
+
+omit [MeasurableSpace Ω] in
+/-- The squared Euclidean norm as a sum of squared coordinates. -/
+lemma sum_sq_coeff_eq_norm_sq {m : ℕ} (y : EuclideanSpace ℝ (Fin m)) :
+    (∑ i : Fin m, y i ^ 2) = ‖y‖ ^ 2 :=
+  (EuclideanSpace.real_norm_sq_eq y).symm
+
+omit [MeasurableSpace Ω] in
+/-- The variance proxy produced by the row decomposition, as a real number. -/
+lemma row_coeff_variance_proxy_eq {m : ℕ} (y : EuclideanSpace ℝ (Fin m)) (K : ℝ) :
+    (((∑ i : Fin m, Real.toNNReal (y i ^ 2) * Real.toNNReal (K ^ 2)) : ℝ≥0) : ℝ) =
+      K ^ 2 * ‖y‖ ^ 2 := by
+  rw [NNReal.coe_sum]
+  simp only [NNReal.coe_mul]
+  calc
+    (∑ i : Fin m, ↑(Real.toNNReal (y i ^ 2)) * ↑(Real.toNNReal (K ^ 2)))
+        = ∑ i : Fin m, y i ^ 2 * K ^ 2 := by
+          refine Finset.sum_congr rfl ?_
+          intro i _
+          rw [Real.coe_toNNReal _ (sq_nonneg _), Real.coe_toNNReal _ (sq_nonneg K)]
+    _ = (∑ i : Fin m, y i ^ 2) * K ^ 2 := by rw [← Finset.sum_mul]
+    _ = K ^ 2 * ‖y‖ ^ 2 := by rw [sum_sq_coeff_eq_norm_sq]; ring
+
+/-! ## Sub-Gaussian certificates for row projections -/
+
+/--
+Unit-ball version of `RMT.row_inner_hasSubgaussianMGF_of_max_row_psi2`. The nets produced by
+`RMT.exists_quarter_centeredMatrixBilinearNet` live in the closed unit ball rather than on the
+unit sphere, so the `‖x‖ = 1` hypothesis has to be relaxed.
+-/
+lemma row_inner_hasSubgaussianMGF_of_norm_le_one {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K : ℝ}
+    (hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ K)
+    (hfinite : ∀ i, HasFiniteSubGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ)
+    (i : Fin m) {x : EuclideanSpace ℝ (Fin n)} (hx : ‖x‖ ≤ 1) :
+    HasSubgaussianMGF (fun ω => inner ℝ (randomMatrixRowVector A i ω) x)
+      ⟨K ^ 2, sq_nonneg K⟩ μ := by
+  rcases eq_or_ne x 0 with hx0 | hx0
+  · have hzero : (fun ω => inner ℝ (randomMatrixRowVector A i ω) x) = fun _ => (0 : ℝ) := by
+      funext ω
+      simp [hx0]
+    rw [hzero]
+    exact hasSubgaussianMGF_mono_param HasSubgaussianMGF.fun_zero
+      (by change (0 : ℝ) ≤ K ^ 2; positivity)
+  · have hnorm_pos : 0 < ‖x‖ := norm_pos_iff.mpr hx0
+    have hunit : ‖(‖x‖)⁻¹ • x‖ = 1 := by
+      rw [norm_smul, norm_inv, Real.norm_eq_abs, abs_of_pos hnorm_pos]
+      field_simp
+    have hbase :=
+      hasSubgaussianMGF_inner_of_subGaussianVectorPsi2Norm_le (hfinite i) (hK_le i) hunit
+    have hscaled := hbase.const_mul ‖x‖
+    have hfun :
+        (fun ω => ‖x‖ * inner ℝ (randomMatrixRowVector A i ω) ((‖x‖)⁻¹ • x)) =
+          fun ω => inner ℝ (randomMatrixRowVector A i ω) x := by
+      funext ω
+      rw [real_inner_smul_right]
+      field_simp
+    rw [hfun] at hscaled
+    refine hasSubgaussianMGF_mono_param hscaled ?_
+    change ‖x‖ ^ 2 * K ^ 2 ≤ K ^ 2
+    have hx2 : ‖x‖ ^ 2 ≤ 1 := by
+      nlinarith [norm_nonneg x, hx]
+    nlinarith [sq_nonneg K, hx2]
+
+/--
+A fixed bilinear form of a random matrix with independent sub-Gaussian rows is sub-Gaussian,
+with variance proxy `∑ i, (y i)² K²`.
+
+The summands `Zᵢ = yᵢ ⟪Aᵢ, x⟫` are independent, so their variance proxies add.
+-/
+lemma inner_randomMatrix_hasSubgaussianMGF_of_rows_explicit {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K : ℝ}
+    (hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ K)
+    (hfinite : ∀ i, HasFiniteSubGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ)
+    (h_indep : iIndepFun (fun i : Fin m => randomMatrixRowVector A i) μ)
+    {x : EuclideanSpace ℝ (Fin n)} (hx : ‖x‖ ≤ 1) (y : EuclideanSpace ℝ (Fin m)) :
+    HasSubgaussianMGF
+      (fun ω => inner ℝ ((randomMatrix A ω).toEuclideanLin x) y)
+      (∑ i : Fin m, Real.toNNReal (y i ^ 2) * Real.toNNReal (K ^ 2)) μ := by
+  have h_indep_proj :
+      iIndepFun (fun i : Fin m => fun ω => inner ℝ (randomMatrixRowVector A i ω) x) μ := by
+    simpa [Function.comp_def] using
+      h_indep.comp (fun _ v => inner ℝ v x) (fun _ => by fun_prop)
+  let cK : ℝ≥0 := Real.toNNReal (K ^ 2)
+  have hcK : cK = (⟨K ^ 2, sq_nonneg K⟩ : ℝ≥0) := by
+    ext
+    exact Real.coe_toNNReal (K ^ 2) (sq_nonneg K)
+  have h_subG :
+      ∀ i ∈ (Finset.univ : Finset (Fin m)),
+        HasSubgaussianMGF (fun ω => inner ℝ (randomMatrixRowVector A i ω) x) cK μ := by
+    intro i _
+    rw [hcK]
+    exact row_inner_hasSubgaussianMGF_of_norm_le_one hK_le hfinite i hx
+  have hsum :=
+    HansonWright.hasSubgaussianMGF_finset_sum_const_mul_of_iIndepFun
+      (μ := μ) h_indep_proj (s := Finset.univ) h_subG (fun i : Fin m => y i)
+  refine hsum.congr (ae_of_all _ fun ω => ?_)
+  simpa using (inner_randomMatrix_eq_sum_rows A ω x y).symm
+
+/-- Sub-Gaussian certificate for a fixed bilinear form on the Euclidean unit ball. -/
+lemma inner_randomMatrix_hasSubgaussianMGF_of_rows {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K : ℝ}
+    (hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ K)
+    (hfinite : ∀ i, HasFiniteSubGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ)
+    (h_indep : iIndepFun (fun i : Fin m => randomMatrixRowVector A i) μ)
+    {x : EuclideanSpace ℝ (Fin n)} {y : EuclideanSpace ℝ (Fin m)}
+    (hx : ‖x‖ ≤ 1) (hy : ‖y‖ ≤ 1) :
+    HasSubgaussianMGF
+      (fun ω => inner ℝ ((randomMatrix A ω).toEuclideanLin x) y)
+      ⟨K ^ 2, sq_nonneg K⟩ μ := by
+  have h :=
+    inner_randomMatrix_hasSubgaussianMGF_of_rows_explicit hK_le hfinite h_indep hx y
+  refine hasSubgaussianMGF_mono_param h ?_
+  have hy2 : ‖y‖ ^ 2 ≤ 1 := by
+    nlinarith [norm_nonneg y, hy]
+  change (((∑ i : Fin m, Real.toNNReal (y i ^ 2) * Real.toNNReal (K ^ 2)) : ℝ≥0) : ℝ) ≤ K ^ 2
+  rw [row_coeff_variance_proxy_eq]
+  nlinarith [sq_nonneg K, hy2]
+
+/-- Two-sided tail bound for a fixed bilinear form, from row independence. -/
+lemma inner_randomMatrix_rows_tail_of_norm_le_one {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K u : ℝ}
+    (hK : 0 < K)
+    (hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ K)
+    (hfinite : ∀ i, HasFiniteSubGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ)
+    (h_indep : iIndepFun (fun i : Fin m => randomMatrixRowVector A i) μ)
+    {x : EuclideanSpace ℝ (Fin n)} {y : EuclideanSpace ℝ (Fin m)}
+    (hx : ‖x‖ ≤ 1) (hy : ‖y‖ ≤ 1) (hu : 0 < u) :
+    (μ {ω | u ≤ |inner ℝ ((randomMatrix A ω).toEuclideanLin x) y|}).toReal ≤
+      2 * exp (-u ^ 2 / (2 * K ^ 2)) :=
+  HasSubgaussianMGF.measure_abs_ge_le hK
+    (inner_randomMatrix_hasSubgaussianMGF_of_rows hK_le hfinite h_indep hx hy) hu
+
+/-! ## From entrywise to row sub-Gaussianity -/
+
+/-- `subGaussianVectorPsi2Norm` is bounded by any admissible vector ψ₂ scale. -/
+lemma subGaussianVectorPsi2Norm_le_of_bound {n : ℕ} {X : Ω → EuclideanSpace ℝ (Fin n)}
+    {μ : Measure Ω} {R : ℝ} (hR : HasSubGaussianVectorPsi2Bound X μ R) :
+    subGaussianVectorPsi2Norm X μ ≤ R := by
+  refine csInf_le ⟨0, ?_⟩ hR
+  rintro K hK
+  exact hK.1.le
+
+/--
+A row of a matrix with independent sub-Gaussian entries is a sub-Gaussian random vector at the
+same scale.
+
+For a unit vector `x`, `⟪Aᵢ, x⟫ = ∑ⱼ xⱼ Aᵢⱼ` is a weighted sum of independent sub-Gaussian
+variables, so its variance proxy is `∑ⱼ xⱼ² R² = R²`.
+-/
+lemma hasSubGaussianVectorPsi2Bound_row_of_entries {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {R : ℝ}
+    (hR : 0 < R)
+    (h_indep : iIndepFun (fun p : Fin m × Fin n => A p.1 p.2) μ)
+    (hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨R ^ 2, sq_nonneg R⟩ μ)
+    (i : Fin m) :
+    HasSubGaussianVectorPsi2Bound (randomMatrixRowVector A i) μ R := by
+  refine ⟨hR, ?_⟩
+  intro x hx
+  have hinj : Function.Injective (fun j : Fin n => ((i, j) : Fin m × Fin n)) := by
+    intro a b hab
+    simpa using hab
+  have h_row_indep : iIndepFun (fun j : Fin n => A i j) μ := by
+    simpa using h_indep.precomp hinj
+  have hcR : Real.toNNReal (R ^ 2) = (⟨R ^ 2, sq_nonneg R⟩ : ℝ≥0) := by
+    ext
+    exact Real.coe_toNNReal (R ^ 2) (sq_nonneg R)
+  have h_subG :
+      ∀ j ∈ (Finset.univ : Finset (Fin n)),
+        HasSubgaussianMGF (A i j) (Real.toNNReal (R ^ 2)) μ := by
+    intro j _
+    rw [hcR]
+    exact hA_subG i j
+  have hsum :=
+    HansonWright.hasSubgaussianMGF_finset_sum_const_mul_of_iIndepFun
+      (μ := μ) h_row_indep (s := Finset.univ) h_subG (fun j : Fin n => x j)
+  have hfun :
+      (fun ω => ∑ j : Fin n, x j * A i j ω) =
+        fun ω => inner ℝ (randomMatrixRowVector A i ω) x := by
+    funext ω
+    rw [inner_randomMatrixRowVector_eq_sum]
+    exact Finset.sum_congr rfl fun j _ => mul_comm _ _
+  rw [hfun] at hsum
+  refine hasSubgaussianMGF_mono_param hsum ?_
+  change (((∑ j : Fin n, Real.toNNReal (x j ^ 2) * Real.toNNReal (R ^ 2)) : ℝ≥0) : ℝ) ≤ R ^ 2
+  rw [row_coeff_variance_proxy_eq, hx]
+  simp
+
+/-- The maximal row ψ₂ scale is controlled by any entrywise sub-Gaussian scale. -/
+lemma subGaussianVectorPsi2Norm_row_le_of_entries {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {R : ℝ}
+    (hR : 0 < R)
+    (h_indep : iIndepFun (fun p : Fin m × Fin n => A p.1 p.2) μ)
+    (hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨R ^ 2, sq_nonneg R⟩ μ)
+    (i : Fin m) :
+    subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ R :=
+  subGaussianVectorPsi2Norm_le_of_bound
+    (hasSubGaussianVectorPsi2Bound_row_of_entries hR h_indep hA_subG i)
+
+/-- Rows of a matrix with independent sub-Gaussian entries have a finite vector ψ₂ scale. -/
+lemma hasFiniteSubGaussianVectorPsi2Norm_row_of_entries {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {R : ℝ}
+    (hR : 0 < R)
+    (h_indep : iIndepFun (fun p : Fin m × Fin n => A p.1 p.2) μ)
+    (hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨R ^ 2, sq_nonneg R⟩ μ)
+    (i : Fin m) :
+    HasFiniteSubGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ :=
+  ⟨R, hasSubGaussianVectorPsi2Bound_row_of_entries hR h_indep hA_subG i⟩
+
+/-- Row projections of a centered matrix are centered. -/
+lemma integral_inner_row_eq_zero {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω}
+    (hint : ∀ i j, Integrable (A i j) μ)
+    (hmean : ∀ i j, ∫ ω, A i j ω ∂μ = 0)
+    (i : Fin m) (x : EuclideanSpace ℝ (Fin n)) :
+    ∫ ω, inner ℝ (randomMatrixRowVector A i ω) x ∂μ = 0 := by
+  have hfun :
+      (fun ω => inner ℝ (randomMatrixRowVector A i ω) x) =
+        fun ω => ∑ j : Fin n, A i j ω * x j := by
+    funext ω
+    exact inner_randomMatrixRowVector_eq_sum A ω i x
+  rw [hfun, integral_finsetSum _ fun j _ => (hint i j).mul_const _]
+  simp [integral_mul_const, hmean]
+
+/-! ## Row hypotheses -/
+
+/--
+Row hypotheses: independent, mean-zero, sub-Gaussian rows.
+
+The random row `Aᵢ` is represented by `randomMatrixRowVector A i`. Unlike
+`RMT.HasIndependentMeanZeroSubGaussianEntries`, entries inside a single row are allowed to be
+dependent, and unlike `RMT.HasIndependentMeanZeroIsotropicSubGaussianRows` no isotropy is assumed.
+-/
+structure HasIndependentMeanZeroSubGaussianRows {m n : ℕ}
+    (A : Fin m → Fin n → Ω → ℝ) (μ : Measure Ω) : Prop where
+  measurable : ∀ i j, Measurable (A i j)
+  independent_rows : iIndepFun (fun i : Fin m => randomMatrixRowVector A i) μ
+  mean_zero : ∀ i (x : EuclideanSpace ℝ (Fin n)),
+    ∫ ω, inner ℝ (randomMatrixRowVector A i ω) x ∂μ = 0
+  finite_row_psi2 : ∀ i, HasFiniteSubGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ
+
+-- Note: as for `RMT.HasIndependentMeanZeroSubGaussianEntries`, the `measurable` and `mean_zero`
+-- fields are not consumed by the proof below, because an MGF sub-Gaussian certificate already
+-- forces the mean to vanish. They are kept so that the structure states the standard
+-- hypotheses verbatim.
+
+/-- The isotropic row hypotheses imply the plain row hypotheses. -/
+lemma HasIndependentMeanZeroIsotropicSubGaussianRows.toHasIndependentMeanZeroSubGaussianRows
+    {m n : ℕ} {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω}
+    (hA : HasIndependentMeanZeroIsotropicSubGaussianRows A μ) :
+    HasIndependentMeanZeroSubGaussianRows A μ where
+  measurable := hA.measurable
+  independent_rows := hA.independent_rows
+  mean_zero := hA.mean_zero
+  finite_row_psi2 := hA.finite_row_psi2
+
+/--
+Entrywise independence and sub-Gaussianity imply the row hypotheses.
+
+Independence of the rows as random vectors comes from `ProbabilityTheory.iIndepFun_curry`, which
+regroups an independent family indexed by `Fin m × Fin n` into `Fin m` blocks.
+-/
+lemma HasIndependentMeanZeroSubGaussianEntries.toRows {m n : ℕ}
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (hA : HasIndependentMeanZeroSubGaussianEntries A μ) {R : ℝ} (hR : 0 < R)
+    (hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨R ^ 2, sq_nonneg R⟩ μ) :
+    HasIndependentMeanZeroSubGaussianRows A μ where
+  measurable := hA.measurable
+  independent_rows := by
+    have hcurry : iIndepFun (fun (i : Fin m) (ω : Ω) (j : Fin n) => A i j ω) μ :=
+      iIndepFun_curry (fun p => hA.measurable p.1 p.2) hA.independent
+    exact hcurry.comp (γ := fun _ : Fin m => EuclideanSpace ℝ (Fin n))
+      (fun _ => WithLp.toLp 2) (fun _ => by fun_prop)
+  mean_zero := fun i x =>
+    integral_inner_row_eq_zero (fun i j => (hA_subG i j).integrable) hA.mean_zero i x
+  finite_row_psi2 := fun i =>
+    hasFiniteSubGaussianVectorPsi2Norm_row_of_entries hR hA.independent hA_subG i
+
+/-! ## Operator norm tail bound -/
+
+/-- Row-independent instance of `RMT.matrixOperatorNorm_tail_le_of_bilinear_tail`. -/
+lemma matrixOperatorNorm_tail_le_of_rowwise_subgaussian {m n : ℕ}
+    (hm : 0 < m) (hn : 0 < n)
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K u : ℝ}
+    (hK : 0 < K)
+    (hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ K)
+    (hfinite : ∀ i, HasFiniteSubGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ)
+    (h_indep : iIndepFun (fun i : Fin m => randomMatrixRowVector A i) μ)
+    (hu : 0 < u) :
+    (μ {ω | 2 * u < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
+      2 * 17 ^ (m + n) * exp (-u ^ 2 / (2 * K ^ 2)) :=
+  matrixOperatorNorm_tail_le_of_bilinear_tail hm hn
+    (fun _ _ hx hy =>
+      inner_randomMatrix_rows_tail_of_norm_le_one hK hK_le hfinite h_indep hx hy hu)
+    hu
+
+/--
+Operator-norm tail bound in terms of the maximal row ψ₂ scale.
+
+The variance proxy is weakened from `2 K²` to `8 K²` so that the bound has the same shape as
+`RMT.matrixOperatorNorm_tail_le_of_max_psi2`, and `RMT.rectangular_net_tail_prefactor_le` applies
+unchanged.
+-/
+lemma matrixOperatorNorm_tail_le_of_max_row_psi2 {m n : ℕ}
+    (hm : 0 < m) (hn : 0 < n)
+    {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ]
+    (hA : HasIndependentMeanZeroSubGaussianRows A μ) {K u : ℝ}
+    (hK_def : K = maxMatrixRowSubGaussianPsi2Norm A μ) (hK : 0 < K) (hu : 0 < u) :
+    (μ {ω | 2 * u < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
+      2 * 17 ^ (m + n) * exp (-u ^ 2 / (8 * K ^ 2)) := by
+  have hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ K := by
+    intro i
+    rw [hK_def]
+    exact subGaussianVectorPsi2Norm_le_maxMatrixRowSubGaussianPsi2Norm A μ i
+  have hbase :=
+    matrixOperatorNorm_tail_le_of_rowwise_subgaussian hm hn hK hK_le
+      hA.finite_row_psi2 hA.independent_rows hu
+  refine hbase.trans ?_
+  have hKne : K ≠ 0 := hK.ne'
+  have hexp : exp (-u ^ 2 / (2 * K ^ 2)) ≤ exp (-u ^ 2 / (8 * K ^ 2)) := by
+    refine exp_le_exp.mpr ?_
+    have hdiff : -u ^ 2 / (8 * K ^ 2) - -u ^ 2 / (2 * K ^ 2) = 3 * u ^ 2 / (8 * K ^ 2) := by
+      field_simp
+      ring
+    have hnn : 0 ≤ 3 * u ^ 2 / (8 * K ^ 2) := by positivity
+    linarith
+  exact mul_le_mul_of_nonneg_left hexp (by positivity)
+
 lemma matrixOperatorNorm_tail_le_of_max_psi2 {m n : ℕ}
     (hm : 0 < m) (hn : 0 < n)
     {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ]
@@ -2760,10 +3146,14 @@ lemma matrixOperatorNorm_tail_le_of_max_psi2 {m n : ℕ}
     (μ {ω | 2 * u < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
       2 * 17 ^ (m + n) * exp (-u ^ 2 / (8 * K ^ 2)) := by
   have hK2 : 0 < 2 * K := by nlinarith
+  have hA_subG : ∀ i j, HasSubgaussianMGF (A i j) ⟨(2 * K) ^ 2, sq_nonneg (2 * K)⟩ μ :=
+    fun i j => entry_hasSubgaussianMGF_two_mul_max hK_def hK hA.finite_psi2 i j
+  have hrows := hA.toRows hK2 hA_subG
+  have hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ 2 * K :=
+    fun i => subGaussianVectorPsi2Norm_row_le_of_entries hK2 hA.independent hA_subG i
   have htail :=
-    matrixOperatorNorm_tail_le_of_entrywise_subgaussian
-      (A := A) (μ := μ) (K := 2 * K) (u := u) hm hn hK2 hA.independent
-      (fun i j => entry_hasSubgaussianMGF_two_mul_max hK_def hK hA.finite_psi2 i j) hu
+    matrixOperatorNorm_tail_le_of_rowwise_subgaussian hm hn hK2 hK_le
+      hrows.finite_row_psi2 hrows.independent_rows hu
   have hden : 2 * (2 * K) ^ 2 = 8 * K ^ 2 := by ring
   simpa [hden] using htail
 
@@ -4469,6 +4859,65 @@ lemma symmetric_net_tail_prefactor_le {n : ℕ} {K t : ℝ}
             (le_of_lt (exp_pos _))
 
 /-! ## Exact HDP Section 4.4 propositions -/
+
+/-! ## Operator norm for independent sub-Gaussian rows -/
+
+/--
+The operator-norm bound for a matrix with independent sub-Gaussian rows.
+
+For an `m × n` random matrix whose rows `Aᵢ` are independent, mean-zero, sub-Gaussian random
+vectors and `K = max_i ‖Aᵢ‖_{ψ₂}`, there is a positive absolute constant `C` such that for every
+`t > 0`, `‖A‖ ≤ C K (√m + √n + t)` with probability at least `1 - 2 exp (-t²)`.
+
+Entries inside a row are not assumed independent, so `RMT.norm_subgaussian_matrices_hdp` is the
+special case in which they are, obtained through
+`RMT.HasIndependentMeanZeroSubGaussianEntries.toRows`.
+-/
+def norm_subgaussian_matrices_rows_hdp {m n : ℕ} (A : Fin m → Fin n → Ω → ℝ)
+    (μ : Measure Ω) [IsProbabilityMeasure μ] : Prop :=
+  HasIndependentMeanZeroSubGaussianRows A μ →
+    ∃ C : ℝ, 0 < C ∧
+      ∀ K : ℝ, K = maxMatrixRowSubGaussianPsi2Norm A μ → 0 < K →
+        ∀ t : ℝ, 0 < t →
+          (μ {ω |
+            matrixOperatorNorm (randomMatrix A ω) ≤
+              C * K * (√(m : ℝ) + √(n : ℝ) + t)}).toReal ≥
+            1 - 2 * exp (-(t ^ 2))
+
+/-- The bound for independent rows, for positive dimensions. -/
+theorem norm_subgaussian_matrices_rows_hdp_of_pos {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
+    (A : Fin m → Fin n → Ω → ℝ) (μ : Measure Ω) [IsProbabilityMeasure μ] :
+    norm_subgaussian_matrices_rows_hdp A μ := by
+  intro hA
+  refine ⟨24, by norm_num, ?_⟩
+  intro K hK_def hK t ht
+  let S : ℝ := √(m : ℝ) + √(n : ℝ) + t
+  have hSpos : 0 < S := by
+    have hm_sqrt : 0 ≤ √(m : ℝ) := Real.sqrt_nonneg _
+    have hn_sqrt : 0 ≤ √(n : ℝ) := Real.sqrt_nonneg _
+    nlinarith
+  have hu : 0 < 12 * K * S :=
+    mul_pos (mul_pos (by norm_num : (0 : ℝ) < 12) hK) hSpos
+  have htail :=
+    matrixOperatorNorm_tail_le_of_max_row_psi2 (m := m) (n := n) hm hn
+      (A := A) (μ := μ) hA (K := K) (u := 12 * K * S) hK_def hK hu
+  have htail_bound :
+      (μ {ω | 24 * K * S < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
+        2 * exp (-(t ^ 2)) := by
+    have hpref :=
+      rectangular_net_tail_prefactor_le (m := m) (n := n) (K := K) (t := t) hK ht
+    have htail' := htail.trans hpref
+    have htail'' :
+        (μ {ω | K * (2 * (12 * S)) < matrixOperatorNorm (randomMatrix A ω)}).toReal ≤
+          2 * exp (-(t ^ 2)) := by
+      simpa [S, mul_assoc, mul_left_comm, mul_comm] using htail'
+    have hthreshold : K * (2 * (12 * S)) = 24 * K * S := by ring
+    simpa [hthreshold] using htail''
+  have hprob :=
+    probability_le_of_tail_real_le
+      (μ := μ) (X := fun ω => matrixOperatorNorm (randomMatrix A ω))
+      (B := 24 * K * S) (δ := 2 * exp (-(t ^ 2))) htail_bound
+  simpa [S, mul_assoc, mul_left_comm, mul_comm] using hprob
 
 /--
 HDP Theorem 4.4.3, "Norm of matrices with subgaussian entries".
