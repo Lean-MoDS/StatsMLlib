@@ -130,8 +130,6 @@ lemma symmetrization_signed_sup_le_add
             apply abs_signed_sum_le_card_mul_bound hf'
         intro i
         convert abs_sub _ _
-        · rfl
-        · rfl
         · rw [←Finset.sum_sub_distrib]
           congr
           ext k

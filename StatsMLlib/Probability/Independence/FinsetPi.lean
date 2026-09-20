@@ -60,13 +60,13 @@ theorem pi_eval_iIndepFun :
     · intro hx i _
       dsimp [f'']
       if h : i ∈ s then
-        rw [dif_pos h]
+        rw [dite_eq_left h]
         have := Set.mem_iInter.mp hx i
         have := Set.mem_iInter.mp this h
         rw [←(hf' i h).2] at this
         exact this
       else
-        rw [dif_neg h]
+        rw [dite_eq_right h]
         trivial
     · intro hx
       apply Set.mem_iInter.mpr
@@ -75,7 +75,7 @@ theorem pi_eval_iIndepFun :
       intro hi
       have := hx i trivial
       dsimp [f''] at this
-      rw [dif_pos hi] at this
+      rw [dite_eq_left hi] at this
       rw [←(hf' i hi).2]
       exact this
   rw [this, Measure.pi_pi]
@@ -85,7 +85,7 @@ theorem pi_eval_iIndepFun :
       ext i
       dsimp only [f'']
       if h : i ∈ s then
-        rw [dif_pos h, if_pos h, ←(hf' i h).2]
+        rw [dite_eq_left h, ite_eq_left h, ←(hf' i h).2]
         dsimp [f']
         rw [←Measure.map_apply]
         · congr
@@ -94,7 +94,7 @@ theorem pi_eval_iIndepFun :
         · exact measurable_pi_apply i
         · exact (hf' i h).1
       else
-        rw [dif_neg h, if_neg h]
+        rw [dite_eq_right h, ite_eq_right h]
         exact isProbabilityMeasure_iff.mp inferInstance
     _ = _ := Fintype.prod_ite_mem s fun i ↦ (Measure.pi fun x ↦ μ) (f i)
 

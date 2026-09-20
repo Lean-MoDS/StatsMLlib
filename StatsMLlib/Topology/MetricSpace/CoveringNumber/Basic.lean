@@ -298,7 +298,7 @@ lemma exists_enet_subset_from_half {eps : ℝ} {s : Set A}
     -- proj x is in s ∩ closedBall(x, eps/2)
     have hproj_spec : (s ∩ closedBall x (eps / 2)).Nonempty := ⟨y, hy, hy_ball⟩
     have hproj_in : proj x ∈ s ∩ closedBall x (eps / 2) := by
-      simp only [proj, dif_pos hproj_spec]
+      simp only [proj, dite_eq_left hproj_spec]
       exact hproj_spec.some_mem
     have hdist_proj_x : dist (proj x) x ≤ eps / 2 := mem_closedBall.mp hproj_in.2
     -- By triangle inequality: dist(y, proj x) ≤ dist(y, x) + dist(x, proj x) ≤ eps
@@ -313,8 +313,8 @@ lemma exists_enet_subset_from_half {eps : ℝ} {s : Set A}
     rw [Finset.mem_coe, Finset.mem_image] at hz
     obtain ⟨x, _, rfl⟩ := hz
     by_cases h : (s ∩ closedBall x (eps / 2)).Nonempty
-    · simp only [proj, dif_pos h]; exact h.some_mem.1
-    · simp only [proj, dif_neg h]; exact hs₀
+    · simp only [proj, dite_eq_left h]; exact h.some_mem.1
+    · simp only [proj, dite_eq_right h]; exact hs₀
   -- 3. |t'| ≤ coveringNumber(eps/2, s)
   · have h_card_le : t'.card ≤ net.card := Finset.card_image_le
     calc (t'.card : WithTop ℕ) ≤ net.card := by exact_mod_cast h_card_le
@@ -367,7 +367,7 @@ noncomputable def coveringNumberNat {s : Set A} (hs : TotallyBounded s) (eps : �
 /-- At a positive radius, coercing `coveringNumberNat` recovers the canonical covering number. -/
 lemma coe_coveringNumberNat {s : Set A} (hs : TotallyBounded s) {eps : ℝ} (heps : 0 < eps) :
     (coveringNumberNat hs eps : WithTop ℕ) = coveringNumber eps s := by
-  simp only [coveringNumberNat, dif_pos heps]
+  simp only [coveringNumberNat, dite_eq_left heps]
   exact WithTop.coe_untop _ _
 
 /-- `ℕ`-valued form of `coveringNumber_le_card_of_cover`, for the total-boundedness
@@ -442,7 +442,7 @@ lemma coveringFinset_cover {s : Set A} (hs : TotallyBounded s) {eps : ℝ}
 lemma coveringFinset_card {s : Set A} (hs : TotallyBounded s) {eps : ℝ}
     (heps : 0 < eps) :
     (coveringFinset hs heps).card = coveringNumberNat hs eps := by
-  simpa only [coveringFinset, coveringNumberNat, dif_pos heps] using
+  simpa only [coveringFinset, coveringNumberNat, dite_eq_left heps] using
     (Classical.choose_spec (exists_optimal_enet_nat heps hs)).2
 
 end

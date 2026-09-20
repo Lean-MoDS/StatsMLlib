@@ -371,7 +371,7 @@ lemma optimalU_in_dualEntropySet [IsProbabilityMeasure μ]
     filter_upwards with ω
     intro hY_pos
     show optimalU Y mean ω = ((if 0 < Y ω then log (Y ω) - log mean else 0) : ℝ)
-    simp only [optimalU, if_pos hY_pos]
+    simp only [optimalU, ite_eq_left hY_pos]
   · -- u * Y is integrable
     have h_eq : (fun ω => u ω * Y ω) =ᵐ[μ] (optimalU_mul_Y_toReal Y mean) := by
       filter_upwards [hY_nn] with ω hY_nn_ω

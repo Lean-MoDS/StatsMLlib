@@ -159,7 +159,7 @@ lemma abs_signVector_le_one (n : ℕ) (β : Fin n → Bool) (i : ℕ) :
 
 lemma signVector_of_lt {n : ℕ} (β : Fin n → Bool) {i : ℕ} (h : i < n) :
     signVector n β i = if β ⟨i, h⟩ then 1 else -1 := by
-  rw [signVector, dif_pos h]
+  rw [signVector, dite_eq_left h]
 
 lemma signVector_congr {n : ℕ} {β β' : Fin n → Bool} {i : ℕ} (h : i < n)
     (hβ : β ⟨i, h⟩ = β' ⟨i, h⟩) : signVector n β i = signVector n β' i := by

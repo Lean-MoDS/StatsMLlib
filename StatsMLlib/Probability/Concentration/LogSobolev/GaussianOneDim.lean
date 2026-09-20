@@ -150,8 +150,8 @@ lemma tendsto_eLpNorm_sq_sub_of_tendsto_L2
       refine Eventually.of_forall ?_
       intro x
       simp [norm_mul]
-    have h_holder' := (eLpNorm_le_eLpNorm_mul_eLpNorm_of_nnnorm (p := 2) (q := 2) (r := 1)
-        h_meas1 h_meas2 (fun a b => a * b) 1 h_bound)
+    have h_holder' := (eLpNorm_le_eLpNorm_mul_eLpNorm_of_norm (p := 2) (q := 2) (r := 1)
+        (fun a b => a * b) 1 continuous_mul h_meas1 h_meas2 h_bound)
     have h_eq : (fun x => (g k x)^2 - (f x)^2) =
         fun x => (g k x - f x) * (g k x + f x) := by
       ext x
@@ -177,11 +177,9 @@ lemma tendsto_eLpNorm_sq_sub_of_tendsto_L2
       eLpNorm (fun x => g k x + f x) 2 μ ≤
         1 + 2 * eLpNorm f 2 μ := by
     filter_upwards [h_eventually_small] with k hk
-    have h_meas1 : AEStronglyMeasurable (fun x => g k x - f x) μ :=
-      (hg_cont k).aestronglyMeasurable.sub hf_cont.aestronglyMeasurable
-    have h_meas2 : AEStronglyMeasurable (fun x => (2 : ℝ) * f x) μ :=
-      hf_cont.aestronglyMeasurable.const_mul (2 : ℝ)
-    have h_tri := eLpNorm_add_le h_meas1 h_meas2 (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+    have h_tri := eLpNorm_add_le (μ := μ) (p := 2)
+      (f := fun x => g k x - f x) (g := fun x => (2 : ℝ) * f x)
+      (by norm_num : (1 : ℝ≥0∞) ≤ 2)
     have h_eq : (fun x => g k x + f x) = fun x => (g k x - f x) + (2 : ℝ) * f x := by
       funext x
       ring
@@ -309,7 +307,9 @@ lemma tendsto_integral_norm_fderiv_sq_of_sobolev (f : ℝ → ℝ) (g : ℕ → 
         eLpNorm (fun x => ‖fderiv ℝ f x‖ - ‖fderiv ℝ (g k) x‖) 2 μ ≤
           eLpNorm (fun x => ‖fderiv ℝ f x - fderiv ℝ (g k) x‖) 2 μ := by
       intro k
-      refine eLpNorm_mono_ae ?_
+      refine eLpNorm_mono_ae
+        (((measurable_fderiv ℝ f).norm.sub (measurable_fderiv ℝ (g k)).norm)
+          ).aestronglyMeasurable ?_
       refine Eventually.of_forall ?_
       intro x
       simpa [Real.norm_eq_abs] using
@@ -337,8 +337,7 @@ lemma tendsto_integral_norm_fderiv_sq_of_sobolev (f : ℝ → ℝ) (g : ℕ → 
   have h_int_g : ∀ᶠ k in atTop, Integrable (fun x => ‖fderiv ℝ (g k) x‖^2) μ :=
     Eventually.of_forall (fun k => (hg_mem k).integrable_sq)
   have h_int_tend :=
-    tendsto_integral_of_L1' (f := fun x => ‖fderiv ℝ f x‖^2)
-      h_int_f.aestronglyMeasurable h_int_g h_sq_tend
+    tendsto_integral_of_L1' (f := fun x => ‖fderiv ℝ f x‖^2) h_int_g h_sq_tend
   simpa using h_int_tend
 
 /-- Shifted entropy density φ(t) + 1/e ≥ 0 for t ≥ 0. -/
@@ -446,8 +445,7 @@ theorem gaussian_logSobolev_W12_real {f : ℝ → ℝ}
     Eventually.of_forall h_int_qk
   have h_m_tend :
       Tendsto (fun k => ∫ x, qk k x ∂μ) atTop (nhds (∫ x, q x ∂μ)) := by
-    have h_int_tend := tendsto_integral_of_L1' (f := q)
-      h_int_q.aestronglyMeasurable h_int_qk_event h_L1
+    have h_int_tend := tendsto_integral_of_L1' (f := q) h_int_qk_event h_L1
     simpa [q, qk] using h_int_tend
   have h_mlog_tend :
       Tendsto (fun k =>
@@ -538,7 +536,9 @@ theorem gaussian_logSobolev_W12_real {f : ℝ → ℝ}
             eLpNorm (fun x => ‖fderiv ℝ f x‖ - ‖fderiv ℝ (g k) x‖) 2 μ ≤
               eLpNorm (fun x => ‖fderiv ℝ f x - fderiv ℝ (g k) x‖) 2 μ := by
           intro k
-          refine eLpNorm_mono_ae ?_
+          refine eLpNorm_mono_ae
+            (((measurable_fderiv ℝ f).norm.sub (measurable_fderiv ℝ (g k)).norm)
+              ).aestronglyMeasurable ?_
           refine Eventually.of_forall ?_
           intro x
           simpa [Real.norm_eq_abs] using
@@ -557,8 +557,7 @@ theorem gaussian_logSobolev_W12_real {f : ℝ → ℝ}
     have h_int_g : ∀ᶠ k in atTop, Integrable (fun x => ‖fderiv ℝ (g k) x‖^2) μ :=
       Eventually.of_forall (fun k => (hg_mem k).integrable_sq)
     have h_int_tend :=
-      tendsto_integral_of_L1' (f := fun x => ‖fderiv ℝ f x‖^2)
-        h_int_f.aestronglyMeasurable h_int_g h_norm_tend
+      tendsto_integral_of_L1' (f := fun x => ‖fderiv ℝ f x‖^2) h_int_g h_norm_tend
     simpa using h_int_tend
   have h_grad_bound : ∀ᶠ k in atTop,
       ∫ x, ‖fderiv ℝ (g k) x‖^2 ∂μ ≤ ∫ x, ‖fderiv ℝ f x‖^2 ∂μ + 1 := by
@@ -668,9 +667,7 @@ theorem gaussian_logSobolev_W12_real {f : ℝ → ℝ}
     h_L1.comp (StrictMono.tendsto_atTop hφ_mono)
   obtain ⟨ns, hns_mono, h_ae_tend⟩ :=
     exists_seq_tendsto_ae_of_tendsto_eLpNorm_one
-      (f := fun n x => qk (φ n) x) (g := q)
-      (hf := fun n => (hg_smooth (φ n)).continuous.aestronglyMeasurable.pow 2)
-      (hg := hf_diff.continuous.aestronglyMeasurable.pow 2) h_L1_subseq
+      (f := fun n x => qk (φ n) x) (g := q) h_L1_subseq
   let qk' : ℕ → ℝ → ℝ := fun n x => qk (φ (ns n)) x
   have h_ae_tend' :
       ∀ᵐ x ∂μ, Tendsto (fun i => qk' i x) atTop (nhds (q x)) := by

@@ -3,6 +3,7 @@ Copyright (c) 2026 Yuanhe Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 -/
+import Mathlib.MeasureTheory.Order.Group.Lattice
 import StatsMLlib.Probability.Process.SubGaussian
 import StatsMLlib.Probability.Process.FiniteMaximum
 import StatsMLlib.Analysis.MetricEntropy.Chaining
@@ -1394,7 +1395,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
         linarith
       use ⟨R_real, hR_real_nonneg⟩
       intro K hK
-      rw [MeasureTheory.eLpNorm_one_eq_lintegral_enorm]
+      rw [MeasureTheory.eLpNorm_one_eq_lintegral_enorm (h_Y_meas K).aestronglyMeasurable]
       simp only [Real.enorm_eq_ofReal_abs]
       have h_int_abs := (h_Y_int K hK).abs
       rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal h_int_abs (ae_of_all μ (fun ω => abs_nonneg _))]
@@ -1406,12 +1407,11 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
     have h_ae_liminf_finite : ∀ᵐ ω ∂μ,
         Filter.liminf (fun K => ‖Y K ω‖ₑ) Filter.atTop < ⊤ := by
       let Y' : ℕ → Ω → ℝ := fun K => Y (K + 1)
-      have hY'_meas : ∀ K, Measurable (Y' K) := fun K => h_Y_meas (K + 1)
       have hY'_bound : ∀ K, MeasureTheory.eLpNorm (Y' K) 1 μ ≤ R := by
         intro K
         exact hR (K + 1) (Nat.le_add_left 1 K)
       have h := MeasureTheory.ae_bdd_liminf_atTop_of_eLpNorm_bdd (p := 1)
-        (by norm_num : (1 : ℝ≥0∞) ≠ 0) hY'_meas hY'_bound
+        (by norm_num : (1 : ℝ≥0∞) ≠ 0) hY'_bound
       filter_upwards [h] with ω hω
       -- liminf_nat_add: shifting doesn't change liminf
       have h_shift : Filter.liminf (fun K => ‖Y K ω‖ₑ) Filter.atTop =
@@ -1559,7 +1559,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
               = ∑' K, ∫⁻ ω, ENNReal.ofReal |Δ K ω| ∂μ := by
                 apply lintegral_tsum
                 intro K
-                exact (hX_meas (proj (K + 1) 0)).sub (hX_meas (proj K 0)) |>.abs.ennreal_ofReal.aemeasurable
+                exact Measurable.aemeasurable (Measurable.ennreal_ofReal
+                  (Measurable.abs ((hX_meas (proj (K + 1) 0)).sub (hX_meas (proj K 0)))))
             _ = ∑' K, ENNReal.ofReal (∫ ω, |Δ K ω| ∂μ) := by
                 congr 1
                 ext K
@@ -1590,8 +1591,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                       · exact h_geom.mul_left _
                   _ < ⊤ := ENNReal.ofReal_lt_top
         have h_ae_lt_top : ∀ᵐ ω ∂μ, ∑' K, ENNReal.ofReal |Δ K ω| < ⊤ :=
-          ae_lt_top (Measurable.tsum (fun K =>
-            (hX_meas (proj (K + 1) 0)).sub (hX_meas (proj K 0)) |>.abs.ennreal_ofReal))
+          ae_lt_top (Measurable.tsum (fun K => Measurable.ennreal_ofReal
+            (Measurable.abs ((hX_meas (proj (K + 1) 0)).sub (hX_meas (proj K 0))))))
             h_lintegral_sum.ne
         filter_upwards [h_ae_lt_top] with ω h_lt_top
         have h_conv : ∀ K, ENNReal.ofReal |Δ K ω| = (Real.toNNReal |Δ K ω| : ℝ≥0∞) := fun K => rfl
@@ -1669,7 +1670,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
         · exact (h_proj0_int.sub h_t0_int).abs
         · have h_Δ_abs_int : ∀ K, Integrable (fun ω => |Δ K ω|) μ := fun K => (h_Δ_int K).abs
           have h_Δ_abs_meas : ∀ K, Measurable (fun ω => |Δ K ω|) :=
-            fun K => ((hX_meas (proj (K + 1) 0)).sub (hX_meas (proj K 0))).abs
+            fun K => Measurable.abs ((hX_meas (proj (K + 1) 0)).sub (hX_meas (proj K 0)))
           have h_integrable_tsum : Integrable (fun ω => ∑' K, |Δ K ω|) μ := by
             -- AEStronglyMeasurable via NNReal tsum measurability
             have h_ae_meas : AEStronglyMeasurable (fun ω => ∑' K, |Δ K ω|) μ := by

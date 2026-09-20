@@ -62,7 +62,7 @@ lemma condExpExceptCoord_stronglyMeasurable (hf : StronglyMeasurable f) :
     StronglyMeasurable (condExpExceptCoord (μs := μs) i f) := by
   unfold condExpExceptCoord
   apply StronglyMeasurable.integral_prod_right
-  exact hf.comp_measurable (measurable_pi_lambda _ (fun j => by
+  exact hf.comp_measurable (Measurable.of_eval (fun j => by
     by_cases h : j = i
     · subst h
       simp only [Function.update_self]
@@ -1000,7 +1000,7 @@ lemma memLp_condExpExceptCoord (i : Fin n) (f : (Fin n → Ω) → ℝ) (hf : Me
       -- f = mk f on μˢ-a.e., so f ∘ update = (mk f) ∘ update on (μˢ × μ)-a.e.
       have hae_prod : (fun p : (Fin n → Ω) × Ω => f (Function.update p.1 i p.2)) =ᶠ[ae (μˢ.prod (μs i))]
                       (fun p => hf.aestronglyMeasurable.mk f (Function.update p.1 i p.2)) := by
-        have := hmp.quasiMeasurePreserving.ae_eq hae
+        have := hmp.quasiMeasurePreserving.ae_eq_comp hae
         filter_upwards [this] with p hp
         exact hp
       -- By Fubini: for μˢ-a.e. x, the slice functions are μ-a.e. equal

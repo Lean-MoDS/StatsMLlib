@@ -68,11 +68,11 @@ lemma map_select_coords_prod_pi (k : Fin (n + 1)) :
     (fun j : Fin n => if j.val < k.val then p.1 j else p.2 j) with hφ_def
   -- φ is measurable
   have hφ_meas : Measurable φ := by
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro j
     by_cases h : j.val < k.val
-    · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-    · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+    · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+    · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
   rw [Measure.map_apply hφ_meas (MeasurableSet.univ_pi (fun j => hs j))]
   -- Preimage of ∏ⱼ s j under φ
   -- {p : p.1 j ∈ s j for j < k, p.2 j ∈ s j for j ≥ k}
@@ -86,16 +86,16 @@ lemma map_select_coords_prod_pi (k : Fin (n + 1)) :
       constructor
       · intro j
         by_cases hj : j.val < k.val
-        · simp only [if_pos hj]; have := h j; simp only [if_pos hj] at this; exact this
+        · simp only [ite_eq_left hj]; have := h j; simp only [ite_eq_left hj] at this; exact this
         · simp [hj]
       · intro j
         by_cases hj : j.val < k.val
         · simp [hj]
-        · simp only [if_neg hj]; have := h j; simp only [if_neg hj] at this; exact this
+        · simp only [ite_eq_right hj]; have := h j; simp only [ite_eq_right hj] at this; exact this
     · intro ⟨hx, hy⟩ j
       by_cases hj : j.val < k.val
-      · simp only [if_pos hj]; have := hx j; simp only [if_pos hj] at this; exact this
-      · simp only [if_neg hj]; have := hy j; simp only [if_neg hj] at this; exact this
+      · simp only [ite_eq_left hj]; have := hx j; simp only [ite_eq_left hj] at this; exact this
+      · simp only [ite_eq_right hj]; have := hy j; simp only [ite_eq_right hj] at this; exact this
   rw [preimage_eq]
   -- Measure of product set: μˢ.prod μˢ (s₁ ×ˢ s₂) = μˢ s₁ * μˢ s₂
   rw [Measure.prod_prod]
@@ -106,14 +106,14 @@ lemma map_select_coords_prod_pi (k : Fin (n + 1)) :
     congr 1 with j
     by_cases hj : j.val < k.val
     · simp [hj]
-    · simp only [if_neg hj, measure_univ]
+    · simp only [ite_eq_right hj, measure_univ]
   -- Second factor: ∏ⱼ (if j < k then 1 else μs j (s j))
   have factor2 : μˢ (Set.univ.pi (fun j => if j.val < k.val then Set.univ else s j)) =
       ∏ j : Fin n, (if j.val < k.val then 1 else μs j (s j)) := by
     rw [Measure.pi_pi]
     congr 1 with j
     by_cases hj : j.val < k.val
-    · simp only [if_pos hj, measure_univ]
+    · simp only [ite_eq_left hj, measure_univ]
     · simp [hj]
   rw [factor1, factor2]
   -- Product of factors: ∏ⱼ (if j<k then μ else 1) * ∏ⱼ (if j<k then 1 else μ) = ∏ⱼ μ
@@ -136,11 +136,11 @@ lemma condExpFirstK_nonneg_ae (k : Fin (n + 1)) (f : (Fin n → Ω) → ℝ)
 
   -- φ is measurable
   have hφ_meas : Measurable φ := by
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro j
     by_cases h : j.val < k.val
-    · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-    · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+    · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+    · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
 
   -- The map φ : μˢ × μˢ → μˢ is measure-preserving (mixes coordinates from x and y)
   have hφ_ae : ∀ᵐ (p : (Fin n → Ω) × (Fin n → Ω)) ∂(μˢ.prod μˢ), 0 ≤ f (φ p) := by
@@ -169,11 +169,11 @@ lemma condExpFirstK_integrable (k : Fin (n + 1)) (f : (Fin n → Ω) → ℝ)
     (fun j : Fin n => if j.val < k.val then p.1 j else p.2 j) with hφ_def
   -- φ is measurable
   have hφ_meas : Measurable φ := by
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro j
     by_cases h : j.val < k.val
-    · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-    · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+    · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+    · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
   -- Key: φ is measure-preserving from μˢ.prod μˢ to μˢ
   have hφ_mp : MeasurePreserving φ (μˢ.prod μˢ) μˢ := ⟨hφ_meas, map_select_coords_prod_pi k⟩
   -- f ∘ φ is integrable on μˢ.prod μˢ because f is integrable on μˢ
@@ -193,11 +193,11 @@ lemma condExpFirstK_measurable (k : Fin (n + 1)) (f : (Fin n → Ω) → ℝ)
     (fun j : Fin n => if j.val < k.val then p.1 j else p.2 j) with hφ_def
   -- φ is measurable
   have hφ_meas' : Measurable φ := by
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro j
     by_cases h : j.val < k.val
-    · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-    · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+    · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+    · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
   -- f ∘ φ is measurable
   have hcomp_meas : Measurable (f ∘ φ) := hf_meas.comp hφ_meas'
   -- StronglyMeasurable version for the integral result
@@ -237,11 +237,11 @@ lemma condExpFirstK_mul_log_integrable (k : Fin (n + 1)) (f : (Fin n → Ω) →
       (fun j : Fin n => if j.val < k.val then p.1 j else p.2 j) with hφ_def
     -- φ is measurable
     have hφ_meas : Measurable φ := by
-      apply measurable_pi_lambda
+      apply Measurable.of_eval
       intro j
       by_cases h : j.val < k.val
-      · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-      · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+      · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+      · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
     -- φ is measure-preserving
     have hφ_mp : MeasurePreserving φ (μˢ.prod μˢ) μˢ := ⟨hφ_meas, map_select_coords_prod_pi k⟩
     -- f ∘ φ satisfies the nonnegativity condition a.e.
@@ -329,11 +329,11 @@ lemma f_mul_log_condExpFirstK_integrable (k : Fin (n + 1)) (f : (Fin n → Ω) �
     (fun j : Fin n => if j.val < k.val then p.1 j else p.2 j) with hφ_def
   -- φ is measurable
   have hφ_meas : Measurable φ := by
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro j
     by_cases h : j.val < k.val
-    · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-    · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+    · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+    · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
   -- φ is measure-preserving
   have hφ_mp : MeasurePreserving φ (μˢ.prod μˢ) μˢ := ⟨hφ_meas, map_select_coords_prod_pi k⟩
 
@@ -596,7 +596,7 @@ theorem condExpFirstK_tower_of_integrable_slice (k : Fin n) (f : (Fin n → Ω) 
   have hG_meas : Measurable (fun p : Ω × (Fin n → Ω) => G p.1 p.2) := by
     simp only [G]
     apply hf_meas.comp
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro j
     by_cases hj_lt : j.val < k.val
     · -- j < k: returns x j (constant)
@@ -626,8 +626,8 @@ theorem condExpFirstK_tower_of_integrable_slice (k : Fin n) (f : (Fin n → Ω) 
         · simp only [hj_lt, ↓reduceIte]
         · simp only [hj_lt, ↓reduceIte]
           by_cases hj_eq : j = k
-          · rw [hj_eq, if_pos rfl, Function.update_self]
-          · simp only [if_neg hj_eq, Function.update_of_ne hj_eq]
+          · rw [hj_eq, ite_eq_left rfl, Function.update_self]
+          · simp only [ite_eq_right hj_eq, Function.update_of_ne hj_eq]
       rw [h_eq]
       -- slice_func is integrable on μˢ by hslice
       have hslice' : Integrable slice_func μˢ := hslice
@@ -676,11 +676,11 @@ theorem condExpFirstK_tower (k : Fin n) (f : (Fin n → Ω) → ℝ)
 
   -- φ is measurable
   have hφ_meas : Measurable φ := by
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro j
     by_cases h : j.val < k.val
-    · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-    · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+    · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+    · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
 
   -- Key: φ is measure-preserving from μˢ.prod μˢ to μˢ
   have hφ_mp : MeasurePreserving φ (μˢ.prod μˢ) μˢ := ⟨hφ_meas, map_select_coords_prod_pi k.castSucc⟩
@@ -892,11 +892,11 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
       (fun j : Fin n => if j.val < i.succ.val then p.1 j else p.2 j) with hφ_def
 
     have hφ_meas : Measurable φ := by
-      apply measurable_pi_lambda
+      apply Measurable.of_eval
       intro j
       by_cases h : j.val < i.succ.val
-      · simp only [hφ_def, if_pos h]; exact measurable_fst.eval
-      · simp only [hφ_def, if_neg h]; exact measurable_snd.eval
+      · simp only [hφ_def, ite_eq_left h]; exact measurable_fst.eval
+      · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
 
     have hφ_mp : MeasurePreserving φ (μˢ.prod μˢ) μˢ :=
       ⟨hφ_meas, map_select_coords_prod_pi i.succ⟩
@@ -909,8 +909,8 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
       simp only [hφ_def]
       congr 1 with j
       by_cases hj : j.val < i.succ.val
-      · rw [if_pos hj, if_pos hj, if_pos hj]
-      · rw [if_neg hj, if_neg hj]
+      · rw [ite_eq_left hj, ite_eq_left hj, ite_eq_left hj]
+      · rw [ite_eq_right hj, ite_eq_right hj]
 
     have hφ_preimage : φ ⁻¹' S = {p : (Fin n → Ω) × (Fin n → Ω) |
         condExpFirstK (μs := μs) i.succ f p.1 = 0 ∧ f (φ p) > 0} := by
@@ -1121,7 +1121,7 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
       have hRHS_eq : Eflogf x - Ef x * log (Ef x) = condEntExceptCoord (μs := μs) i f x := rfl
       have hY_meas : Measurable Y := by
         apply hf_meas.comp
-        apply measurable_pi_lambda
+        apply Measurable.of_eval
         intro j
         by_cases hj : j = i
         · subst hj; simp only [Function.update_self]; exact measurable_id
@@ -1133,14 +1133,14 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
               f (fun j => if j.val < (Fin.succ i).val then w j else z j)
           have hg_sm : StronglyMeasurable (Function.uncurry g) := by
             apply StronglyMeasurable.comp_measurable hf_meas.stronglyMeasurable
-            apply measurable_pi_lambda
+            apply Measurable.of_eval
             intro j
             by_cases hj : j.val < (Fin.succ i).val
             · simp only [hj, ↓reduceIte]; exact measurable_fst.eval
             · simp only [hj, ↓reduceIte]; exact measurable_snd.eval
           exact (hg_sm.integral_prod_right).measurable
         apply hT_meas.comp
-        apply measurable_pi_lambda
+        apply Measurable.of_eval
         intro j
         by_cases hj : j = i
         · subst hj; simp only [Function.update_self]; exact measurable_id

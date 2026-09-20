@@ -264,8 +264,9 @@ lemma innerProductProcess_isSubGaussianProcess (n : ℕ) (hn : 0 < n) :
   rw [h_fubini]
   have h_mgf : ∀ i : Fin n, ∫ x : ℝ, Real.exp (t * a i * x) ∂(gaussianReal 0 1) =
       Real.exp ((t * a i)^2 / 2) := fun i => by
-    have h_map : Measure.map id (gaussianReal 0 1) = gaussianReal 0 1 := Measure.map_id
-    have hmgf := mgf_gaussianReal h_map (t * a i)
+    have h_law : HasLaw (id : ℝ → ℝ) (gaussianReal 0 1) (gaussianReal 0 1) :=
+      ⟨measurable_id.aemeasurable, Measure.map_id⟩
+    have hmgf := mgf_gaussianReal h_law (t * a i)
     simp only [mgf, id_eq, zero_mul, NNReal.coe_one, zero_add, one_mul] at hmgf
     convert hmgf using 2
   simp_rw [h_mgf]
@@ -488,7 +489,7 @@ lemma localGaussianComplexity_integrand_integrable (n : ℕ) (H : Set (X → ℝ
       funext w
       simp only [Nat.cast_zero, inv_zero, zero_mul, abs_zero]
       conv_lhs => rw [show (fun g => ⨆ (_ : g ∈ localizedBall H δ x), (0 : ℝ)) = fun _ => 0 from by
-        ext g; by_cases hg : g ∈ localizedBall H δ x <;> simp [ciSup_neg, *]]
+        ext g; by_cases hg : g ∈ localizedBall H δ x <;> simp [*]]
       exact Real.iSup_const_zero
     rw [hfun]
     exact

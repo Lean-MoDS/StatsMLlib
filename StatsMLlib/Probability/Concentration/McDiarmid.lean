@@ -93,7 +93,7 @@ theorem ProbabilityTheory.iIndepFun.comp_right
   have h₁ : ∀ i ∈ s, @MeasurableSet Ω (MeasurableSpace.comap (f i) (mβ i)) (f₁ i) := by
     intro i hi
     dsimp only [f₁]
-    rw [dif_pos hi]
+    rw [dite_eq_left hi]
     let j := invg ⟨i, hi⟩
     change @MeasurableSet Ω (MeasurableSpace.comap (f i) (mβ i)) (f₁' j)
     have hj : g j = i := j.property.2
@@ -111,7 +111,7 @@ theorem ProbabilityTheory.iIndepFun.comp_right
         apply Set.mem_iInter₂_of_mem
         intro i hi
         dsimp only [f₁]
-        rw [dif_pos hi]
+        rw [dite_eq_left hi]
         simp only [Set.mem_iInter] at hx
         apply hx
         exact (invg ⟨i, hi⟩).2.1
@@ -121,7 +121,7 @@ theorem ProbabilityTheory.iIndepFun.comp_right
           Set.iInter_iInter_eq_right, Set.mem_iInter, s, f₁, invg] at hx
         intro i' hi'
         have hx := hx i' hi'
-        rw [dif_pos (⟨i', ⟨hi', rfl⟩⟩ : ∃ a ∈ s', g a = g i')] at hx
+        rw [dite_eq_left (⟨i', ⟨hi', rfl⟩⟩ : ∃ a ∈ s', g a = g i')] at hx
         have h₀ : g i' ∈ Finset.image g s' := (Function.Injective.mem_finset_image hg).mpr hi'
         have : (invg ⟨g i', h₀⟩).1 = i' := hg (invg ⟨g i', h₀⟩).2.2
         rw [this] at hx
@@ -141,7 +141,7 @@ theorem ProbabilityTheory.iIndepFun.comp_right
         apply congrArg
         dsimp [f₁]
         have : g i' ∈ s := (Function.Injective.mem_finset_image hg).mpr hi'
-        rw [dif_pos this]
+        rw [dite_eq_left this]
         apply congrArg
         apply hg
         exact (invg ⟨g i', this⟩).2.2.symm
@@ -191,22 +191,22 @@ lemma Y_snoc_eq
   ext i
   if h : i.1 < k.1 then
     have : i.1<(Fin.succ k).1 := by dsimp; linarith
-    rw [dif_pos this, dif_pos h]
-    simp only [Fin.snoc, dif_pos h, cast_eq]
+    rw [dite_eq_left this, dite_eq_left h]
+    simp only [Fin.snoc, dite_eq_left h, cast_eq]
     exact congrArg Xk (Fin.ext rfl)
   else
-    rw [dif_neg h]
+    rw [dite_eq_right h]
     if h2 : i.1 = k.1 then
       have : i.1 < (Fin.succ k).1 := by dsimp; linarith
-      rw [dif_pos this, if_pos h2]
-      simp only [Fin.snoc, dif_neg h, cast_eq]
+      rw [dite_eq_left this, ite_eq_left h2]
+      simp only [Fin.snoc, dite_eq_right h, cast_eq]
     else
       have : ¬ (i.1 < (Fin.succ k).1) := by
         simp only [Fin.val_succ, not_lt]
         simp only [Fin.val_fin_lt, not_lt] at h
         apply Fin.val_add_one_le_of_lt
         exact lt_of_le_of_ne h fun a => h2 (congrArg Fin.val (id (Eq.symm a)))
-      rw [dif_neg this, if_neg h2]
+      rw [dite_eq_right this, ite_eq_right h2]
 
 variable {c' : Fin m → ℝ}
 
@@ -227,13 +227,13 @@ lemma bound_f'
           ext i
           if hik : i.1 < k then
             have : i.1 < k+1 := by linarith
-            rw [if_pos this]
+            rw [ite_eq_left this]
             have : i ≠ ⟨k, by linarith [h']⟩:= Fin.ne_of_lt hik
-            rw [Function.update_of_ne this, if_pos hik]
+            rw [Function.update_of_ne this, ite_eq_left hik]
           else
             if hik' : i.1 = k then
               have : i.1 < k+1 := by linarith
-              rw [if_pos this]
+              rw [ite_eq_left this]
               have : i = ⟨k, by linarith [h']⟩ := Fin.eq_mk_iff_val_eq.mpr hik'
               rw [this, Function.update_self]
             else
@@ -242,9 +242,9 @@ lemma bound_f'
                 simp only [not_lt]
                 apply Nat.succ_le_of_lt
                 exact Nat.lt_of_le_of_ne hik (fun a ↦ hik' (id (Eq.symm a)))
-              rw [if_neg this]
+              rw [ite_eq_right this]
               have : i ≠ ⟨k, by linarith [h']⟩ := Fin.ne_of_val_ne hik'
-              rw [Function.update_of_ne this, if_neg hik]
+              rw [Function.update_of_ne this, ite_eq_right hik]
         rw [this]
         apply hfι
       have : ∑ (i : Fin (k+1)), c' ⟨i.1, by linarith [i.2, h']⟩ = (∑ (i : Fin k), c' ⟨i.1, by linarith [i.2, h']⟩) + c' ⟨k, h'⟩ := by
@@ -255,7 +255,7 @@ lemma bound_f'
   have h' := h m (Nat.le_refl m) xi
   have : (fun i : Fin m ↦ if ↑i < m then x₀ else xi i) = fun _ ↦ x₀ := by
     ext i
-    rw [if_pos i.2]
+    rw [ite_eq_left i.2]
   rw [this] at h'
   exact h'
 
@@ -302,13 +302,13 @@ lemma hmeasurableY
     = f' ∘ (fun xy : (Ω × (Fin k.1 → 𝓧)) ↦ fun (i : Fin m) ↦ if h : i.1 < k.1 then xy.2 ⟨↑i, h⟩ else X' i xy.1) := rfl
   rw [this]
   apply StronglyMeasurable.comp_measurable hf''
-  apply measurable_pi_lambda
+  apply Measurable.of_eval
   intro i
   if h : i.1 < k.1 then
     have : (fun (c : Ω × (Fin k.1 → 𝓧)) ↦ if h : i.1 < k.1 then c.2 ⟨↑i, h⟩ else X' i c.1)
       = (fun c ↦ c ⟨i.1, h⟩) ∘ Prod.snd := by
       ext c
-      rw [dif_pos h]
+      rw [dite_eq_left h]
       simp only [Nat.succ_eq_add_one, Function.comp_apply]
     rw [this]
     apply Measurable.comp
@@ -317,7 +317,7 @@ lemma hmeasurableY
   else
     have : (fun (c : Ω × (Fin k.1 → 𝓧)) ↦ if h : i.1 < k.1 then c.2 ⟨↑i, h⟩ else X' i c.1) = (X' i) ∘ Prod.fst := by
       ext c
-      rw [dif_neg h]
+      rw [dite_eq_right h]
       simp
     rw [this]
     apply Measurable.comp
@@ -349,7 +349,7 @@ lemma hintegrablelefts
       = expressionY μ X' f' ⟨k, Nat.lt_add_one_of_le h⟩ ∘ fun x ↦ fun i ↦ X' (Fin.castLE h i) x := rfl
     rw [this]
     apply (hmeasurableY hX'' hf'' ⟨k, Nat.lt_add_one_of_le h⟩).comp
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro _
     apply hX''
   · let x₀ : 𝓧 := (Classical.inhabited_of_nonempty hnonempty𝓧).default
@@ -380,20 +380,20 @@ lemma hintegrableAB
     if h₀ : i.1 < k.1 then
       have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) = fun _ ↦ Xk ⟨i.1, h₀⟩ := by
         ext x
-        rw [dif_pos h₀]
+        rw [dite_eq_left h₀]
       rw [this]
       exact measurable_const
     else
       if h₁ : i.1 = k.1 then
         have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) = fun _ ↦ x := by
           ext x
-          rw [dif_neg h₀, if_pos h₁]
+          rw [dite_eq_right h₀, ite_eq_left h₁]
         rw [this]
         exact measurable_const
       else
         have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) = fun x_1 ↦ X' i x_1 := by
           ext x
-          rw [dif_neg h₀, if_neg h₁]
+          rw [dite_eq_right h₀, ite_eq_right h₁]
         rw [this]
         exact hX'' i
   · apply MeasureTheory.HasFiniteIntegral.of_bounded _
@@ -423,16 +423,16 @@ lemma hAB
           ext i
           if h : i.1 < k.1 then
             have : i ≠ k := Fin.ne_of_lt h
-            rw [dif_pos h, Function.update_of_ne this, dif_pos h]
+            rw [dite_eq_left h, Function.update_of_ne this, dite_eq_left h]
           else
-            rw [dif_neg h]
+            rw [dite_eq_right h]
             if h': i.1 = k.1 then
               have : i=k :=  Fin.eq_of_val_eq h'
-              rw [if_pos h', this, Function.update_self]
+              rw [ite_eq_left h', this, Function.update_self]
             else
-              rw [if_neg h']
+              rw [ite_eq_right h']
               have : i ≠ k := fun a ↦ h' (congrArg Fin.val a)
-              rw [Function.update_of_ne this, dif_neg h, if_neg h']
+              rw [Function.update_of_ne this, dite_eq_right h, ite_eq_right h']
       dsimp
       rw [this]
       apply tsub_le_iff_left.mp
@@ -482,26 +482,26 @@ lemma hmartingale
     apply congr rfl
     ext i
     if h : i.1 < k.1 then
-      rw [dif_pos h]
+      rw [dite_eq_left h]
       have : i.1 < k.succ := Nat.lt_succ_of_lt h
-      rw [dif_pos this]
+      rw [dite_eq_left this]
       dsimp
-      simp only [Fin.snoc, dif_pos h, Fin.castLT_mk, cast_eq]
+      simp only [Fin.snoc, dite_eq_left h, Fin.castLT_mk, cast_eq]
     else
-      rw [dif_neg h]
+      rw [dite_eq_right h]
       if h' : i.1 = k.1 then
-        rw [dif_pos h', h']
+        rw [dite_eq_left h', h']
         have : k.1 < k.succ := Nat.lt_add_one k.1
-        rw [dif_pos this]
+        rw [dite_eq_left this]
         simp [Fin.snoc, cast_eq]
         rfl
       else
-        rw [dif_neg h']
+        rw [dite_eq_right h']
         have : ¬ i.1 < k.succ := by
           simp only [Fin.val_succ, not_lt]
           simp only [Fin.val_fin_lt, not_lt] at h
           exact Nat.lt_of_le_of_ne h fun a ↦ h' (id (Eq.symm a))
-        rw [dif_neg this]
+        rw [dite_eq_right this]
   apply Eq.trans hlefteq
   have hrighteq : expressionY μ X' f' k.castSucc Xk = ∫ (ω : Ω), F ⟨(gT ω), (gS ω)⟩ ∂μ := by
     dsimp only [F]
@@ -510,20 +510,20 @@ lemma hmartingale
     apply congr rfl
     ext i
     if h : i.1 < k.1 then
-      rw [dif_pos h]
+      rw [dite_eq_left h]
       have : i.1 < k.castSucc.1 := h
-      rw [dif_pos this]
+      rw [dite_eq_left this]
     else
-      rw [dif_neg h]
+      rw [dite_eq_right h]
       have : ¬ i.1 < k.castSucc.1 := h
-      rw [dif_neg this]
+      rw [dite_eq_right this]
       if h' : i.1 = k.1 then
-        rw [dif_pos h']
+        rw [dite_eq_left h']
         dsimp [gT]
         have : i = k := Fin.eq_of_val_eq h'
         rw [this]
       else
-        rw [dif_neg h']
+        rw [dite_eq_right h']
   apply Eq.trans _ hrighteq.symm
   apply double_integral_indep_eq_integral
   · apply StronglyMeasurable.comp_measurable hf''
@@ -533,7 +533,7 @@ lemma hmartingale
       have : (fun x : (T → 𝓧) × (S → 𝓧) ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) = fun _ ↦ Xk ⟨i.1, h⟩ := by
         simp only [Fin.val_fin_lt]
         ext x
-        rw [dif_pos h]
+        rw [dite_eq_left h]
       rw [this]
       exact measurable_const
     else
@@ -541,20 +541,20 @@ lemma hmartingale
         have : (fun x : (T → 𝓧) × (S → 𝓧) ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) = fun x ↦ x.1 elT := by
           simp only [Fin.val_fin_lt]
           ext x
-          rw [dif_neg h, dif_pos h']
+          rw [dite_eq_right h, dite_eq_left h']
         rw [this]
         exact Measurable.eval measurable_fst
       else
         have : (fun x : (T → 𝓧) × (S → 𝓧) ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) = fun x ↦ x.2 (toelS i h h') := by
           simp only [Fin.val_fin_lt]
           ext x
-          rw [dif_neg h, dif_neg h']
+          rw [dite_eq_right h, dite_eq_right h']
         rw [this]
         exact Measurable.eval measurable_snd
   · apply Measurable.aemeasurable
-    exact measurable_pi_lambda gT fun a ↦ hX'' ↑a
+    exact Measurable.of_eval fun a ↦ hX'' ↑a
   · apply Measurable.aemeasurable
-    exact measurable_pi_lambda gS fun a ↦ hX'' ↑a
+    exact Measurable.of_eval fun a ↦ hX'' ↑a
   · exact hindep
   · let x₀ : 𝓧 := (Classical.inhabited_of_nonempty hnonempty𝓧).default
     apply @MeasureTheory.HasFiniteIntegral.of_bounded _ _ _ _ _ _ F (|f' (fun _ ↦ x₀)| + ∑ i : Fin m, c' i)
@@ -575,13 +575,13 @@ lemma hhoeffding_V
   let a := A k Xk - Y k.castSucc Xk
   let b := B k Xk - Y k.castSucc Xk
   have hmeasurable : Measurable (fun x ↦ Fin.snoc Xk (X' k x) : Ω → Fin (k.1+1) → 𝓧):= by
-    apply measurable_pi_lambda
+    apply Measurable.of_eval
     intro i
     if h : i.1 < k.1 then
-      simp only [Fin.snoc, dif_pos h, cast_eq]
+      simp only [Fin.snoc, dite_eq_left h, cast_eq]
       exact measurable_const
     else
-      simpa only [Fin.snoc, dif_neg h, cast_eq] using hX'' k
+      simpa only [Fin.snoc, dite_eq_right h, cast_eq] using hX'' k
   calc
     _ ≤ ((t''^2 * (b - a)^2 / 8).exp : ℝ) := by
       apply hoeffding μ t'' a b
@@ -683,11 +683,11 @@ lemma heqind
           ext i
           if h': i.1 < k then
             dsimp only [Fin.snoc]
-            rw [dif_pos h']
+            rw [dite_eq_left h']
             congr
           else
             dsimp only [Fin.snoc]
-            rw [dif_neg h']
+            rw [dite_eq_right h']
             simp only [cast_eq, gT]
             have : i.1 = k := by
               simp only [Nat.succ_eq_add_one, not_lt] at h'
@@ -727,7 +727,7 @@ lemma heqind
               = (fun x ↦ x (toelS ⟨i, h'⟩)) ∘ Prod.fst := by
               ext x
               dsimp [Fin.snoc]
-              rw [dif_pos h']
+              rw [dite_eq_left h']
               rfl
             rw [this]
             apply Measurable.comp _ measurable_fst
@@ -737,14 +737,14 @@ lemma heqind
               = (fun x ↦ x elT) ∘ Prod.snd := by
               ext x
               dsimp [Fin.snoc]
-              rw [dif_neg h']
+              rw [dite_eq_right h']
             rw [this]
             apply Measurable.comp _ measurable_snd
             exact measurable_pi_apply elT
         · apply Measurable.aemeasurable
-          exact measurable_pi_lambda gS fun a ↦ hX'' ↑a
+          exact Measurable.of_eval fun a ↦ hX'' ↑a
         · apply Measurable.aemeasurable
-          exact measurable_pi_lambda gT fun a ↦ hX'' ↑a
+          exact Measurable.of_eval fun a ↦ hX'' ↑a
         · exact hindep
         · apply @MeasureTheory.HasFiniteIntegral.of_bounded _ _ _ _ _ _ F (t''*(bdf-E)).exp
           filter_upwards with ⟨a, t⟩
@@ -805,15 +805,15 @@ lemma heqind
             · exact measurable_const_mul t''
             · apply Measurable.sub
               · apply (hmeasurableY hX'' hf'' (⟨k, h⟩ : Fin m).succ).comp
-                apply measurable_pi_lambda
+                apply Measurable.of_eval
                 intro i
                 if h' : i.1 < k then
-                  simp only [Fin.snoc, dif_pos h', cast_eq,
+                  simp only [Fin.snoc, dite_eq_left h', cast_eq,
                     Fin.castLE_castSucc]
                   change Measurable (X' _ ∘ Prod.snd)
                   exact (hX'' _).comp measurable_snd
                 else
-                  simp only [Fin.snoc, dif_neg h', cast_eq]
+                  simp only [Fin.snoc, dite_eq_right h', cast_eq]
                   change Measurable (X' _ ∘ Prod.fst)
                   exact (hX'' _).comp measurable_fst
               · have : (fun a : Ω × Ω ↦ Y (⟨k, h⟩ : Fin m).castSucc fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) a.2)
@@ -823,7 +823,7 @@ lemma heqind
                 rw [this]
                 apply (hmeasurableY hX'' hf'' (⟨k, h⟩ : Fin m).castSucc).comp
                 apply Measurable.comp _ measurable_snd
-                apply measurable_pi_lambda
+                apply Measurable.of_eval
                 intro i
                 apply hX''
           · filter_upwards with ω
@@ -900,7 +900,6 @@ theorem mcdiarmid_inequality_aux
     integral_const, smul_eq_mul, Fin.val_zero,
     not_lt_zero, Y, expressionY, E] at hintegrable
   convert (ProbabilityTheory.measure_ge_le_exp_mul_mgf ε ht'' hintegrable).trans _
-  · rfl
   · simp only [Function.comp_apply, ge_iff_le, probReal_univ, one_mul]
     rfl
   · dsimp only [mgf]

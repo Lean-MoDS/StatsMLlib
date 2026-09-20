@@ -427,7 +427,7 @@ lemma submodule_closedBall_eq_inter (V : Submodule ℝ (EuclideanSpace ℝ (Fin 
     constructor
     · -- ‖V.subtypeL u‖ ≤ r
       have : ‖V.subtypeL u‖ = ‖u‖ := by
-        simp only [Submodule.subtypeL_apply, Submodule.coe_norm]
+        simp only [Submodule.subtypeL_apply, Submodule.norm_coe]
       rw [this]
       exact hu
     · exact u.2
@@ -435,7 +435,7 @@ lemma submodule_closedBall_eq_inter (V : Submodule ℝ (EuclideanSpace ℝ (Fin 
     use ⟨v, hmem⟩
     constructor
     · -- ‖⟨v, hmem⟩‖ ≤ r
-      simp only [Submodule.coe_norm]
+      simp only [← Submodule.norm_coe]
       exact hball
     · simp only [Submodule.subtypeL_apply]
 

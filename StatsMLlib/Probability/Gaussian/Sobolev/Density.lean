@@ -75,11 +75,10 @@ lemma ennreal_sq_add_le (a b : ℝ≥0∞) : (a + b)^2 ≤ 2 * a^2 + 2 * b^2 := 
     _ = 2 * a^2 + 2 * b^2 := by ring
 
 /-- Triangle inequality for eLpNorm squared when p ≥ 1 -/
-lemma eLpNorm_add_sq_le' (f g : E n → ℝ) (μ : Measure (E n))
-    (hf : AEStronglyMeasurable f μ) (hg : AEStronglyMeasurable g μ) :
+lemma eLpNorm_add_sq_le' (f g : E n → ℝ) (μ : Measure (E n)) :
     eLpNorm (f + g) 2 μ ^ 2 ≤ 2 * eLpNorm f 2 μ ^ 2 + 2 * eLpNorm g 2 μ ^ 2 := by
   have h2 : (1 : ℝ≥0∞) ≤ 2 := by norm_num
-  have htri := eLpNorm_add_le hf hg h2
+  have htri := eLpNorm_add_le (μ := μ) (p := 2) (f := f) (g := g) h2
   calc eLpNorm (f + g) 2 μ ^ 2
       ≤ (eLpNorm f 2 μ + eLpNorm g 2 μ)^2 := ENNReal.pow_le_pow_left htri
     _ ≤ 2 * eLpNorm f 2 μ ^ 2 + 2 * eLpNorm g 2 μ ^ 2 := ennreal_sq_add_le _ _
@@ -88,7 +87,6 @@ lemma eLpNorm_add_sq_le' (f g : E n → ℝ) (μ : Measure (E n))
 
 /-- Triangle inequality for GaussianSobolevNormSq for differentiable functions -/
 lemma gaussianSobolevNormSq_add_le_of_diff (f g : E n → ℝ) (γ : Measure (E n))
-    (hf : AEStronglyMeasurable f γ) (hg : AEStronglyMeasurable g γ)
     (hf_diff : Differentiable ℝ f) (hg_diff : Differentiable ℝ g)
     (hf_cont : Continuous (fun x => fderiv ℝ f x))
     (hg_cont : Continuous (fun x => fderiv ℝ g x)) :
@@ -96,7 +94,7 @@ lemma gaussianSobolevNormSq_add_le_of_diff (f g : E n → ℝ) (γ : Measure (E 
       2 * GaussianSobolevNormSq n f γ + 2 * GaussianSobolevNormSq n g γ := by
   simp only [GaussianSobolevNormSq]
   -- L² term uses the triangle inequality
-  have hL2 := eLpNorm_add_sq_le' f g γ hf hg
+  have hL2 := eLpNorm_add_sq_le' f g γ
   -- Gradient term: use that fderiv (f + g) = fderiv f + fderiv g for differentiable functions
   have hgrad_eq : ∀ x, fderiv ℝ (f + g) x = fderiv ℝ f x + fderiv ℝ g x := by
     intro x
@@ -115,12 +113,14 @@ lemma gaussianSobolevNormSq_add_le_of_diff (f g : E n → ℝ) (γ : Measure (E 
   have hmono : eLpNorm (fun x => ‖fderiv ℝ (f + g) x‖) 2 γ ≤
       eLpNorm (fun x => ‖fderiv ℝ f x‖ + ‖fderiv ℝ g x‖) 2 γ := by
     apply eLpNorm_mono_real
+      (((measurable_fderiv ℝ (f + g)).norm).aestronglyMeasurable)
     intro x
     simp only [Real.norm_eq_abs, abs_norm]
     exact hgrad_bound x
   -- Triangle inequality for gradient L² norms
   have h2 : (1 : ℝ≥0∞) ≤ 2 := by norm_num
-  have hgrad_tri := eLpNorm_add_le hf_norm_aesm hg_norm_aesm h2
+  have hgrad_tri := eLpNorm_add_le (μ := γ) (p := 2)
+    (f := fun x => ‖fderiv ℝ f x‖) (g := fun x => ‖fderiv ℝ g x‖) h2
   -- Combine bounds for gradient term
   have hgrad : eLpNorm (fun x => ‖fderiv ℝ (f + g) x‖) 2 γ ^ 2 ≤
       2 * eLpNorm (fun x => ‖fderiv ℝ f x‖) 2 γ ^ 2 +
@@ -147,9 +147,8 @@ lemma exists_lt_of_tendsto_nhdsWithin_right {f : ℝ → ℝ≥0∞} {b : ℝ≥
     (hf : Tendsto f (nhdsWithin 0 (Set.Ioi 0)) (nhds 0)) (hb : 0 < b) :
     ∃ ε : ℝ, 0 < ε ∧ f ε < b := by
   -- Use the Filter.Tendsto.eventually to get f x < b eventually
-  have hev : ∀ᶠ x in nhdsWithin (0 : ℝ) (Set.Ioi 0), f x < b := by
-    apply hf.eventually
-    exact Iio_mem_nhds hb
+  have hev : ∀ᶠ x in nhdsWithin (0 : ℝ) (Set.Ioi 0), f x < b :=
+    hf.eventually (p := fun y => y < b) (Iio_mem_nhds hb)
   -- nhdsWithin 0 (Ioi 0) is the right filter
   rw [Filter.Eventually, mem_nhdsWithin] at hev
   obtain ⟨U, hU_open, h0U, hU_prop⟩ := hev
@@ -258,7 +257,7 @@ theorem exists_smooth_compactSupport_approx (f : E n → ℝ) (hf : MemW12Gaussi
     exact hcont.congr (fun x => (heq x).symm)
 
   -- AE measurability
-  have hf_aesm : AEStronglyMeasurable f (stdGaussianE n) := hf.1.1
+  have hf_aesm : AEStronglyMeasurable f (stdGaussianE n) := hf.1.aestronglyMeasurable
   have hfχ_aesm : AEStronglyMeasurable (f * smoothCutoffR R) (stdGaussianE n) := by
     apply AEStronglyMeasurable.mul hf_aesm
     exact (smoothCutoffR_contDiff hR).continuous.aestronglyMeasurable
@@ -276,7 +275,7 @@ theorem exists_smooth_compactSupport_approx (f : E n → ℝ) (hf : MemW12Gaussi
   -- Apply triangle inequality
   have htriangle := gaussianSobolevNormSq_add_le_of_diff
     (f - f * smoothCutoffR R) (f * smoothCutoffR R - g) (stdGaussianE n)
-    h1_aesm h2_aesm h1_diff h2_diff h1_cont h2_cont
+    h1_diff h2_diff h1_cont h2_cont
 
   calc GaussianSobolevNormSq n (f - g) (stdGaussianE n)
       = GaussianSobolevNormSq n ((f - f * smoothCutoffR R) + (f * smoothCutoffR R - g))

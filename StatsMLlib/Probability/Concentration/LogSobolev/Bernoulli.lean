@@ -133,11 +133,11 @@ theorem bernoulli_flip_invariance (j : Fin n) :
     by_cases h : i = j
     · subst h; simp only [update_self, Bool.not_not]
     · rw [update_of_ne h, update_of_ne h]
-  rw [Measure.map_smul]
+  have hmeas : Measurable (flipCoord j) := measurable_of_finite _
+  rw [Measure.map_smul _ hmeas.aemeasurable]
   congr 1
   -- Show count measure is invariant under bijection
   ext s hs
-  have hmeas : Measurable (flipCoord j) := measurable_of_finite _
   rw [Measure.map_apply hmeas hs]
   have hs1 : (flipCoord j ⁻¹' s).Finite := Set.toFinite _
   have hs2 : s.Finite := Set.toFinite _
@@ -1004,9 +1004,9 @@ theorem twoPointEntropyCoord_castSucc_eq_slice {n : ℕ} (j : Fin n)
   cases b
   · -- false case: if false = true then ... else ... becomes sliceFalse
     simp only [twoPointEntropyCoord, flipCoord_castSucc_snoc, sliceFalse,
-               Bool.false_eq_true, if_false]
+               Bool.false_eq_true, ite_false]
   · -- true case: if true = true then ... else ... becomes sliceTrue
-    simp only [twoPointEntropyCoord, flipCoord_castSucc_snoc, sliceTrue, if_true]
+    simp only [twoPointEntropyCoord, flipCoord_castSucc_snoc, sliceTrue, ite_true]
 
 /-- Average of twoPointEntropyCoord at castSucc j equals average of slices -/
 theorem avg_twoPointEntropyCoord_castSucc {n : ℕ} (j : Fin n)
@@ -1016,7 +1016,7 @@ theorem avg_twoPointEntropyCoord_castSucc {n : ℕ} (j : Fin n)
     (twoPointEntropyCoord j (sliceTrue h) ε' + twoPointEntropyCoord j (sliceFalse h) ε') / 2 := by
   rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' true]
   rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' false]
-  simp only [if_true, Bool.false_eq_true, if_false]
+  simp only [ite_true, Bool.false_eq_true, ite_false]
 
 /-- The conditional mean sqrt function: g such that g² = condMeanLast h² -/
 def condMeanSqrt {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ) : (Fin n → Bool) → ℝ :=
@@ -1273,8 +1273,8 @@ theorem toRademacher_flipCoord {n : ℕ} (j : Fin n) (ε : Fin n → Bool) :
   simp only [toRademacher, Function.update]
   by_cases h : i = j
   · subst h
-    simp only [flipCoord_same, signValue_not, dif_pos]
-  · simp only [dif_neg h]
+    simp only [flipCoord_same, signValue_not, dite_eq_left]
+  · simp only [dite_eq_right h]
     rw [flipCoord_noteq j i ε h]
 
 /-- The Rademacher sum after coordinate flip equals the shifted sum -/

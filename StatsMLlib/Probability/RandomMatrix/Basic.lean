@@ -1456,7 +1456,7 @@ lemma subGaussianPsi2Norm_le_maxFamilySubGaussianPsi2Norm {ι : Type*} [Fintype 
     subGaussianPsi2Norm (X i) μ ≤ maxFamilySubGaussianPsi2Norm X μ := by
   classical
   unfold maxFamilySubGaussianPsi2Norm
-  rw [dif_pos (show (Finset.univ : Finset ι).Nonempty from ⟨i, Finset.mem_univ i⟩)]
+  rw [dite_eq_left (show (Finset.univ : Finset ι).Nonempty from ⟨i, Finset.mem_univ i⟩)]
   exact Finset.le_sup' (f := fun i => subGaussianPsi2Norm (X i) μ) (Finset.mem_univ i)
 
 /-- Maximum entrywise MGF-ψ₂ scale for a random rectangular matrix. -/
@@ -1575,7 +1575,7 @@ lemma subGaussianVectorPsi2Norm_le_maxMatrixRowSubGaussianPsi2Norm {m n : ℕ}
       maxMatrixRowSubGaussianPsi2Norm A μ := by
   classical
   unfold maxMatrixRowSubGaussianPsi2Norm
-  rw [dif_pos (show (Finset.univ : Finset (Fin m)).Nonempty from ⟨i, Finset.mem_univ i⟩)]
+  rw [dite_eq_left (show (Finset.univ : Finset (Fin m)).Nonempty from ⟨i, Finset.mem_univ i⟩)]
   exact Finset.le_sup'
     (f := fun i => subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ)
     (Finset.mem_univ i)

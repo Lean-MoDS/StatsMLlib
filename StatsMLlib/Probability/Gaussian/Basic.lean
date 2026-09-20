@@ -62,8 +62,7 @@ noncomputable def stdGaussianE (n : ℕ) : Measure (EuclideanSpace ℝ (Fin n)) 
 /-- `stdGaussianE` is a probability measure. -/
 instance stdGaussianE_isProbabilityMeasure : IsProbabilityMeasure (stdGaussianE n) := by
   unfold stdGaussianE
-  apply MeasureTheory.Measure.isProbabilityMeasure_map
-  exact (EuclideanSpace.equiv (Fin n) ℝ).symm.continuous.measurable.aemeasurable
+  infer_instance
 
 /-- Transfer of integrals: integrating f over stdGaussianE equals integrating f ∘ e.symm over stdGaussianPi. -/
 lemma integral_stdGaussianE_eq (f : EuclideanSpace ℝ (Fin n) → ℝ) :
@@ -91,8 +90,9 @@ lemma map_eval_stdGaussianPi (i : Fin n) :
 /-- MGF of coordinate projection equals standard Gaussian MGF -/
 lemma mgf_eval_stdGaussianPi (i : Fin n) (t : ℝ) :
     mgf (fun w : Fin n → ℝ => w i) (stdGaussianPi n) t = exp (t^2 / 2) := by
-  have h_map : (stdGaussianPi n).map (fun w => w i) = gaussianReal 0 1 := map_eval_stdGaussianPi i
-  rw [mgf_gaussianReal h_map t]
+  have h_law : HasLaw (fun w : Fin n → ℝ => w i) (gaussianReal 0 1) (stdGaussianPi n) :=
+    ⟨(measurable_pi_apply i).aemeasurable, map_eval_stdGaussianPi i⟩
+  rw [mgf_gaussianReal h_law t]
   simp only [zero_mul, NNReal.coe_one, one_mul, zero_add]
 
 /-- CGF of coordinate projection equals t²/2 -/

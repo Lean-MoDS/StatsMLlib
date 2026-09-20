@@ -175,7 +175,7 @@ lemma subGaussianPsi2Norm_le_maxSubGaussianPsi2Norm {Ω : Type*}
     subGaussianPsi2Norm (X i) μ ≤ maxSubGaussianPsi2Norm X μ := by
   classical
   unfold maxSubGaussianPsi2Norm
-  rw [dif_pos (show (Finset.univ : Finset (Fin n)).Nonempty from
+  rw [dite_eq_left (show (Finset.univ : Finset (Fin n)).Nonempty from
     ⟨i, Finset.mem_univ i⟩)]
   exact Finset.le_sup' (f := fun i => subGaussianPsi2Norm (X i) μ) (Finset.mem_univ i)
 

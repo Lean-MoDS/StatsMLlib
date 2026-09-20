@@ -6,7 +6,7 @@ Authors: Kei Tsukamoto, Kazumi Kasaura, Naoto Onda, Yuma Mizuno, Sho Sonoda
 import Mathlib.Topology.Bases
 import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.Topology.Order.Lattice
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Topology.Algebra.Ring.Real
 import Mathlib.MeasureTheory.MeasurableSpace.Basic
 

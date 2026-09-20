@@ -276,7 +276,7 @@ lemma maximal_inequality_supR'
         simp_all only
     _ ≤ ∏ i ∈ s, ENNReal.ofReal (Real.exp (t ^ 2 * r i j ^ 2 / 2)) := by
       suffices ∀ i ∈ s, ∫⁻ (ω : Ω), ENNReal.ofReal (Real.exp (t * Y i j ω)) ∂μ ≤ ENNReal.ofReal (Real.exp (t ^ 2 * r i j ^ 2 / 2)) from by
-        exact Finset.prod_le_prod' this
+        exact Finset.prod_le_prod this
       intro i hi
       have : t ^ 2 * r i j ^ 2 / 2 = t ^ 2 * (r i j - (- r i j)) ^ 2 / 8 := by
         simp

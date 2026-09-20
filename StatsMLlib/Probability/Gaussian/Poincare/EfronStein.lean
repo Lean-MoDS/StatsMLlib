@@ -322,7 +322,7 @@ open RademacherApprox
 
 /-- Rademacher random variables take values in {-1, 1} almost surely. -/
 lemma rademacher_values_ae {Ω : Type*} [MeasurableSpace Ω]
-    {P : Measure Ω} {ε : Ω → ℝ} (hε : IsRademacher P ε) :
+    {P : Measure Ω} {ε : Ω → ℝ} (hmeas : AEMeasurable ε P) (hε : IsRademacher P ε) :
     ∀ᵐ ω ∂P, ε ω = 1 ∨ ε ω = -1 := by
   unfold IsRademacher at hε
   -- rademacherMeasure is supported on {-1, 1}
@@ -338,12 +338,7 @@ lemma rademacher_values_ae {Ω : Type*} [MeasurableSpace Ω]
       simp
     }
   rw [← hε] at hsupp
-  -- ε is measurable since map ε P = rademacherMeasure ≠ 0
-  have hmeas' : AEMeasurable ε P := by
-    apply AEMeasurable.of_map_ne_zero
-    rw [hε]
-    exact IsProbabilityMeasure.ne_zero rademacherMeasure
-  exact ae_of_ae_map hmeas' hsupp
+  exact ae_of_ae_map hmeas hsupp
 
 variable (n : ℕ)
 
@@ -403,7 +398,7 @@ lemma aestronglyMeasurable_rademacherSumProd :
 /-- All coordinates are ±1 almost surely on the product space. -/
 lemma coord_values_ae (i : Fin n) :
     ∀ᵐ x ∂(rademacherProductMeasure n), x i = 1 ∨ x i = -1 :=
-  rademacher_values_ae (coord_isRademacher n i)
+  rademacher_values_ae (measurable_coord n i).aemeasurable (coord_isRademacher n i)
 
 /-- The `a⁺` function on the product space. -/
 def aPlusProd (i : Fin n) (x : RademacherSpace n) : ℝ :=

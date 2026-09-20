@@ -77,7 +77,7 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
 theorem rayleighQuotient_mono_of_le {A B : E →ₗ[ℝ] E} (hAB : A ≤ B) {x : E}
     (hx : x ≠ 0) :
     rayleighQuotient A x ≤ rayleighQuotient B x := by
-  have hpos : (B - A).IsPositive := (LinearMap.le_def A B).mp hAB
+  have hpos : (B - A).IsPositive := LinearMap.le_def.mp hAB
   have hinner : 0 ≤ inner ℝ ((B - A) x) x := hpos.inner_nonneg_left x
   have hden : 0 < ‖x‖ ^ 2 := sq_pos_of_pos (norm_pos_iff.mpr hx)
   unfold rayleighQuotient
@@ -114,7 +114,7 @@ functional-calculus theorem for logarithm.
 -/
 noncomputable def realMatrixToCStarMatrixStarAlgHom :
     Matrix n n ℝ →⋆ₐ[ℝ] CStarMatrix n n ℂ :=
-  (((CStarMatrix.ofMatrixStarAlgEquiv (n := n) (A := ℂ) :
+  ((((CStarMatrix.ofMatrixStarAlgEquiv (n := n) (A := ℂ)).toStarAlgHom :
       Matrix n n ℂ →⋆ₐ[ℂ] CStarMatrix n n ℂ).restrictScalars ℝ).comp
     (realMatrixToComplexMatrixStarAlgHom (n := n)))
 
