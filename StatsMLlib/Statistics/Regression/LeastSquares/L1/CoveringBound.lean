@@ -600,7 +600,7 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
                 use fun _ => s
                 have hPs : 0 < (maureyPMF θ R hθ) s := by
                   simp only [maureyPMF, PMF.ofFintype_apply, s]
-                  simp only [if_true]
+                  simp only [ite_true]
                   have hnorm_pos : 0 < ‖θ j‖ := norm_pos_iff.mpr hj
                   have hdiv_pos : 0 < ‖θ j‖ / R := div_pos hnorm_pos hR
                   exact ENNReal.ofReal_pos.mpr hdiv_pos

@@ -6,7 +6,7 @@ Authors: Sho Sonoda, Kei Tsukamoto
 import Mathlib.Algebra.BigOperators.Field
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Data.Fintype.Order
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.GCongr
 import Mathlib.Tactic.Ring

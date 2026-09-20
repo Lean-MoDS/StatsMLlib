@@ -91,7 +91,7 @@ lemma charFun_map_sum_pi_const (μ : Measure ℝ) [IsFiniteMeasure μ] (n : ℕ)
 This is the pushforward of `rademacherProductMeasure n` under `rademacherSumProd n`. -/
 def rademacherLaw (n : ℕ) [NeZero n] : ProbabilityMeasure ℝ :=
   ⟨(rademacherProductMeasure n).map (rademacherSumProd n),
-   Measure.isProbabilityMeasure_map (Measurable.aemeasurable (measurable_rademacherSumProd n))⟩
+   inferInstance⟩
 
 /-- The characteristic function of the Rademacher measure: φ(t) = cos(t).
 This follows from: φ(t) = (1/2)e^{it} + (1/2)e^{-it} = cos(t). -/

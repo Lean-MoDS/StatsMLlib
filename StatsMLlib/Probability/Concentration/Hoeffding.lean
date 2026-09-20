@@ -79,7 +79,6 @@ theorem cgf_le_quadratic_of_nonneg [IsProbabilityMeasure μ] (t a b : ℝ) {X : 
       · rw [← (by ring : 0 - f' x + (f' x - f'' x * (t - x)) = - f'' x * (t - x))]
         apply ((hasDerivAt_const x _).sub (cgf_deriv_one a b hX h x)).add
         convert (cgf_deriv_two a b hX h x).mul ((hasDerivAt_id' x).add_const (-t)) using 1
-        · rfl
         · funext y
           simp only [Pi.mul_apply]
           ring

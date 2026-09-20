@@ -1513,11 +1513,11 @@ redundant because `Real.log 0 = Real.log 1 = 0`. -/
 lemma metricEntropyOfNat_eq_log (n : ℕ) : metricEntropyOfNat n = Real.log n := by
   unfold metricEntropyOfNat
   by_cases h : n ≤ 1
-  · rw [if_pos h]
+  · rw [ite_eq_left h]
     interval_cases n
     · simp
     · simp
-  · rw [if_neg h]
+  · rw [ite_eq_right h]
 
 /-- On a totally bounded set at a positive radius, the metric entropy is the logarithm
 of the natural-valued covering number. -/

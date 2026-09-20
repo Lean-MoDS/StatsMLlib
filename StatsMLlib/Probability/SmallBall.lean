@@ -300,7 +300,7 @@ theorem small_ball_prob {ι : Type*} [Fintype ι] (X : ι → Ω → ℝ)
   -- Product bound
   have h_prod_bound : ∏ i, mgf (X i) μ (-ε⁻¹) ≤ ε ^ N := by
     calc ∏ i, mgf (X i) μ (-ε⁻¹)
-        ≤ ∏ _i : ι, ε := Finset.prod_le_prod (fun i _ => mgf_nonneg) (fun i _ => h_mgf_bound i)
+        ≤ ∏ _i : ι, ε := Finset.prod_le_prod₀ (fun i _ => mgf_nonneg) (fun i _ => h_mgf_bound i)
       _ = ε ^ N := by simp only [Finset.prod_const, Finset.card_univ, hN]
   -- Final calculation
   calc (μ {ω : Ω | (∑ i : ι, X i ω) ≤ ε * N}).toReal

@@ -103,13 +103,13 @@ lemma integralYLogT_of_pos_on_Y (Y T : Ω → ℝ)
     (hT_pos_on_Y : ∀ᵐ ω ∂μ, 0 < Y ω → 0 < T ω) :
     integralYLogT μ Y T =
       ((∫ ω, Y ω * (Real.log (T ω) - Real.log (∫ ω', T ω' ∂μ)) ∂μ) : ℝ) := by
-  simp only [integralYLogT, if_pos hT_pos_on_Y]
+  simp only [integralYLogT, ite_eq_left hT_pos_on_Y]
 
 /-- When T = 0 on a set of positive measure where Y > 0, the integral is ⊥. -/
 lemma integralYLogT_eq_bot (Y T : Ω → ℝ)
     (hT_not_pos : ¬∀ᵐ ω ∂μ, 0 < Y ω → 0 < T ω) :
     integralYLogT μ Y T = ⊥ := by
-  simp only [integralYLogT, if_neg hT_not_pos]
+  simp only [integralYLogT, ite_eq_right hT_not_pos]
 
 end IntegralYLogT
 
@@ -203,14 +203,14 @@ lemma T_value_in_dualEntropySet [IsProbabilityMeasure μ]
   · -- U = u on {Y > 0}
     filter_upwards [hT_pos_on_Y] with ω hT_pos_ω
     intro hY_pos
-    simp only [U, u, if_pos (hT_pos_ω hY_pos)]
+    simp only [U, u, ite_eq_left (hT_pos_ω hY_pos)]
   · -- u * Y is integrable
     have h_eq : (fun ω => u ω * Y ω) =ᵐ[μ]
         (fun ω => Y ω * (Real.log (T ω) - Real.log mean)) := by
       filter_upwards [hT_nn, hY_nn, hT_pos_on_Y] with ω hT_nn_ω hY_nn_ω hT_pos_ω
       simp only [u]
       by_cases hY_pos : 0 < Y ω
-      · rw [if_pos (hT_pos_ω hY_pos)]
+      · rw [ite_eq_left (hT_pos_ω hY_pos)]
         ring
       · have hY_zero : Y ω = 0 := le_antisymm (le_of_not_gt hY_pos) hY_nn_ω
         simp [hY_zero]
@@ -221,7 +221,7 @@ lemma T_value_in_dualEntropySet [IsProbabilityMeasure μ]
       filter_upwards [hT_nn, hY_nn, hT_pos_on_Y] with ω hT_nn_ω hY_nn_ω hT_pos_ω
       simp only [u]
       by_cases hY_pos : 0 < Y ω
-      · rw [if_pos (hT_pos_ω hY_pos)]
+      · rw [ite_eq_left (hT_pos_ω hY_pos)]
         ring
       · have hY_zero : Y ω = 0 := le_antisymm (le_of_not_gt hY_pos) hY_nn_ω
         simp [hY_zero]

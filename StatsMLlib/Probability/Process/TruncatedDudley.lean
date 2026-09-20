@@ -406,7 +406,7 @@ lemma exists_dudley_chain
         choose! U_seq hU_seq using hU_seq;
         use fun n => if n = L then U else U_seq n;
         simp +zetaDelta at *;
-        exact ⟨ fun n hn => by rw [ if_neg ( ne_of_lt hn ) ] ; exact hU_seq n hn, by rw [ if_neg ( ne_of_lt hm ) ] ; exact hU_seq m hm |>.2.1.1 ⟩;
+        exact ⟨ fun n hn => by rw [ ite_eq_right ( ne_of_lt hn ) ] ; exact hU_seq n hn, by rw [ ite_eq_right ( ne_of_lt hm ) ] ; exact hU_seq m hm |>.2.1.1 ⟩;
       cases' L with L L;
       · exact ⟨ fun _ => U, fun _ => id, fun _ => hU_finite, fun _ => hU_subset, rfl, by norm_num, by norm_num, by norm_num ⟩;
       · obtain ⟨ U_seq, hU_seq₁, hU_seq₂, hU_seq ⟩ := h_chain_construction L ( Nat.lt_succ_self L );
@@ -1052,7 +1052,7 @@ lemma exists_dudley_chain_consistent
       · exact Set.singleton_subset_iff.mpr hcstar_T
       · exact hUs₀ m
     ·
-      dsimp only; rw [if_neg (not_le.mpr hM_lt)]; exact hUL₀
+      dsimp only; rw [ite_eq_right (not_le.mpr hM_lt)]; exact hUL₀
     ·
       intro m hm; dsimp only; split_ifs with h
       · rw [Set.ncard_singleton]; exact (h_all_sing m h hm).symm
@@ -1067,23 +1067,23 @@ lemma exists_dudley_chain_consistent
     ·
       intro m hm u hu; dsimp only at hu ⊢
       by_cases hm_le : m ≤ M
-      · simp only [if_pos hm_le]
+      · simp only [ite_eq_left hm_le]
         constructor
         · exact Set.mem_singleton cstar
         · by_cases hm1_le : m + 1 ≤ M
-          · simp only [if_pos hm1_le] at hu
+          · simp only [ite_eq_left hm1_le] at hu
             rw [Set.mem_singleton_iff.mp hu, dist_self]; exact (h_eps_pos m).le
-          · simp only [if_neg hm1_le] at hu
+          · simp only [ite_eq_right hm1_le] at hu
             have hm_eq_M : m = M := by omega
             rw [hm_eq_M] at hu ⊢; exact hcstar_cov u (hUs₀ (M + 1) hu)
-      · simp only [if_neg hm_le]
+      · simp only [ite_eq_right hm_le]
         have hm1_gt : ¬(m + 1 ≤ M) := fun h => hm_le (by omega)
-        simp only [if_neg hm1_gt] at hu; exact hUp₀ m hm u hu
+        simp only [ite_eq_right hm1_gt] at hu; exact hUp₀ m hm u hu
     ·
       intro m hm hN u hu; dsimp only at hu ⊢
       have hm1_le_M : m + 1 ≤ M := by
         by_contra h; push Not at h; exact hM_max (m + 1) h hm hN
-      simp only [if_pos (show m ≤ M by omega), if_pos hm1_le_M] at hu ⊢
+      simp only [ite_eq_left (show m ≤ M by omega), ite_eq_left hm1_le_M] at hu ⊢
       exact (Set.mem_singleton_iff.mp hu).symm
 
 /-

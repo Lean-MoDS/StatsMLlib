@@ -74,19 +74,19 @@ theorem Signs.apply_abs' (σ : Signs n) (k : Fin n) : (|σ k| : ℝ) = 1 := by
 
 theorem measurable_snocEquiv:
   @Measurable (Ω × (Fin n → Ω)) (Fin (n + 1) → Ω) Prod.instMeasurableSpace MeasurableSpace.pi fun f ↦ Fin.snoc f.2 f.1 := by
-  apply measurable_pi_lambda
+  apply Measurable.of_eval
   intro i
   dsimp [Fin.snoc]
   if h : i.1 < n then
     have : (fun c : Ω × (Fin n → Ω) ↦ if h : ↑i < n then c.2 (i.castLT h) else c.1) = fun c ↦ c.2 (i.castLT h) := by
       ext c
-      rw [dif_pos h]
+      rw [dite_eq_left h]
     rw [this]
     exact Measurable.eval measurable_snd
   else
     have : (fun c : Ω × (Fin n → Ω)↦ if h : ↑i < n then c.2 (i.castLT h) else c.1) = fun c ↦ c.1 := by
       ext c
-      rw [dif_neg h]
+      rw [dite_eq_right h]
     rw [this]
     exact measurable_fst
 
@@ -114,10 +114,10 @@ lemma measure_equiv : (MeasureTheory.Measure.pi (fun _ ↦ μ) : Measure (Fin n.
     · rintro ⟨h₁, h₂⟩ i
       dsimp [Fin.snoc]
       if h : i.1 < n then
-        rw [dif_pos]
+        rw [dite_eq_left]
         exact h₂ (i.castLT h)
       else
-        rw [dif_neg h]
+        rw [dite_eq_right h]
         have : i = Fin.last n := Fin.eq_last_of_not_lt h
         rw [this]
         exact h₁
@@ -230,7 +230,7 @@ lemma inineq (ω : Ω × Ω) (ω': Fin n → Ω × Ω) {c : ι → ℝ}:
     _ = _ := by
       rw [sigma_eq]
       simp only [inv_pow, Int.reduceNeg,
-        mul_eq_mul_left_iff, inv_eq_zero, ne_eq, AddLeftCancelMonoid.add_eq_zero, one_ne_zero,
+        mul_eq_mul_left_iff, inv_eq_zero, ne_eq, Nat.add_eq_zero_iff, one_ne_zero,
         and_false, not_false_eq_true, pow_eq_zero_iff, OfNat.ofNat_ne_zero, or_false]
       rfl
 
@@ -653,9 +653,9 @@ lemma aux₃ [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Measurable (f I �
           ext i
           dsimp [Fin.snoc]
           if h : i.1 < n then
-            rw [dif_pos h, dif_pos h]
+            rw [dite_eq_left h, dite_eq_left h]
           else
-            rw [dif_neg h, dif_neg h]
+            rw [dite_eq_right h, dite_eq_right h]
             congr
             simp only [not_lt] at h
             exact Fin.last_le_iff.mp h
@@ -696,10 +696,10 @@ lemma sup_abs_lemma [Nonempty ι] {V : (Z → ℝ) → ℝ} (hV₀: ∀ f, V (-f
     rw [←eq]
     dsimp
     if h : s.1 == 0 then
-      rw [if_pos h]
+      rw [ite_eq_left h]
       exact le_of_max_le_left hax
     else
-      rw [if_neg h, hV₀]
+      rw [ite_eq_right h, hV₀]
       exact le_of_max_le_right hax
   apply le_antisymm
   · apply ciSup_le
@@ -713,10 +713,10 @@ lemma sup_abs_lemma [Nonempty ι] {V : (Z → ℝ) → ℝ} (hV₀: ∀ f, V (-f
     rintro ⟨s,i⟩
     apply le_trans _ (le_ciSup hV₁ i)
     if h : s.1 == 0 then
-      rw [if_pos h]
+      rw [ite_eq_left h]
       exact le_abs_self (V (f i))
     else
-      rw [if_neg h, hV₀]
+      rw [ite_eq_right h, hV₀]
       exact neg_le_abs (V (f i))
 
 theorem abs_symmetrization_equation [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Measurable (f I ∘ X))
@@ -753,21 +753,21 @@ theorem abs_symmetrization_equation [Countable ι] [Nonempty ι] (h𝓕 : ∀ I 
         dsimp [f']
         rintro ⟨s, I⟩
         if h : s.1 == 0 then
-          rw [if_pos h]
+          rw [ite_eq_left h]
           dsimp
           exact h𝓕 I
         else
-          rw [if_neg h]
+          rw [ite_eq_right h]
           dsimp
           exact (h𝓕 I).neg
       have h𝓕'₂: ∀ I, ∀ z : Z, |f' I z| ≤ b := by
         rintro ⟨s,I⟩ z
         dsimp [f']
         if h : s.1 == 0 then
-          rw [if_pos h]
+          rw [ite_eq_left h]
           exact h𝓕' I z
         else
-          rw [if_neg h]
+          rw [ite_eq_right h]
           simp only [Pi.neg_apply, abs_neg]
           exact h𝓕' I z
       exact symmetrization_equation h𝓕₂ h𝓕'₂

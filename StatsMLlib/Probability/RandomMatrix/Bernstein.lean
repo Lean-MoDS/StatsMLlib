@@ -934,9 +934,9 @@ theorem matrixBernstein_lieb_recursion_of_independent {n N : ℕ}
   have : ∀ i, IsProbabilityMeasure (μs i) := by
     intro i
     dsimp [μs]
-    exact Measure.isProbabilityMeasure_map (hX_ae i)
+    infer_instance
   have hφ : AEMeasurable φ μ :=
-    aemeasurable_pi_lambda _ hX_ae
+    AEMeasurable.of_eval hX_ae
   have hmap_eq : μ.map φ = Measure.pi μs := by
     unfold MatrixBernsteinIndependent at h_independent
     simpa [φ, μs, Mat] using
@@ -1481,7 +1481,7 @@ lemma matrixLargestEigenvalue_of_isHermitian {n : ℕ} (hn : 0 < n)
     matrixLargestEigenvalue hn A =
       hA.eigenvaluesToEuclideanLin ⟨0, by simpa using hn⟩ := by
   unfold matrixLargestEigenvalue
-  rw [dif_pos hA]
+  rw [dite_eq_left hA]
 
 omit [MeasurableSpace Ω] in
 /-- The trace exponential dominates the exponential of the largest eigenvalue. -/
