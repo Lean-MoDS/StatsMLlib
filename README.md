@@ -3,7 +3,7 @@
 <h4 align="center">Verified probability, statistics, and learning theory in Lean 4</h4>
 
 <p align="center">
-  <a href="https://github.com/leanprover/lean4/releases/tag/v4.33.0"><img src="https://img.shields.io/badge/Lean-v4.33.0-blue?style=for-the-badge" alt="Lean v4.33.0"></a>
+  <a href="https://github.com/leanprover/lean4/releases/tag/v4.33.0"><img src="https://img.shields.io/badge/Lean-v4.34.0-blue?style=for-the-badge" alt="Lean v4.33.0"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-lightgrey?style=for-the-badge" alt="Apache 2.0"></a>
   <a href="https://statsmllib.github.io/"><img src="https://img.shields.io/badge/Website-StatsMLlib-175b47?style=for-the-badge" alt="StatsMLlib website"></a>
 </p>
