@@ -25,8 +25,8 @@ This file starts the random-matrix infrastructure for HDP, Section 4.4.
 * `RMT.maxFamilySubGaussianPsi2Norm`: maximum scalar ψ₂ scale over a finite family.
 * `RMT.maxMatrixRowSubGaussianPsi2Norm`: maximum vector ψ₂ scale over the rows.
 * `RMT.HasIndependentMeanZeroSubGaussianEntries`: the entry assumptions in HDP Theorem 4.4.3.
-* `RMT.HasIndependentMeanZeroSubGaussianRows`: the row assumptions in HDP Theorem 4.4.3, which
-  allow the entries inside a row to be dependent.
+* `RMT.HasIndependentMeanZeroSubGaussianRows`: independent, mean-zero, sub-Gaussian rows, with
+  possibly dependent entries inside a row.
 * `RMT.HasIndependentVarianceOneSubGaussianEntries`: the entry assumptions in Exercise 4.42.
 * `RMT.HasIndependentMeanZeroSubGaussianUpperTriangle`: the symmetric entry assumptions in
   HDP Corollary 4.4.7.
@@ -35,10 +35,9 @@ This file starts the random-matrix infrastructure for HDP, Section 4.4.
 
 ## Main results
 
-* `RMT.norm_subgaussian_matrices_rows_hdp`: HDP Theorem 4.4.3 for independent rows.
-* `RMT.norm_subgaussian_matrices_hdp`: the exact proposition stated by HDP Theorem 4.4.3, for
-  independent entries. Its tail bound is derived from the row version through
-  `RMT.HasIndependentMeanZeroSubGaussianEntries.toRows`.
+* `RMT.norm_subgaussian_matrices_rows_hdp`: the operator-norm bound for a matrix with
+  independent, mean-zero, sub-Gaussian rows.
+* `RMT.norm_subgaussian_matrices_hdp`: the exact proposition stated by HDP Theorem 4.4.3.
 * `RMT.norm_subgaussian_matrices_expectation_hdp`: the exact proposition stated by
   HDP Remark 4.4.4.
 * `RMT.norm_random_matrices_lower_bound_hdp`: the exact proposition stated by Exercise 4.42.
@@ -2576,8 +2575,9 @@ lemma matrixOperatorNorm_tail_of_quarter_centered_bilinear_net {m n : ℕ}
           exp (-u ^ 2 / (2 * K ^ 2)) := by ring
 
 /--
-Net-and-union-bound step of HDP Theorem 4.4.3, abstracted over the tail bound for a fixed
-bilinear form. Both the entrywise-independent and the row-independent hypotheses feed into it.
+Net-and-union-bound step of the operator-norm tail bound, abstracted over the tail bound for a
+fixed bilinear form. Both the entrywise-independent and the row-independent hypotheses feed into
+it.
 -/
 lemma matrixOperatorNorm_tail_le_of_bilinear_tail {m n : ℕ}
     (hm : 0 < m) (hn : 0 < n)
@@ -2790,7 +2790,7 @@ lemma inner_randomMatrixRowVector_eq_sum {m n : ℕ}
   simp [mul_comm]
 
 omit [MeasurableSpace Ω] in
-/-- HDP Theorem 4.4.3, Step 2: the bilinear form `⟪A x, y⟫` grouped by rows. -/
+/-- The bilinear form `⟪A x, y⟫` of a random matrix, grouped by rows. -/
 lemma inner_randomMatrix_eq_sum_rows {m n : ℕ}
     (A : Fin m → Fin n → Ω → ℝ) (ω : Ω)
     (x : EuclideanSpace ℝ (Fin n)) (y : EuclideanSpace ℝ (Fin m)) :
@@ -2875,11 +2875,10 @@ lemma row_inner_hasSubgaussianMGF_of_norm_le_one {m n : ℕ}
     nlinarith [sq_nonneg K, hx2]
 
 /--
-HDP Theorem 4.4.3, Step 2, explicit form: a fixed bilinear form of a random matrix with
-independent sub-Gaussian rows is sub-Gaussian, with variance proxy `∑ i, (y i)² K²`.
+A fixed bilinear form of a random matrix with independent sub-Gaussian rows is sub-Gaussian,
+with variance proxy `∑ i, (y i)² K²`.
 
-This is the moment-generating-function form of HDP Proposition 2.7.1: the summands
-`Zᵢ = yᵢ ⟪Aᵢ, x⟫` are independent, so the variance proxies add.
+The summands `Zᵢ = yᵢ ⟪Aᵢ, x⟫` are independent, so their variance proxies add.
 -/
 lemma inner_randomMatrix_hasSubgaussianMGF_of_rows_explicit {m n : ℕ}
     {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K : ℝ}
@@ -2910,7 +2909,7 @@ lemma inner_randomMatrix_hasSubgaussianMGF_of_rows_explicit {m n : ℕ}
   refine hsum.congr (ae_of_all _ fun ω => ?_)
   simpa using (inner_randomMatrix_eq_sum_rows A ω x y).symm
 
-/-- HDP Theorem 4.4.3, Step 2, on the Euclidean unit ball. -/
+/-- Sub-Gaussian certificate for a fixed bilinear form on the Euclidean unit ball. -/
 lemma inner_randomMatrix_hasSubgaussianMGF_of_rows {m n : ℕ}
     {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {K : ℝ}
     (hK_le : ∀ i, subGaussianVectorPsi2Norm (randomMatrixRowVector A i) μ ≤ K)
@@ -2958,9 +2957,8 @@ lemma subGaussianVectorPsi2Norm_le_of_bound {n : ℕ} {X : Ω → EuclideanSpace
 A row of a matrix with independent sub-Gaussian entries is a sub-Gaussian random vector at the
 same scale.
 
-This is HDP Proposition 2.7.1 applied inside a single row: for a unit vector `x`,
-`⟪Aᵢ, x⟫ = ∑ⱼ xⱼ Aᵢⱼ` is a weighted sum of independent sub-Gaussian variables, so its variance
-proxy is `∑ⱼ xⱼ² R² = R²`.
+For a unit vector `x`, `⟪Aᵢ, x⟫ = ∑ⱼ xⱼ Aᵢⱼ` is a weighted sum of independent sub-Gaussian
+variables, so its variance proxy is `∑ⱼ xⱼ² R² = R²`.
 -/
 lemma hasSubGaussianVectorPsi2Bound_row_of_entries {m n : ℕ}
     {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω} [IsProbabilityMeasure μ] {R : ℝ}
@@ -3036,10 +3034,10 @@ lemma integral_inner_row_eq_zero {m n : ℕ}
   rw [hfun, integral_finsetSum _ fun j _ => (hint i j).mul_const _]
   simp [integral_mul_const, hmean]
 
-/-! ## HDP row hypotheses -/
+/-! ## Row hypotheses -/
 
 /--
-Row hypotheses in HDP Theorem 4.4.3: independent, mean-zero, sub-Gaussian rows.
+Row hypotheses: independent, mean-zero, sub-Gaussian rows.
 
 The random row `Aᵢ` is represented by `randomMatrixRowVector A i`. Unlike
 `RMT.HasIndependentMeanZeroSubGaussianEntries`, entries inside a single row are allowed to be
@@ -3055,10 +3053,10 @@ structure HasIndependentMeanZeroSubGaussianRows {m n : ℕ}
 
 -- Note: as for `RMT.HasIndependentMeanZeroSubGaussianEntries`, the `measurable` and `mean_zero`
 -- fields are not consumed by the proof below, because an MGF sub-Gaussian certificate already
--- forces the mean to vanish. They are kept so that the structure states the hypotheses of
--- HDP Theorem 4.4.3 verbatim.
+-- forces the mean to vanish. They are kept so that the structure states the standard
+-- hypotheses verbatim.
 
-/-- The isotropic row hypotheses of HDP Theorem 4.6.1 imply the row hypotheses of Theorem 4.4.3. -/
+/-- The isotropic row hypotheses imply the plain row hypotheses. -/
 lemma HasIndependentMeanZeroIsotropicSubGaussianRows.toHasIndependentMeanZeroSubGaussianRows
     {m n : ℕ} {A : Fin m → Fin n → Ω → ℝ} {μ : Measure Ω}
     (hA : HasIndependentMeanZeroIsotropicSubGaussianRows A μ) :
@@ -3069,7 +3067,7 @@ lemma HasIndependentMeanZeroIsotropicSubGaussianRows.toHasIndependentMeanZeroSub
   finite_row_psi2 := hA.finite_row_psi2
 
 /--
-Entrywise independence and sub-Gaussianity imply the row hypotheses of HDP Theorem 4.4.3.
+Entrywise independence and sub-Gaussianity imply the row hypotheses.
 
 Independence of the rows as random vectors comes from `ProbabilityTheory.iIndepFun_curry`, which
 regroups an independent family indexed by `Fin m × Fin n` into `Fin m` blocks.
@@ -4862,18 +4860,18 @@ lemma symmetric_net_tail_prefactor_le {n : ℕ} {K t : ℝ}
 
 /-! ## Exact HDP Section 4.4 propositions -/
 
-/-! ## HDP Theorem 4.4.3 for independent rows -/
+/-! ## Operator norm for independent sub-Gaussian rows -/
 
 /--
-The statement of HDP Theorem 4.4.3 for independent rows.
+The operator-norm bound for a matrix with independent sub-Gaussian rows.
 
 For an `m × n` random matrix whose rows `Aᵢ` are independent, mean-zero, sub-Gaussian random
 vectors and `K = max_i ‖Aᵢ‖_{ψ₂}`, there is a positive absolute constant `C` such that for every
 `t > 0`, `‖A‖ ≤ C K (√m + √n + t)` with probability at least `1 - 2 exp (-t²)`.
 
-Entries inside a row are not assumed independent, so mathematically
-`RMT.norm_subgaussian_matrices_hdp` is the special case in which they are; that implication is not
-formalized here (see the module docstring).
+Entries inside a row are not assumed independent, so `RMT.norm_subgaussian_matrices_hdp` is the
+special case in which they are, obtained through
+`RMT.HasIndependentMeanZeroSubGaussianEntries.toRows`.
 -/
 def norm_subgaussian_matrices_rows_hdp {m n : ℕ} (A : Fin m → Fin n → Ω → ℝ)
     (μ : Measure Ω) [IsProbabilityMeasure μ] : Prop :=
@@ -4886,7 +4884,7 @@ def norm_subgaussian_matrices_rows_hdp {m n : ℕ} (A : Fin m → Fin n → Ω �
               C * K * (√(m : ℝ) + √(n : ℝ) + t)}).toReal ≥
             1 - 2 * exp (-(t ^ 2))
 
-/-- HDP Theorem 4.4.3 for independent rows and positive dimensions. -/
+/-- The bound for independent rows, for positive dimensions. -/
 theorem norm_subgaussian_matrices_rows_hdp_of_pos {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
     (A : Fin m → Fin n → Ω → ℝ) (μ : Measure Ω) [IsProbabilityMeasure μ] :
     norm_subgaussian_matrices_rows_hdp A μ := by
