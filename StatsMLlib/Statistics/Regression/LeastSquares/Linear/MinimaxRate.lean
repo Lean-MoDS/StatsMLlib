@@ -138,7 +138,7 @@ lemma linear_localizedBall_nonempty {δ : ℝ} (hδ : 0 ≤ δ)
       ext i; rfl
     rw [h_eq]
     have h_zero : empiricalNorm n (fun _ : Fin n => (0 : ℝ)) = 0 := by
-      unfold empiricalNorm
+      unfold EmpiricalProcess.empiricalNorm
       simp only [sq, mul_zero, sum_const_zero, mul_zero, Real.sqrt_zero]
     rw [h_zero]
     exact hδ
@@ -149,7 +149,7 @@ lemma empiricalNorm_smul_linear
     {c : ℝ} (hc : 0 ≤ c) :
     empiricalNorm n (fun i => c * @inner ℝ _ _ θ (x i)) =
     c * empiricalNorm n (fun i => @inner ℝ _ _ θ (x i)) := by
-  unfold empiricalNorm
+  unfold EmpiricalProcess.empiricalNorm
   have h_sq : ∀ i, (c * @inner ℝ _ _ θ (x i))^2 = c^2 * (@inner ℝ _ _ θ (x i))^2 := by
     intro i; ring
   simp_rw [h_sq]
@@ -267,7 +267,7 @@ lemma linear_bddAbove_at_radius (hn : 0 < n)
           apply mul_le_mul_of_nonneg_left _ (norm_nonneg w')
           -- ‖hx‖ ≤ √n · u from empiricalNorm h ≤ u
           have h_emp : empiricalNorm n (fun i => h (x i)) ≤ u := hh_norm
-          unfold empiricalNorm at h_emp
+          unfold EmpiricalProcess.empiricalNorm at h_emp
           have h_hx_norm : ‖hx‖ = Real.sqrt (∑ i, (h (x i))^2) := by
             simp only [hx, EuclideanSpace.norm_eq]
             congr 1

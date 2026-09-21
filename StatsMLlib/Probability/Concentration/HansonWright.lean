@@ -3038,18 +3038,6 @@ lemma centeredQuadraticForm_eq_diagonal_add_offDiagonal {μ : Measure Ω}
   · intro i _
     exact hdiag_term_int i
 
-lemma hasSubgaussianMGF_mono_param {μ : Measure Ω} {X : Ω → ℝ} {c d : ℝ≥0}
-    (h : HasSubgaussianMGF X c μ) (hcd : (c : ℝ) ≤ d) :
-    HasSubgaussianMGF X d μ where
-  integrable_exp_mul t := h.integrable_exp_mul t
-  mgf_le t := by
-    have hmul : (c : ℝ) * t ^ 2 ≤ (d : ℝ) * t ^ 2 :=
-      mul_le_mul_of_nonneg_right hcd (sq_nonneg t)
-    calc
-      mgf X μ t ≤ exp ((c : ℝ) * t ^ 2 / 2) := h.mgf_le t
-      _ ≤ exp ((d : ℝ) * t ^ 2 / 2) := by
-          exact exp_le_exp.mpr (by linarith)
-
 /-- A finite independent linear combination of sub-Gaussian variables is sub-Gaussian. -/
 lemma hasSubgaussianMGF_finset_sum_const_mul_of_iIndepFun {ι : Type*} {μ : Measure Ω}
     {X : ι → Ω → ℝ} (h_indep : iIndepFun X μ) {c : ι → ℝ≥0}

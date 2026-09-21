@@ -19,6 +19,7 @@ noncomputable section
 universe u v
 
 open MeasureTheory Real
+open EmpiricalProcess.FunctionClass
 
 variable {n : ℕ} {H : Type u} {𝒳 : Type v}
 
@@ -186,6 +187,7 @@ noncomputable section
 universe u v w
 
 open MeasureTheory ProbabilityTheory Real
+open EmpiricalProcess.FunctionClass
 open scoped ENNReal
 
 variable {n : ℕ}

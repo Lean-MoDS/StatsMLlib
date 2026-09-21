@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 -/
 import Mathlib
+import StatsMLlib.LearningTheory.EmpiricalProcess.FunctionClass
 import StatsMLlib.Statistics.Regression.LeastSquares.Defs
 import StatsMLlib.Statistics.Regression.LeastSquares.SubGaussianity
 import StatsMLlib.Probability.Process.Dudley
@@ -19,7 +20,6 @@ of empirical processes over function classes.
 ## Main definitions
 
 * `evalAtSample`: Evaluation map embedding functions into finite-dimensional space
-* `empiricalDist`: Pseudo-metric on functions induced by empirical norm
 * `innerProductProcess`: The Gaussian process Z_v(w) = (1/n) Σᵢ wᵢvᵢ
 * `euclideanNorm`: L2 norm on Fin n → ℝ
 
@@ -65,31 +65,6 @@ This is the key embedding into the metric space structure. -/
 def evalAtSample (n : ℕ) (x : Fin n → X) (g : X → ℝ) : Fin n → ℝ :=
   fun i => g (x i)
 
-/-- The empirical distance between two functions is the empirical norm of their difference -/
-noncomputable def empiricalDist (n : ℕ) (x : Fin n → X) (g₁ g₂ : X → ℝ) : ℝ :=
-  empiricalNorm n (fun i => g₁ (x i) - g₂ (x i))
-
-/-- Empirical distance is non-negative -/
-lemma empiricalDist_nonneg (n : ℕ) (x : Fin n → X) (g₁ g₂ : X → ℝ) :
-    0 ≤ empiricalDist n x g₁ g₂ :=
-  empiricalNorm_nonneg n _
-
-/-- Empirical distance is symmetric -/
-lemma empiricalDist_comm (n : ℕ) (x : Fin n → X) (g₁ g₂ : X → ℝ) :
-    empiricalDist n x g₁ g₂ = empiricalDist n x g₂ g₁ := by
-  unfold empiricalDist empiricalNorm
-  congr 1
-  apply congr_arg
-  congr 1
-  ext i
-  ring
-
-/-- Empirical distance from a function to itself is zero -/
-lemma empiricalDist_self (n : ℕ) (x : Fin n → X) (g : X → ℝ) :
-    empiricalDist n x g g = 0 := by
-  unfold empiricalDist empiricalNorm
-  simp only [sub_self, sq, mul_zero, sum_const_zero, mul_zero, Real.sqrt_zero]
-
 /-- Norm on EuclideanSpace in terms of sum of squares -/
 lemma euclidean_norm_sq (n : ℕ) (a : EuclideanSpace ℝ (Fin n)) :
     ‖a‖ = Real.sqrt (∑ i : Fin n, (a i)^2) := by
@@ -123,7 +98,7 @@ lemma empiricalNorm_add_le (n : ℕ) (a b : Fin n → ℝ) :
 /-- Triangle inequality: ‖a - b‖ ≤ ‖a‖ + ‖b‖ for empirical norm -/
 lemma empiricalNorm_sub_le (n : ℕ) (a b : Fin n → ℝ) :
     empiricalNorm n (fun i => a i - b i) ≤ empiricalNorm n a + empiricalNorm n b := by
-  unfold empiricalNorm
+  unfold EmpiricalProcess.empiricalNorm
   by_cases hn : n = 0
   · simp [hn]
   have hn_pos : (0 : ℝ) < n := Nat.cast_pos.mpr (Nat.pos_of_ne_zero hn)
@@ -141,20 +116,6 @@ lemma empiricalNorm_sub_le (n : ℕ) (a b : Fin n → ℝ) :
   rw [ha_norm, hb_norm, hab_norm]
   exact norm_sub_le a' b'
 
-/-- Empirical distance satisfies triangle inequality -/
-lemma empiricalDist_triangle (n : ℕ) (x : Fin n → X) (g₁ g₂ g₃ : X → ℝ) :
-    empiricalDist n x g₁ g₃ ≤ empiricalDist n x g₁ g₂ + empiricalDist n x g₂ g₃ := by
-  unfold empiricalDist empiricalNorm
-  -- Key: (g₁ - g₃) = (g₁ - g₂) + (g₂ - g₃), so use Minkowski
-  have h_sum_eq : ∑ i : Fin n, (g₁ (x i) - g₃ (x i))^2 =
-      ∑ i : Fin n, ((g₁ (x i) - g₂ (x i)) + (g₂ (x i) - g₃ (x i)))^2 := by
-    apply Finset.sum_congr rfl
-    intro i _
-    congr 1
-    ring
-  rw [h_sum_eq]
-  exact empiricalNorm_add_le n (fun i => g₁ (x i) - g₂ (x i)) (fun i => g₂ (x i) - g₃ (x i))
-
 /-! ## Localized Ball Diameter Bound -/
 
 /-- The diameter of a localized ball B_n(δ; H) is at most 2δ.
@@ -163,14 +124,14 @@ For g₁, g₂ ∈ B_n(δ), we have:
 ‖g₁ - g₂‖_n ≤ ‖g₁‖_n + ‖g₂‖_n ≤ δ + δ = 2δ -/
 lemma localizedBall_diam_bound (n : ℕ) (H : Set (X → ℝ)) (δ : ℝ) (x : Fin n → X)
     (g₁ g₂ : X → ℝ) (hg₁ : g₁ ∈ localizedBall H δ x) (hg₂ : g₂ ∈ localizedBall H δ x) :
-    empiricalDist n x g₁ g₂ ≤ 2 * δ := by
+    EmpiricalProcess.FunctionClass.empiricalDist x g₁ g₂ ≤ 2 * δ := by
   -- g₁ ∈ B_n(δ) means ‖g₁‖_n ≤ δ
   -- g₂ ∈ B_n(δ) means ‖g₂‖_n ≤ δ
   have hg₁_norm : empiricalNorm n (fun i => g₁ (x i)) ≤ δ := hg₁.2
   have hg₂_norm : empiricalNorm n (fun i => g₂ (x i)) ≤ δ := hg₂.2
   -- By triangle inequality: ‖g₁ - g₂‖_n ≤ ‖g₁‖_n + ‖g₂‖_n ≤ 2δ
-  unfold empiricalDist
-  calc empiricalNorm n (fun i => g₁ (x i) - g₂ (x i))
+  show EmpiricalProcess.empiricalNorm n (fun i => g₁ (x i) - g₂ (x i)) ≤ 2 * δ
+  calc EmpiricalProcess.empiricalNorm n (fun i => g₁ (x i) - g₂ (x i))
       ≤ empiricalNorm n (fun i => g₁ (x i)) + empiricalNorm n (fun i => g₂ (x i)) :=
         empiricalNorm_sub_le n (fun i => g₁ (x i)) (fun i => g₂ (x i))
     _ ≤ δ + δ := add_le_add hg₁_norm hg₂_norm
@@ -190,9 +151,7 @@ lemma localizedBall_diam (n : ℕ) (H : Set (X → ℝ)) (δ : ℝ) (hδ : 0 ≤
   -- dist(v₁, v₂) = empiricalDist n x g₁ g₂
   rw [dist_empiricalMetricImage]
   -- Use the pointwise bound
-  have h := localizedBall_diam_bound n H δ x g₁ g₂ hg₁ hg₂
-  unfold empiricalDist at h
-  exact h
+  exact localizedBall_diam_bound n H δ x g₁ g₂ hg₁ hg₂
 
 /-! ## Sub-Gaussian Bridge to EmpiricalSpace -/
 
@@ -301,7 +260,7 @@ lemma empiricalProcess_smul (n : ℕ) (x : Fin n → X) (α : ℝ) (g : X → �
 /-- Empirical norm scales by absolute value of the scalar -/
 lemma empiricalNorm_smul (n : ℕ) (α : ℝ) (f : Fin n → ℝ) :
     empiricalNorm n (α • f) = |α| * empiricalNorm n f := by
-  unfold empiricalNorm
+  unfold EmpiricalProcess.empiricalNorm
   simp only [Pi.smul_apply, smul_eq_mul, mul_pow]
   rw [← Finset.mul_sum]
   have h_rearrange : (n : ℝ)⁻¹ * (α ^ 2 * ∑ i, f i ^ 2) = α ^ 2 * ((n : ℝ)⁻¹ * ∑ i, f i ^ 2) := by
@@ -342,7 +301,7 @@ lemma zero_mem_localizedBall_of_starShaped (n : ℕ) (H : Set (X → ℝ)) (δ :
   · exact hH.1  -- 0 ∈ H from star-shaped property
   · -- ‖0‖_n = 0 ≤ δ
     simp only [Pi.zero_apply]
-    unfold empiricalNorm
+    unfold EmpiricalProcess.empiricalNorm
     simp only [sq, mul_zero, sum_const_zero, mul_zero, Real.sqrt_zero]
     exact hδ
 
@@ -429,7 +388,7 @@ lemma empiricalProcess_le_delta_norm (n : ℕ) (hn : 0 < n) (x : Fin n → X) (H
     inner_abs_le_norm_mul_norm' n w gx
   -- euclideanNorm gx = √(Σ gᵢ²), and empiricalNorm = √(n⁻¹ Σ gᵢ²), so euclideanNorm = √n * empiricalNorm
   have h_norm_gx_sq : (euclideanNorm n gx)^2 = n * (empiricalNorm n gx)^2 := by
-    unfold euclideanNorm empiricalNorm
+    unfold euclideanNorm EmpiricalProcess.empiricalNorm
     rw [sq_sqrt, sq_sqrt]
     · ring_nf
       rw [mul_inv_cancel₀ hn_ne, one_mul]
@@ -626,7 +585,7 @@ lemma gaussian_complexity_ratio_antitone (n : ℕ) (H : Set (X → ℝ)) (x : Fi
                   (√n * empiricalNorm n (fun i => g (x i))) := by
                 have heq : ∀ f : Fin n → ℝ, √(∑ i : Fin n, f i ^ 2) = √n * empiricalNorm n f := by
                   intro f
-                  unfold empiricalNorm
+                  unfold EmpiricalProcess.empiricalNorm
                   symm
                   calc √n * √((n : ℝ)⁻¹ * ∑ i : Fin n, f i ^ 2)
                       = √n * (√((n : ℝ)⁻¹) * √(∑ i : Fin n, f i ^ 2)) := by
@@ -830,7 +789,7 @@ lemma EmpiricalSpace.coord_sq_le (n : ℕ) (i : Fin n) (v : EmpiricalSpace n) :
     (v i)^2 ≤ n * (empiricalNorm n v)^2 := by
   have hn_pos : 0 < n := Fin.pos i
   have hn_ne : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (ne_of_gt hn_pos)
-  unfold empiricalNorm
+  unfold EmpiricalProcess.empiricalNorm
   rw [sq_sqrt (by positivity : 0 ≤ (n : ℝ)⁻¹ * ∑ j : Fin n, (v j)^2)]
   have h_single : (v i : ℝ)^2 ≤ ∑ j : Fin n, (v j : ℝ)^2 := by
     exact Finset.single_le_sum (f := fun j => (v j : ℝ)^2) (fun j _ => sq_nonneg _) (Finset.mem_univ i)
@@ -1047,7 +1006,7 @@ lemma dudley_empiricalProcess (n : ℕ) (hn : 0 < n) (x : Fin n → X)
       have h_sum_sq : ∑ i, (g (x i))^2 ≤ n * D^2 := by
         have h1 : empiricalNorm n (fun i => g (x i)) = Real.sqrt ((n : ℝ)⁻¹ * ∑ i, (g (x i))^2) := rfl
         have h_norm_nonneg : 0 ≤ empiricalNorm n (fun i => g (x i)) := by
-          unfold empiricalNorm
+          unfold EmpiricalProcess.empiricalNorm
           positivity
         have h2 : (empiricalNorm n (fun i => g (x i)))^2 ≤ D^2 := by
           apply sq_le_sq'

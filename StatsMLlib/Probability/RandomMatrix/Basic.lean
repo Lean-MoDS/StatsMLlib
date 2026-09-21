@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 -/
 import StatsMLlib.Analysis.NormedSpace.CoveringNumber.Euclidean
+import StatsMLlib.LinearAlgebra.Matrix.SingularValue
 import StatsMLlib.Probability.Concentration.HansonWright
 import StatsMLlib.Probability.Independence.Grouping
 import StatsMLlib.Probability.Moments.Exponential
@@ -118,23 +119,11 @@ def sampleCovarianceDeviationOperatorNorm {m n : ℕ} (A : Matrix (Fin m) (Fin n
   matrixOperatorNorm (sampleCovarianceDeviation A)
 
 omit [MeasurableSpace Ω] in
-/-- The Euclidean linear map associated to `AᵀA` is `A† ∘ A`. -/
-lemma conjTranspose_mul_self_toEuclideanLin {m n : ℕ}
-    (A : Matrix (Fin m) (Fin n) ℝ) :
-    (A.conjTranspose * A).toEuclideanLin =
-      LinearMap.adjoint A.toEuclideanLin ∘ₗ A.toEuclideanLin := by
-  rw [← Matrix.toEuclideanLin_conjTranspose_eq_adjoint A]
-  simpa [Matrix.toEuclideanLin_eq_toLin_orthonormal] using Matrix.toLin_mul
-    (v₁ := (EuclideanSpace.basisFun (Fin n) ℝ).toBasis)
-    (v₂ := (EuclideanSpace.basisFun (Fin m) ℝ).toBasis)
-    (v₃ := (EuclideanSpace.basisFun (Fin n) ℝ).toBasis) A.conjTranspose A
-
-omit [MeasurableSpace Ω] in
 lemma inner_conjTranspose_mul_self_toEuclideanLin {m n : ℕ}
     (A : Matrix (Fin m) (Fin n) ℝ) (x : EuclideanSpace ℝ (Fin n)) :
     inner ℝ ((A.conjTranspose * A).toEuclideanLin x) x =
       ‖A.toEuclideanLin x‖ ^ 2 := by
-  rw [conjTranspose_mul_self_toEuclideanLin]
+  rw [Matrix.conjTranspose_mul_self_toEuclideanLin]
   rw [LinearMap.comp_apply]
   rw [LinearMap.adjoint_inner_left]
   rw [real_inner_self_eq_norm_sq]
@@ -2226,7 +2215,7 @@ lemma upperTriangleQuadraticForm_hasSubgaussianMGF_of_norm_le_one {n : ℕ}
   have h :=
     upperTriangleQuadraticForm_hasSubgaussianMGF_explicit
       (A := A) (μ := μ) (K := K) h_indep hA_subG x
-  refine HansonWright.hasSubgaussianMGF_mono_param h ?_
+  refine hasSubgaussianMGF_mono_param h ?_
   change (((∑ p : UpperTriangleIndex n,
       Real.toNNReal (upperTriangleQuadraticCoeff x p ^ 2) *
         Real.toNNReal (K ^ 2)) : ℝ≥0) : ℝ) ≤ (2 * K) ^ 2
@@ -2268,7 +2257,7 @@ lemma inner_randomMatrix_hasSubgaussianMGF {m n : ℕ}
   have h :=
     inner_randomMatrix_hasSubgaussianMGF_explicit
       (A := A) (μ := μ) (K := K) h_indep hA_subG x y
-  refine HansonWright.hasSubgaussianMGF_mono_param h ?_
+  refine hasSubgaussianMGF_mono_param h ?_
   change (((∑ p : Fin m × Fin n,
       Real.toNNReal ((x p.2 * y p.1) ^ 2) * Real.toNNReal (K ^ 2)) : ℝ≥0) : ℝ) ≤
     K ^ 2 * ‖x‖ ^ 2 * ‖y‖ ^ 2
@@ -2287,7 +2276,7 @@ lemma inner_randomMatrix_hasSubgaussianMGF_of_norm_le_one {m n : ℕ}
   have h :=
     inner_randomMatrix_hasSubgaussianMGF (A := A) (μ := μ) (K := K)
       h_indep hA_subG x y
-  refine HansonWright.hasSubgaussianMGF_mono_param h ?_
+  refine hasSubgaussianMGF_mono_param h ?_
   change K ^ 2 * ‖x‖ ^ 2 * ‖y‖ ^ 2 ≤ K ^ 2
   have hx2 : ‖x‖ ^ 2 ≤ 1 := by
     nlinarith [norm_nonneg x, hx]
