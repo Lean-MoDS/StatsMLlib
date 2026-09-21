@@ -1224,7 +1224,7 @@ theorem entropy_le_half_gradient {n : ℕ} (h : (Fin n → Bool) → ℝ) :
 ## Part 6: Main Theorem - Bernoulli Log-Sobolev Inequality
 -/
 
-/-- The Bernoulli log-Sobolev inequality (Theorem 5.1).
+/-- The Bernoulli log-Sobolev inequality.
 
 For any function h : {±1}^n → ℝ,
   Ent_μ(h²) ≤ (1/2) · E_μ[Σⱼ (h(ε) - h(flip_j ε))²]

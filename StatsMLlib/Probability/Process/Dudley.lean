@@ -1079,7 +1079,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
     (dn.nets K).sup' (hnet_nonempty K) (fun u => X u ω)
 
   -- ══════════════════════════════════════════════════════════════════════════════
-  -- SECTION 2: CORE BOUND (Lemma 4.2)
+  -- SECTION 2: CORE BOUND
   -- 𝔼[Y_K] ≤ 6√2 · σ · dyadicRHS(K+1), via dudley_chaining_bound_core.
   -- ══════════════════════════════════════════════════════════════════════════════
 
@@ -1103,7 +1103,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
   -- proj_K(tₙ) → tₙ, hence X(proj_K(tₙ)) → X(tₙ), and X(proj_K(tₙ)) ≤ Y_K.
   -- ══════════════════════════════════════════════════════════════════════════════
 
-  -- Lemma 4.3: proj_K(tₙ) → tₙ as K → ∞
+  -- proj_K(tₙ) → tₙ as K → ∞
   have h_proj_tendsto : ∀ n, Filter.Tendsto (fun K => proj K n) Filter.atTop (nhds (t n)) := by
     intro n
     rw [Metric.tendsto_atTop]
@@ -1131,7 +1131,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       _ = |dyadicScale D K - 0| := by simp [abs_of_pos (dyadicScale_pos hD K)]
       _ < ε := hN K hK
 
-  -- Lemma 4.4: X(proj_K(tₙ))(ω) → X(tₙ)(ω) by path continuity
+  -- X(proj_K(tₙ))(ω) → X(tₙ)(ω) by path continuity
   have h_X_tendsto : ∀ n ω, Filter.Tendsto (fun K => X (proj K n) ω) Filter.atTop (nhds (X (t n) ω)) := by
     intro n ω
     have h_cont_at := (hcont ω).continuousAt (x := ⟨t n, ht_mem n⟩)
@@ -1142,7 +1142,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       exact h_proj_tendsto n
     exact h_cont_at.tendsto.comp h_proj_sub_tendsto
 
-  -- Lemma 4.5: X(proj_K(tₙ))(ω) ≤ Y_K(ω)
+  -- X(proj_K(tₙ))(ω) ≤ Y_K(ω)
   have h_le_Y : ∀ K n ω, X (proj K n) ω ≤ Y K ω := by
     intro K n ω
     exact Finset.le_sup' (fun u => X u ω) (h_proj_mem K n)
@@ -1152,7 +1152,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
   -- Y_K is bounded below pointwise, integrable for K ≥ 1, and liminf Y_K ≠ +∞ a.e.
   -- ══════════════════════════════════════════════════════════════════════════════
 
-  -- Lemma 4.6: Y_K bounded below via convergence of X(proj_K(t₀))
+  -- Y_K bounded below via convergence of X(proj_K(t₀))
   have h_Y_bdd_below : ∀ ω, Filter.IsBoundedUnder (· ≥ ·) Filter.atTop (fun K => Y K ω) := by
     intro ω
     have h_tendsto := h_X_tendsto 0 ω
@@ -1186,7 +1186,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       calc |(dn.nets K).sup' (hnet_nonempty K) (fun u => X u ω)|
         _ ≤ ∑ u ∈ dn.nets K, |X u ω| := abs_sup'_le_sum (hnet_nonempty K) (fun u => X u ω)
 
-  -- Lemma 4.7: liminf Y_K(ω) < +∞ a.e. via uniform L¹ bounds
+  -- liminf Y_K(ω) < +∞ a.e. via uniform L¹ bounds
   have h_Y_liminf_ne_top : ∀ᵐ ω ∂μ,
       Filter.liminf (fun K => (Y K ω : EReal)) Filter.atTop ≠ ⊤ := by
 
@@ -1434,7 +1434,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
     exact (EReal.coe_ne_top R) (le_antisymm h_liminf_le_R le_top).symm
 
   -- ══════════════════════════════════════════════════════════════════════════════
-  -- SECTION 5: POINTWISE BOUND (Lemma 4.8)
+  -- SECTION 5: POINTWISE BOUND
   -- For a.e. ω: sup_n X(tₙ)(ω) ≤ liminf_K Y_K(ω) via tendsto_le_liminf_of_le'.
   -- ══════════════════════════════════════════════════════════════════════════════
   have h_pointwise : ∀ᵐ ω ∂μ, ∀ n, X (t n) ω ≤ Filter.liminf (fun K => Y K ω) Filter.atTop := by
@@ -1464,7 +1464,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       exact h_liminf_ge_0
 
   -- ══════════════════════════════════════════════════════════════════════════════
-  -- SECTION 6: FATOU'S LEMMA (Lemma 4.9)
+  -- SECTION 6: FATOU'S LEMMA
   -- ∫ sup_n X(tₙ) ≤ liminf_K ∫ Y_K using shifted-Fatou: Z_K = Y_K - g ≥ 0 where
   -- g = inf_K X(proj_K(0)). The shift g is integrable via telescoping bound.
   -- ══════════════════════════════════════════════════════════════════════════════
@@ -2268,7 +2268,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
     exact le_trans h_step1 h_fatou_Y
 
   -- ══════════════════════════════════════════════════════════════════════════════
-  -- SECTION 7: UPPER BOUND FOR LIMINF (Lemma 4.10)
+  -- SECTION 7: UPPER BOUND FOR LIMINF
   -- liminf((6√2)σ * dyadicRHS) ≤ (12√2)σ * entropyIntegral via δf(δ) → 0.
   -- ══════════════════════════════════════════════════════════════════════════════
 
@@ -2481,7 +2481,7 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       _ = (12 * Real.sqrt 2) * σ * entropyIntegral s D := h_liminf_eq
 
   -- ══════════════════════════════════════════════════════════════════════════════
-  -- SECTION 8: INTEGRAL BOUNDED BELOW (Lemma 4.11)
+  -- SECTION 8: INTEGRAL BOUNDED BELOW
   -- ∫ Y_K ≥ 0 via centering: ∫ X u = 0 for all u ∈ s.
   -- ══════════════════════════════════════════════════════════════════════════════
 
