@@ -69,7 +69,7 @@ constant sup_g ‖(σ/n) g(x₁,...,xₙ)‖₂ = σu/√n when restricted to �
 /-- The Euclidean norm of g(x₁,...,xₙ) equals √n · ‖g‖_n. -/
 lemma euclidean_norm_eq_sqrt_n_mul_empiricalNorm (hn : 0 < n) (g : X → ℝ) (x : Fin n → X) :
     Real.sqrt (∑ i, (g (x i))^2) = Real.sqrt n * empiricalNorm n (fun i => g (x i)) := by
-  unfold empiricalNorm
+  unfold EmpiricalProcess.empiricalNorm
   have hn_pos : (0 : ℝ) < n := Nat.cast_pos.mpr hn
   have hn_ne : (n : ℝ) ≠ 0 := ne_of_gt hn_pos
   -- RHS = √n * √(n⁻¹ * ∑ g²) = √(n * (n⁻¹ * ∑ g²)) = √(∑ g²) = LHS
@@ -441,7 +441,7 @@ lemma Z_le_sigma_mul_localComplexity (n : ℕ) (hn : 0 < n) (σ : ℝ) (H : Set 
             · exact Real.sum_mul_le_sqrt_mul_sqrt Finset.univ w (fun i => h (x i))
           have h_norm : Real.sqrt (∑ i, (h (x i))^2) ≤ Real.sqrt n * u := by
             have hh_norm := hh.2
-            rw [empiricalNorm] at hh_norm
+            rw [EmpiricalProcess.empiricalNorm] at hh_norm
             -- From √((n⁻¹) * ∑ h(x)²) ≤ u, we get ∑ h(x)² ≤ n * u²
             have h_sum_nonneg : 0 ≤ ∑ i, (h (x i))^2 := Finset.sum_nonneg (fun i _ => sq_nonneg _)
             have h_sqrt_nonneg : 0 ≤ Real.sqrt ((n : ℝ)⁻¹ * ∑ i, (h (x i))^2) := Real.sqrt_nonneg _
@@ -688,7 +688,7 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
       exact hsmul
     -- ‖g'‖_n = u
     have hg'_norm : empiricalNorm n (fun i => g' (x i)) = u := by
-      unfold empiricalNorm
+      unfold EmpiricalProcess.empiricalNorm
       have h_sum : ∑ k, (g' (x k))^2 = α^2 * ∑ k, (g (x k))^2 := by
         simp only [hg'_def, mul_pow]
         rw [Finset.mul_sum]
@@ -741,7 +741,7 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
                 · exact Real.sum_mul_le_sqrt_mul_sqrt Finset.univ w (fun i => h (x i))
               have h_norm_eq : Real.sqrt (∑ i, (h (x i))^2) = Real.sqrt n * u := by
                 have hh_norm := hh.2
-                rw [empiricalNorm] at hh_norm
+                rw [EmpiricalProcess.empiricalNorm] at hh_norm
                 have h_sum : ∑ i, (h (x i))^2 = n * u^2 := by
                   have h_inner_nonneg : 0 ≤ (n : ℝ)⁻¹ * ∑ i, (h (x i))^2 := by positivity
                   have h_eq : (n : ℝ)⁻¹ * ∑ i, (h (x i))^2 = u^2 := by

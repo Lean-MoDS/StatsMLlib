@@ -30,6 +30,7 @@ because the latter is dominated by the former on any sample.
 noncomputable section
 
 open MeasureTheory Real unitInterval ProbabilityTheory
+open EmpiricalProcess.FunctionClass
 
 namespace LipschitzBall
 
