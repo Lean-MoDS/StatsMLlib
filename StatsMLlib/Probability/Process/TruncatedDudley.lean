@@ -64,7 +64,7 @@ def localOsc (X : α → ℝ) (T : Set α) (δ : ℝ) : ℝ :=
   sSup {X x - X y | (x ∈ T) (y ∈ T) (_ : dist x y ≤ δ)}
 
 /-
-Lemma 1.1: One-step discretization bound.
+One-step discretization bound.
 Fix δ > 0 and let U be a finite centered δ-net of T. Then
 sup_{θ, θ' ∈ T} (X_θ - X_θ') ≤ 2 sup_{d(γ, γ') ≤ δ} (X_γ - X_γ') + 2 max_{u ∈ U} |X_u - X_u0|.
 -/
@@ -179,7 +179,7 @@ lemma mgf_max_bound {α : Type*} [MeasurableSpace α]
     _ = M * Real.exp (σ_sq * t^2 / 2) := by simp
 
 /-
-Lemma 1.2: Metric entropy bound for sub-Gaussian maxima.
+Metric entropy bound for sub-Gaussian maxima.
 Let Y_1, ..., Y_M be mean-zero sub-Gaussian random variables with parameter σ^2.
 Then E[max Y_k] ≤ σ * sqrt(2 * log M).
 -/

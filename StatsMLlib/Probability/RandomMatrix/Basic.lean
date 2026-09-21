@@ -106,7 +106,7 @@ def randomMatrix {m n : ℕ} (A : Fin m → Fin n → Ω → ℝ) (ω : Ω) :
   fun i j => A i j ω
 
 omit [MeasurableSpace Ω] in
-/-- The empirical covariance deviation `m⁻¹ AᵀA - Iₙ` appearing in HDP Theorem 4.6.1. -/
+/-- The empirical covariance deviation `m⁻¹ AᵀA - Iₙ`. -/
 def sampleCovarianceDeviation {m n : ℕ} (A : Matrix (Fin m) (Fin n) ℝ) :
     Matrix (Fin n) (Fin n) ℝ :=
   ((m : ℝ)⁻¹) • (A.conjTranspose * A) - 1
@@ -503,7 +503,7 @@ structure MatrixBilinearNet (m n : ℕ) (ε : ℝ) where
 /--
 A centered matrix bilinear net: the net points themselves lie in the corresponding unit balls.
 This is the form naturally produced by finite coverings of the unit balls and used in the
-Section 4.4 net argument.
+operator-norm net argument.
 -/
 structure CenteredMatrixBilinearNet (m n : ℕ) (ε : ℝ) extends
     MatrixBilinearNet m n ε where
@@ -783,7 +783,7 @@ lemma matrixOperatorNorm_le_of_centered_bilinear_net {m n : ℕ} {ε u : ℝ}
   have hmul' : M * (1 - 2 * ε) ≤ u := by nlinarith
   exact (le_div_iff₀ hden).mpr (by simpa [M] using hmul')
 
-/-- The standard `ε = 1/4` matrix-net reduction used in HDP's proof of Theorem 4.4.3. -/
+/-- The standard `ε = 1/4` matrix-net reduction for the operator norm. -/
 lemma matrixOperatorNorm_le_two_mul_of_quarter_centered_bilinear_net {m n : ℕ} {u : ℝ}
     (A : Matrix (Fin m) (Fin n) ℝ) (N : CenteredMatrixBilinearNet m n (1 / 4))
     (hu : 0 ≤ u)
@@ -1046,7 +1046,7 @@ lemma matrixOperatorNorm_le_of_centered_quadratic_net {n : ℕ} {ε u : ℝ}
   have hmul' : M * (1 - 2 * ε) ≤ u := by nlinarith
   exact (le_div_iff₀ hden).mpr (by simpa [M] using hmul')
 
-/-- The standard `ε = 1/4` symmetric matrix-net reduction used in HDP Corollary 4.4.7. -/
+/-- The standard `ε = 1/4` matrix-net reduction for symmetric matrices. -/
 lemma matrixOperatorNorm_le_two_mul_of_quarter_centered_quadratic_net {n : ℕ} {u : ℝ}
     (A : Matrix (Fin n) (Fin n) ℝ) (hA_symm : A.IsSymm)
     (N : CenteredMatrixBilinearNet n n (1 / 4)) (hu : 0 ≤ u)
@@ -1482,7 +1482,7 @@ def HasSubGaussianVectorPsi2Bound {n : ℕ} (X : Ω → EuclideanSpace ℝ (Fin 
     ∀ x : EuclideanSpace ℝ (Fin n), ‖x‖ = 1 →
       HasSubgaussianMGF (fun ω => inner ℝ (X ω) x) ⟨K ^ 2, sq_nonneg K⟩ μ
 
-/-- The HDP vector ψ₂ scale, defined as the infimum over admissible projection scales. -/
+/-- The vector ψ₂ scale, defined as the infimum over admissible projection scales. -/
 def subGaussianVectorPsi2Norm {n : ℕ} (X : Ω → EuclideanSpace ℝ (Fin n))
     (μ : Measure Ω) : ℝ :=
   sInf {K : ℝ | HasSubGaussianVectorPsi2Bound X μ K}
@@ -2027,7 +2027,7 @@ lemma hdpHansonWrightConstant_offdiag_quad :
   rfl
 
 omit [MeasurableSpace Ω] in
-/-- The absolute constant used in the vector norm lower tail for Exercise 4.42. -/
+/-- The absolute constant used in the vector norm lower tail. -/
 def randomVectorLowerTailConstant : ℝ :=
   1 / (64 * hdpHansonWrightConstant * exp 1 ^ 2)
 

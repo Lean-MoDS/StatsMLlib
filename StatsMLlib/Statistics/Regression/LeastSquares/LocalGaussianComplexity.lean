@@ -157,7 +157,7 @@ lemma empiricalDist_triangle (n : ℕ) (x : Fin n → X) (g₁ g₂ g₃ : X →
 
 /-! ## Localized Ball Diameter Bound -/
 
-/-- **Lemma 5.1**: The diameter of a localized ball B_n(δ; H) is at most 2δ.
+/-- The diameter of a localized ball B_n(δ; H) is at most 2δ.
 
 For g₁, g₂ ∈ B_n(δ), we have:
 ‖g₁ - g₂‖_n ≤ ‖g₁‖_n + ‖g₂‖_n ≤ δ + δ = 2δ -/
@@ -176,7 +176,7 @@ lemma localizedBall_diam_bound (n : ℕ) (H : Set (X → ℝ)) (δ : ℝ) (x : F
     _ ≤ δ + δ := add_le_add hg₁_norm hg₂_norm
     _ = 2 * δ := by ring
 
-/-- **Lemma 5.1 (Metric.diam version)**: The diameter of the image of a localized ball
+/-- `Metric.diam` version: the diameter of the image of a localized ball
 under empiricalMetricImage is at most 2δ.
 
 This upgrades localizedBall_diam_bound from a pointwise bound to a Metric.diam statement. -/
@@ -1143,7 +1143,7 @@ lemma localizedBall_isStarShaped (n : ℕ) (H : Set (X → ℝ)) (δ : ℝ) (hδ
 
 /-- Local Gaussian complexity is bounded by entropy integral times (24√2)/√n.
 
-This is Lemma 5.2 from the plan: combines Dudley's bound with the |Z| ≤ 2·sup Z bound. -/
+Combines Dudley's bound with the |Z| ≤ 2·sup Z bound. -/
 lemma local_gaussian_complexity_bound (n : ℕ) (hn : 0 < n) (H : Set (X → ℝ))
     (δ : ℝ) (hδ : 0 < δ) (x : Fin n → X)
     (hH_star : IsStarShaped H)
