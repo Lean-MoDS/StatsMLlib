@@ -25,7 +25,8 @@ StatsMLlib/
 ├── LinearAlgebra/Matrix
 ├── MeasureTheory/{Function,Integral,Measure}
 ├── Order
-├── Probability/{Concentration,Entropy,Gaussian,Independence,Moments,Process,RandomMatrix}
+├── Probability/{Concentration,Entropy,Gaussian,GraphicalModel,Independence,Moments,Process,
+│                RandomMatrix}
 ├── Statistics/Regression/LeastSquares
 └── Topology/{MetricSpace,SeparableSpace}
 ```
@@ -63,6 +64,9 @@ In particular:
   are related back to it by bridging lemmas rather than replaced;
 - deterministic matrix spectral theory is under `LinearAlgebra.Matrix`, while random-matrix
   theorems are under `Probability.RandomMatrix`.
+- undirected graphical models are owned by `Probability.GraphicalModel`, including the
+  graph-separation and graphoid modules there, which use no probability; the library has no
+  combinatorics layer, and these modules exist only to serve the Markov properties.
 
 ## Module naming
 
