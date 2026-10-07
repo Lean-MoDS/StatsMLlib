@@ -31,6 +31,7 @@ noncomputable section
 universe u v
 
 open MeasureTheory Real
+open EmpiricalProcess.FunctionClass
 
 namespace ProbabilityTheory
 

@@ -35,6 +35,7 @@ This module builds dyadic covers of `EmpiricalFunctionSpace` using `coveringFins
 universe v u
 open scoped BigOperators
 open Classical ProbabilityTheory
+open EmpiricalProcess.FunctionClass
 
 section Empirical
 variable {Z : Type v}
