@@ -26,6 +26,9 @@ metric structure are induced from StatsMLlib's canonical empirical space.
 
 universe v
 open scoped BigOperators
+
+namespace EmpiricalProcess.FunctionClass
+
 variable {𝒳 : Type v}
 variable {n : ℕ}
 
@@ -195,3 +198,5 @@ lemma empiricalFunctionSpace_totallyBounded [Fintype ι] :
       (Set.univ : Set (EmpiricalFunctionSpace F S)) :=
   Set.finite_univ.totallyBounded
 end
+
+end EmpiricalProcess.FunctionClass
