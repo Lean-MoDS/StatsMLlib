@@ -1,21 +1,21 @@
 # StatsMLlib file tree
 
 This document presents the public Lean source tree after the Mathlib-style subject refactor.
-`StatsMLlib/` contains 124 Lean modules under eight layer-one directories and no root-level Lean
+`StatsMLlib/` contains 128 Lean modules under eight layer-one directories and no root-level Lean
 files. A filesystem path such as `StatsMLlib/Probability/Process/Dudley.lean` corresponds to the Lean
 module `StatsMLlib.Probability.Process.Dudley`.
 
 | Layer | Modules |
 | --- | ---: |
-| `Analysis` | 6 |
+| `Analysis` | 7 |
 | `LearningTheory` | 31 |
 | `LinearAlgebra` | 5 |
 | `MeasureTheory` | 3 |
 | `Order` | 1 |
-| `Probability` | 55 |
+| `Probability` | 58 |
 | `Statistics` | 21 |
 | `Topology` | 2 |
-| **Total** | **124** |
+| **Total** | **128** |
 
 ```text
 StatsMLlib/
@@ -28,7 +28,8 @@ StatsMLlib/
 │   │       ├── Euclidean.lean
 │   │       ├── L1.lean
 │   │       └── LipschitzBall.lean
-│   └── FiniteSample.lean
+│   ├── FiniteSample.lean
+│   └── LogSumExp.lean
 ├── LearningTheory/
 │   ├── EmpiricalRiskMinimization/
 │   │   ├── Basic.lean
@@ -126,8 +127,11 @@ StatsMLlib/
 │   │   │   ├── LipschitzMollification.lean
 │   │   │   └── Mollification.lean
 │   │   ├── Basic.lean
+│   │   ├── IntegrationByParts.lean
 │   │   ├── Lipschitz.lean
-│   │   └── LipschitzConcentration.lean
+│   │   ├── LipschitzConcentration.lean
+│   │   ├── Representation.lean
+│   │   └── SudakovFernique.lean
 │   ├── GraphicalModel/
 │   │   ├── DiscreteCondIndep.lean
 │   │   ├── Factorization.lean
