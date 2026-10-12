@@ -27,5 +27,13 @@ LEAN_NUM_THREADS=$(nproc) lake build
 Describe the mathematical result, its source, the owning module, and any API decisions in the pull
 request. New modules should include a Mathlib-style file header and module docstring.
 
+## Citing references
+
+Sources cited from docstrings are collected in [`docs/references.bib`](./docs/references.bib),
+which doc-gen4 renders as the references page of the generated documentation. When a result is
+taken from outside the main textbooks because it is more general or stronger than the textbook
+version, add the source there and cite it from the module docstring as `[bibkey]` or
+`[Author, *Title* (optional location)][bibkey]`.
+
 Unless explicitly stated otherwise, intentionally submitted contributions are provided under the
 Apache License 2.0 under the contribution terms in section 5 of [LICENSE](./LICENSE).
