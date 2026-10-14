@@ -24,7 +24,9 @@ maximum of the coordinates of `x`. Its gradient is the softmax vector
 
 * `sup'_le_logSumExp`, `logSumExp_le_sup'_add`: `max x ≤ F_β(x) ≤ max x + log |ι| / β`.
 * `abs_logSumExp_le`: `|F_β(x)| ≤ ∑ᵢ |xᵢ| + log |ι| / β`.
-* `hasFDerivAt_logSumExp`: the gradient of log-sum-exp is softmax.
+* `hasFDerivAt_logSumExp`, `norm_fderiv_logSumExp_le`: the gradient of log-sum-exp is softmax,
+  of operator norm at most one.
+* `contDiff_logSumExp`: log-sum-exp is smooth.
 * `hasFDerivAt_softmax`: `∂ⱼ pᵢ = β (δᵢⱼ pᵢ - pᵢ pⱼ)`.
 * `sum_mul_sub_sum_mul_eq`: contraction of the log-sum-exp Hessian with a matrix.
 -/
@@ -190,6 +192,25 @@ lemma contDiff_softmax (β : ℝ) (i : ι) : ContDiff ℝ 1 (fun y : ι → ℝ 
   have hden : ContDiff ℝ 1 (fun y : ι → ℝ ↦ ∑ j, exp (β * y j)) :=
     ContDiff.sum fun j _ ↦ (contDiff_const.mul (contDiff_apply ℝ ℝ j)).exp
   exact hnum.div hden fun y ↦ (sum_exp_mul_pos β y).ne'
+
+/-- Log-sum-exp is smooth. -/
+lemma contDiff_logSumExp (β : ℝ) {n : WithTop ℕ∞} :
+    ContDiff ℝ n (logSumExp β : (ι → ℝ) → ℝ) :=
+  contDiff_const.mul <| (ContDiff.sum fun i _ ↦ (contDiff_const.mul (contDiff_apply ℝ ℝ i)).exp).log
+    fun y ↦ (sum_exp_mul_pos β y).ne'
+
+/-- The gradient of log-sum-exp has operator norm at most one. -/
+lemma norm_fderiv_logSumExp_le (hβ : β ≠ 0) (x : ι → ℝ) :
+    ‖fderiv ℝ (logSumExp β) x‖ ≤ 1 := by
+  rw [(hasFDerivAt_logSumExp hβ x).fderiv]
+  refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun v ↦ ?_
+  simp only [FunLike.coe_sum, FunLike.coe_smul, Finset.sum_apply, Pi.smul_apply,
+    ContinuousLinearMap.proj_apply, smul_eq_mul, Real.norm_eq_abs, one_mul]
+  calc |∑ j, softmax β x j * v j| ≤ ∑ j, softmax β x j * ‖v‖ := by
+        refine (abs_sum_le_sum_abs _ _).trans (sum_le_sum fun j _ ↦ ?_)
+        rw [abs_mul, abs_of_pos (softmax_pos β x j)]
+        exact mul_le_mul_of_nonneg_left (norm_le_pi_norm v j) (softmax_pos β x j).le
+    _ = ‖v‖ := by rw [← sum_mul, sum_softmax, one_mul]
 
 end Deriv
 
