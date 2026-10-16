@@ -80,6 +80,27 @@ theorem separableSpaceSup_eq_real {X : Type u} [TopologicalSpace X] [SeparableSp
       _ = 0 := Real.iSup_of_not_bddAbove bdd
       _ = _ := (Real.iSup_of_not_bddAbove this).symm
 
+theorem separableSpaceInf_eq_real {X : Type u} [TopologicalSpace X] [SeparableSpace X] [Nonempty X]
+  {f : X → ℝ} (hf : Continuous f) :
+  ⨅ x : X, f x = ⨅ i : Nat, f (denseSeq X i) := by
+  have h := separableSpaceSup_eq_real hf.neg
+  have hX : ⨅ x, f x = -⨆ x, -f x := by rw [iSup, iInf, Real.sInf_def, Set.neg_range]
+  have hN : ⨅ i, f (denseSeq X i) = -⨆ i, -f (denseSeq X i) := by
+    rw [iSup, iInf, Real.sInf_def, Set.neg_range]
+  rw [hX, hN]
+  simp only [Pi.neg_apply] at h
+  rw [h]
+
+theorem separableSpaceSup_eq_range_real {X : Type u} [TopologicalSpace X] [SeparableSpace X]
+  [Nonempty X] {f : X → ℝ} (hf : Continuous f) :
+  ⨆ x : X, f x = ⨆ x : Set.range (denseSeq X), f x :=
+  (separableSpaceSup_eq_real hf).trans (iSup_range' f _).symm
+
+theorem separableSpaceInf_eq_range_real {X : Type u} [TopologicalSpace X] [SeparableSpace X]
+  [Nonempty X] {f : X → ℝ} (hf : Continuous f) :
+  ⨅ x : X, f x = ⨅ x : Set.range (denseSeq X), f x :=
+  (separableSpaceInf_eq_real hf).trans (iInf_range' f _).symm
+
 /--
 Restriction of a family to Mathlib's chosen countable dense sequence.
 
