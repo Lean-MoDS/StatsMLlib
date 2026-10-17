@@ -1,21 +1,21 @@
 # StatsMLlib file tree
 
 This document presents the public Lean source tree after the Mathlib-style subject refactor.
-`StatsMLlib/` contains 134 Lean modules under eight layer-one directories and no root-level Lean
+`StatsMLlib/` contains 142 Lean modules under eight layer-one directories and no root-level Lean
 files. A filesystem path such as `StatsMLlib/Probability/Process/Dudley.lean` corresponds to the Lean
 module `StatsMLlib.Probability.Process.Dudley`.
 
 | Layer | Modules |
 | --- | ---: |
-| `Analysis` | 8 |
+| `Analysis` | 9 |
 | `LearningTheory` | 31 |
-| `LinearAlgebra` | 5 |
+| `LinearAlgebra` | 6 |
 | `MeasureTheory` | 4 |
 | `Order` | 1 |
-| `Probability` | 62 |
+| `Probability` | 68 |
 | `Statistics` | 21 |
 | `Topology` | 2 |
-| **Total** | **134** |
+| **Total** | **142** |
 
 ```text
 StatsMLlib/
@@ -28,6 +28,7 @@ StatsMLlib/
 │   │       ├── Euclidean.lean
 │   │       ├── L1.lean
 │   │       └── LipschitzBall.lean
+│   ├── ChiMeanSequence.lean
 │   ├── FiniteSample.lean
 │   ├── LogSumExp.lean
 │   └── SoftMinMax.lean
@@ -76,6 +77,7 @@ StatsMLlib/
 │       ├── CourantFischer.lean
 │       ├── EckartYoungMirsky.lean
 │       ├── Lieb.lean
+│       ├── OperatorNorm.lean
 │       ├── Perturbation.lean
 │       └── SingularValue.lean
 ├── MeasureTheory/
@@ -129,12 +131,15 @@ StatsMLlib/
 │   │   │   ├── LipschitzMollification.lean
 │   │   │   └── Mollification.lean
 │   │   ├── Basic.lean
+│   │   ├── ChiMean.lean
 │   │   ├── Gordon.lean
 │   │   ├── GordonProcess.lean
 │   │   ├── IntegrationByParts.lean
 │   │   ├── Kahane.lean
 │   │   ├── Lipschitz.lean
 │   │   ├── LipschitzConcentration.lean
+│   │   ├── LipschitzConcentrationEuclidean.lean
+│   │   ├── NormMoment.lean
 │   │   ├── Representation.lean
 │   │   ├── SudakovFernique.lean
 │   │   └── SudakovFerniqueProcess.lean
@@ -161,6 +166,9 @@ StatsMLlib/
 │   ├── RandomMatrix/
 │   │   ├── Basic.lean
 │   │   ├── Bernstein.lean
+│   │   ├── GaussianBilinear.lean
+│   │   ├── GaussianExtremeSingularValue.lean
+│   │   ├── GaussianSingularValue.lean
 │   │   └── Lieb.lean
 │   └── SmallBall.lean
 ├── Statistics/
