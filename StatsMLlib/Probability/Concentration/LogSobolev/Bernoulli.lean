@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 -/
 import StatsMLlib.Probability.Entropy.Basic
+import StatsMLlib.Probability.Entropy.Conditional.Subadditivity
 import StatsMLlib.Probability.Concentration.LogSobolev.TwoPoint
 import StatsMLlib.Probability.Gaussian.Poincare.Limit
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
@@ -24,23 +25,25 @@ This file proves the Bernoulli log-Sobolev inequality on the hypercube {±1}^n.
 
 * `flipCoord j ε`: Flip the j-th coordinate of ε, replacing ε_j with -ε_j
 * `bernoulliUniform n`: The uniform measure on {±1}^n (balanced Bernoulli product)
+* `boolUniform`: The uniform probability measure on `Bool`
 * `signValue`: Maps Bool to ±1 ∈ ℝ
 
 ## Main results
 
-* `han_inequality`: Han's subadditivity for entropy on the hypercube:
-  Ent_μ(h²) ≤ Σⱼ E_μ[Ent^(j)(h²)] where Ent^(j) is the conditional two-point entropy
+* `bernoulliUniform_eq_pi`: `bernoulliUniform n` is the product of `n` copies of `boolUniform`.
+* `condEntExceptCoord_sq_eq_twoPointEntropyCoord`: on the hypercube, the conditional entropy of
+  `h²` given all coordinates but `j` is the two-point entropy of `h²` along coordinate `j`.
 * `bernoulli_logSobolev`: For any h : {±1}^n → ℝ,
   Ent_μ(h²) ≤ (1/2) · E_μ[Σⱼ (h(ε) - h(flip_j ε))²]
 * `bernoulli_logSobolev_app`: Application to compactly supported smooth functions f:
   Ent_{S_n}(f²) ≤ (1/2) · Σᵢ E[(f(S_n) - f(S_n with coord i flipped))²]
 
-## Proof approach (Rothaus-based)
+## Proof approach
 
-We prove this by induction on n:
-- Base case (n = 0): Both sides are 0
-- Inductive step: Use the conditional entropy decomposition and the Rothaus lemma
-  (two-point inequality) for the last coordinate
+Since `bernoulliUniform n` is a product measure, the subadditivity of entropy
+(`SubAddEnt.entropy_subadditive`) bounds `Ent_μ(h²)` by the sum over coordinates of the expected
+conditional entropies. Each conditional entropy is a two-point entropy, which the Rothaus lemma
+(`LogSobolev.rothaus_lemma`) bounds by half the squared difference across the flip.
 -/
 
 open MeasureTheory ProbabilityTheory Real Set Filter Function
@@ -168,6 +171,37 @@ theorem bernoulli_integral_eq_sum {n : ℕ} (f : (Fin n → Bool) → ℝ) :
   rw [ENNReal.toReal_inv, ENNReal.toReal_pow, ENNReal.toReal_ofNat]
   ring
 
+/-- The uniform probability measure on `Bool`. -/
+def boolUniform : Measure Bool := (2 : ℝ≥0∞)⁻¹ • Measure.count
+
+lemma boolUniform_singleton (b : Bool) : boolUniform {b} = (2 : ℝ≥0∞)⁻¹ := by
+  simp [boolUniform]
+
+instance : IsProbabilityMeasure boolUniform := by
+  constructor
+  rw [boolUniform, Measure.smul_apply, Measure.count_apply_finite Set.univ Set.finite_univ]
+  simp only [Set.Finite.toFinset_univ, Finset.card_univ, Fintype.card_bool, Nat.cast_ofNat,
+    smul_eq_mul]
+  exact ENNReal.inv_mul_cancel (by norm_num) (by norm_num)
+
+lemma integral_boolUniform (g : Bool → ℝ) :
+    ∫ b, g b ∂boolUniform = (g true + g false) / 2 := by
+  rw [integral_fintype (Integrable.of_finite : Integrable g boolUniform)]
+  simp [measureReal_def, boolUniform_singleton, Fintype.univ_bool]
+  ring
+
+lemma bernoulliUniform_singleton (ε : Fin n → Bool) :
+    bernoulliUniform n {ε} = ((2 : ℝ≥0∞) ^ n)⁻¹ := by
+  rw [bernoulliUniform, Measure.smul_apply, Measure.count_singleton, card_fin_bool]
+  simp
+
+/-- The uniform measure on the hypercube is the product of uniform measures on `Bool`. -/
+theorem bernoulliUniform_eq_pi (n : ℕ) :
+    bernoulliUniform n = Measure.pi fun _ : Fin n ↦ boolUniform := by
+  refine Measure.ext_of_singleton fun ε ↦ ?_
+  rw [← Set.univ_pi_singleton, Measure.pi_pi, Set.univ_pi_singleton, bernoulliUniform_singleton]
+  simp [boolUniform_singleton, ENNReal.inv_pow]
+
 /-- Sum over Fin (n+1) → Bool decomposes as sum over slices by the last coordinate. -/
 theorem sum_fin_succ_bool_eq_sum_snoc {n : ℕ} (f : (Fin (n+1) → Bool) → ℝ) :
     ∑ ε : Fin (n+1) → Bool, f ε =
@@ -212,120 +246,7 @@ theorem bernoulli_integral_succ_split {n : ℕ} (f : (Fin (n+1) → Bool) → �
 def gradientNormSq (n : ℕ) (h : (Fin n → Bool) → ℝ) (ε : Fin n → Bool) : ℝ :=
   ∑ j : Fin n, (h ε - h (flipCoord j ε))^2
 
-/-!
-## Part 4: The two-point (conditional) entropy lemma
-
-For the inductive step, we need to analyze the entropy when conditioning
-on all but one coordinate. This uses the Rothaus lemma from TwoPoint.lean.
--/
-
-/-- Given a function h and fixed values for coordinates except the last,
-    the Rothaus lemma gives the two-point log-Sobolev bound. -/
-theorem two_point_rothaus_bound {n : ℕ} (h : (Fin (n + 1) → Bool) → ℝ)
-    (hh_nn : ∀ ε, 0 ≤ h ε)
-    (ε' : Fin n → Bool) :
-    let a := (h (Fin.snoc ε' true))^2
-    let b := (h (Fin.snoc ε' false))^2
-    -- Two-point log-Sobolev (Rothaus lemma): entropy ≤ gradient term
-    (a * log a + b * log b) / 2 - (a + b) / 2 * log ((a + b) / 2) ≤
-      (h (Fin.snoc ε' true) - h (Fin.snoc ε' false))^2 / 2 := by
-  set a := (h (Fin.snoc ε' true))^2 with ha_def
-  set b := (h (Fin.snoc ε' false))^2 with hb_def
-  have ha_nn : 0 ≤ a := sq_nonneg _
-  have hb_nn : 0 ≤ b := sq_nonneg _
-  have h_diff_sq_nn : 0 ≤ (h (Fin.snoc ε' true) - h (Fin.snoc ε' false))^2 / 2 :=
-    div_nonneg (sq_nonneg _) (by norm_num : (0 : ℝ) ≤ 2)
-  -- Helper for log 2 ≤ 1
-  have hlog2_le : log 2 ≤ 1 := by
-    have h1 : (2 : ℝ) < exp 1 := by
-      have : (2.7182818283 : ℝ) < exp 1 := Real.exp_one_gt_d9
-      linarith
-    have h2 : log 2 < log (exp 1) := log_lt_log (by norm_num) h1
-    simp at h2
-    linarith
-  by_cases ha_pos : 0 < a
-  · by_cases hb_pos : 0 < b
-    · -- Both positive: apply Rothaus lemma and simplify
-      have hrothaus := LogSobolev.rothaus_lemma ha_pos hb_pos
-      -- Need to show (√a - √b)² = (h(+) - h(-))² when h ≥ 0
-      have hsqrt_a : sqrt a = h (Fin.snoc ε' true) := by
-        rw [ha_def]
-        exact sqrt_sq (hh_nn _)
-      have hsqrt_b : sqrt b = h (Fin.snoc ε' false) := by
-        rw [hb_def]
-        exact sqrt_sq (hh_nn _)
-      calc (a * log a + b * log b) / 2 - (a + b) / 2 * log ((a + b) / 2)
-          ≤ (sqrt a - sqrt b)^2 / 2 := hrothaus
-        _ = (h (Fin.snoc ε' true) - h (Fin.snoc ε' false))^2 / 2 := by rw [hsqrt_a, hsqrt_b]
-    · -- b = 0: a > 0, b = 0
-      have hb_zero : b = 0 := le_antisymm (not_lt.mp hb_pos) hb_nn
-      simp only [hb_zero, add_zero, mul_zero, log_zero]
-      by_cases ha_zero : a = 0
-      · -- a = 0 and b = 0: contradiction with ha_pos
-        exact absurd (ha_zero ▸ ha_pos) (lt_irrefl 0)
-      · -- LHS = a * log a / 2 - a / 2 * log (a / 2)
-        --     = a/2 * (log a - log (a/2)) = a/2 * log 2
-        -- RHS = (h(true) - 0)^2 / 2 = a / 2
-        have h_lhs : a * log a / 2 - a / 2 * log (a / 2) = a / 2 * log 2 := by
-          rw [log_div ha_zero (by norm_num : (2 : ℝ) ≠ 0)]
-          ring
-        rw [h_lhs]
-        -- h(false)^2 = 0 means h(false) = 0 since h ≥ 0
-        have h_false_zero : h (Fin.snoc ε' false) = 0 := sq_eq_zero_iff.mp hb_zero
-        rw [h_false_zero, sub_zero, sq]
-        -- Need: a/2 * log 2 ≤ a / 2, i.e., log 2 ≤ 1
-        calc a / 2 * log 2 ≤ a / 2 * 1 := by nlinarith [hlog2_le, ha_nn]
-          _ = a / 2 := by ring
-          _ = h (Fin.snoc ε' true) * h (Fin.snoc ε' true) / 2 := by rw [ha_def]; ring
-  · -- a = 0
-    have ha_zero : a = 0 := le_antisymm (not_lt.mp ha_pos) ha_nn
-    simp only [ha_zero, zero_add, zero_mul, log_zero]
-    by_cases hb_zero : b = 0
-    · -- a = 0 and b = 0: both h values are 0, so LHS = RHS = 0
-      simp only [hb_zero, mul_zero, log_zero, zero_div, sub_zero]
-      exact h_diff_sq_nn
-    · -- a = 0, b > 0
-      have h_lhs : b * log b / 2 - b / 2 * log (b / 2) = b / 2 * log 2 := by
-        rw [log_div hb_zero (by norm_num : (2 : ℝ) ≠ 0)]
-        ring
-      rw [h_lhs]
-      have h_true_zero : h (Fin.snoc ε' true) = 0 := sq_eq_zero_iff.mp ha_zero
-      rw [h_true_zero, zero_sub]
-      -- (0 - h(false))² = h(false)² = b
-      have hsq_neg : (-h (Fin.snoc ε' false))^2 = b := by
-        rw [neg_sq, hb_def]
-      rw [hsq_neg]
-      linarith [mul_le_of_le_one_right (div_nonneg hb_nn (by norm_num : (0 : ℝ) ≤ 2)) hlog2_le]
-
-/-!
-## Part 5: Decomposition lemmas for the induction
--/
-
-/-- The sum over coordinates decomposes: first n coordinates plus the last one -/
-theorem gradientNormSq_succ_decomposition {n : ℕ} (h : (Fin (n + 1) → Bool) → ℝ)
-    (ε : Fin (n + 1) → Bool) :
-    gradientNormSq (n + 1) h ε =
-    (∑ j : Fin n, (h ε - h (flipCoord (Fin.castSucc j) ε))^2) +
-    (h ε - h (flipCoord (Fin.last n) ε))^2 := by
-  simp only [gradientNormSq]
-  rw [Fin.sum_univ_castSucc]
-
-/-- For any ε : Fin (n+1) → Bool, we can write it as snoc ε' b -/
-theorem fin_succ_eq_snoc {n : ℕ} (ε : Fin (n + 1) → Bool) :
-    ε = Fin.snoc (fun i => ε (Fin.castSucc i)) (ε (Fin.last n)) := by
-  ext i
-  by_cases h : i = Fin.last n
-  · simp [h, Fin.snoc]
-  · have hi : i.val < n := by
-      have hlt := i.isLt
-      have hne : i.val ≠ n := by
-        intro heq
-        apply h
-        ext
-        simp [Fin.last, heq]
-      omega
-    simp only [Fin.snoc, hi, ↓reduceDIte]
-    congr
+/-! ## Part 4: Coordinate flips and integrals on the hypercube -/
 
 /-- Flipping the last coordinate swaps true/false -/
 theorem flipCoord_last_snoc {n : ℕ} (ε' : Fin n → Bool) (b : Bool) :
@@ -386,13 +307,6 @@ theorem flipCoord_castSucc_snoc {n : ℕ} (j : Fin n) (ε' : Fin n → Bool) (b 
         exact congrArg Fin.val heq
       rw [flipCoord_noteq j (Fin.castLT i hi) _ hj']
 
-/-- Key bound: The gradient contribution from the last coordinate equals the difference squared -/
-theorem last_coord_gradient_bound {n : ℕ} (h : (Fin (n + 1) → Bool) → ℝ)
-    (ε' : Fin n → Bool) (b : Bool) :
-    (h (Fin.snoc ε' b) - h (flipCoord (Fin.last n) (Fin.snoc ε' b)))^2 =
-    (h (Fin.snoc ε' b) - h (Fin.snoc ε' (!b)))^2 := by
-  rw [flipCoord_last_snoc]
-
 /-- Entropy equals ∫ f log f - (∫ f) log(∫ f) by definition -/
 theorem entropy_def' {α : Type*} [MeasurableSpace α] (μ : Measure α) (f : α → ℝ) :
     LogSobolev.entropy μ f = ∫ ω, f ω * log (f ω) ∂μ - (∫ ω, f ω ∂μ) * log (∫ ω, f ω ∂μ) := rfl
@@ -417,11 +331,12 @@ theorem integral_gradientNormSq_eq_sum {n : ℕ} (h : (Fin n → Bool) → ℝ) 
   intro j _
   apply Integrable.of_finite
 
-/-- Each coordinate gradient term is symmetric: the average over ε_j of (h(ε) - h(flip_j ε))²
-    equals (h(ε_{-j}, true) - h(ε_{-j}, false))² regardless of which ε_j value we pick -/
-theorem gradient_term_symmetric {n : ℕ} (j : Fin n) (h : (Fin n → Bool) → ℝ) :
-    ∫ ε, (h ε - h (flipCoord j ε))^2 ∂(bernoulliUniform n) =
-    ∫ ε, (h ε - h (flipCoord j ε))^2 ∂(bernoulliUniform n) := rfl
+/-!
+## Part 5: The two-point entropy
+
+Conditioning on all coordinates but one leaves a two-point distribution. Its entropy is bounded
+by the Rothaus lemma from `TwoPoint.lean`.
+-/
 
 /-- The two-point entropy for coordinate j given all other coordinates.
     This is the entropy of the function (h(ε_{-j}, true)², h(ε_{-j}, false)²)
@@ -550,656 +465,39 @@ theorem avg_twoPointEntropyCoord_le {n : ℕ} (j : Fin n)
     intro ε
     exact twoPointEntropyCoord_le_gradientTerm j h ε
 
-/-- The total two-point entropy summed over all coordinates -/
-def totalTwoPointEntropy {n : ℕ} (h : (Fin n → Bool) → ℝ) (ε : Fin n → Bool) : ℝ :=
-  ∑ j : Fin n, twoPointEntropyCoord j h ε
-
-/-- The conditional mean given all but the last coordinate -/
-def condMeanLast {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ) (ε' : Fin n → Bool) : ℝ :=
-  (f (Fin.snoc ε' true) + f (Fin.snoc ε' false)) / 2
-
-/-- Two-point entropy for the last coordinate, given ε' -/
-def twoPointEntropyLast {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ) (ε' : Fin n → Bool) : ℝ :=
-  let a := f (Fin.snoc ε' true)
-  let b := f (Fin.snoc ε' false)
-  (a * log a + b * log b) / 2 - (a + b) / 2 * log ((a + b) / 2)
-
-/-- The two-point entropy using twoPointEntropyCoord at the last coordinate -/
-theorem twoPointEntropyLast_eq_coord {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ)
-    (ε' : Fin n → Bool) (b : Bool) :
-    twoPointEntropyLast f ε' =
-    let ε := Fin.snoc ε' b
-    let a := f ε
-    let c := f (flipCoord (Fin.last n) ε)
-    (a * log a + c * log c) / 2 - (a + c) / 2 * log ((a + c) / 2) := by
-  simp only [twoPointEntropyLast]
-  cases b <;> simp [flipCoord_last_snoc, add_comm]
-
-/-- Integral over n+1 dimensional cube equals integral of condMeanLast over n -/
-theorem integral_eq_integral_condMeanLast {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ) :
-    ∫ ε, f ε ∂(bernoulliUniform (n+1)) = ∫ ε', condMeanLast f ε' ∂(bernoulliUniform n) := by
-  rw [bernoulli_integral_succ_split]
-  congr 1
-
-/-- f log f integral decomposition over the last coordinate -/
-theorem integral_flogf_decomp {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ) :
-    ∫ ε, f ε * log (f ε) ∂(bernoulliUniform (n+1)) =
-    ∫ ε', (f (Fin.snoc ε' true) * log (f (Fin.snoc ε' true)) +
-           f (Fin.snoc ε' false) * log (f (Fin.snoc ε' false))) / 2 ∂(bernoulliUniform n) := by
-  rw [bernoulli_integral_succ_split]
-
-theorem entropy_chain_rule_succ {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ) :
-    LogSobolev.entropy (bernoulliUniform (n + 1)) f =
-    ∫ ε', twoPointEntropyLast f ε' ∂(bernoulliUniform n) +
-    LogSobolev.entropy (bernoulliUniform n) (condMeanLast f) := by
-  -- Unfold entropy on both sides
-  unfold LogSobolev.entropy
-  -- Use the integral decomposition lemmas
-  rw [integral_flogf_decomp, integral_eq_integral_condMeanLast]
-  -- The key is to combine the twoPointEntropyLast and entropy of condMeanLast correctly
-  -- Algebraic manipulation
-  have key : ∀ ε' : Fin n → Bool,
-      (f (Fin.snoc ε' true) * log (f (Fin.snoc ε' true)) +
-       f (Fin.snoc ε' false) * log (f (Fin.snoc ε' false))) / 2 =
-      twoPointEntropyLast f ε' + condMeanLast f ε' * log (condMeanLast f ε') := by
-    intro ε'
-    unfold twoPointEntropyLast condMeanLast
-    ring
-  rw [show (fun ε' => (f (Fin.snoc ε' true) * log (f (Fin.snoc ε' true)) +
-           f (Fin.snoc ε' false) * log (f (Fin.snoc ε' false))) / 2) =
-      (fun ε' => twoPointEntropyLast f ε' + condMeanLast f ε' * log (condMeanLast f ε'))
-    from funext key]
-  rw [integral_add Integrable.of_finite Integrable.of_finite]
-  ring
-
-/-- The two-point entropy function -/
-def twoPointEnt (a b : ℝ) : ℝ :=
-  (a * log a + b * log b) / 2 - (a + b) / 2 * log ((a + b) / 2)
-
-/-- Two-point entropy is nonnegative for nonnegative inputs (Jensen) -/
-theorem twoPointEnt_nonneg (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ twoPointEnt a b := by
-  unfold twoPointEnt
-  have := phi_convex_avg a b ha hb
-  linarith
-
-/-- Two-point entropy at equal arguments is zero -/
-theorem twoPointEnt_self (a : ℝ) : twoPointEnt a a = 0 := by
-  unfold twoPointEnt
-  have h1 : (a + a) / 2 = a := by ring
-  have h2 : (a * log a + a * log a) / 2 = a * log a := by ring
-  simp only [h1, h2, sub_self]
-
-/-- Two-point entropy is symmetric -/
-theorem twoPointEnt_comm (a b : ℝ) : twoPointEnt a b = twoPointEnt b a := by
-  unfold twoPointEnt
-  have h1 : a + b = b + a := by ring
-  have h2 : a * log a + b * log b = b * log b + a * log a := by ring
-  simp only [h1, h2]
-
-/-- The Jensen gap δ_φ(x,y) = (φ(x)+φ(y))/2 - φ((x+y)/2) for φ(x) = x log x -/
-def jensenGap (x y : ℝ) : ℝ :=
-  (x * log x + y * log y) / 2 - (x + y) / 2 * log ((x + y) / 2)
-
-/-- Jensen gap is nonnegative (convexity of x log x) -/
-theorem jensenGap_nonneg (x y : ℝ) (hx : 0 ≤ x) (hy : 0 ≤ y) : 0 ≤ jensenGap x y := by
-  unfold jensenGap
-  have := phi_convex_avg x y hx hy
-  linarith
-
-/-- twoPointEnt expressed in terms of Jensen gap -/
-theorem twoPointEnt_eq_jensenGap (a b : ℝ) : twoPointEnt a b = jensenGap a b := by
-  unfold twoPointEnt jensenGap
-  ring
-
 /-!
-### Helper Lemmas for Joint Convexity of Jensen Gap
+### Subadditivity of entropy on the hypercube
 
-The proof of joint convexity uses the fact that jensenGap can be written as:
-  jensenGap(x, y) = ((x+y)/2) * D(x/(x+y))
-where D(p) = log 2 - binEntropy(p) is convex (since binEntropy is concave).
+The uniform measure on the hypercube is a product measure, so the general subadditivity of entropy
+applies, and its conditional entropies are the two-point entropies above.
 -/
 
-/-- The binary KL divergence from (p, 1-p) to (1/2, 1/2).
-    This equals log 2 - binEntropy(p), where binEntropy is the binary Shannon entropy. -/
-def binaryKLfromUniform (p : ℝ) : ℝ := Real.log 2 - Real.binEntropy p
-
-/-- binaryKLfromUniform is convex on [0, 1] since binEntropy is concave. -/
-theorem binaryKLfromUniform_convexOn :
-    ConvexOn ℝ (Set.Icc (0 : ℝ) 1) binaryKLfromUniform := by
-  have hconc := Real.strictConcave_binEntropy.concaveOn
-  -- -binEntropy is convex, so log 2 - binEntropy is also convex
-  have h1 : ConvexOn ℝ (Set.Icc (0 : ℝ) 1) (fun p => -Real.binEntropy p) := hconc.neg
-  have h2 : ConvexOn ℝ (Set.Icc (0 : ℝ) 1) (fun _ => Real.log 2) :=
-    convexOn_const _ (convex_Icc (0 : ℝ) 1)
-  have h3 : ConvexOn ℝ (Set.Icc (0 : ℝ) 1) (fun p => Real.log 2 + (-Real.binEntropy p)) :=
-    h2.add h1
-  convert h3 using 1
-  ext p
-  unfold binaryKLfromUniform
-  ring
-
-/-- The midpoint inequality for binaryKLfromUniform -/
-theorem binaryKLfromUniform_midpoint_le {p₀ p₁ : ℝ}
-    (hp₀ : p₀ ∈ Set.Icc (0 : ℝ) 1) (hp₁ : p₁ ∈ Set.Icc (0 : ℝ) 1) :
-    binaryKLfromUniform ((p₀ + p₁) / 2) ≤
-    (binaryKLfromUniform p₀ + binaryKLfromUniform p₁) / 2 := by
-  have hconv := binaryKLfromUniform_convexOn
-  have h12 : (0 : ℝ) ≤ 1/2 := by norm_num
-  have h12' : (1/2 : ℝ) + 1/2 = 1 := by norm_num
-  have hmid_eq : (1/2 : ℝ) * p₀ + 1/2 * p₁ = (p₀ + p₁) / 2 := by ring
-  have hkey := hconv.2 hp₀ hp₁ h12 h12 h12'
-  simp only [smul_eq_mul, hmid_eq] at hkey
-  calc binaryKLfromUniform ((p₀ + p₁) / 2)
-      ≤ (1/2) * binaryKLfromUniform p₀ + (1/2) * binaryKLfromUniform p₁ := hkey
-    _ = (binaryKLfromUniform p₀ + binaryKLfromUniform p₁) / 2 := by ring
-
-/-- Weighted convexity of binaryKLfromUniform: D(w₀p₀ + w₁p₁) ≤ w₀D(p₀) + w₁D(p₁) -/
-theorem binaryKLfromUniform_weighted_le {p₀ p₁ w₀ w₁ : ℝ}
-    (hp₀ : p₀ ∈ Set.Icc (0 : ℝ) 1) (hp₁ : p₁ ∈ Set.Icc (0 : ℝ) 1)
-    (hw₀ : 0 ≤ w₀) (hw₁ : 0 ≤ w₁) (hw_sum : w₀ + w₁ = 1) :
-    binaryKLfromUniform (w₀ * p₀ + w₁ * p₁) ≤
-    w₀ * binaryKLfromUniform p₀ + w₁ * binaryKLfromUniform p₁ := by
-  have hconv := binaryKLfromUniform_convexOn
-  have hkey := hconv.2 hp₀ hp₁ hw₀ hw₁ hw_sum
-  simp only [smul_eq_mul] at hkey
-  exact hkey
-
-/-- jensenGap expressed in terms of binaryKLfromUniform when x + y > 0. -/
-theorem jensenGap_eq_scaled_binaryKL {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) (hxy : 0 < x + y) :
-    jensenGap x y = ((x + y) / 2) * binaryKLfromUniform (x / (x + y)) := by
-  have hxy_ne : x + y ≠ 0 := ne_of_gt hxy
-  -- Expand and simplify
-  by_cases hx_zero : x = 0
-  · -- Case x = 0: jensenGap(0, y) = (y/2) * binaryKL(0) = (y/2) * log 2
-    subst hx_zero
-    simp only [zero_add] at hxy_ne hxy ⊢
-    simp only [binaryKLfromUniform, zero_div, Real.binEntropy_zero, sub_zero]
-    simp only [jensenGap, zero_mul, Real.log_zero, zero_add]
-    -- Need: y * log y / 2 - (y/2) * log(y/2) = (y/2) * log 2
-    have hy_pos : 0 < y := hxy
-    have hlog_half : Real.log (y / 2) = Real.log y - Real.log 2 := by
-      rw [Real.log_div (ne_of_gt hy_pos) (by norm_num : (2 : ℝ) ≠ 0)]
-    rw [hlog_half]
-    ring
-  by_cases hy_zero : y = 0
-  · -- Case y = 0: jensenGap(x, 0) = (x/2) * binaryKL(1) = (x/2) * log 2
-    subst hy_zero
-    simp only [add_zero] at hxy_ne hxy ⊢
-    simp only [binaryKLfromUniform, div_self hxy_ne, Real.binEntropy_one, sub_zero]
-    simp only [jensenGap, mul_zero, Real.log_zero, add_zero]
-    -- Need: x * log x / 2 - (x/2) * log(x/2) = (x/2) * log 2
-    have hx_pos : 0 < x := hxy
-    have hlog_half : Real.log (x / 2) = Real.log x - Real.log 2 := by
-      rw [Real.log_div (ne_of_gt hx_pos) (by norm_num : (2 : ℝ) ≠ 0)]
-    rw [hlog_half]
-    ring
-  -- General case: x > 0 and y > 0
-  have hx_pos : 0 < x := hx.lt_of_ne' hx_zero
-  have hy_pos : 0 < y := hy.lt_of_ne' hy_zero
-  have hyd_eq : y / (x + y) = 1 - x / (x + y) := by field_simp; ring
-  -- Expand using binEntropy definition
-  simp only [binaryKLfromUniform, jensenGap]
-  rw [Real.binEntropy_eq_negMulLog_add_negMulLog_one_sub]
-  simp only [Real.negMulLog]
-  rw [← hyd_eq]
-  have hlog_half : Real.log ((x + y) / 2) = Real.log (x + y) - Real.log 2 := by
-    rw [Real.log_div (ne_of_gt hxy) (by norm_num : (2 : ℝ) ≠ 0)]
-  have hlog_x : Real.log (x / (x + y)) = Real.log x - Real.log (x + y) := by
-    rw [Real.log_div (ne_of_gt hx_pos) hxy_ne]
-  have hlog_y : Real.log (y / (x + y)) = Real.log y - Real.log (x + y) := by
-    rw [Real.log_div (ne_of_gt hy_pos) hxy_ne]
-  rw [hlog_half, hlog_x, hlog_y]
-  field_simp
-  ring
-
-/-- Jensen gap vanishes when both arguments are equal -/
-@[simp]
-theorem jensenGap_self (x : ℝ) : jensenGap x x = 0 := by
-  unfold jensenGap
-  have h1 : (x + x) / 2 = x := by ring
-  have h2 : (x * log x + x * log x) / 2 = x * log x := by ring
-  simp only [h1, h2, sub_self]
-
-/-- Key: Joint convexity of the Jensen gap function. -/
-theorem jensenGap_joint_convex (x₀ x₁ y₀ y₁ : ℝ)
-    (hx₀ : 0 ≤ x₀) (hx₁ : 0 ≤ x₁) (hy₀ : 0 ≤ y₀) (hy₁ : 0 ≤ y₁) :
-    2 * jensenGap ((x₀ + x₁) / 2) ((y₀ + y₁) / 2) ≤ jensenGap x₀ y₀ + jensenGap x₁ y₁ := by
-
-  set s₀ := x₀ + y₀ with hs₀
-  set s₁ := x₁ + y₁ with hs₁
-  set xbar := (x₀ + x₁) / 2 with hxbar
-  set ybar := (y₀ + y₁) / 2 with hybar
-  set sbar := xbar + ybar with hsbar
-
-  have hsbar_eq : sbar = (s₀ + s₁) / 2 := by simp only [hsbar, hxbar, hybar, hs₀, hs₁]; ring
-
-  -- Handle degenerate cases
-  by_cases hs₀_zero : s₀ = 0
-  · -- If s₀ = 0, then x₀ = y₀ = 0, so jensenGap(x₀, y₀) = 0
-    have hx₀_zero : x₀ = 0 := by linarith
-    have hy₀_zero : y₀ = 0 := by linarith
-    rw [hx₀_zero, hy₀_zero]
-    simp only [zero_add, jensenGap_self]
-    -- Unfold xbar, ybar to get explicit expressions
-    simp only [hxbar, hybar, hx₀_zero, hy₀_zero, zero_add]
-    -- Now goal is: 2 * jensenGap (x₁/2) (y₁/2) ≤ jensenGap x₁ y₁
-    by_cases hs₁_zero : s₁ = 0
-    · have hx₁_zero : x₁ = 0 := by linarith
-      have hy₁_zero : y₁ = 0 := by linarith
-      simp [hx₁_zero, hy₁_zero, jensenGap_self]
-    · -- s₁ > 0, so we can use the KL representation
-      have hs₁_pos : 0 < s₁ := by
-        rcases hx₁.lt_or_eq with h | h
-        · linarith
-        · -- h : 0 = x₁, so x₁ = 0
-          have hx₁_eq : x₁ = 0 := h.symm
-          -- s₁ = x₁ + y₁ = 0 + y₁ = y₁, but s₁ ≠ 0, so y₁ > 0
-          simp only [hs₁, hx₁_eq, zero_add] at hs₁_zero
-          linarith [hy₁.lt_of_ne' hs₁_zero]
-      -- jensenGap(x₁/2, y₁/2) = (s₁/4) * D(p₁) and jensenGap(x₁, y₁) = (s₁/2) * D(p₁)
-      have hsum_half_pos : 0 < x₁/2 + y₁/2 := by linarith
-      rw [jensenGap_eq_scaled_binaryKL (by linarith : 0 ≤ x₁/2) (by linarith : 0 ≤ y₁/2) hsum_half_pos]
-      rw [jensenGap_eq_scaled_binaryKL hx₁ hy₁ hs₁_pos]
-      -- Goal: 2 * ((x₁/2 + y₁/2) / 2 * D(...)) ≤ (x₁ + y₁) / 2 * D(x₁/(x₁+y₁))
-      -- Note: (x₁/2 + y₁/2) / 2 = (x₁ + y₁) / 4 and (x₁/2)/(x₁/2 + y₁/2) = x₁/(x₁+y₁)
-      have hp₁_eq' : x₁ / 2 / (x₁ / 2 + y₁ / 2) = x₁ / (x₁ + y₁) := by field_simp
-      rw [hp₁_eq']
-      -- Now: 2 * ((x₁/2 + y₁/2) / 2 * D(x₁/(x₁+y₁))) ≤ (x₁+y₁) / 2 * D(x₁/(x₁+y₁))
-      have hsimp : (x₁ / 2 + y₁ / 2) / 2 = (x₁ + y₁) / 4 := by ring
-      rw [hsimp]
-      -- Now: 2 * ((x₁+y₁)/4 * D(...)) ≤ (x₁+y₁)/2 * D(...)
-      linarith
-
-  by_cases hs₁_zero : s₁ = 0
-  · -- If s₁ = 0, then x₁ = y₁ = 0, so jensenGap(x₁, y₁) = 0
-    have hx₁_zero : x₁ = 0 := by linarith
-    have hy₁_zero : y₁ = 0 := by linarith
-    rw [hx₁_zero, hy₁_zero]
-    simp only [add_zero, jensenGap_self]
-    -- Unfold xbar, ybar to get explicit expressions
-    simp only [hxbar, hybar, hx₁_zero, hy₁_zero, add_zero]
-    -- Now goal is: 2 * jensenGap (x₀/2) (y₀/2) ≤ jensenGap x₀ y₀
-    have hs₀_pos : 0 < s₀ := by
-      rcases hx₀.lt_or_eq with h | h
-      · linarith
-      · -- h : 0 = x₀, so x₀ = 0
-        have hx₀_eq : x₀ = 0 := h.symm
-        simp only [hs₀, hx₀_eq, zero_add] at hs₀_zero
-        linarith [hy₀.lt_of_ne' hs₀_zero]
-    have hsum_half_pos₀ : 0 < x₀/2 + y₀/2 := by linarith
-    rw [jensenGap_eq_scaled_binaryKL (by linarith : 0 ≤ x₀/2) (by linarith : 0 ≤ y₀/2) hsum_half_pos₀]
-    rw [jensenGap_eq_scaled_binaryKL hx₀ hy₀ hs₀_pos]
-    -- Similar simplification as the s₁ case
-    have hp₀_eq' : x₀ / 2 / (x₀ / 2 + y₀ / 2) = x₀ / (x₀ + y₀) := by field_simp
-    rw [hp₀_eq']
-    have hsimp₀ : (x₀ / 2 + y₀ / 2) / 2 = (x₀ + y₀) / 4 := by ring
-    rw [hsimp₀]
-    linarith
-
-  -- Main case: s₀ > 0 and s₁ > 0
-  have hs₀_pos : 0 < s₀ := by
-    rcases hx₀.lt_or_eq with h | h
-    · linarith
-    · have hx₀_eq : x₀ = 0 := h.symm
-      simp only [hs₀, hx₀_eq, zero_add] at hs₀_zero
-      linarith [hy₀.lt_of_ne' hs₀_zero]
-  have hs₁_pos : 0 < s₁ := by
-    rcases hx₁.lt_or_eq with h | h
-    · linarith
-    · have hx₁_eq : x₁ = 0 := h.symm
-      simp only [hs₁, hx₁_eq, zero_add] at hs₁_zero
-      linarith [hy₁.lt_of_ne' hs₁_zero]
-  have hsbar_pos : 0 < sbar := by rw [hsbar_eq]; linarith
-
-  -- Define the probabilities
-  set p₀ := x₀ / s₀ with hp₀_def
-  set p₁ := x₁ / s₁ with hp₁_def
-  set pbar := xbar / sbar with hpbar_def
-
-  -- p₀, p₁ ∈ [0, 1]
-  have hp₀_mem : p₀ ∈ Set.Icc (0 : ℝ) 1 := by
-    constructor
-    · exact div_nonneg hx₀ (le_of_lt hs₀_pos)
-    · rw [div_le_one hs₀_pos]; linarith
-  have hp₁_mem : p₁ ∈ Set.Icc (0 : ℝ) 1 := by
-    constructor
-    · exact div_nonneg hx₁ (le_of_lt hs₁_pos)
-    · rw [div_le_one hs₁_pos]; linarith
-
-  -- Define the weights
-  set w₀ := s₀ / (s₀ + s₁) with hw₀_def
-  set w₁ := s₁ / (s₀ + s₁) with hw₁_def
-
-  have hw₀_nonneg : 0 ≤ w₀ := div_nonneg (le_of_lt hs₀_pos) (by linarith)
-  have hw₁_nonneg : 0 ≤ w₁ := div_nonneg (le_of_lt hs₁_pos) (by linarith)
-  have hs_sum_ne : s₀ + s₁ ≠ 0 := by linarith
-  have hw_sum : w₀ + w₁ = 1 := by
-    simp only [hw₀_def, hw₁_def]
-    rw [← add_div, div_self hs_sum_ne]
-
-  -- Key: pbar is a weighted average of p₀ and p₁
-  have hs₀_ne : s₀ ≠ 0 := ne_of_gt hs₀_pos
-  have hs₁_ne : s₁ ≠ 0 := ne_of_gt hs₁_pos
-  have hpbar_eq : pbar = w₀ * p₀ + w₁ * p₁ := by
-    have hLHS : pbar = (x₀ + x₁) / (s₀ + s₁) := by
-      simp only [hpbar_def, hxbar, hsbar_eq]
-      field_simp [hs_sum_ne]
-    have hw₀p₀ : w₀ * p₀ = x₀ / (s₀ + s₁) := by
-      simp only [hw₀_def, hp₀_def]
-      field_simp [hs₀_ne, hs_sum_ne]
-    have hw₁p₁ : w₁ * p₁ = x₁ / (s₀ + s₁) := by
-      simp only [hw₁_def, hp₁_def]
-      field_simp [hs₁_ne, hs_sum_ne]
-    rw [hLHS, hw₀p₀, hw₁p₁, ← add_div]
-
-  -- Express jensenGaps using binaryKLfromUniform
-  have hxbar_nonneg : 0 ≤ xbar := by simp only [hxbar]; linarith
-  have hybar_nonneg : 0 ≤ ybar := by simp only [hybar]; linarith
-
-  rw [jensenGap_eq_scaled_binaryKL hxbar_nonneg hybar_nonneg hsbar_pos]
-  rw [jensenGap_eq_scaled_binaryKL hx₀ hy₀ hs₀_pos]
-  rw [jensenGap_eq_scaled_binaryKL hx₁ hy₁ hs₁_pos]
-
-  -- Simplify sbar and pbar
-  have hsbar_simp : sbar = (s₀ + s₁) / 2 := hsbar_eq
-  have hpbar_simp : xbar / sbar = pbar := by
-    simp only [hpbar_def, hxbar, hsbar_eq, hs₀, hs₁]
-
-  -- First replace xbar + ybar with sbar, then apply simplifications
-  simp only [← hsbar]
-  rw [hpbar_simp, hsbar_simp]
-
-  -- Now we have: 2 * ((s₀+s₁)/2 / 2) * D(pbar) ≤ (s₀/2) * D(p₀) + (s₁/2) * D(p₁)
-  -- Which simplifies to: ((s₀+s₁)/2) * D(pbar) ≤ (s₀/2) * D(p₀) + (s₁/2) * D(p₁)
-
-  have hLHS_simp : 2 * ((s₀ + s₁) / 2 / 2 * binaryKLfromUniform pbar) =
-                   ((s₀ + s₁) / 2) * binaryKLfromUniform pbar := by ring
-  rw [hLHS_simp]
-
-  -- Apply convexity: D(pbar) ≤ w₀ * D(p₀) + w₁ * D(p₁)
-  have hconv := binaryKLfromUniform_weighted_le hp₀_mem hp₁_mem hw₀_nonneg hw₁_nonneg hw_sum
-  rw [← hpbar_eq] at hconv
-
-  -- Multiply by ((s₀ + s₁) / 2)
-  have hscale : ((s₀ + s₁) / 2) * binaryKLfromUniform pbar ≤
-                ((s₀ + s₁) / 2) * (w₀ * binaryKLfromUniform p₀ + w₁ * binaryKLfromUniform p₁) := by
-    apply mul_le_mul_of_nonneg_left hconv
-    linarith
-
-  calc ((s₀ + s₁) / 2) * binaryKLfromUniform pbar
-      ≤ ((s₀ + s₁) / 2) * (w₀ * binaryKLfromUniform p₀ + w₁ * binaryKLfromUniform p₁) := hscale
-    _ = ((s₀ + s₁) / 2) * w₀ * binaryKLfromUniform p₀ +
-        ((s₀ + s₁) / 2) * w₁ * binaryKLfromUniform p₁ := by ring
-    _ = (s₀ / 2) * binaryKLfromUniform p₀ + (s₁ / 2) * binaryKLfromUniform p₁ := by
-        simp only [hw₀_def, hw₁_def]; field_simp
-
-/-- Two-point entropy is jointly convex: the midpoint inequality.
-
-This is the key lemma for Han's inequality. For nonnegative a₀, a₁, b₀, b₁:
-  twoPointEnt((a₀+a₁)/2, (b₀+b₁)/2) ≤ (twoPointEnt(a₀,b₀) + twoPointEnt(a₁,b₁))/2 -/
-theorem twoPointEnt_midpoint_convex (a₀ a₁ b₀ b₁ : ℝ)
-    (ha₀ : 0 ≤ a₀) (ha₁ : 0 ≤ a₁) (hb₀ : 0 ≤ b₀) (hb₁ : 0 ≤ b₁) :
-    twoPointEnt ((a₀ + a₁) / 2) ((b₀ + b₁) / 2) ≤
-    (twoPointEnt a₀ b₀ + twoPointEnt a₁ b₁) / 2 := by
-  -- Rewrite in terms of Jensen gap
-  rw [twoPointEnt_eq_jensenGap, twoPointEnt_eq_jensenGap, twoPointEnt_eq_jensenGap]
-  -- Apply the joint convexity of Jensen gap
-  have h := jensenGap_joint_convex a₀ a₁ b₀ b₁ ha₀ ha₁ hb₀ hb₁
-  -- h: 2 * jensenGap ((a₀+a₁)/2) ((b₀+b₁)/2) ≤ jensenGap a₀ b₀ + jensenGap a₁ b₁
-  linarith
-
-/-- Sum of two-point entropies is nonnegative -/
-theorem sum_twoPointEntropyCoord_nonneg {n : ℕ} (h : (Fin n → Bool) → ℝ)
+/-- The conditional entropy of `h²` given all coordinates but `j` is the two-point entropy. -/
+lemma condEntExceptCoord_sq_eq_twoPointEntropyCoord (j : Fin n) (h : (Fin n → Bool) → ℝ)
     (ε : Fin n → Bool) :
-    0 ≤ ∑ j : Fin n, twoPointEntropyCoord j h ε := by
-  apply Finset.sum_nonneg
-  intro j _
-  exact twoPointEntropyCoord_nonneg j h ε
+    SubAddEnt.condEntExceptCoord (μs := fun _ ↦ boolUniform) j (fun ε ↦ h ε ^ 2) ε =
+      twoPointEntropyCoord j h ε := by
+  simp only [SubAddEnt.condEntExceptCoord, condExpExceptCoord, integral_boolUniform,
+    twoPointEntropyCoord, flipCoord]
+  cases hε : ε j
+  · have h1 : update ε j false = ε := by rw [← hε, update_eq_self]
+    rw [h1, Bool.not_false]
+    ring_nf
+  · have h1 : update ε j true = ε := by rw [← hε, update_eq_self]
+    rw [h1, Bool.not_true]
 
-/-!
-### Helper Lemmas for Han's Inequality
-
-These lemmas establish the key relationships for the inductive step.
--/
-
-/-- twoPointEntropyLast of h² equals twoPointEnt of the squared values -/
-theorem twoPointEntropyLast_hsq_eq {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ) (ε' : Fin n → Bool) :
-    twoPointEntropyLast (fun ε => (h ε)^2) ε' =
-    twoPointEnt ((h (Fin.snoc ε' true))^2) ((h (Fin.snoc ε' false))^2) := by
-  simp only [twoPointEntropyLast, twoPointEnt]
-
-/-- twoPointEntropyCoord at last coordinate equals twoPointEntropyLast -/
-theorem twoPointEntropyCoord_last_eq_twoPointEntropyLast {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ)
-    (ε' : Fin n → Bool) (b : Bool) :
-    twoPointEntropyCoord (Fin.last n) h (Fin.snoc ε' b) =
-    twoPointEnt ((h (Fin.snoc ε' true))^2) ((h (Fin.snoc ε' false))^2) := by
-  simp only [twoPointEntropyCoord, twoPointEnt]
-  cases b <;> simp only [flipCoord_last_snoc, Bool.not_true, Bool.not_false]
-  -- Both goals are equal by commutativity of + (order of true/false swapped)
-  all_goals simp only [add_comm (h (Fin.snoc ε' true) ^ 2 * _), add_comm (h (Fin.snoc ε' true) ^ 2)]
-
-/-- Average of twoPointEntropyCoord at last coordinate over b equals E[twoPointEntropyLast (h²)] -/
-theorem avg_twoPointEntropyCoord_last {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ) (ε' : Fin n → Bool) :
-    (twoPointEntropyCoord (Fin.last n) h (Fin.snoc ε' true) +
-     twoPointEntropyCoord (Fin.last n) h (Fin.snoc ε' false)) / 2 =
-    twoPointEntropyLast (fun ε => (h ε)^2) ε' := by
-  rw [twoPointEntropyCoord_last_eq_twoPointEntropyLast h ε' true]
-  rw [twoPointEntropyCoord_last_eq_twoPointEntropyLast h ε' false]
-  rw [twoPointEntropyLast_hsq_eq]
-  ring
-
-/-- Slice function: h restricted to last coordinate being true -/
-def sliceTrue {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ) : (Fin n → Bool) → ℝ :=
-  fun ε' => h (Fin.snoc ε' true)
-
-/-- Slice function: h restricted to last coordinate being false -/
-def sliceFalse {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ) : (Fin n → Bool) → ℝ :=
-  fun ε' => h (Fin.snoc ε' false)
-
-/-- twoPointEntropyCoord at castSucc j equals the coord for the slice -/
-theorem twoPointEntropyCoord_castSucc_eq_slice {n : ℕ} (j : Fin n)
-    (h : (Fin (n+1) → Bool) → ℝ) (ε' : Fin n → Bool) (b : Bool) :
-    twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' b) =
-    twoPointEntropyCoord j (if b then sliceTrue h else sliceFalse h) ε' := by
-  cases b
-  · -- false case: if false = true then ... else ... becomes sliceFalse
-    simp only [twoPointEntropyCoord, flipCoord_castSucc_snoc, sliceFalse,
-               Bool.false_eq_true, ite_false]
-  · -- true case: if true = true then ... else ... becomes sliceTrue
-    simp only [twoPointEntropyCoord, flipCoord_castSucc_snoc, sliceTrue, ite_true]
-
-/-- Average of twoPointEntropyCoord at castSucc j equals average of slices -/
-theorem avg_twoPointEntropyCoord_castSucc {n : ℕ} (j : Fin n)
-    (h : (Fin (n+1) → Bool) → ℝ) (ε' : Fin n → Bool) :
-    (twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' true) +
-     twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' false)) / 2 =
-    (twoPointEntropyCoord j (sliceTrue h) ε' + twoPointEntropyCoord j (sliceFalse h) ε') / 2 := by
-  rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' true]
-  rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' false]
-  simp only [ite_true, Bool.false_eq_true, ite_false]
-
-/-- The conditional mean sqrt function: g such that g² = condMeanLast h² -/
-def condMeanSqrt {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ) : (Fin n → Bool) → ℝ :=
-  fun ε' => sqrt ((h (Fin.snoc ε' true))^2 + (h (Fin.snoc ε' false))^2) / sqrt 2
-
-/-- condMeanSqrt is always nonnegative (it's a ratio of square roots) -/
-theorem condMeanSqrt_nonneg {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ)
-    (ε' : Fin n → Bool) : 0 ≤ condMeanSqrt h ε' := by
-  unfold condMeanSqrt
-  apply div_nonneg (sqrt_nonneg _) (sqrt_nonneg _)
-
-/-- Key: condMeanLast h² = (condMeanSqrt h)² -/
-theorem condMeanLast_eq_condMeanSqrt_sq {n : ℕ} (h : (Fin (n+1) → Bool) → ℝ) (ε' : Fin n → Bool) :
-    condMeanLast (fun ε => (h ε)^2) ε' = (condMeanSqrt h ε')^2 := by
-  unfold condMeanLast condMeanSqrt
-  simp only [div_pow, sq_sqrt (by positivity : (0:ℝ) ≤ 2)]
-  have hsum_nn : 0 ≤ (h (Fin.snoc ε' true))^2 + (h (Fin.snoc ε' false))^2 := by positivity
-  rw [sq_sqrt hsum_nn]
-
-/-- Joint convexity bound for twoPointEntropyCoord applied to condMeanSqrt -/
-theorem twoPointEntropyCoord_condMeanSqrt_le {n : ℕ} (j : Fin n)
-    (h : (Fin (n+1) → Bool) → ℝ) (ε' : Fin n → Bool) :
-    twoPointEntropyCoord j (condMeanSqrt h) ε' ≤
-    (twoPointEntropyCoord j (sliceTrue h) ε' + twoPointEntropyCoord j (sliceFalse h) ε') / 2 := by
-  -- Use joint convexity of twoPointEnt
-  unfold twoPointEntropyCoord
-  set a₀ := (sliceTrue h ε')^2 with ha₀
-  set a₁ := (sliceTrue h (flipCoord j ε'))^2 with ha₁
-  set b₀ := (sliceFalse h ε')^2 with hb₀
-  set b₁ := (sliceFalse h (flipCoord j ε'))^2 with hb₁
-  have ha₀_nn : 0 ≤ a₀ := sq_nonneg _
-  have ha₁_nn : 0 ≤ a₁ := sq_nonneg _
-  have hb₀_nn : 0 ≤ b₀ := sq_nonneg _
-  have hb₁_nn : 0 ≤ b₁ := sq_nonneg _
-  -- condMeanSqrt h ε' squared equals (a₀ + b₀)/2
-  have hcond_sq : (condMeanSqrt h ε')^2 = (a₀ + b₀) / 2 := by
-    unfold condMeanSqrt
-    simp only [div_pow, sq_sqrt (by positivity : (0:ℝ) ≤ 2)]
-    have hsum_nn : 0 ≤ (h (Fin.snoc ε' true))^2 + (h (Fin.snoc ε' false))^2 := by positivity
-    rw [sq_sqrt hsum_nn]
-    simp only [sliceTrue, sliceFalse] at ha₀ hb₀
-    rw [← ha₀, ← hb₀]
-  have hcond_flip_sq : (condMeanSqrt h (flipCoord j ε'))^2 = (a₁ + b₁) / 2 := by
-    unfold condMeanSqrt
-    simp only [div_pow, sq_sqrt (by positivity : (0:ℝ) ≤ 2)]
-    have hsum_nn : 0 ≤ (h (Fin.snoc (flipCoord j ε') true))^2 +
-                       (h (Fin.snoc (flipCoord j ε') false))^2 := by positivity
-    rw [sq_sqrt hsum_nn]
-    simp only [sliceTrue, sliceFalse] at ha₁ hb₁
-    rw [← ha₁, ← hb₁]
-  rw [hcond_sq, hcond_flip_sq]
-  -- Now apply twoPointEnt_midpoint_convex
-  have h_conv := twoPointEnt_midpoint_convex a₀ b₀ a₁ b₁ ha₀_nn hb₀_nn ha₁_nn hb₁_nn
-  -- h_conv: twoPointEnt ((a₀+b₀)/2) ((a₁+b₁)/2) ≤ (twoPointEnt a₀ a₁ + twoPointEnt b₀ b₁) / 2
-  change twoPointEnt ((a₀ + b₀) / 2) ((a₁ + b₁) / 2) ≤
-    (twoPointEnt a₀ a₁ + twoPointEnt b₀ b₁) / 2
-  exact h_conv
-
-/-- Han's inequality for the hypercube: entropy is bounded by sum of conditional entropies.
-
-This is the key subadditivity result. For independent coordinates with product measure:
-  Ent(f) ≤ Σᵢ E[Ent^(i)(f)]
-
-For f = h² on the hypercube, Ent^(i)(f) = twoPointEntropyCoord i h.
-
-The proof uses the chain rule for entropy and the data processing inequality. -/
-theorem han_inequality {n : ℕ} (h : (Fin n → Bool) → ℝ) :
-    LogSobolev.entropy (bernoulliUniform n) (fun ε => (h ε)^2) ≤
-    ∑ j : Fin n, ∫ ε, twoPointEntropyCoord j h ε ∂(bernoulliUniform n) := by
-  -- Proof by induction on n
-  induction n with
-  | zero =>
-    -- For n = 0, both sides are 0
-    simp only [Finset.univ_eq_empty, Finset.sum_empty]
-    -- LHS: entropy of constant function = 0
-    have hconst : ∀ ε₁ ε₂ : Fin 0 → Bool, ε₁ = ε₂ := fun ε₁ ε₂ => by
-      ext i; exact Fin.elim0 i
-    have hval : ∃ c, ∀ ε, (h ε)^2 = c := ⟨(h default)^2, fun ε => by rw [hconst ε default]⟩
-    obtain ⟨c, hc⟩ := hval
-    simp only [hc]
-    exact le_of_eq (LogSobolev.entropy_const (bernoulliUniform 0) c)
-  | succ n ih =>
-    -- For n+1, use chain rule decomposition
-    -- Ent_{n+1}(h²) = E[twoPointEntropyLast (h²)] + Ent_n(condMeanLast (h²))
-
-    -- Define the squared function
-    set f := fun ε => (h ε)^2
-
-    -- Step 1: Apply chain rule
-    have hchain := entropy_chain_rule_succ f
-
-    -- Step 2: Relate first term to twoPointEntropyCoord at last
-    -- E[twoPointEntropyLast f] = E[twoPointEntropyCoord (last n) h]
-    have hfirst : ∫ ε', twoPointEntropyLast f ε' ∂(bernoulliUniform n) =
-        ∫ ε, twoPointEntropyCoord (Fin.last n) h ε ∂(bernoulliUniform (n+1)) := by
-      rw [bernoulli_integral_succ_split]
-      congr 1
-      ext ε'
-      rw [← avg_twoPointEntropyCoord_last h ε']
-
-    -- Step 3: Relate condMeanLast f to (condMeanSqrt h)²
-    have hcond_eq : condMeanLast f = fun ε' => (condMeanSqrt h ε')^2 := by
-      ext ε'
-      exact condMeanLast_eq_condMeanSqrt_sq h ε'
-
-    -- Step 4: Apply IH to condMeanSqrt h (no nonnegativity hypothesis needed)
-    have hih := ih (condMeanSqrt h)
-
-    -- Step 5: Use convexity bound
-    -- twoPointEntropyCoord j (condMeanSqrt h) ≤ (twoPointEntropyCoord j hT + ... hF)/2
-    have hconv_bound : ∀ j : Fin n,
-        ∫ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ∂(bernoulliUniform n) ≤
-        ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε ∂(bernoulliUniform (n+1)) := by
-      intro j
-      -- Pointwise bound from joint convexity
-      have hpw : ∀ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ≤
-          (twoPointEntropyCoord j (sliceTrue h) ε' +
-           twoPointEntropyCoord j (sliceFalse h) ε') / 2 :=
-        twoPointEntropyCoord_condMeanSqrt_le j h
-      -- Integrate
-      calc ∫ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ∂(bernoulliUniform n)
-          ≤ ∫ ε', (twoPointEntropyCoord j (sliceTrue h) ε' +
-                   twoPointEntropyCoord j (sliceFalse h) ε') / 2 ∂(bernoulliUniform n) := by
-            apply integral_mono_of_nonneg
-            · apply Eventually.of_forall; intro ε'
-              exact twoPointEntropyCoord_nonneg j (condMeanSqrt h) ε'
-            · exact Integrable.of_finite
-            · exact Eventually.of_forall hpw
-        _ = (∫ ε', twoPointEntropyCoord j (sliceTrue h) ε' ∂(bernoulliUniform n) +
-             ∫ ε', twoPointEntropyCoord j (sliceFalse h) ε' ∂(bernoulliUniform n)) / 2 := by
-            rw [integral_div, integral_add (Integrable.of_finite) (Integrable.of_finite)]
-        _ = ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε ∂(bernoulliUniform (n+1)) := by
-            rw [bernoulli_integral_succ_split]
-            -- Goal: (∫ sliceTrue + ∫ sliceFalse) / 2 = ∫ (castSucc true + castSucc false) / 2
-            -- First simplify LHS
-            have h_sliceTrue : ∫ ε', twoPointEntropyCoord j (sliceTrue h) ε' ∂(bernoulliUniform n) =
-                ∫ ε', twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' true) ∂(bernoulliUniform n) := by
-              apply integral_congr_ae
-              filter_upwards with ε'
-              rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' true]
-              simp only [ite_true]
-            have h_sliceFalse : ∫ ε', twoPointEntropyCoord j (sliceFalse h) ε' ∂(bernoulliUniform n) =
-                ∫ ε', twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' false) ∂(bernoulliUniform n) := by
-              apply integral_congr_ae
-              filter_upwards with ε'
-              rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' false]
-              simp only [Bool.false_eq_true, ↓reduceIte]
-            rw [h_sliceTrue, h_sliceFalse]
-            rw [← integral_add Integrable.of_finite Integrable.of_finite]
-            rw [integral_div]
-
-    -- Step 6: Sum over j < n
-    have hsum_bound : ∑ j : Fin n, ∫ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ∂(bernoulliUniform n) ≤
-        ∑ j : Fin n, ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε ∂(bernoulliUniform (n+1)) := by
-      apply Finset.sum_le_sum
-      intro j _
-      exact hconv_bound j
-
-    -- Step 7: Combine everything
-    calc LogSobolev.entropy (bernoulliUniform (n + 1)) f
-        = ∫ ε', twoPointEntropyLast f ε' ∂(bernoulliUniform n) +
-          LogSobolev.entropy (bernoulliUniform n) (condMeanLast f) := hchain
-      _ = ∫ ε, twoPointEntropyCoord (Fin.last n) h ε ∂(bernoulliUniform (n+1)) +
-          LogSobolev.entropy (bernoulliUniform n) (fun ε' => (condMeanSqrt h ε')^2) := by
-          rw [hfirst, hcond_eq]
-      _ ≤ ∫ ε, twoPointEntropyCoord (Fin.last n) h ε ∂(bernoulliUniform (n+1)) +
-          ∑ j : Fin n, ∫ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ∂(bernoulliUniform n) := by
-          exact add_le_add_right hih _
-      _ ≤ ∫ ε, twoPointEntropyCoord (Fin.last n) h ε ∂(bernoulliUniform (n+1)) +
-          ∑ j : Fin n, ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε ∂(bernoulliUniform (n+1)) := by
-          exact add_le_add_right hsum_bound _
-      _ = ∑ j : Fin (n+1), ∫ ε, twoPointEntropyCoord j h ε ∂(bernoulliUniform (n+1)) := by
-          -- Split sum over Fin (n+1) into castSucc terms plus last term
-          rw [Fin.sum_univ_castSucc]
-          ring
-
-/-- The main subadditivity bound combining Han's inequality with Rothaus -/
+/-- The main bound: subadditivity of entropy reduces `Ent(h²)` to two-point entropies, each of
+which is bounded by the Rothaus inequality. -/
 theorem entropy_le_half_gradient {n : ℕ} (h : (Fin n → Bool) → ℝ) :
     LogSobolev.entropy (bernoulliUniform n) (fun ε => (h ε)^2) ≤
     (1/2) * ∫ ε, gradientNormSq n h ε ∂(bernoulliUniform n) := by
   calc LogSobolev.entropy (bernoulliUniform n) (fun ε => (h ε)^2)
       ≤ ∑ j : Fin n, ∫ ε, twoPointEntropyCoord j h ε ∂(bernoulliUniform n) := by
-        exact han_inequality h
+        rw [bernoulliUniform_eq_pi]
+        refine (SubAddEnt.entropy_subadditive (μs := fun _ ↦ boolUniform) _
+          (measurable_of_finite _) (ae_of_all _ fun ε ↦ sq_nonneg (h ε)) Integrable.of_finite
+          Integrable.of_finite).trans_eq ?_
+        simp_rw [condEntExceptCoord_sq_eq_twoPointEntropyCoord]
     _ ≤ ∑ j : Fin n, ∫ ε, (h ε - h (flipCoord j ε))^2 / 2 ∂(bernoulliUniform n) := by
         apply Finset.sum_le_sum
         intro j _
