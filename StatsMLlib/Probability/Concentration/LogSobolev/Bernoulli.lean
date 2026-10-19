@@ -598,7 +598,8 @@ theorem rademacherSumProd_flip_eq_shifted {n : ℕ} [NeZero n] (j : Fin n)
           exact h2 i (Finset.mem_of_mem_erase hi) (Finset.ne_of_mem_erase hi)
       _ = -x j + (∑ i : Fin n, x i - x j) := by
           have hsum_erase : ∑ i ∈ Finset.univ.erase j, x i = ∑ i : Fin n, x i - x j := by
-            have hsplit := Finset.add_sum_erase Finset.univ (fun i : Fin n => x i) (Finset.mem_univ j)
+            have hsplit :=
+              Finset.add_sum_erase Finset.univ (fun i : Fin n => x i) (Finset.mem_univ j)
             linarith
           rw [hsum_erase]
       _ = (∑ i : Fin n, x i) - 2 * x j := by ring
@@ -619,7 +620,8 @@ theorem continuous_rademacherSumProd (n : ℕ) : Continuous (rademacherSumProd n
     exact continuous_apply i
   exact hsum.const_smul ((√n)⁻¹)
 
-/-- Key lemma: The bernoulliUniform measure pushes forward to rademacherProductMeasure via toRademacher. -/
+/-- Key lemma: The bernoulliUniform measure pushes forward to rademacherProductMeasure via
+toRademacher. -/
 theorem bernoulliUniform_map_toRademacher {n : ℕ} :
     (bernoulliUniform n).map toRademacher = rademacherProductMeasure n := by
   -- Both measures are probability measures supported on {±1}^n with equal weights
@@ -629,7 +631,8 @@ theorem bernoulliUniform_map_toRademacher {n : ℕ} :
   induction n with
   | zero =>
     -- For n = 0, both spaces are singletons
-    simp only [bernoulliUniform, rademacherProductMeasure, Measure.map_apply measurable_toRademacher hs]
+    simp only [bernoulliUniform, rademacherProductMeasure,
+      Measure.map_apply measurable_toRademacher hs]
     -- Simplify LHS: (1⁻¹ • count) = count since 1⁻¹ = 1 in ENNReal
     simp only [Finset.card_univ, Fintype.card_fun, Fintype.card_fin, Fintype.card_bool,
       pow_zero, Nat.cast_one, inv_one, one_smul]
@@ -677,7 +680,8 @@ theorem bernoulliUniform_map_toRademacher {n : ℕ} :
       unfold rademacherProductMeasure
       rw [Measure.pi_pi (fun _ => RademacherApprox.rademacherMeasure)]
       -- Each factor is rademacherMeasure {toRademacher ε i} = 1/2
-      have h_each : ∀ i : Fin (n+1), RademacherApprox.rademacherMeasure {toRademacher ε i} = 1/2 := by
+      have h_each :
+          ∀ i : Fin (n+1), RademacherApprox.rademacherMeasure {toRademacher ε i} = 1/2 := by
         intro i
         unfold toRademacher signValue RademacherApprox.rademacherMeasure
         simp only [Measure.coe_add, Measure.coe_smul, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
@@ -832,7 +836,8 @@ theorem gradient_eq_sum_shifted {n : ℕ} [NeZero n] {f : ℝ → ℝ} (hf : Con
   simp only [gradientNormSq]
   -- Step 2: Exchange integral and sum (integral of sum = sum of integrals for finite sums)
   rw [integral_finsetSum Finset.univ (fun j _ => Integrable.of_finite)]
-  -- Step 3: For each term, show the integrand is the same after using flip-to-shifted correspondence
+  -- Step 3: For each term, show the integrand is the same after using flip-to-shifted
+  -- correspondence
   congr 1
   ext j
   have hflip : ∀ ε, rademacherSumProd n (toRademacher (flipCoord j ε)) =
