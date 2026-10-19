@@ -64,9 +64,11 @@ instance stdGaussianE_isProbabilityMeasure : IsProbabilityMeasure (stdGaussianE 
   unfold stdGaussianE
   infer_instance
 
-/-- Transfer of integrals: integrating f over stdGaussianE equals integrating f ∘ e.symm over stdGaussianPi. -/
+/-- Transfer of integrals: integrating f over stdGaussianE equals integrating f ∘ e.symm over
+stdGaussianPi. -/
 lemma integral_stdGaussianE_eq (f : EuclideanSpace ℝ (Fin n) → ℝ) :
-    ∫ x, f x ∂(stdGaussianE n) = ∫ w, f ((EuclideanSpace.equiv (Fin n) ℝ).symm w) ∂(stdGaussianPi n) := by
+    ∫ x, f x ∂(stdGaussianE n) =
+        ∫ w, f ((EuclideanSpace.equiv (Fin n) ℝ).symm w) ∂(stdGaussianPi n) := by
   unfold stdGaussianE
   exact integral_map_equiv (EuclideanSpace.equiv (Fin n) ℝ).symm.toHomeomorph.toMeasurableEquiv f
 
@@ -303,7 +305,8 @@ lemma integrable_id_gaussianReal {v : NNReal} (hv : v ≠ 0) :
     have hconst : (0 : ℝ) < (Real.sqrt (2 * π * v))⁻¹ := by
       simp only [inv_pos, Real.sqrt_pos]
       exact mul_pos (mul_pos two_pos Real.pi_pos) hv_pos
-    have hpdf_eq : ∀ x, (gaussianPDF 0 v x).toReal = (Real.sqrt (2 * π * v))⁻¹ * exp (-(2 * (v : ℝ))⁻¹ * x ^ 2) := by
+    have hpdf_eq : ∀ x, (gaussianPDF 0 v x).toReal = (Real.sqrt (2 * π * v))⁻¹ *
+        exp (-(2 * (v : ℝ))⁻¹ * x ^ 2) := by
       intro x
       simp only [gaussianPDF, gaussianPDFReal, sub_zero]
       rw [ENNReal.toReal_ofReal]

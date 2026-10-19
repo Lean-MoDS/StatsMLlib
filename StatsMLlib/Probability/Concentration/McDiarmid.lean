@@ -154,16 +154,22 @@ variable {m : ℕ} {Ω : Type*} [MeasurableSpace Ω]
 -- Y_k(x_0, …, x_{k-1}) := ∫ f(x_0, …, x_{k-1}, X_k, …, X_{m-1}) dΩ
 -- A_k(x_0, …, x_{k-1}) := inf_x ∫ f(x_0, …, x_{k-1}, x, X_{k+1}, …, X_{m-1}) dΩ
 -- B_k(x_0, …, x_{k-1}) := sup_x ∫ f(x_0, …, x_{k-1}, x, X_{k+1}, …, X_{m-1}) dΩ
-noncomputable def expressionY (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ) (k : Fin m.succ) (Xk : Fin k → 𝓧) : ℝ :=
+noncomputable def expressionY (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ)
+    (k : Fin m.succ) (Xk : Fin k → 𝓧) : ℝ :=
   ∫ (x : Ω), (fun ω ↦ f' fun i ↦ if h : i.1 < k.1 then Xk ⟨i.1, h⟩ else X' i ω) x ∂μ
 
-noncomputable def expressionA (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ) (k: Fin m) (Xk : Fin k → 𝓧) :=
-  ⨅ (x : 𝓧), μ[fun ω ↦ f' (fun i ↦ if h : i.1 < k.1 then Xk ⟨i.1,h⟩ else if i.1 = k.1 then x else X' i ω)]
+noncomputable def expressionA (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ)
+    (k: Fin m) (Xk : Fin k → 𝓧) :=
+  ⨅ (x : 𝓧), μ[fun ω ↦ f' (fun i ↦
+    if h : i.1 < k.1 then Xk ⟨i.1,h⟩ else if i.1 = k.1 then x else X' i ω)]
 
-noncomputable def expressionB (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ) (k: Fin m) (Xk : Fin k → 𝓧) :=
-  ⨆ (x : 𝓧), μ[fun ω ↦ f' (fun i ↦ if h : i.1 < k.1 then Xk ⟨i.1,h⟩ else if i.1 = k.1 then x else X' i ω)]
+noncomputable def expressionB (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ)
+    (k: Fin m) (Xk : Fin k → 𝓧) :=
+  ⨆ (x : 𝓧), μ[fun ω ↦ f' (fun i ↦
+    if h : i.1 < k.1 then Xk ⟨i.1,h⟩ else if i.1 = k.1 then x else X' i ω)]
 
-noncomputable def expressionV (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ) (k : Fin m) (Xk : Fin k → 𝓧) :=
+noncomputable def expressionV (μ : Measure Ω) (X' : Fin m → Ω → 𝓧) (f' : (Fin m → 𝓧) → ℝ)
+    (k : Fin m) (Xk : Fin k → 𝓧) :=
   fun ω ↦ expressionY μ X' f' k.succ (Fin.snoc Xk (X' k ω)) - expressionY μ X' f' k.castSucc Xk
 
 variable {μ : Measure Ω} [IsProbabilityMeasure μ]
@@ -184,7 +190,8 @@ omit [IsProbabilityMeasure μ] in
 lemma Y_snoc_eq
   (k : Fin m) (Xk : Fin k → 𝓧) (x : 𝓧) :
   expressionY μ X' f' k.succ (Fin.snoc Xk x) =
-    μ[fun ω ↦ f' fun i ↦ if h : i.1 < k.1 then Xk ⟨i.1, h⟩ else if i.1 = k.1 then x else X' i ω] := by
+    μ[fun ω ↦ f' fun i ↦
+      if h : i.1 < k.1 then Xk ⟨i.1, h⟩ else if i.1 = k.1 then x else X' i ω] := by
   apply integral_congr_ae
   filter_upwards with ω
   apply congr rfl
@@ -215,15 +222,18 @@ lemma bound_f'
   (x₀ : 𝓧):
   ∀ (xi : Fin m → 𝓧), |f' xi| ≤ |f' (fun _ ↦ x₀)| + ∑ i : Fin m, c' i := by
   have h (k : ℕ) : (h' : k ≤ m) → ∀ xi : (Fin m → 𝓧), |f' xi| ≤
-    |f' (fun i ↦ if i.1 < k then x₀ else xi i)| + ∑ (i : Fin k), c' ⟨i.1, by linarith [i.2, h']⟩  := by
+    |f' (fun i ↦ if i.1 < k then x₀ else xi i)| +
+      ∑ (i : Fin k), c' ⟨i.1, by linarith [i.2, h']⟩ := by
     induction' k with k ih
     · simp only [zero_le, not_lt_zero, ↓reduceIte, Finset.univ_eq_empty, Finset.sum_empty,
       add_zero, le_refl, implies_true]
     · intro h' xi
       apply le_trans <| ih (by linarith [h']) xi
-      have : |f' (fun i ↦ if i.1 < k then x₀ else xi i)| - |f' fun i ↦ if i.1 < k + 1 then x₀ else xi i| ≤ c' ⟨k, h'⟩ := by
+      have : |f' (fun i ↦ if i.1 < k then x₀ else xi i)| -
+          |f' fun i ↦ if i.1 < k + 1 then x₀ else xi i| ≤ c' ⟨k, h'⟩ := by
         apply le_trans (abs_sub_abs_le_abs_sub _ _)
-        have : (fun i ↦ if i.1 < k + 1 then x₀ else xi i) = Function.update (fun i ↦ if i.1 < k then x₀ else xi i) ⟨k, by linarith [h']⟩ x₀ := by
+        have : (fun i ↦ if i.1 < k + 1 then x₀ else xi i) =
+            Function.update (fun i ↦ if i.1 < k then x₀ else xi i) ⟨k, by linarith [h']⟩ x₀ := by
           ext i
           if hik : i.1 < k then
             have : i.1 < k+1 := by linarith
@@ -247,7 +257,8 @@ lemma bound_f'
               rw [Function.update_of_ne this, ite_eq_right hik]
         rw [this]
         apply hfι
-      have : ∑ (i : Fin (k+1)), c' ⟨i.1, by linarith [i.2, h']⟩ = (∑ (i : Fin k), c' ⟨i.1, by linarith [i.2, h']⟩) + c' ⟨k, h'⟩ := by
+      have : ∑ (i : Fin (k+1)), c' ⟨i.1, by linarith [i.2, h']⟩ =
+          (∑ (i : Fin k), c' ⟨i.1, by linarith [i.2, h']⟩) + c' ⟨k, h'⟩ := by
         apply Fin.sum_univ_castSucc
       rw [this]
       linarith
@@ -259,7 +270,8 @@ lemma bound_f'
   rw [this] at h'
   exact h'
 
-lemma hAY (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
+lemma hAY
+  (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
   (x₀ : 𝓧) (k : Fin m) (Xk : Fin k → 𝓧) (x : 𝓧) :
   expressionA μ X' f' k Xk ≤ expressionY μ X' f' (Fin.succ k) (Fin.snoc Xk x) := by
   rw [Y_snoc_eq k Xk x]
@@ -272,9 +284,11 @@ lemma hAY (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (
   filter_upwards with _
   apply bound_f' hfι x₀
 
-lemma hBddAbove (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
+lemma hBddAbove
+  (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
   (x₀ : 𝓧) (k : Fin m) (Xk : Fin k → 𝓧) : BddAbove (Set.range fun x ↦
-  ∫ (a : Ω), (fun ω ↦ f' fun i ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i ω) a ∂μ):= by
+  ∫ (a : Ω), (fun ω ↦ f' fun i ↦
+    if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i ω) a ∂μ):= by
   use |f' (fun _ ↦ x₀)| + ∑ i : Fin m, c' i
   intro r ⟨x, heqr⟩
   rw [←heqr]
@@ -283,7 +297,8 @@ lemma hBddAbove (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x 
   filter_upwards with _
   apply bound_f' hfι x₀
 
-lemma hYB (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
+lemma hYB
+  (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
   (x₀ : 𝓧) (k : Fin m) (Xk : Fin k → 𝓧) (x : 𝓧) :
   expressionB μ X' f' k Xk ≥ expressionY μ X' f' (Fin.succ k) (Fin.snoc Xk x) := by
   rw [Y_snoc_eq k Xk x]
@@ -298,8 +313,10 @@ lemma hmeasurableY
   (k : Fin m.succ) : Measurable (expressionY μ X' f' k) := by
   apply stronglyMeasurable_iff_measurable.mp
   apply StronglyMeasurable.integral_prod_left
-  have : (Function.uncurry fun (x : Ω) (y : Fin k.1 → 𝓧) ↦ f' fun (i : Fin m) ↦ if h : i.1 < k.1 then y ⟨↑i, h⟩ else X' i x)
-    = f' ∘ (fun xy : (Ω × (Fin k.1 → 𝓧)) ↦ fun (i : Fin m) ↦ if h : i.1 < k.1 then xy.2 ⟨↑i, h⟩ else X' i xy.1) := rfl
+  have : (Function.uncurry fun (x : Ω) (y : Fin k.1 → 𝓧) ↦
+      f' fun (i : Fin m) ↦ if h : i.1 < k.1 then y ⟨↑i, h⟩ else X' i x)
+    = f' ∘ (fun xy : (Ω × (Fin k.1 → 𝓧)) ↦
+      fun (i : Fin m) ↦ if h : i.1 < k.1 then xy.2 ⟨↑i, h⟩ else X' i xy.1) := rfl
   rw [this]
   apply StronglyMeasurable.comp_measurable hf''
   apply Measurable.of_eval
@@ -315,7 +332,8 @@ lemma hmeasurableY
     · apply measurable_pi_apply
     · exact measurable_snd
   else
-    have : (fun (c : Ω × (Fin k.1 → 𝓧)) ↦ if h : i.1 < k.1 then c.2 ⟨↑i, h⟩ else X' i c.1) = (X' i) ∘ Prod.fst := by
+    have : (fun (c : Ω × (Fin k.1 → 𝓧)) ↦ if h : i.1 < k.1 then c.2 ⟨↑i, h⟩ else X' i c.1) =
+        (X' i) ∘ Prod.fst := by
       ext c
       rw [dite_eq_right h]
       simp
@@ -324,7 +342,8 @@ lemma hmeasurableY
     · exact hX'' i
     · exact measurable_fst
 
-lemma hYbdd (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
+lemma hYbdd
+  (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
   (x₀ : 𝓧) (k : Fin m.succ) (Xk : Fin k → 𝓧) :
   |expressionY μ X' f' k Xk| ≤ |f' (fun _ ↦ x₀)| + ∑ i : Fin m, c' i := by
   apply abs_expectation_le_of_abs_le_const
@@ -339,14 +358,17 @@ lemma hintegrablelefts
   (hf'' : StronglyMeasurable f')
   {t'' : ℝ} (ht'' : t'' ≥ 0) (E : ℝ)
   (k : ℕ) (h : k ≤ m):
-  Integrable (fun x ↦ Real.exp (t'' * ((expressionY μ X' f' ⟨k, Nat.lt_add_one_of_le h⟩ fun i ↦ X' (Fin.castLE h i) x) - E))) μ := by
+  Integrable (fun x ↦
+    Real.exp (t'' * ((expressionY μ X' f' ⟨k, Nat.lt_add_one_of_le h⟩
+      fun i ↦ X' (Fin.castLE h i) x) - E))) μ := by
   constructor
   · apply Measurable.aestronglyMeasurable
     apply Measurable.exp
     apply Measurable.const_mul
     apply Measurable.sub_const _ E
     have : (fun x ↦ expressionY μ X' f' ⟨k, Nat.lt_add_one_of_le h⟩ fun i ↦ X' (Fin.castLE h i) x)
-      = expressionY μ X' f' ⟨k, Nat.lt_add_one_of_le h⟩ ∘ fun x ↦ fun i ↦ X' (Fin.castLE h i) x := rfl
+      = expressionY μ X' f' ⟨k, Nat.lt_add_one_of_le h⟩ ∘
+        fun x ↦ fun i ↦ X' (Fin.castLE h i) x := rfl
     rw [this]
     apply (hmeasurableY hX'' hf'' ⟨k, Nat.lt_add_one_of_le h⟩).comp
     apply Measurable.of_eval
@@ -369,7 +391,8 @@ lemma hintegrableAB
   (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
   (hf'' : StronglyMeasurable f')
   (k : Fin m) (Xk : Fin k → 𝓧) (x : 𝓧) :
-  Integrable (fun a ↦ f' fun i ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i a) μ := by
+  Integrable (fun a ↦ f' fun i ↦
+    if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i a) μ := by
   let x₀ : 𝓧 := (Classical.inhabited_of_nonempty hnonempty𝓧).default
   constructor
   · apply @AEStronglyMeasurable.comp_aemeasurable (Fin m → 𝓧) ℝ _ f' Ω
@@ -378,20 +401,23 @@ lemma hintegrableAB
     apply measurable_pi_iff.mpr
     intro i
     if h₀ : i.1 < k.1 then
-      have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) = fun _ ↦ Xk ⟨i.1, h₀⟩ := by
+      have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) =
+          fun _ ↦ Xk ⟨i.1, h₀⟩ := by
         ext x
         rw [dite_eq_left h₀]
       rw [this]
       exact measurable_const
     else
       if h₁ : i.1 = k.1 then
-        have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) = fun _ ↦ x := by
+        have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) =
+            fun _ ↦ x := by
           ext x
           rw [dite_eq_right h₀, ite_eq_left h₁]
         rw [this]
         exact measurable_const
       else
-        have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) = fun x_1 ↦ X' i x_1 := by
+        have : (fun x_1 ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x else X' i x_1) =
+            fun x_1 ↦ X' i x_1 := by
           ext x
           rw [dite_eq_right h₀, ite_eq_right h₁]
         rw [this]
@@ -413,13 +439,16 @@ lemma hAB
   apply (ciSup_le_iff (hBddAbove hfι x₀ k Xk)).mpr
   intro x₂
   calc
-    _ ≤ ∫ (ω : Ω), (f' fun i ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₁ else X' i ω) + c' k ∂μ := by
+    _ ≤ ∫ (ω : Ω), (f' fun i ↦
+        if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₁ else X' i ω) + c' k ∂μ := by
       apply integral_mono
       exact hintegrableAB hX'' hfι hf'' k Xk x₂
       exact integrable_add_const_iff.mpr (hintegrableAB hX'' hfι hf''  k Xk x₁)
       intro ω
-      have : (fun i : Fin m ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₁ else X' i ω)
-        = Function.update (fun i : Fin m ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₂ else X' i ω) k x₁ := by
+      have : (fun i : Fin m ↦
+          if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₁ else X' i ω)
+        = Function.update (fun i : Fin m ↦
+          if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₂ else X' i ω) k x₁ := by
           ext i
           if h : i.1 < k.1 then
             have : i ≠ k := Fin.ne_of_lt h
@@ -438,8 +467,10 @@ lemma hAB
       apply tsub_le_iff_left.mp
       apply le_of_max_le_left
       apply hfι
-    _ = (∫ (ω : Ω), f' fun i ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₁ else X' i ω ∂μ)
-        + (∫ (_ : Ω), c' k ∂μ) := integral_add (hintegrableAB hX'' hfι hf'' k Xk x₁) (integrable_const (c' k))
+    _ = (∫ (ω : Ω), f' fun i ↦
+          if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if i.1 = k.1 then x₁ else X' i ω ∂μ)
+        + (∫ (_ : Ω), c' k ∂μ) :=
+          integral_add (hintegrableAB hX'' hfι hf'' k Xk x₁) (integrable_const (c' k))
     _ = _ := add_left_cancel_iff.mpr (expectation_const (c' k))
 
 -- we use independency for the martingale property
@@ -451,7 +482,8 @@ lemma hmartingale
   (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
   (hf'' : StronglyMeasurable f')
   (k : Fin m) (Xk : Fin k → 𝓧) :
-  ∫ (ω : Ω), expressionY μ X' f' k.succ (Fin.snoc Xk (X' k ω)) ∂μ = expressionY μ X' f' k.castSucc Xk := by
+  ∫ (ω : Ω), expressionY μ X' f' k.succ (Fin.snoc Xk (X' k ω)) ∂μ =
+    expressionY μ X' f' k.castSucc Xk := by
   let S : Finset (Fin m) := {i : Fin m | i.1 > k.1}
   let T : Finset (Fin m) := {k}
   have hST : Disjoint T S := by
@@ -530,7 +562,10 @@ lemma hmartingale
     apply measurable_pi_iff.mpr
     intro i
     if h : i < k then
-      have : (fun x : (T → 𝓧) × (S → 𝓧) ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) = fun _ ↦ Xk ⟨i.1, h⟩ := by
+      have : (fun x : (T → 𝓧) × (S → 𝓧) ↦
+            if h : i.1 < k.1 then Xk ⟨↑i, h⟩
+            else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) =
+            fun _ ↦ Xk ⟨i.1, h⟩ := by
         simp only [Fin.val_fin_lt]
         ext x
         rw [dite_eq_left h]
@@ -538,14 +573,20 @@ lemma hmartingale
       exact measurable_const
     else
       if h' : i.1 = k.1 then
-        have : (fun x : (T → 𝓧) × (S → 𝓧) ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) = fun x ↦ x.1 elT := by
+        have : (fun x : (T → 𝓧) × (S → 𝓧) ↦
+              if h : i.1 < k.1 then Xk ⟨↑i, h⟩
+              else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) =
+              fun x ↦ x.1 elT := by
           simp only [Fin.val_fin_lt]
           ext x
           rw [dite_eq_right h, dite_eq_left h']
         rw [this]
         exact Measurable.eval measurable_fst
       else
-        have : (fun x : (T → 𝓧) × (S → 𝓧) ↦ if h : i.1 < k.1 then Xk ⟨↑i, h⟩ else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) = fun x ↦ x.2 (toelS i h h') := by
+        have : (fun x : (T → 𝓧) × (S → 𝓧) ↦
+              if h : i.1 < k.1 then Xk ⟨↑i, h⟩
+              else if h' : i.1 = k.1 then x.1 elT else x.2 (toelS i h h')) =
+              fun x ↦ x.2 (toelS i h h') := by
           simp only [Fin.val_fin_lt]
           ext x
           rw [dite_eq_right h, dite_eq_right h']
@@ -557,7 +598,8 @@ lemma hmartingale
     exact Measurable.of_eval fun a ↦ hX'' ↑a
   · exact hindep
   · let x₀ : 𝓧 := (Classical.inhabited_of_nonempty hnonempty𝓧).default
-    apply @MeasureTheory.HasFiniteIntegral.of_bounded _ _ _ _ _ _ F (|f' (fun _ ↦ x₀)| + ∑ i : Fin m, c' i)
+    apply @MeasureTheory.HasFiniteIntegral.of_bounded _ _ _ _ _ _ F
+      (|f' (fun _ ↦ x₀)| + ∑ i : Fin m, c' i)
     filter_upwards with ⟨t, s⟩
     apply bound_f' hfι x₀
 
@@ -567,7 +609,8 @@ lemma hhoeffding_V
   {c' : Fin m → ℝ}
   (hfι : ∀ (i : Fin m) (x : Fin m → 𝓧) (x' : 𝓧), |f' x - f' (Function.update x i x')| ≤ c' i)
   (hf'' : StronglyMeasurable f') (t'' : ℝ)
-  (k : Fin m) (Xk : Fin k → 𝓧) : ∫ (ω : Ω), (t'' * (expressionV μ X' f' k Xk ω)).exp ∂μ ≤ (t''^2 * (c' k)^2 / 8).exp := by
+  (k : Fin m) (Xk : Fin k → 𝓧) :
+  ∫ (ω : Ω), (t'' * (expressionV μ X' f' k Xk ω)).exp ∂μ ≤ (t''^2 * (c' k)^2 / 8).exp := by
   let Y : Π (k: Fin m.succ), (Fin k → 𝓧) → ℝ := expressionY μ X' f'
   let A : Π (k: Fin m), (Fin k → 𝓧) → ℝ := expressionA μ X' f'
   let B : Π (k: Fin m), (Fin k → 𝓧) → ℝ := expressionB μ X' f'
@@ -626,10 +669,12 @@ lemma hhoeffding_V
       rw [this]
       apply pow_le_pow_left₀ _ _ 2
       · apply sub_nonneg.mpr
-        let c : ℝ := μ[fun ω ↦ f' (fun i ↦ if h : i.1 < k.1 then Xk ⟨i.1,h⟩ else if i.1 = k.1 then x₀ else X' i ω)]
+        let c : ℝ := μ[fun ω ↦ f' (fun i ↦
+          if h : i.1 < k.1 then Xk ⟨i.1,h⟩ else if i.1 = k.1 then x₀ else X' i ω)]
         calc
           _ ≤ c := le_of_le_of_eq (hAY hfι x₀ k Xk x₀) (Y_snoc_eq k Xk x₀)
-          _ ≤ _ := (le_iff_le_of_cmp_eq_cmp (congrFun (congrArg cmp (Y_snoc_eq k Xk x₀)) (B k Xk))).mp
+          _ ≤ _ := (le_iff_le_of_cmp_eq_cmp
+                (congrFun (congrArg cmp (Y_snoc_eq k Xk x₀)) (B k Xk))).mp
                 (hYB hfι x₀ k Xk x₀)
       · exact tsub_le_iff_left.mpr (hAB hX'' hfι hf'' k Xk)
 
@@ -641,7 +686,8 @@ lemma heqind
   (hf'' : StronglyMeasurable f')
   {t'' : ℝ} (ht'' : t'' ≥ 0)
   (x₀ : 𝓧) (k : ℕ) (h : k ≤ m) :
-  ∫ (ω : Ω), (t'' *(expressionY μ X' f' ⟨k,Nat.lt_add_one_of_le h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h i) ω) - expressionY μ X' f' 0 (fun _ ↦ x₀))).exp ∂μ
+  ∫ (ω : Ω), (t'' *(expressionY μ X' f' ⟨k,Nat.lt_add_one_of_le h⟩
+      (fun (i : Fin k) ↦ X' (Fin.castLE h i) ω) - expressionY μ X' f' 0 (fun _ ↦ x₀))).exp ∂μ
     ≤ ((t'' ^2 * ∑ (i : Fin k), c' (Fin.castLE h i) ^ 2)/8).exp := by
   let Y : Π (k: Fin m.succ), (Fin k → 𝓧) → ℝ := expressionY μ X' f'
   let V : Π (k : Fin m), (Fin k → 𝓧) → Ω → ℝ := expressionV μ X' f'
@@ -655,7 +701,8 @@ lemma heqind
   · have ih := ih <| Nat.le_of_succ_le h
     calc
       _ = ∫ (ω : Ω), ∫ (ω' : Ω), (t'' *(Y ⟨k+1,Nat.lt_add_one_of_le h⟩
-          (Fin.snoc (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) (X' ⟨k,h⟩ ω')) - E)).exp ∂μ ∂μ := by
+          (Fin.snoc (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) (X' ⟨k,h⟩ ω')) -
+            E)).exp ∂μ ∂μ := by
         let S : Finset (Fin m) := {i : Fin m | i.1 < k}
         let T : Finset (Fin m) := {⟨k,h⟩}
         have hST : Disjoint S T := by
@@ -669,10 +716,13 @@ lemma heqind
             Fin.val_castLE, Fin.is_lt, and_self, S]
         let elT : T := ⟨⟨k,h⟩, Finset.mem_singleton.mpr rfl⟩
         let F : (S → 𝓧) × (T → 𝓧) → ℝ := fun ⟨s,t⟩ ↦
-          Real.exp (t'' * (Y ⟨k + 1, Nat.lt_add_one_of_le h⟩ (Fin.snoc (fun i ↦ s (toelS i)) (t elT)) - E))
+          Real.exp (t'' * (Y ⟨k + 1, Nat.lt_add_one_of_le h⟩
+            (Fin.snoc (fun i ↦ s (toelS i)) (t elT)) - E))
         let gT : Ω → T → 𝓧 := fun ω t ↦ X' t.1 ω
         let gS : Ω → S → 𝓧 := fun ω s ↦ X' s.1 ω
-        have hlefteq : ∫ (ω : Ω), Real.exp (t'' * ((Y ⟨k + 1, Nat.lt_add_one_of_le h⟩ fun i ↦ X' (Fin.castLE h i) ω) - E)) ∂μ
+        have hlefteq : ∫ (ω : Ω),
+            Real.exp (t'' * ((Y ⟨k + 1, Nat.lt_add_one_of_le h⟩
+              fun i ↦ X' (Fin.castLE h i) ω) - E)) ∂μ
           = ∫ (ω : Ω), F ⟨gS ω, gT ω⟩ ∂μ := by
           apply congrArg
           ext ω
@@ -723,7 +773,8 @@ lemma heqind
           apply measurable_pi_iff.mpr
           intro i
           if h' : i.1 < k then
-            have : (fun x : (S → 𝓧) × (T → 𝓧) ↦ @Fin.snoc k (fun _ ↦ 𝓧) (fun i ↦ x.1 (toelS i)) (x.2 elT) i)
+            have : (fun x : (S → 𝓧) × (T → 𝓧) ↦
+                @Fin.snoc k (fun _ ↦ 𝓧) (fun i ↦ x.1 (toelS i)) (x.2 elT) i)
               = (fun x ↦ x (toelS ⟨i, h'⟩)) ∘ Prod.fst := by
               ext x
               dsimp [Fin.snoc]
@@ -733,7 +784,8 @@ lemma heqind
             apply Measurable.comp _ measurable_fst
             exact measurable_pi_apply (toelS ⟨↑i, h'⟩)
           else
-            have : (fun x : (S → 𝓧) × (T → 𝓧) ↦ @Fin.snoc k (fun _ ↦ 𝓧) (fun i ↦ x.1 (toelS i)) (x.2 elT) i)
+            have : (fun x : (S → 𝓧) × (T → 𝓧) ↦
+                @Fin.snoc k (fun _ ↦ 𝓧) (fun i ↦ x.1 (toelS i)) (x.2 elT) i)
               = (fun x ↦ x elT) ∘ Prod.snd := by
               ext x
               dsimp [Fin.snoc]
@@ -755,7 +807,8 @@ lemma heqind
           apply tsub_le_tsub_right _ E
           apply le_of_max_le_left
           apply hYbdd hfι x₀
-      _ = ∫ (ω : Ω), ∫ (ω' : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
+      _ = ∫ (ω : Ω), ∫ (ω' : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩
+          (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
         * (t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp ∂μ ∂μ := by
         dsimp only [V]
         apply congrArg
@@ -763,7 +816,8 @@ lemma heqind
         apply congrArg
         ext ω'
         calc
-          _ = (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)
+          _ = (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩
+              (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)
           + t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp := by
             apply congrArg
             rw [←mul_add]
@@ -772,26 +826,37 @@ lemma heqind
             simp only [Nat.succ_eq_add_one, Fin.castLE_castSucc, Fin.succ_mk,
               Fin.castSucc_mk, sub_add_sub_cancel']
           _ = _ := by apply Real.exp_add
-      _ = ∫ (ω : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
-        * ∫ (ω' : Ω), (t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp ∂μ ∂μ := by
+      _ = ∫ (ω : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩
+          (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
+        * ∫ (ω' : Ω), (t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp
+            ∂μ ∂μ := by
         apply congrArg
         ext ω
         exact
           integral_const_mul
-            (Real.exp (t'' * ((Y ⟨k, Nat.lt_succ_of_lt h⟩ fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)))
+            (Real.exp (t'' * ((Y ⟨k, Nat.lt_succ_of_lt h⟩
+              fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)))
             fun a ↦ Real.exp (t'' * V ⟨k, h⟩ (fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) a)
-      _ ≤ ∫ (ω : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
+      _ ≤ ∫ (ω : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩
+          (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
         * (t'' ^2 * (c' ⟨k, h⟩)^2 / 8).exp ∂μ := by
         have (h : k ≤ m) :
-          Integrable (fun x ↦ Real.exp (t'' * ((Y ⟨k, Nat.lt_add_one_of_le h⟩ fun i ↦ X' (Fin.castLE h i) x) - E))) μ :=
+          Integrable (fun x ↦ Real.exp (t'' * ((Y ⟨k, Nat.lt_add_one_of_le h⟩
+            fun i ↦ X' (Fin.castLE h i) x) - E))) μ :=
             hintegrablelefts hX'' hfι hf'' ht'' E k h
         have hintegrableleft := this (Nat.le_of_succ_le h)
         simp only [Nat.succ_eq_add_one] at hintegrableleft
         apply integral_mono
-        · have : (fun (ω : Ω) ↦ (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
-          * ∫ (ω' : Ω), (t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp ∂μ)
-          = (fun (ω : Ω) ↦ (∫ (ω' : Ω), (t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp ∂μ)
-        * (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp) := by
+        · have : (fun (ω : Ω) ↦ (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩
+              (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp
+          * ∫ (ω' : Ω),
+              (t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp
+                ∂μ)
+          = (fun (ω : Ω) ↦ (∫ (ω' : Ω),
+              (t'' *(V ⟨k,h⟩ fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) ω').exp
+                ∂μ)
+        * (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩
+              (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp) := by
             ext ω
             rw [mul_comm]
           rw [this]
@@ -816,8 +881,10 @@ lemma heqind
                   simp only [Fin.snoc, dite_eq_right h', cast_eq]
                   change Measurable (X' _ ∘ Prod.fst)
                   exact (hX'' _).comp measurable_fst
-              · have : (fun a : Ω × Ω ↦ Y (⟨k, h⟩ : Fin m).castSucc fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) a.2)
-                  = (Y (⟨k, h⟩ : Fin m).castSucc) ∘ (fun a : Ω ↦ fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) a) ∘ Prod.snd := rfl
+              · have : (fun a : Ω × Ω ↦
+                    Y (⟨k, h⟩ : Fin m).castSucc fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) a.2)
+                  = (Y (⟨k, h⟩ : Fin m).castSucc) ∘
+                    (fun a : Ω ↦ fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) a) ∘ Prod.snd := rfl
                 dsimp
                 dsimp at this
                 rw [this]
@@ -837,13 +904,16 @@ lemma heqind
             apply (abs_sub _ _).trans
             apply add_le_add
             · apply hYbdd hfι x₀
-            · apply hYbdd hfι x₀ (⟨k, h⟩ : Fin m).castSucc fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) ω
-        · apply Integrable.mul_const (by simp; exact hintegrableleft) (Real.exp (t'' ^ 2 * c' ⟨k, h⟩ ^ 2 / 8))
+            · apply hYbdd hfι x₀ (⟨k, h⟩ : Fin m).castSucc
+                fun i ↦ X' (Fin.castLE h (Fin.castSucc i)) ω
+        · apply Integrable.mul_const (by simp; exact hintegrableleft)
+            (Real.exp (t'' ^ 2 * c' ⟨k, h⟩ ^ 2 / 8))
         · intro ω
           apply mul_le_mul_of_nonneg_left
           · apply hhoeffding_V hX'' hIndep' hfι hf'' t''
           · apply Real.exp_nonneg
-      _ = (∫ (ω : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩ (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp ∂μ)
+      _ = (∫ (ω : Ω), (t'' *(Y ⟨k,Nat.lt_succ_of_lt h⟩
+          (fun (i : Fin k) ↦ X' (Fin.castLE h (Fin.castSucc i)) ω) - E)).exp ∂μ)
         * (t'' ^2 * (c' ⟨k, h⟩)^2 / 8).exp := by
         apply integral_mul_const
       _ ≤ Real.exp ((t'' ^2 * ∑ i : Fin k, c' (Fin.castLE (Nat.le_of_succ_le h) i) ^ 2) / 8)
@@ -894,7 +964,8 @@ theorem mcdiarmid_inequality_aux
     integral_const, smul_eq_mul, Fin.val_zero,
     not_lt_zero, expressionY] at this
   have hintegrable :
-    Integrable (fun x ↦ Real.exp (t'' * ((Y ⟨m, Nat.lt_add_one_of_le le_rfl⟩ fun i ↦ X' (Fin.castLE le_rfl i) x) - E))) μ
+    Integrable (fun x ↦ Real.exp (t'' * ((Y ⟨m, Nat.lt_add_one_of_le le_rfl⟩
+      fun i ↦ X' (Fin.castLE le_rfl i) x) - E))) μ
     := hintegrablelefts hX'' hfι hf'' ht'' E m le_rfl
   simp only [Nat.succ_eq_add_one, Fin.castLE_rfl, id_eq, Fin.is_lt, ↓reduceDIte, Fin.eta,
     integral_const, smul_eq_mul, Fin.val_zero,
@@ -977,8 +1048,7 @@ theorem mcdiarmid_inequality_pos
   have ht'' : t * ∑ (i' : Fin m), c' i' ^2 ≤ 1 := by
     have : ∑ (i' : Fin m), c' i' ^2 = ∑ (i : ι), c i ^2 := by
       exact Fintype.sum_equiv ιm.symm (fun x ↦ c' x ^ 2) (fun x ↦ c x ^ 2) (congrFun rfl)
-    rw [this]
-    assumption
+    rwa [this]
   if ht : t ≥ 0 then
     have := mcdiarmid_inequality_aux hX'' hIndep' hfι hf'' hε ht ht''
     have eq : (f' ∘ Function.swap fun i ↦ X (ιm.symm i)) = (f ∘ Function.swap X) := by

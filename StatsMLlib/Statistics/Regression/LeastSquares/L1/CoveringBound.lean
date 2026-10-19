@@ -265,7 +265,8 @@ lemma maureySign_sq (x : ℝ) : maureySign x ^ 2 = 1 := by
 This is the unbiasedness property of Maurey's random variable. -/
 lemma maureyPMF_mean_coord (x : Fin n → EuclideanSpace ℝ (Fin d))
     (θ : EuclideanSpace ℝ (Fin d)) {R : ℝ} (hR : 0 < R) (hθ : l1norm θ ≤ R) (i : Fin n) :
-    ∫ o, maureyVec x R o i ∂(maureyPMF θ R hθ).toMeasure = (1 / Real.sqrt n) * @inner ℝ _ _ θ (x i) := by
+    ∫ o, maureyVec x R o i ∂(maureyPMF θ R hθ).toMeasure =
+      (1 / Real.sqrt n) * @inner ℝ _ _ θ (x i) := by
   classical
   rw [PMF.integral_eq_sum, Fintype.sum_option]
   -- The none term contributes 0
@@ -280,7 +281,8 @@ lemma maureyPMF_mean_coord (x : Fin n → EuclideanSpace ℝ (Fin d))
   -- For each j, only one of (j, true) and (j, false) contributes
   -- The expression after simp is: (R * (if b then 1 else -1)) / √n * (x i).ofLp j
   have hsum_eq : ∑ j : Fin d, ∑ b : Bool,
-      (maureyPMF θ R hθ (some (j, b))).toReal * ((R * (if b then 1 else -1)) / Real.sqrt n * (x i) j) =
+      (maureyPMF θ R hθ (some (j, b))).toReal *
+        ((R * (if b then 1 else -1)) / Real.sqrt n * (x i) j) =
       ∑ j : Fin d, (‖θ j‖ / R) * (R / Real.sqrt n * maureySign (θ j) * (x i) j) := by
     congr 1
     ext j
@@ -298,7 +300,8 @@ lemma maureyPMF_mean_coord (x : Fin n → EuclideanSpace ℝ (Fin d))
       simp only [hj, decide_false, Bool.false_eq_true, ↓reduceIte,
           Bool.true_eq_false, ENNReal.toReal_zero,
           ENNReal.toReal_ofReal (div_nonneg (norm_nonneg _) (le_of_lt hR))]
-      -- Simplify: 0 * ... + ‖θ j‖/R * (R * (-1) / √n * (x i) j) = ‖θ j‖/R * (R / √n * (-1) * (x i) j)
+      -- Simplify: 0 * ... + ‖θ j‖/R * (R * (-1) / √n * (x i) j)
+      --   = ‖θ j‖/R * (R / √n * (-1) * (x i) j)
       have hsign : maureySign (θ j) = -1 := by simp [maureySign, hj]
       rw [hsign, zero_mul, zero_add]
       ring
@@ -329,7 +332,8 @@ lemma maureyPMF_variance_bound (x : Fin n → EuclideanSpace ℝ (Fin d))
   classical
   rw [PMF.integral_eq_sum, Fintype.sum_option]
   simp only [maureyVec_none, sq, smul_eq_mul]
-  have hzero_term : (maureyPMF θ R hθ none).toReal * ∑ i : Fin n, (0 : EmpiricalSpace n) i * (0 : EmpiricalSpace n) i = 0 := by
+  have hzero_term : (maureyPMF θ R hθ none).toReal *
+      ∑ i : Fin n, (0 : EmpiricalSpace n) i * (0 : EmpiricalSpace n) i = 0 := by
     have h0 : ∀ i : Fin n, (0 : EmpiricalSpace n) i = 0 := fun _ => rfl
     simp only [h0, mul_zero, Finset.sum_const_zero, mul_zero]
   rw [hzero_term, zero_add]
@@ -362,9 +366,11 @@ lemma maureyPMF_variance_bound (x : Fin n → EuclideanSpace ℝ (Fin d))
         Bool.true_eq_false, ENNReal.toReal_zero, zero_mul, zero_add,
         ENNReal.toReal_ofReal (div_nonneg (norm_nonneg _) (le_of_lt hR))]
       congr 1
-      have heach : ∀ i : Fin n, -(R / Real.sqrt n) * (x i).ofLp j * (-(R / Real.sqrt n) * (x i).ofLp j) =
+      have heach : ∀ i : Fin n,
+          -(R / Real.sqrt n) * (x i).ofLp j * (-(R / Real.sqrt n) * (x i).ofLp j) =
                 R^2 / n * ((x i).ofLp j)^2 := fun i => by
-        have hterm : -(R / Real.sqrt n) * (x i).ofLp j = -(R / Real.sqrt n * (x i).ofLp j) := neg_mul _ _
+        have hterm : -(R / Real.sqrt n) * (x i).ofLp j = -(R / Real.sqrt n * (x i).ofLp j) :=
+          neg_mul _ _
         rw [hterm, neg_mul_neg, ← sq, mul_pow, div_pow, hsqrt_sq]
       simp only [mul_neg_one, neg_div]
       simp only [heach, ← Finset.mul_sum]
@@ -403,12 +409,14 @@ lemma maureyPMF_variance_bound (x : Fin n → EuclideanSpace ℝ (Fin d))
 
 /-- Product PMF weight: the probability of sample configuration f under the product PMF.
 This is Π_{l < k} P(f l) where P = maureyPMF θ R. -/
-noncomputable def productPMFWeight (θ : EuclideanSpace ℝ (Fin d)) (R : ℝ) (hθ : l1norm θ ≤ R) (k : ℕ) :
+noncomputable def productPMFWeight (θ : EuclideanSpace ℝ (Fin d)) (R : ℝ) (hθ : l1norm θ ≤ R)
+    (k : ℕ) :
     (Fin k → Option (Fin d × Bool)) → ℝ≥0∞ :=
   fun f => ∏ l : Fin k, (maureyPMF θ R hθ) (f l)
 
 /-- The product PMF weights sum to 1 (it's a valid PMF). -/
-lemma productPMFWeight_sum_eq_one (θ : EuclideanSpace ℝ (Fin d)) (R : ℝ) (hθ : l1norm θ ≤ R) (k : ℕ) :
+lemma productPMFWeight_sum_eq_one (θ : EuclideanSpace ℝ (Fin d)) (R : ℝ) (hθ : l1norm θ ≤ R)
+    (k : ℕ) :
     ∑ f : Fin k → Option (Fin d × Bool), productPMFWeight θ R hθ k f = 1 := by
   unfold productPMFWeight
   -- Use Fintype.sum_pow: (∑ a, f a) ^ n = ∑ p, ∏ i, f (p i)
@@ -624,7 +632,8 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
               have hn_pos : (0 : ℝ) < n := Nat.cast_pos.mpr hn
               have hkne : (k : ℝ) ≠ 0 := ne_of_gt hk_pos
               have hn_ge_1 : (1 : ℝ) ≤ n := Nat.one_le_cast.mpr hn
-              have hl1_nonneg : 0 ≤ l1norm θ := Finset.sum_nonneg (s := Finset.univ) (fun i _ => norm_nonneg (θ i))
+              have hl1_nonneg : 0 ≤ l1norm θ :=
+                Finset.sum_nonneg (s := Finset.univ) (fun i _ => norm_nonneg (θ i))
               have hR_nonneg : 0 ≤ R := le_of_lt hR
               have hE_eq : E = ∫ f, distSq f ∂ν := by
                 rw [MeasureTheory.integral_fintype (Integrable.of_finite : Integrable distSq ν)]
@@ -636,10 +645,12 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
                   congr 1; ext l
                   rw [PMF.toMeasure_apply_singleton _ (f l) (measurableSet_singleton _)]
                 rw [Measure.real, hν_singleton]
-              have hdistSq_eq : ∀ f, distSq f = (1 / n : ℝ) * ∑ i : Fin n, (maureyAvg x R k f i - target i)^2 := by
+              have hdistSq_eq : ∀ f,
+                  distSq f = (1 / n : ℝ) * ∑ i : Fin n, (maureyAvg x R k f i - target i)^2 := by
                 intro f
                 simp only [distSq]
-                have hdist : dist (maureyAvg x R k f) target = empiricalNorm n (maureyAvg x R k f - target) := rfl
+                have hdist : dist (maureyAvg x R k f) target =
+                    empiricalNorm n (maureyAvg x R k f - target) := rfl
                 rw [hdist]
                 have hd := empiricalNorm_sq n (maureyAvg x R k f - target)
                 rw [hd, one_div]
@@ -679,8 +690,10 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
                     let g : (l : Fin k) → Option (Fin d × Bool) → ℝ :=
                       fun _ o => maureyVec x R o i - target i
                     have hg_meas : ∀ l, Measurable (g l) := fun _ => measurable_of_countable _
-                    have hid := @ProbabilityTheory.iIndepFun_pi (Fin k) _ (fun _ => Option (Fin d × Bool)) _
-                      (fun _ => μ) hμprob' (fun _ => Option (Fin d × Bool)) _ (fun _ => id) (fun _ => measurable_id.aemeasurable)
+                    have hid :=
+                      @ProbabilityTheory.iIndepFun_pi (Fin k) _ (fun _ => Option (Fin d × Bool)) _
+                        (fun _ => μ) hμprob' (fun _ => Option (Fin d × Bool)) _ (fun _ => id)
+                        (fun _ => measurable_id.aemeasurable)
                     simp only [id_eq] at hid
                     have hcomp := hid.comp g hg_meas
                     simp only [g] at hcomp
@@ -689,14 +702,17 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
                     intro l
                     simp only [Y]
                     have hmeas : AEStronglyMeasurable (fun o : Option (Fin d × Bool) =>
-                        maureyVec x R o i - target i) μ := Measurable.aestronglyMeasurable (measurable_of_countable _)
-                    have heq := MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := l) hmeas
+                        maureyVec x R o i - target i) μ :=
+                      Measurable.aestronglyMeasurable (measurable_of_countable _)
+                    have heq :=
+                      MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := l) hmeas
                     simp only [μ, ν] at heq ⊢
                     rw [heq, MeasureTheory.integral_sub Integrable.of_finite Integrable.of_finite]
                     rw [hmean_i, htarget_i, MeasureTheory.integral_const]
                     simp only [smul_eq_mul, Measure.real]
                     have hprob : ((maureyPMF θ R hθ).toMeasure Set.univ).toReal = 1 := by
-                      have hμ_prob : IsProbabilityMeasure (maureyPMF θ R hθ).toMeasure := by infer_instance
+                      have hμ_prob : IsProbabilityMeasure (maureyPMF θ R hθ).toMeasure := by
+                        infer_instance
                       rw [hμ_prob.measure_univ, ENNReal.toReal_one]
                     rw [hprob, one_mul, sub_self]
                   have hcross : ∀ l₁ l₂, l₁ ≠ l₂ → ∫ f, Y l₁ f * Y l₂ f ∂ν = 0 := by
@@ -706,7 +722,8 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
                       Measurable.aestronglyMeasurable (measurable_of_countable _)
                     have hmeas_2 : AEStronglyMeasurable (Y l₂) ν :=
                       Measurable.aestronglyMeasurable (measurable_of_countable _)
-                    rw [ProbabilityTheory.IndepFun.integral_fun_mul_eq_mul_integral hpair hmeas_1 hmeas_2]
+                    rw [ProbabilityTheory.IndepFun.integral_fun_mul_eq_mul_integral hpair hmeas_1
+                      hmeas_2]
                     rw [hY_mean_zero l₁, hY_mean_zero l₂, mul_zero]
                   have hdiag : ∀ l, ∫ f, Y l f * Y l f ∂ν =
                       ∫ o, (maureyVec x R o i - target i)^2 ∂μ := by
@@ -715,7 +732,8 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
                     have hmeas : AEStronglyMeasurable (fun o : Option (Fin d × Bool) =>
                         (maureyVec x R o i - target i)^2) μ :=
                       Measurable.aestronglyMeasurable (measurable_of_countable _)
-                    have heq := MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := l) hmeas
+                    have heq :=
+                      MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := l) hmeas
                     simp only [μ, ν] at heq ⊢
                     convert heq using 2
                     ext f; ring
@@ -754,8 +772,10 @@ lemma maurey_exists_good_sample (x : Fin n → EuclideanSpace ℝ (Fin d))
                             _ = ∫ o, (maureyVec x R o i)^2 ∂μ -
                                 2 * target i * ∫ o, maureyVec x R o i ∂μ +
                                 ∫ o, (target i)^2 ∂μ := by
-                                rw [MeasureTheory.integral_add Integrable.of_finite Integrable.of_finite]
-                                rw [MeasureTheory.integral_sub Integrable.of_finite Integrable.of_finite]
+                                rw [MeasureTheory.integral_add Integrable.of_finite
+                                  Integrable.of_finite]
+                                rw [MeasureTheory.integral_sub Integrable.of_finite
+                                  Integrable.of_finite]
                                 rw [MeasureTheory.integral_const_mul]
                             _ = ∫ o, (maureyVec x R o i)^2 ∂μ -
                                 2 * target i * target i + (target i)^2 := by
@@ -863,7 +883,8 @@ lemma exists_maureyAvg_close (x : Fin n → EuclideanSpace ℝ (Fin d))
       simp only [h0, Finset.sum_const_zero, mul_zero]
       rfl
     -- Since target is a let-binding, use show to make it match
-    show dist (maureyAvg x R k (fun _ => none)) (fun i => (1 / Real.sqrt n) * @inner ℝ _ _ θ (x i)) ≤ ε
+    show dist (maureyAvg x R k (fun _ => none))
+        (fun i => (1 / Real.sqrt n) * @inner ℝ _ _ θ (x i)) ≤ ε
     rw [havg]
     have htgt' : (fun i => (1 / Real.sqrt n) * @inner ℝ _ _ θ (x i)) = (0 : EmpiricalSpace n) := by
       funext i
@@ -1070,7 +1091,8 @@ lemma EmpiricalSpace_closedBall_bounded (n : ℕ) (r : ℝ) :
 theorem l1LocalizedBallImage_bounded {d : ℕ} {R δ : ℝ}
     {θ_star : EuclideanSpace ℝ (Fin d)} (x : Fin n → EuclideanSpace ℝ (Fin d)) :
     Bornology.IsBounded (l1EmpiricalImage x '' (l1LocalizedBall d R δ θ_star x)) :=
-  Bornology.IsBounded.subset (EmpiricalSpace_closedBall_bounded n δ) l1EmpiricalImage_subset_closedBall
+  Bornology.IsBounded.subset (EmpiricalSpace_closedBall_bounded n δ)
+    l1EmpiricalImage_subset_closedBall
 
 /-! ## Localized ℓ₁ Ball Image Covering Bound
 

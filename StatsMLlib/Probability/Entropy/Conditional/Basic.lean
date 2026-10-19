@@ -40,7 +40,8 @@ local notation "μˢ" => Measure.pi μs
 ## Definition of Conditional Entropy
 -/
 
-/-- Conditional entropy Ent^{(i)}(f)(x) = E^{(i)}[f log f](x) - E^{(i)}[f](x) · log(E^{(i)}[f](x)). -/
+/-- Conditional entropy
+Ent^{(i)}(f)(x) = E^{(i)}[f log f](x) - E^{(i)}[f](x) · log(E^{(i)}[f](x)). -/
 noncomputable def condEntExceptCoord (i : Fin n) (f : (Fin n → Ω) → ℝ) : (Fin n → Ω) → ℝ :=
   fun x => condExpExceptCoord (μs := μs) i (fun z => f z * log (f z)) x -
            condExpExceptCoord (μs := μs) i f x * log (condExpExceptCoord (μs := μs) i f x)
@@ -129,10 +130,12 @@ lemma condExpExceptCoord_integrable (i : Fin n) (f : (Fin n → Ω) → ℝ)
       calc Measure.map (fun p : (Fin n → Ω) × Ω => Function.update p.1 i p.2) (μˢ.prod (μs i))
         _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
             (Measure.map Prod.swap (μˢ.prod (μs i))) := (Measure.map_map hg measurable_swap).symm
-        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1) ((μs i).prod μˢ) := by
+        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
+            ((μs i).prod μˢ) := by
             rw [Measure.prod_swap]
         _ = μˢ := map_update_prod_pi i
-  have hg_int : Integrable (fun p : (Fin n → Ω) × Ω => f (Function.update p.1 i p.2)) (μˢ.prod (μs i)) :=
+  have hg_int : Integrable (fun p : (Fin n → Ω) × Ω =>
+      f (Function.update p.1 i p.2)) (μˢ.prod (μs i)) :=
     hmp.integrable_comp hf_int.aestronglyMeasurable |>.mpr hf_int
   unfold condExpExceptCoord
   simpa [Pi.pow_apply] using hg_int.integral_prod_left
@@ -152,10 +155,12 @@ lemma integrable_update_slice (i : Fin n) (f : (Fin n → Ω) → ℝ)
       calc Measure.map (fun p : (Fin n → Ω) × Ω => Function.update p.1 i p.2) (μˢ.prod (μs i))
         _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
             (Measure.map Prod.swap (μˢ.prod (μs i))) := (Measure.map_map hg measurable_swap).symm
-        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1) ((μs i).prod μˢ) := by
+        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
+            ((μs i).prod μˢ) := by
             rw [Measure.prod_swap]
         _ = μˢ := map_update_prod_pi i
-  have hg_int : Integrable (fun p : (Fin n → Ω) × Ω => f (Function.update p.1 i p.2)) (μˢ.prod (μs i)) :=
+  have hg_int : Integrable (fun p : (Fin n → Ω) × Ω =>
+      f (Function.update p.1 i p.2)) (μˢ.prod (μs i)) :=
     hmp.integrable_comp hf_int.aestronglyMeasurable |>.mpr hf_int
   exact hg_int.prod_right_ae
 
@@ -174,7 +179,8 @@ lemma ae_nonneg_slice_of_ae_nonneg (i : Fin n) (f : (Fin n → Ω) → ℝ)
       calc Measure.map (fun p : (Fin n → Ω) × Ω => Function.update p.1 i p.2) (μˢ.prod (μs i))
         _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
             (Measure.map Prod.swap (μˢ.prod (μs i))) := (Measure.map_map hg measurable_swap).symm
-        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1) ((μs i).prod μˢ) := by
+        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
+            ((μs i).prod μˢ) := by
             rw [Measure.prod_swap]
         _ = μˢ := map_update_prod_pi i
   -- Transfer the a.e. condition through the measure-preserving map
@@ -220,7 +226,8 @@ lemma condExpExceptCoord_mul_log_integrable (i : Fin n) (f : (Fin n → Ω) → 
   have hg_nn : 0 ≤ᵐ[μˢ] g := condExpExceptCoord_nonneg_ae i f hf_nn
 
   -- h is integrable (by condExpExceptCoord_integrable)
-  have hh_int : Integrable h μˢ := condExpExceptCoord_integrable i (fun z => f z * log (f z)) hf_log_int
+  have hh_int : Integrable h μˢ :=
+      condExpExceptCoord_integrable i (fun z => f z * log (f z)) hf_log_int
 
   -- g is strongly measurable
   have hg_sm : StronglyMeasurable g :=

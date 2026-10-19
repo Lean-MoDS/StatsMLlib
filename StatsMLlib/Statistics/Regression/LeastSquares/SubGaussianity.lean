@@ -128,7 +128,8 @@ lemma empiricalProcess_increment_mgf (n : ℕ) [NeZero n] (x : Fin n → X)
   -- Step 4: Expand stdGaussianPi and use Fubini
   unfold stdGaussianPi
   -- Use integral_fin_nat_prod_eq_prod to factor the integral
-  have h_fubini : (∫ w : (i : Fin n) → ℝ, ∏ i, Real.exp (t * a i * w i) ∂(Measure.pi fun _ => gaussianReal 0 1)) =
+  have h_fubini : (∫ w : (i : Fin n) → ℝ, ∏ i, Real.exp (t * a i * w i)
+        ∂(Measure.pi fun _ => gaussianReal 0 1)) =
       ∏ i : Fin n, ∫ x : ℝ, Real.exp (t * a i * x) ∂(gaussianReal 0 1) := by
     exact integral_fin_nat_prod_eq_prod (fun i x => Real.exp (t * a i * x))
   rw [h_fubini]

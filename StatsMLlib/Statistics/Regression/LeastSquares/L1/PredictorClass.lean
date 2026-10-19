@@ -116,7 +116,8 @@ lemma l1norm_add_le (θ₁ θ₂ : EuclideanSpace ℝ (Fin d)) :
         exact norm_add_le (θ₁ i) (θ₂ i)
     _ = (∑ i, ‖θ₁ i‖) + (∑ i, ‖θ₂ i‖) := Finset.sum_add_distrib
 
-/-- Addition in l1PredictorClass: if f, g ∈ F with radii R₁, R₂, then f + g is in F with radius R₁ + R₂ -/
+/-- Addition in l1PredictorClass: if f, g ∈ F with radii R₁, R₂, then f + g is in F with
+radius R₁ + R₂ -/
 lemma add_mem_l1PredictorClass_of_radii {f g : (EuclideanSpace ℝ (Fin d)) → ℝ} {R₁ R₂ : ℝ}
     (hf : f ∈ l1PredictorClass d R₁) (hg : g ∈ l1PredictorClass d R₂) :
     f + g ∈ l1PredictorClass d (R₁ + R₂) := by

@@ -42,7 +42,8 @@ variable {ι : Type*} [DecidableEq ι]
 
 omit [IsProbabilityMeasure μ] [DecidableEq ι] in
 theorem integrable_of_subgaussian (X : ι → Ω → ℝ) (j : ι) (r : ℝ)
-  (p : ∀ (t : ℝ), ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ ≤ ENNReal.ofReal (rexp (t ^ 2 * r ^ 2 / 2)))
+  (p : ∀ (t : ℝ), ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ ≤
+    ENNReal.ofReal (rexp (t ^ 2 * r ^ 2 / 2)))
   (q : AEMeasurable (X j) μ) : Integrable (X j) μ := by
   constructor
   exact aestronglyMeasurable_iff_aemeasurable.mpr q
@@ -75,9 +76,11 @@ theorem integrable_of_subgaussian (X : ι → Ω → ℝ) (j : ι) (r : ℝ)
     apply lintegral_congr
     intro a
     refine ENNReal.ofReal_add (exp_nonneg (-X j a)) (exp_nonneg (X j a))
-  _ = (∫⁻ (a : Ω), ENNReal.ofReal (rexp (-(X j a))) ∂μ) + ∫⁻ (a : Ω), ENNReal.ofReal (rexp ((X j a))) ∂μ := by
+  _ = (∫⁻ (a : Ω), ENNReal.ofReal (rexp (-(X j a))) ∂μ) +
+      ∫⁻ (a : Ω), ENNReal.ofReal (rexp ((X j a))) ∂μ := by
     rw [MeasureTheory.lintegral_add_left']
-    refine AEMeasurable.ennreal_ofReal (Measurable.comp_aemeasurable' measurable_exp (AEMeasurable.neg q))
+    refine AEMeasurable.ennreal_ofReal
+      (Measurable.comp_aemeasurable' measurable_exp (AEMeasurable.neg q))
   _ ≤ ENNReal.ofReal (rexp (r ^ 2 / 2)) + ENNReal.ofReal (rexp (r ^ 2 / 2)) := by
     have p0 := p 1
     simp only [one_mul, one_pow] at p0
@@ -94,14 +97,16 @@ private lemma measurable_expt' (X : Ω → ℝ) (t : ℝ) (hX : AEMeasurable X �
 omit [IsProbabilityMeasure μ] [DecidableEq ι] in
 private theorem integrable_exp_of_subgaussian
   (X : ι → Ω → ℝ) (j : ι) (r : ℝ)
-  (p : ∀ (t : ℝ), ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ ≤ ENNReal.ofReal (rexp (t ^ 2 * r ^ 2 / 2)))
+  (p : ∀ (t : ℝ), ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ ≤
+    ENNReal.ofReal (rexp (t ^ 2 * r ^ 2 / 2)))
   (t : ℝ) (q : AEMeasurable (X j) μ) :
   Integrable (fun x ↦ rexp (t * X j x)) μ := by
   constructor
   refine measurable_expt' μ (X j) t ?left.hX
   exact q
   dsimp [HasFiniteIntegral]
-  rw [lintegral_congr (by intro a; rw [enorm_eq_ofReal_abs]; simp : ∀ a, ‖rexp (t * X j a)‖ₑ = ENNReal.ofReal (rexp (t * X j a)))]
+  rw [lintegral_congr (by intro a; rw [enorm_eq_ofReal_abs]; simp :
+    ∀ a, ‖rexp (t * X j a)‖ₑ = ENNReal.ofReal (rexp (t * X j a)))]
   exact trans (p t) ENNReal.ofReal_lt_top
 
 
@@ -171,9 +176,11 @@ lemma maximal_inequality_supR'
   ∫ ω, Finset.sup' s' hs' (fun j => X j ω) ∂μ
     ≤ (Finset.sup' s' hs' R) * Real.sqrt (2 * Real.log n) := by
   intro r'
-  have p1 : ∀ j ∈ s', ∀ (t : ℝ), ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ ≤ ENNReal.ofReal (rexp (t ^ 2 * s'.sup' hs' r' ^ 2 / 2)) := by
+  have p1 : ∀ j ∈ s', ∀ (t : ℝ), ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ ≤
+      ENNReal.ofReal (rexp (t ^ 2 * s'.sup' hs' r' ^ 2 / 2)) := by
     intro j hj t
-    have w : ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ = ENNReal.ofReal (∫ (ω : Ω), (rexp (t * X j ω)) ∂μ) := by
+    have w : ∫⁻ (ω : Ω), ENNReal.ofReal (rexp (t * X j ω)) ∂μ =
+        ENNReal.ofReal (∫ (ω : Ω), (rexp (t * X j ω)) ∂μ) := by
       refine Eq.symm (ofReal_integral_eq_lintegral_ofReal ?hfi ?f_nn)
       constructor
       refine measurable_expt' μ (X j) t ?hfi.left.hX
@@ -190,7 +197,8 @@ lemma maximal_inequality_supR'
           apply lintegral_mono_ae
           filter_upwards
           intro a
-          have w' : ↑‖rexp (t * X j a)‖₊ = ENNReal.ofReal (rexp (t * X j a)) := Real.enorm_eq_ofReal (exp_nonneg (t * X j a))
+          have w' : ↑‖rexp (t * X j a)‖₊ = ENNReal.ofReal (rexp (t * X j a)) :=
+            Real.enorm_eq_ofReal (exp_nonneg (t * X j a))
           rw [w']
           refine ENNReal.ofReal_le_ofReal ?h.h.h
           refine exp_le_exp.mpr ?h.h.h.a
@@ -258,7 +266,8 @@ lemma maximal_inequality_supR'
       intro i hi
       exact exp_nonneg (t * Y i j a)
     _ = ∏ i ∈ s, ∫⁻ (ω : Ω), ENNReal.ofReal (Real.exp (t * Y i j ω)) ∂μ := by
-      apply ProbabilityTheory.lintegral_prod_eq_prod_lintegral_of_indepFun (s := s) (X := fun i ω ↦ ENNReal.ofReal (Real.exp (t * Y i j ω)))
+      apply ProbabilityTheory.lintegral_prod_eq_prod_lintegral_of_indepFun (s := s)
+        (X := fun i ω ↦ ENNReal.ofReal (Real.exp (t * Y i j ω)))
       · change iIndepFun (fun i ↦ (fun x : ℝ ↦ ENNReal.ofReal (Real.exp (t * x))) ∘ Y i j) μ
         refine ProbabilityTheory.iIndepFun.comp (s_ind j hj) ?_ ?_
         intro i
@@ -275,7 +284,8 @@ lemma maximal_inequality_supR'
         apply Measurable.const_mul
         simp_all only
     _ ≤ ∏ i ∈ s, ENNReal.ofReal (Real.exp (t ^ 2 * r i j ^ 2 / 2)) := by
-      suffices ∀ i ∈ s, ∫⁻ (ω : Ω), ENNReal.ofReal (Real.exp (t * Y i j ω)) ∂μ ≤ ENNReal.ofReal (Real.exp (t ^ 2 * r i j ^ 2 / 2)) from by
+      suffices ∀ i ∈ s, ∫⁻ (ω : Ω), ENNReal.ofReal (Real.exp (t * Y i j ω)) ∂μ ≤
+          ENNReal.ofReal (Real.exp (t ^ 2 * r i j ^ 2 / 2)) from by
         exact Finset.prod_le_prod this
       intro i hi
       have : t ^ 2 * r i j ^ 2 / 2 = t ^ 2 * (r i j - (- r i j)) ^ 2 / 8 := by
@@ -335,7 +345,8 @@ lemma maximal_inequality_supR'
       rw [exp_le_exp]
       have : ∑ i ∈ s, r i j ^ 2 ≤ s'.sup' hs' r' ^ 2 := by
         dsimp [r']
-        have : (s'.sup' hs' fun j ↦ √(∑ i ∈ s, r i j ^ 2)) ^ 2 = (s'.sup' hs' fun j ↦ (∑ i ∈ s, r i j ^ 2)) := by
+        have : (s'.sup' hs' fun j ↦ √(∑ i ∈ s, r i j ^ 2)) ^ 2 =
+            (s'.sup' hs' fun j ↦ (∑ i ∈ s, r i j ^ 2)) := by
           rw [sup'_pow]
           apply congrArg
           ext j
@@ -480,9 +491,9 @@ lemma maximal_inequality_supR
       have q : ∀ i ∈ s, Integrable (Y i j) μ := by
         intro i hi
         constructor
-        . apply AEMeasurable.aestronglyMeasurable
+        · apply AEMeasurable.aestronglyMeasurable
           exact Measurable.aemeasurable (y_mea i j)
-        . apply MeasureTheory.HasFiniteIntegral.of_bounded
+        · apply MeasureTheory.HasFiniteIntegral.of_bounded
           filter_upwards with ω
           exact abs_le.mpr ⟨y_neg i hi j (by grind) ω, y_pos i hi j (by grind) ω⟩
       convert MeasureTheory.integral_finsetSum s q

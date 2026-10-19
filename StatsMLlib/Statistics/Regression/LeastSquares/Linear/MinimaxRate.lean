@@ -221,8 +221,9 @@ lemma linear_empiricalSphere_nonempty (hn : 0 < n) (hd : 0 < d)
     rw [div_mul_cancel₀]
     exact ne_of_gt h_emp_norm_pos
 
-/-- Integrability of the absolute supremum empirical process at positive radius for linear predictors.
-This uses the general `localGaussianComplexity_integrand_integrable` lemma for star-shaped sets. -/
+/-- Integrability of the absolute supremum empirical process at positive radius for linear
+predictors. This uses the general `localGaussianComplexity_integrand_integrable` lemma for
+star-shaped sets. -/
 lemma linear_integrable_at_radius
     (x : Fin n → EuclideanSpace ℝ (Fin d)) {δ : ℝ} (hδ : 0 < δ)
     {f_star : EuclideanSpace ℝ (Fin d) → ℝ} (hf_star : f_star ∈ linearPredictorClass d) :
@@ -236,7 +237,8 @@ The bound follows from Cauchy-Schwarz: the empirical process is bounded by ‖w�
 lemma linear_bddAbove_at_radius (hn : 0 < n)
     (x : Fin n → EuclideanSpace ℝ (Fin d)) {u : ℝ} (hu : 0 < u)
     {f_star : EuclideanSpace ℝ (Fin d) → ℝ} (hf_star : f_star ∈ linearPredictorClass d) :
-    ∀ w : Fin n → ℝ, BddAbove {y | ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) f_star) u x,
+    ∀ w : Fin n → ℝ, BddAbove {y |
+      ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) f_star) u x,
       y = |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)|} := by
   rw [shiftedClass_eq_self_of_linear hf_star]
   intro w
@@ -290,7 +292,8 @@ lemma linear_bddAbove_at_radius (hn : 0 < n)
             rwa [h_cancel] at hmul
           calc Real.sqrt (∑ i, (h (x i))^2)
               ≤ Real.sqrt (n * u^2) := Real.sqrt_le_sqrt h_sum
-            _ = Real.sqrt n * u := by rw [Real.sqrt_mul (Nat.cast_nonneg n), Real.sqrt_sq (le_of_lt hu)]
+            _ = Real.sqrt n * u := by
+              rw [Real.sqrt_mul (Nat.cast_nonneg n), Real.sqrt_sq (le_of_lt hu)]
       _ = Real.sqrt n * ‖w'‖ * u := by ring
   calc |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)|
       = (n : ℝ)⁻¹ * |∑ i, w i * h (x i)| := by
@@ -344,21 +347,26 @@ theorem linear_minimax_rate (hn : 0 < n) (hd : 0 < d)
     rw [← sq]
     exact Real.sqrt_sq (le_of_lt hδ_star_pos)
   -- Nonemptiness of empirical sphere at √(δ_star²) = δ_star
-  have hne : (empiricalSphere n (shiftedClass (linearPredictorClass d) M.f_star) (Real.sqrt (δ_star * δ_star)) M.x).Nonempty := by
+  have hne : (empiricalSphere n (shiftedClass (linearPredictorClass d) M.f_star)
+      (Real.sqrt (δ_star * δ_star)) M.x).Nonempty := by
     rw [h_sqrt_eq]
     exact linear_empiricalSphere_nonempty hn hd M.x hδ_star_pos hinj hf_star
   -- Integrability at √(t·δ_star) = δ_star
-  have hint_u : Integrable (fun w => ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      (Real.sqrt (δ_star * δ_star)) M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) := by
+  have hint_u : Integrable (fun w =>
+      ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        (Real.sqrt (δ_star * δ_star)) M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|)
+      (stdGaussianPi n) := by
     rw [h_sqrt_eq]
     exact linear_integrable_at_radius M.x hδ_star_pos hf_star
   -- Integrability at δ_star
-  have hint_δ : Integrable (fun w => ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      δ_star M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) :=
+  have hint_δ : Integrable (fun w =>
+      ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        δ_star M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) :=
     linear_integrable_at_radius M.x hδ_star_pos hf_star
   -- Boundedness at √(t·δ_star) = δ_star
-  have hbdd : ∀ w : Fin n → ℝ, BddAbove {y | ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      (Real.sqrt (δ_star * δ_star)) M.x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|} := by
+  have hbdd : ∀ w : Fin n → ℝ, BddAbove {y |
+      ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        (Real.sqrt (δ_star * δ_star)) M.x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|} := by
     rw [h_sqrt_eq]
     exact linear_bddAbove_at_radius hn M.x hδ_star_pos hf_star
   -- Step 2: Apply master_error_bound with t = δ_star
@@ -425,18 +433,23 @@ theorem linear_minimax_rate_explicit (hn : 0 < n) (hd : 0 < d)
   have h_sqrt_eq : Real.sqrt (δ_star * δ_star) = δ_star := by
     rw [← sq]
     exact Real.sqrt_sq (le_of_lt hδ_pos)
-  have hne : (empiricalSphere n (shiftedClass (linearPredictorClass d) M.f_star) (Real.sqrt (δ_star * δ_star)) M.x).Nonempty := by
+  have hne : (empiricalSphere n (shiftedClass (linearPredictorClass d) M.f_star)
+      (Real.sqrt (δ_star * δ_star)) M.x).Nonempty := by
     rw [h_sqrt_eq]
     exact linear_empiricalSphere_nonempty hn hd M.x hδ_pos hinj hf_star
-  have hint_u : Integrable (fun w => ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      (Real.sqrt (δ_star * δ_star)) M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) := by
+  have hint_u : Integrable (fun w =>
+      ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        (Real.sqrt (δ_star * δ_star)) M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|)
+      (stdGaussianPi n) := by
     rw [h_sqrt_eq]
     exact linear_integrable_at_radius M.x hδ_pos hf_star
-  have hint_δ : Integrable (fun w => ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      δ_star M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) :=
+  have hint_δ : Integrable (fun w =>
+      ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        δ_star M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) :=
     linear_integrable_at_radius M.x hδ_pos hf_star
-  have hbdd : ∀ w : Fin n → ℝ, BddAbove {y | ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      (Real.sqrt (δ_star * δ_star)) M.x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|} := by
+  have hbdd : ∀ w : Fin n → ℝ, BddAbove {y |
+      ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        (Real.sqrt (δ_star * δ_star)) M.x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|} := by
     rw [h_sqrt_eq]
     exact linear_bddAbove_at_radius hn M.x hδ_pos hf_star
   have h_master := master_error_bound hn M (linearPredictorClass d) hf_star δ_star hδ_pos
@@ -621,17 +634,21 @@ theorem linear_minimax_rate_rank (hn : 0 < n)
     rw [h_sqrt_eq]
     exact linear_empiricalSphere_nonempty_rank hn M.x hδ_star_pos hr hf_star
   -- Integrability at √(t·δ_star) = δ_star
-  have hint_u : Integrable (fun w => ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      (Real.sqrt (δ_star * δ_star)) M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) := by
+  have hint_u : Integrable (fun w =>
+      ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        (Real.sqrt (δ_star * δ_star)) M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|)
+      (stdGaussianPi n) := by
     rw [h_sqrt_eq]
     exact linear_integrable_at_radius M.x hδ_star_pos hf_star
   -- Integrability at δ_star
-  have hint_δ : Integrable (fun w => ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      δ_star M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) :=
+  have hint_δ : Integrable (fun w =>
+      ⨆ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        δ_star M.x, |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|) (stdGaussianPi n) :=
     linear_integrable_at_radius M.x hδ_star_pos hf_star
   -- Boundedness at √(t·δ_star) = δ_star
-  have hbdd : ∀ w : Fin n → ℝ, BddAbove {y | ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
-      (Real.sqrt (δ_star * δ_star)) M.x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|} := by
+  have hbdd : ∀ w : Fin n → ℝ, BddAbove {y |
+      ∃ h ∈ localizedBall (shiftedClass (linearPredictorClass d) M.f_star)
+        (Real.sqrt (δ_star * δ_star)) M.x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (M.x i)|} := by
     rw [h_sqrt_eq]
     exact linear_bddAbove_at_radius hn M.x hδ_star_pos hf_star
   -- Step 2: Apply master_error_bound with t = δ_star

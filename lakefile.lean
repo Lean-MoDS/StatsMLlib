@@ -3,14 +3,13 @@ open Lake DSL
 
 abbrev linter : Array LeanOption := #[
   ⟨`linter.hashCommand, true⟩,
-  ⟨`linter.missingEnd, true⟩,
-  ⟨`linter.cdot, true⟩,
-  ⟨`linter.dollarSyntax, true⟩,
+  ⟨`linter.style.missingEnd, true⟩,
+  ⟨`linter.style.cdot, true⟩,
+  ⟨`linter.style.dollarSyntax, true⟩,
   ⟨`linter.style.lambdaSyntax, true⟩,
-  ⟨`linter.longLine, true⟩,
+  ⟨`linter.style.longLine, true⟩,
   ⟨`linter.oldObtain, true,⟩,
-  ⟨`linter.refine, true⟩,
-  ⟨`linter.setOption, true⟩,
+  ⟨`linter.style.refine, true⟩,
   ⟨`linter.style.setOption, true⟩,
   ⟨`linter.style.maxHeartbeats, true⟩
 ]

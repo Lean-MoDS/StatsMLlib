@@ -17,7 +17,8 @@ The C¹ case uses Herbst argument with LSI. General Lipschitz
 follows by mollification approximation: f_ε → f with preserved Lipschitz constant.
 -/
 
-open MeasureTheory ProbabilityTheory Real Finset BigOperators Function GaussianMeasure GaussianSobolev
+open MeasureTheory ProbabilityTheory Real Finset BigOperators Function GaussianMeasure
+    GaussianSobolev
 open scoped ENNReal
 
 namespace GaussianLipConcen
@@ -59,12 +60,14 @@ lemma lipschitz_gradNormSq_bound {f : (Fin n → ℝ) → ℝ} {L : ℝ} (hL : 0
     simp only [mul_one] at h
     exact h
   -- The partial derivatives of f equal those of f' at corresponding points
-  have h_partial_eq : ∀ i, GaussianLSI.partialDeriv i f x = fderiv ℝ f' (e.symm x) (EuclideanSpace.single i 1) := by
+  have h_partial_eq : ∀ i, GaussianLSI.partialDeriv i f x =
+      fderiv ℝ f' (e.symm x) (EuclideanSpace.single i 1) := by
     intro i
     simp only [GaussianLSI.partialDeriv, f']
     -- The derivative of f ∘ e at e.symm x applied to EuclideanSpace.single i 1
     -- equals the derivative of f at x applied to Pi.single i 1
-    have h_chain := fderiv_comp (e.symm x) (hf_C1.differentiable (by norm_num) (e (e.symm x))) e.differentiable.differentiableAt
+    have h_chain := fderiv_comp (e.symm x) (hf_C1.differentiable (by norm_num) (e (e.symm x)))
+        e.differentiable.differentiableAt
     rw [h_chain]
     simp only [ContinuousLinearMap.comp_apply]
     congr 1
@@ -303,7 +306,8 @@ lemma ratio_bound_gronwall (φ : ℝ → ℝ) (t : ℝ) (ht : 0 < t)
   have h_mono : ∀ s, s ∈ Set.Ioo 0 t → φ s / s ≥ φ t / t := fun s hs => by
     have h_ratio_cont : ContinuousAt (fun x => φ x / x) t :=
       ContinuousAt.div (hφ_diff t).continuousAt continuousAt_id (ne_of_gt ht)
-    have h_tendsto : Filter.Tendsto (fun y => φ y / y) (nhdsWithin t (Set.Iio t)) (nhds (φ t / t)) :=
+    have h_tendsto :
+        Filter.Tendsto (fun y => φ y / y) (nhdsWithin t (Set.Iio t)) (nhds (φ t / t)) :=
       h_ratio_cont.tendsto.mono_left nhdsWithin_le_nhds
     have : (nhdsWithin t (Set.Iio t)).NeBot := inferInstance
     apply le_of_tendsto h_tendsto
@@ -345,7 +349,8 @@ lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
   have h_gsq_eq : ∀ x, (g x)^2 = exp (s * f_c x) := by
     intro x; unfold g; rw [sq, ← exp_add]; congr 1; ring
   -- Gradient of g: |∇g|² = (s/2)² |∇f|² g²
-  have h_grad_g : ∀ x, GaussianLSI.gradNormSq n g x = (s/2)^2 * GaussianLSI.gradNormSq n f x * (g x)^2 := by
+  have h_grad_g : ∀ x, GaussianLSI.gradNormSq n g x = (s/2)^2 *
+      GaussianLSI.gradNormSq n f x * (g x)^2 := by
     intro x
     unfold GaussianLSI.gradNormSq GaussianLSI.partialDeriv g
     have h_deriv : ∀ i, fderiv ℝ (fun x => exp (s / 2 * f_c x)) x (Pi.single i 1) =
@@ -399,8 +404,10 @@ lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
               intro i _
               apply Measurable.pow _ measurable_const
               unfold GaussianLSI.partialDeriv g
-              have hg_C1 : ContDiff ℝ 1 g := ContDiff.exp (ContDiff.mul contDiff_const (hf_C1.sub contDiff_const))
-              have hg_cont : Continuous (fderiv ℝ g) := (hg_C1.fderiv_right (m := 0) le_rfl).continuous
+              have hg_C1 : ContDiff ℝ 1 g :=
+                  ContDiff.exp (ContDiff.mul contDiff_const (hf_C1.sub contDiff_const))
+              have hg_cont : Continuous (fderiv ℝ g) :=
+                  (hg_C1.fderiv_right (m := 0) le_rfl).continuous
               have h_eval_cont : Continuous (fun L : (Fin n → ℝ) →L[ℝ] ℝ => L (Pi.single i 1)) :=
                 ContinuousLinearMap.apply ℝ ℝ (Pi.single i 1) |>.continuous
               exact (h_eval_cont.comp hg_cont).measurable
@@ -414,7 +421,8 @@ lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
           · intro x; exact h_grad_g_bound x
       _ = (s/2)^2 * σ^2 * ∫ x, (g x)^2 ∂μ := by rw [integral_const_mul]
   -- Prepare LSI hypotheses for g
-  have hg_C1 : ContDiff ℝ 1 g := ContDiff.exp (ContDiff.mul contDiff_const (hf_C1.sub contDiff_const))
+  have hg_C1 : ContDiff ℝ 1 g :=
+      ContDiff.exp (ContDiff.mul contDiff_const (hf_C1.sub contDiff_const))
   have hg_diff : Differentiable ℝ g := hg_C1.differentiable (by norm_num)
   have hg_grad_cont : ∀ i, Continuous (fun x => GaussianLSI.partialDeriv i g x) := by
     intro i
@@ -424,7 +432,9 @@ lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
   have h_gsq_int : Integrable (fun x => (g x)^2) μ := by
     have h_exp_int := lipschitz_exp_integrable (le_of_lt hL_lip) hf_lip s
     convert h_exp_int using 1; ext x; exact h_gsq_eq x
-  have hg_memLp : MemLp g 2 μ := (MeasureTheory.memLp_two_iff_integrable_sq hg_diff.continuous.aestronglyMeasurable).mpr h_gsq_int
+  have hg_memLp : MemLp g 2 μ :=
+    (MeasureTheory.memLp_two_iff_integrable_sq hg_diff.continuous.aestronglyMeasurable).mpr
+      h_gsq_int
   have hg_partial_memLp : ∀ i, MemLp (fun x => GaussianLSI.partialDeriv i g x) 2 μ := by
     intro i
     have h_bound : ∀ x, (GaussianLSI.partialDeriv i g x)^2 ≤ (s/2)^2 * σ^2 * (g x)^2 := fun x => by
@@ -442,14 +452,16 @@ lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
         simp only [Real.norm_eq_abs]
         rw [abs_of_nonneg (sq_nonneg _)]
         exact h_bound x
-    exact (MeasureTheory.memLp_two_iff_integrable_sq (hg_grad_cont i).aestronglyMeasurable).mpr h_partial_int
+    exact (MeasureTheory.memLp_two_iff_integrable_sq
+        (hg_grad_cont i).aestronglyMeasurable).mpr h_partial_int
   have hg_W12 : GaussianLSI.MemW12GaussianPi n g μ := ⟨hg_memLp, hg_partial_memLp⟩
   -- Log-integrability: g² * log(g²) = exp(s * f_c) * (s * f_c)
   have hg_log_int : Integrable (fun x => (g x)^2 * log ((g x)^2)) μ := by
     have h_eq : ∀ x, (g x)^2 * log ((g x)^2) = exp (s * f_c x) * (s * f_c x) := by
       intro x; rw [h_gsq_eq x]; congr 1; rw [log_exp]
     simp_rw [h_eq]
-    have h_eq' : (fun x => exp (s * f_c x) * (s * f_c x)) = fun x => s * (f_c x * exp (s * f_c x)) := by
+    have h_eq' :
+        (fun x => exp (s * f_c x) * (s * f_c x)) = fun x => s * (f_c x * exp (s * f_c x)) := by
       ext x; ring
     rw [h_eq']
     apply Integrable.const_mul
@@ -466,18 +478,21 @@ lemma entropy_bound_exp_scaled {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
         calc f_c x * exp (s * f_c x) ≤ exp (f_c x) * exp (s * f_c x) := by
               apply mul_le_mul_of_nonneg_right h' (exp_pos _).le
           _ = exp ((1 + s) * f_c x) := by rw [← exp_add]; ring_nf
-          _ ≤ exp ((1 + s) * f_c x) + exp ((s - 1) * f_c x) := by linarith [exp_pos ((s - 1) * f_c x)]
+          _ ≤ exp ((1 + s) * f_c x) + exp ((s - 1) * f_c x) :=
+              by linarith [exp_pos ((s - 1) * f_c x)]
       · push Not at hfc; rw [abs_of_neg hfc]
         have h' : -f_c x ≤ exp (-f_c x) := by rw [abs_of_neg hfc] at h; exact h
         calc (-f_c x) * exp (s * f_c x) ≤ exp (-f_c x) * exp (s * f_c x) := by
               apply mul_le_mul_of_nonneg_right h' (exp_pos _).le
           _ = exp ((s - 1) * f_c x) := by rw [← exp_add]; ring_nf
-          _ ≤ exp ((1 + s) * f_c x) + exp ((s - 1) * f_c x) := by linarith [exp_pos ((1 + s) * f_c x)]
+          _ ≤ exp ((1 + s) * f_c x) + exp ((s - 1) * f_c x) :=
+              by linarith [exp_pos ((1 + s) * f_c x)]
     have h_dom_int : Integrable (fun x => exp ((1 + s) * f_c x) + exp ((s - 1) * f_c x)) μ :=
       (lipschitz_exp_integrable (le_of_lt hL_lip) hf_lip (1 + s)).add
         (lipschitz_exp_integrable (le_of_lt hL_lip) hf_lip (s - 1))
     apply Integrable.mono' h_dom_int
-    · exact hfc_cont.aestronglyMeasurable.mul (continuous_exp.comp (continuous_const.mul hfc_cont)).aestronglyMeasurable
+    · exact hfc_cont.aestronglyMeasurable.mul
+        (continuous_exp.comp (continuous_const.mul hfc_cont)).aestronglyMeasurable
     · filter_upwards with x; rw [Real.norm_eq_abs]; exact h_fc_bound x
   -- Apply LSI and chain inequalities
   have h_lsi := GaussianLSI.gaussian_logSobolev_W12_pi hg_W12 hg_diff hg_grad_cont hg_log_int
@@ -501,7 +516,8 @@ theorem cgf_bound {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
   let μ := stdGaussianPi n
   let f_c := fun x => f x - ∫ y, f y ∂μ
   let g := fun x => exp (t / 2 * f_c x)
-  have h_grad_g : ∀ x, GaussianLSI.gradNormSq n g x = (t/2)^2 * GaussianLSI.gradNormSq n f x * (g x)^2 := by
+  have h_grad_g : ∀ x, GaussianLSI.gradNormSq n g x = (t/2)^2 *
+      GaussianLSI.gradNormSq n f x * (g x)^2 := by
     intro x
     unfold GaussianLSI.gradNormSq GaussianLSI.partialDeriv g
     have h_deriv : ∀ i, fderiv ℝ (fun x => exp (t / 2 * f_c x)) x (Pi.single i 1) =
@@ -586,13 +602,15 @@ theorem cgf_bound {f : (Fin n → ℝ) → ℝ} {σ L_lip : ℝ}
       apply integral_exp_pos
       exact lipschitz_exp_integrable (le_of_lt hL_lip) hf_lip s
     field_simp
-    have h_log_eq : ∀ x, exp (s * f_c x) * log (exp (s * f_c x)) = exp (s * f_c x) * (s * f_c x) := by
+    have h_log_eq : ∀ x, exp (s * f_c x) * log (exp (s * f_c x)) =
+        exp (s * f_c x) * (s * f_c x) := by
       intro x; rw [log_exp]
     simp_rw [h_log_eq]
     rw [← h_mgf_s]
     congr 1
     have h_eq : ∫ x, exp (s * f_c x) * (s * f_c x) ∂μ = s * ∫ x, f_c x * exp (s * f_c x) ∂μ := by
-      conv_lhs => arg 2; ext x; rw [show exp (s * f_c x) * (s * f_c x) = s * (f_c x * exp (s * f_c x)) by ring]
+      conv_lhs => arg 2; ext x; rw [show exp (s * f_c x) * (s * f_c x) = s *
+          (f_c x * exp (s * f_c x)) by ring]
       exact MeasureTheory.integral_const_mul s _
     exact h_eq
   have h_diff_ineq : ∀ s, s * deriv (cgf f_c μ) s - cgf f_c μ s ≤ s^2 * σ^2 / 2 := by
@@ -774,11 +792,13 @@ lemma lipschitzE_integrable {f : EuclideanSpace ℝ (Fin n) → ℝ} {L : ℝ} (
   rw [h_eq, integrable_map_equiv e]
   let f' := f ∘ (EuclideanSpace.equiv (Fin n) ℝ).symm
   have hf'_lip : LipschitzWith (Real.toNNReal (Real.sqrt n * L)) f' := by
-    have he_lip : LipschitzWith (Real.toNNReal (Real.sqrt n)) (EuclideanSpace.equiv (Fin n) ℝ).symm := by
+    have he_lip : LipschitzWith (Real.toNNReal (Real.sqrt n))
+        (EuclideanSpace.equiv (Fin n) ℝ).symm := by
       rw [lipschitzWith_iff_dist_le_mul]
       intro w₁ w₂
       rw [Real.coe_toNNReal _ (Real.sqrt_nonneg n)]
-      have h_norm : ∀ v : Fin n → ℝ, ‖(EuclideanSpace.equiv (Fin n) ℝ).symm v‖ ≤ Real.sqrt n * ‖v‖ := by
+      have h_norm : ∀ v : Fin n → ℝ, ‖(EuclideanSpace.equiv (Fin n) ℝ).symm v‖ ≤
+          Real.sqrt n * ‖v‖ := by
         intro v
         rw [EuclideanSpace.norm_eq]
         have h_sum : ∑ i, ‖v i‖^2 ≤ n * ‖v‖^2 := by
@@ -792,8 +812,10 @@ lemma lipschitzE_integrable {f : EuclideanSpace ℝ (Fin n) → ℝ} {L : ℝ} (
           _ = Real.sqrt n * Real.sqrt (‖v‖^2) := Real.sqrt_mul (Nat.cast_nonneg n) _
           _ = Real.sqrt n * |‖v‖| := by rw [Real.sqrt_sq_eq_abs]
           _ = Real.sqrt n * ‖v‖ := by rw [abs_of_nonneg (norm_nonneg _)]
-      calc dist ((EuclideanSpace.equiv (Fin n) ℝ).symm w₁) ((EuclideanSpace.equiv (Fin n) ℝ).symm w₂)
-          = ‖(EuclideanSpace.equiv (Fin n) ℝ).symm w₁ - (EuclideanSpace.equiv (Fin n) ℝ).symm w₂‖ := dist_eq_norm _ _
+      calc dist ((EuclideanSpace.equiv (Fin n) ℝ).symm w₁)
+              ((EuclideanSpace.equiv (Fin n) ℝ).symm w₂)
+          = ‖(EuclideanSpace.equiv (Fin n) ℝ).symm w₁ - (EuclideanSpace.equiv (Fin n) ℝ).symm w₂‖ :=
+              dist_eq_norm _ _
         _ = ‖(EuclideanSpace.equiv (Fin n) ℝ).symm (w₁ - w₂)‖ := by simp [map_sub]
         _ ≤ Real.sqrt n * ‖w₁ - w₂‖ := h_norm _
         _ = Real.sqrt n * dist w₁ w₂ := by rw [dist_eq_norm]
@@ -841,7 +863,8 @@ lemma lipschitz_gradNormSq_bound_E {f : EuclideanSpace ℝ (Fin n) → ℝ} {L :
       exact hf_diff
     have h_fderiv_esymm : fderiv ℝ (↑e.symm) (e x) = (e.symm : (Fin n → ℝ) →L[ℝ] _) :=
       ContinuousLinearEquiv.fderiv e.symm
-    have h_fderiv_comp : fderiv ℝ (f ∘ e.symm) (e x) = (fderiv ℝ f x).comp (e.symm : (Fin n → ℝ) →L[ℝ] _) := by
+    have h_fderiv_comp : fderiv ℝ (f ∘ e.symm) (e x) =
+        (fderiv ℝ f x).comp (e.symm : (Fin n → ℝ) →L[ℝ] _) := by
       have := fderiv_comp (e x) hf_diff' he_diff
       rw [this, h_fderiv_esymm]
       congr 1
@@ -868,9 +891,11 @@ local notation "𝔼" => EuclideanSpace ℝ (Fin n)
 /-- Pointwise convergence of exponentials: exp(t * f_ε(x)) → exp(t * f(x)). -/
 lemma exp_mollify_tendsto_of_lipschitz {f : 𝔼 → ℝ} {L : ℝ≥0}
     (hf : LipschitzWith L f) (t : ℝ) (x : 𝔼) :
-    Tendsto (fun ε => exp (t * mollify ε f x)) (nhdsWithin 0 (Set.Ioi 0)) (nhds (exp (t * f x))) := by
+    Tendsto (fun ε =>
+        exp (t * mollify ε f x)) (nhdsWithin 0 (Set.Ioi 0)) (nhds (exp (t * f x))) := by
   have h_moll := mollify_tendsto_of_lipschitz hf x
-  exact (continuous_exp.tendsto _).comp ((continuous_const.mul continuous_id).tendsto (f x) |>.comp h_moll)
+  exact (continuous_exp.tendsto _).comp
+      ((continuous_const.mul continuous_id).tendsto (f x) |>.comp h_moll)
 
 /-- Mollified Lipschitz functions are Lipschitz with the same constant. -/
 lemma mollify_lipschitzWith' {f : 𝔼 → ℝ} {L : ℝ≥0} {ε : ℝ} (hε : 0 < ε)
@@ -1071,7 +1096,8 @@ lemma centered_mgf_mollify_tendsto_of_lipschitz {f : 𝔼 → ℝ} {L : ℝ≥0}
     intro g
     simp_rw [h_factor]
     exact MeasureTheory.integral_const_mul _ _
-  have h_goal : Tendsto (fun ε => exp (-t * ∫ y, mollify ε f y ∂μ) * (∫ x, exp (t * mollify ε f x) ∂μ))
+  have h_goal : Tendsto (fun ε => exp (-t * ∫ y, mollify ε f y ∂μ) *
+      (∫ x, exp (t * mollify ε f x) ∂μ))
         (nhdsWithin 0 (Set.Ioi 0))
         (nhds (exp (-t * ∫ y, f y ∂μ) * (∫ x, exp (t * f x) ∂μ))) := by
     apply Tendsto.mul
@@ -1186,7 +1212,8 @@ lemma lipschitz_cgf_bound_C1 {f : 𝔼 → ℝ} {L : ℝ}
   have h_gradbound : ∀ w, GaussianLSI.gradNormSq n f' w ≤ L^2 := fun w =>
     lipschitz_gradNormSq_bound_E (le_of_lt hL) hf_lip hf_C1 (e.symm w)
   have h_cgf' : cgf (fun w => f' w - ∫ z, f' z ∂μ') μ' t ≤ t^2 * L^2 / 2 :=
-    cgf_bound hL hf'_lip (mul_pos (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hn)) hL) hf'_C1 h_gradbound hf'_int t
+    cgf_bound hL hf'_lip (mul_pos (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hn)) hL) hf'_C1
+        h_gradbound hf'_int t
   simp only [cgf, mgf]
   have h_eq : ∫ x, exp (t * (f x - ∫ y, f y ∂μ)) ∂μ =
               ∫ w, exp (t * (f' w - ∫ z, f' z ∂μ')) ∂μ' := by

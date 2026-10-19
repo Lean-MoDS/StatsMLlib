@@ -76,10 +76,12 @@ lemma one_step_discretization_bound
   globalOsc X T ≤ 2 * localOsc X T δ + 2 * (⨆ u ∈ U, |X u - X u₀|) := by
   by_contra h_contra;
 
-  obtain ⟨θ, θ', hθθ', h_ineq⟩ : ∃ θ θ', θ ∈ T ∧ θ' ∈ T ∧ X θ - X θ' > 2 * localOsc X T δ + 2 * ⨆ u ∈ U, |X u - X u₀| := by
+  obtain ⟨θ, θ', hθθ', h_ineq⟩ : ∃ θ θ', θ ∈ T ∧ θ' ∈ T ∧ X θ - X θ' > 2 * localOsc X T δ + 2 *
+      ⨆ u ∈ U, |X u - X u₀| := by
     simp +zetaDelta at *;
     convert exists_lt_of_lt_csSup _ h_contra using 1;
-    · exact ⟨ fun ⟨ θ, hθ, x, hx, h ⟩ => ⟨ _, ⟨ θ, hθ, x, hx, rfl ⟩, h ⟩, by rintro ⟨ a, ⟨ θ, hθ, x, hx, rfl ⟩, h ⟩ ; exact ⟨ θ, hθ, x, hx, h ⟩ ⟩;
+    · exact ⟨ fun ⟨ θ, hθ, x, hx, h ⟩ => ⟨ _, ⟨ θ, hθ, x, hx, rfl ⟩, h ⟩,
+        by rintro ⟨ a, ⟨ θ, hθ, x, hx, rfl ⟩, h ⟩ ; exact ⟨ θ, hθ, x, hx, h ⟩ ⟩;
     · exact ⟨ _, ⟨ u₀, hU_subset hu₀, u₀, hU_subset hu₀, rfl ⟩ ⟩;
 
   obtain ⟨πθ, hπθ⟩ : ∃ πθ ∈ U, dist θ πθ ≤ δ := by
@@ -90,34 +92,54 @@ lemma one_step_discretization_bound
   have h_triangle : X θ - X θ' ≤ (X θ - X πθ) + (X πθ - X πθ') + (X πθ' - X θ') := by
     linarith
   have h_local_osc : X θ - X πθ ≤ localOsc X T δ ∧ X πθ' - X θ' ≤ localOsc X T δ := by
-    refine' ⟨ le_csSup _ _, le_csSup _ _ ⟩;
-    · by_cases h_bdd : BddAbove (Set.image (fun p : α × α => X p.1 - X p.2) {p : α × α | p.1 ∈ T ∧ p.2 ∈ T ∧ dist p.1 p.2 ≤ δ});
-      · exact ⟨ h_bdd.choose, by rintro x ⟨ y, hy, z, hz, h, rfl ⟩ ; exact h_bdd.choose_spec ⟨ ( y, z ), ⟨ hy, hz, h ⟩, rfl ⟩ ⟩;
+    refine ⟨ le_csSup ?_ ?_, le_csSup ?_ ?_ ⟩;
+    · by_cases h_bdd :
+        BddAbove (Set.image (fun p : α × α => X p.1 - X p.2) {p : α × α | p.1 ∈ T ∧ p.2 ∈ T ∧
+        dist p.1 p.2 ≤ δ});
+      · exact
+          ⟨ h_bdd.choose,
+          by rintro x ⟨ y, hy, z, hz, h, rfl ⟩ ; exact h_bdd.choose_spec ⟨ ( y, z ), ⟨ hy, hz, h ⟩,
+          rfl ⟩ ⟩;
       · unfold globalOsc localOsc at h_contra;
         rw [ Real.sSup_of_not_bddAbove ] at h_contra;
         · rw [ Real.sSup_of_not_bddAbove ] at h_contra;
-          · exact False.elim <| h_contra <| add_nonneg ( mul_nonneg zero_le_two <| by norm_num ) <| mul_nonneg zero_le_two <| Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _;
-          · exact fun ⟨ M, hM ⟩ => h_bdd ⟨ M, Set.forall_mem_image.2 fun p hp => hM ⟨ p.1, hp.1, p.2, hp.2.1, hp.2.2, rfl ⟩ ⟩;
+          · exact False.elim <| h_contra <|
+              add_nonneg ( mul_nonneg zero_le_two <| by norm_num ) <| mul_nonneg zero_le_two <|
+              Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _;
+          · exact fun ⟨ M, hM ⟩ =>
+              h_bdd ⟨ M, Set.forall_mem_image.2 fun p hp =>
+              hM ⟨ p.1, hp.1, p.2, hp.2.1, hp.2.2, rfl ⟩ ⟩;
         · rintro ⟨M, hM⟩
           exact h_bdd ⟨M, Set.forall_mem_image.2 fun p hp => hM ⟨p.1, hp.1, p.2, hp.2.1, rfl⟩⟩
     · exact ⟨ θ, hθθ', πθ, hU_subset hπθ.1, hπθ.2, rfl ⟩;
-    · by_cases h_bdd : BddAbove (Set.image (fun p : α × α => X p.1 - X p.2) {p : α × α | p.1 ∈ T ∧ p.2 ∈ T ∧ dist p.1 p.2 ≤ δ});
-      · exact ⟨ h_bdd.choose, by rintro x ⟨ y, hy, z, hz, h, rfl ⟩ ; exact h_bdd.choose_spec ⟨ ( y, z ), ⟨ hy, hz, h ⟩, rfl ⟩ ⟩;
+    · by_cases h_bdd :
+        BddAbove (Set.image (fun p : α × α => X p.1 - X p.2) {p : α × α | p.1 ∈ T ∧ p.2 ∈ T ∧
+        dist p.1 p.2 ≤ δ});
+      · exact
+          ⟨ h_bdd.choose,
+          by rintro x ⟨ y, hy, z, hz, h, rfl ⟩ ; exact h_bdd.choose_spec ⟨ ( y, z ), ⟨ hy, hz, h ⟩,
+          rfl ⟩ ⟩;
       · unfold globalOsc localOsc at h_contra;
         rw [ Real.sSup_of_not_bddAbove ] at h_contra;
         · rw [ Real.sSup_of_not_bddAbove ] at h_contra;
-          · exact False.elim <| h_contra <| add_nonneg ( mul_nonneg zero_le_two <| by norm_num ) <| mul_nonneg zero_le_two <| Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _;
-          · exact fun ⟨ M, hM ⟩ => h_bdd ⟨ M, Set.forall_mem_image.2 fun p hp => hM ⟨ p.1, hp.1, p.2, hp.2.1, hp.2.2, rfl ⟩ ⟩;
+          · exact False.elim <| h_contra <|
+              add_nonneg ( mul_nonneg zero_le_two <| by norm_num ) <| mul_nonneg zero_le_two <|
+              Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _;
+          · exact fun ⟨ M, hM ⟩ =>
+              h_bdd ⟨ M, Set.forall_mem_image.2 fun p hp =>
+              hM ⟨ p.1, hp.1, p.2, hp.2.1, hp.2.2, rfl ⟩ ⟩;
         · rintro ⟨M, hM⟩
           exact h_bdd ⟨M, Set.forall_mem_image.2 fun p hp => hM ⟨p.1, hp.1, p.2, hp.2.1, rfl⟩⟩
     · exact ⟨ πθ', hU_subset hπθ'.1, θ', h_ineq.1, by simpa [ dist_comm ] using hπθ'.2, rfl ⟩
   have h_max_abs : X πθ - X πθ' ≤ 2 * ⨆ u ∈ U, |X u - X u₀| := by
-    have h_max_abs : |X πθ - X u₀| ≤ ⨆ u ∈ U, |X u - X u₀| ∧ |X πθ' - X u₀| ≤ ⨆ u ∈ U, |X u - X u₀| := by
+    have h_max_abs : |X πθ - X u₀| ≤ ⨆ u ∈ U, |X u - X u₀| ∧ |X πθ' - X u₀| ≤ ⨆ u ∈ U, |X u -
+        X u₀| := by
       have h_bdd_abs : BddAbove (Set.range fun u : α => ⨆ (_ : u ∈ U), |X u - X u₀|) := by
         refine ⟨∑ u ∈ hU_fin.toFinset, |X u - X u₀|, Set.forall_mem_range.2 fun u => ?_⟩
         rw [@ciSup_eq_ite]
         split_ifs with hu
-        · exact Finset.single_le_sum (fun u _ => abs_nonneg (X u - X u₀)) (hU_fin.mem_toFinset.mpr hu)
+        · exact Finset.single_le_sum (fun u _ => abs_nonneg (X u - X u₀))
+            (hU_fin.mem_toFinset.mpr hu)
         · exact le_trans (by norm_num) (Finset.sum_nonneg fun u _ => abs_nonneg (X u - X u₀))
       have h_mem_sup (u : α) (hu : u ∈ U) : |X u - X u₀| ≤ ⨆ (_ : u ∈ U), |X u - X u₀| := by
         exact le_ciSup ⟨|X u - X u₀|, Set.forall_mem_range.2 fun _ => le_rfl⟩ hu
@@ -146,9 +168,9 @@ lemma mgf_max_bound {α : Type*} [MeasurableSpace α]
 
   have h_max_exp_bound : ∫ x, Real.exp (t * ⨆ k, Y k x) ∂μ ≤ ∑ k, ∫ x, Real.exp (t * Y k x) ∂μ := by
     rw [ ← MeasureTheory.integral_finsetSum ];
-    · refine' MeasureTheory.integral_mono_of_nonneg _ _ _;
+    · refine MeasureTheory.integral_mono_of_nonneg ?_ ?_ ?_;
       · exact Filter.Eventually.of_forall fun x => Real.exp_nonneg _;
-      · refine' MeasureTheory.integrable_finsetSum _ fun i _ => _;
+      · refine MeasureTheory.integrable_finsetSum _ fun i _ => ?_;
         exact sub_gaussian_integrable (h_sg i) t;
       · filter_upwards [ ] with x;
 
@@ -158,7 +180,9 @@ lemma mgf_max_bound {α : Type*} [MeasurableSpace α]
               (IsCompact.sSup_mem
                 (isCompact_range <| show Continuous fun k => Y k x from by continuity)
                 (Set.nonempty_of_mem <| Set.mem_range_self ⟨0, hM⟩))
-          exact le_trans ( by rw [ ← h_max.choose_spec ] ) ( Finset.single_le_sum ( fun k _ => Real.exp_nonneg ( t * Y k x ) ) ( Finset.mem_univ _ ) );
+          exact le_trans ( by rw [ ← h_max.choose_spec ] )
+              ( Finset.single_le_sum ( fun k _ => Real.exp_nonneg ( t * Y k x ) )
+              ( Finset.mem_univ _ ) );
         exact h_max_exp;
     · exact fun k _ => sub_gaussian_integrable ( h_sg k ) t;
 
@@ -193,29 +217,38 @@ lemma metric_entropy_bound_for_sub_gaussian_maxima
 
   have h_max_bound : ∀ t > 0, ∫ x, (⨆ k, Y k x) ∂μ ≤ (Real.log M) / t + σ_sq * t / 2 := by
     intro t ht
-    have h_jensen : Real.exp (t * (∫ x, (⨆ k, Y k x) ∂μ)) ≤ ∫ x, Real.exp (t * (⨆ k, Y k x)) ∂μ := by
+    have h_jensen : Real.exp (t * (∫ x, (⨆ k, Y k x) ∂μ)) ≤ ∫ x,
+        Real.exp (t * (⨆ k, Y k x)) ∂μ := by
       by_cases h_integrable : MeasureTheory.Integrable (fun x => ⨆ k, Y k x) μ;
       · have h_jensen : ConvexOn ℝ (Set.univ : Set ℝ) Real.exp := by
           exact convexOn_exp;
-        have h_jensen : Real.exp (∫ x, t * (⨆ k, Y k x) ∂μ) ≤ ∫ x, Real.exp (t * (⨆ k, Y k x)) ∂μ := by
+        have h_jensen : Real.exp (∫ x, t * (⨆ k, Y k x) ∂μ) ≤ ∫ x,
+            Real.exp (t * (⨆ k, Y k x)) ∂μ := by
           apply_rules [ h_jensen.map_integral_le ];
           · exact Real.continuousOn_exp;
           · exact isClosed_univ;
           · exact Filter.Eventually.of_forall fun x => Set.mem_univ _;
           · exact h_integrable.const_mul t;
-          · have h_integrable_exp : ∀ k, MeasureTheory.Integrable (fun x => Real.exp (t * Y k x)) μ := by
+          · have h_integrable_exp : ∀ k,
+              MeasureTheory.Integrable (fun x => Real.exp (t * Y k x)) μ := by
               exact fun k => sub_gaussian_integrable (h_sg k) t;
-            refine' MeasureTheory.Integrable.mono' ( MeasureTheory.integrable_finsetSum _ fun k _ => h_integrable_exp k ) _ _;
-            exact Finset.univ;
-            · exact Real.continuous_exp.comp_aestronglyMeasurable ( h_integrable.aestronglyMeasurable.const_mul _ );
+            refine MeasureTheory.Integrable.mono'
+              ( MeasureTheory.integrable_finsetSum Finset.univ fun k _ =>
+                  h_integrable_exp k ) ?_ ?_;
+            · exact Real.continuous_exp.comp_aestronglyMeasurable
+                ( h_integrable.aestronglyMeasurable.const_mul _ );
             · filter_upwards [ ] with x;
               rcases M with ( _ | _ | M ) <;> simp_all +decide [ Fin.sum_univ_succ ];
 
-              have h_exp_sup : Real.exp (t * ⨆ k, Y k x) ≤ ∑ k : Fin (M + 2), Real.exp (t * Y k x) := by
+              have h_exp_sup : Real.exp (t * ⨆ k, Y k x) ≤ ∑ k : Fin (M + 2),
+                  Real.exp (t * Y k x) := by
                 have h_exp_sup : ∃ k, Y k x = ⨆ k, Y k x := by
                   exact exists_eq_ciSup_of_finite;
-                exact le_trans ( by rw [ ← h_exp_sup.choose_spec ] ) ( Finset.single_le_sum ( fun k _ => Real.exp_nonneg ( t * Y k x ) ) ( Finset.mem_univ _ ) );
-              exact h_exp_sup.trans_eq ( by rw [ Fin.sum_univ_succ, Fin.sum_univ_succ ] ; simp +decide );
+                exact le_trans ( by rw [ ← h_exp_sup.choose_spec ] )
+                    ( Finset.single_le_sum ( fun k _ => Real.exp_nonneg ( t * Y k x ) )
+                    ( Finset.mem_univ _ ) );
+              exact h_exp_sup.trans_eq
+                  ( by rw [ Fin.sum_univ_succ, Fin.sum_univ_succ ] ; simp +decide );
         simpa only [ MeasureTheory.integral_const_mul ] using h_jensen;
       · have h_integrable : ∀ k, MeasureTheory.Integrable (fun x => Y k x) μ := by
           intro k
@@ -224,52 +257,80 @@ lemma metric_entropy_bound_for_sub_gaussian_maxima
           have h_integrable : MeasureTheory.Integrable (fun x => Y k x) μ := by
             have := h_mgf.integrable_exp_mul;
             have := this 1;
-            refine' MeasureTheory.Integrable.mono' _ _ _;
-            exact fun ω => Real.exp ( Y k ω ) + Real.exp ( -Y k ω );
-            · exact MeasureTheory.Integrable.add ( by simpa using this ) ( by simpa using ‹∀ t : ℝ, MeasureTheory.Integrable ( fun ω => Real.exp ( t * Y k ω ) ) μ› ( -1 ) );
+            refine MeasureTheory.Integrable.mono'
+              (g := fun ω => Real.exp ( Y k ω ) + Real.exp ( -Y k ω )) ?_ ?_ ?_;
+            · exact MeasureTheory.Integrable.add ( by simpa using this ) ( by
+                simpa using ‹∀ t : ℝ, MeasureTheory.Integrable
+                  ( fun ω => Real.exp ( t * Y k ω ) ) μ› ( -1 ) );
             · have := h_mgf.aestronglyMeasurable;
               exact this;
-            · filter_upwards [ ] with ω using abs_le.mpr ⟨ by linarith [ Real.add_one_le_exp ( Y k ω ), Real.add_one_le_exp ( -Y k ω ), Real.exp_pos ( Y k ω ), Real.exp_pos ( -Y k ω ) ], by linarith [ Real.add_one_le_exp ( Y k ω ), Real.add_one_le_exp ( -Y k ω ), Real.exp_pos ( Y k ω ), Real.exp_pos ( -Y k ω ) ] ⟩
+            · filter_upwards [ ] with ω using abs_le.mpr
+                ⟨ by linarith [ Real.add_one_le_exp ( Y k ω ), Real.add_one_le_exp ( -Y k ω ),
+                      Real.exp_pos ( Y k ω ), Real.exp_pos ( -Y k ω ) ],
+                  by linarith [ Real.add_one_le_exp ( Y k ω ), Real.add_one_le_exp ( -Y k ω ),
+                      Real.exp_pos ( Y k ω ), Real.exp_pos ( -Y k ω ) ] ⟩
           exact h_integrable;
         have h_integrable : MeasureTheory.Integrable (fun x => ⨆ k, Y k x) μ := by
-          refine' MeasureTheory.Integrable.mono' _ _ _;
-          refine' fun x => ∑ k, |Y k x|;
-          · exact MeasureTheory.integrable_finsetSum _ fun k _ => MeasureTheory.Integrable.abs ( h_integrable k );
+          refine MeasureTheory.Integrable.mono' (g := fun x => ∑ k, |Y k x|) ?_ ?_ ?_;
+          · exact MeasureTheory.integrable_finsetSum _ fun k _ =>
+              MeasureTheory.Integrable.abs ( h_integrable k );
           · have h_integrable : ∀ k, MeasureTheory.AEStronglyMeasurable (fun x => Y k x) μ := by
               exact fun k => ( h_integrable k |> MeasureTheory.Integrable.aestronglyMeasurable );
-            have h_integrable : ∀ {f : Fin M → α → ℝ}, (∀ k, MeasureTheory.AEStronglyMeasurable (fun x => f k x) μ) → MeasureTheory.AEStronglyMeasurable (fun x => ⨆ k, f k x) μ := by
+            have h_integrable : ∀ {f : Fin M → α → ℝ},
+                (∀ k, MeasureTheory.AEStronglyMeasurable (fun x => f k x) μ) →
+                MeasureTheory.AEStronglyMeasurable (fun x => ⨆ k, f k x) μ := by
               intro f hf;
               choose g hg using hf;
-              refine' ⟨ fun x => ⨆ k, g k x, _, _ ⟩;
+              refine ⟨ fun x => ⨆ k, g k x, ?_, ?_ ⟩;
               · exact (Measurable.iSup fun k => (hg k).1.measurable).stronglyMeasurable;
-              · filter_upwards [ MeasureTheory.ae_all_iff.2 fun k => hg k |>.2 ] with x hx using by simp +decide [ hx ] ;
+              · filter_upwards [ MeasureTheory.ae_all_iff.2 fun k =>
+                  hg k |>.2 ] with x hx using by simp +decide [ hx ] ;
             exact h_integrable ‹_›;
           · filter_upwards [ ] with x;
-            refine' abs_le.mpr ⟨ _, _ ⟩;
-            · exact le_trans ( neg_le_neg ( Finset.single_le_sum ( fun k _ => abs_nonneg ( Y k x ) ) ( Finset.mem_univ ⟨ 0, hM ⟩ ) ) ) ( le_trans ( neg_le_of_abs_le ( by simp +decide ) ) ( le_ciSup ( Finite.bddAbove_range fun k => Y k x ) ⟨ 0, hM ⟩ ) );
-            · convert ciSup_le fun k => show Y k x ≤ ∑ k, |Y k x| from le_trans ( le_abs_self _ ) ( Finset.single_le_sum ( fun a _ => abs_nonneg ( Y a x ) ) ( Finset.mem_univ k ) ) using 1;
+            refine abs_le.mpr ⟨ ?_, ?_ ⟩;
+            · exact le_trans
+                ( neg_le_neg ( Finset.single_le_sum ( fun k _ => abs_nonneg ( Y k x ) )
+                ( Finset.mem_univ ⟨ 0, hM ⟩ ) ) )
+                ( le_trans ( neg_le_of_abs_le ( by simp +decide ) )
+                ( le_ciSup ( Finite.bddAbove_range fun k => Y k x ) ⟨ 0, hM ⟩ ) );
+            · convert ciSup_le fun k => show Y k x ≤ ∑ k, |Y k x| from
+                le_trans ( le_abs_self _ )
+                ( Finset.single_le_sum ( fun a _ => abs_nonneg ( Y a x ) ) ( Finset.mem_univ k ) )
+                using 1;
               exact ⟨ ⟨ 0, hM ⟩ ⟩;
         contradiction;
 
     have h_mgf_bound : ∫ x, Real.exp (t * (⨆ k, Y k x)) ∂μ ≤ M * Real.exp (σ_sq * t^2 / 2) := by
       convert mgf_max_bound hM h_sg t using 1;
     have := Real.log_le_log ( by positivity ) ( h_jensen.trans h_mgf_bound );
-    rw [ Real.log_mul ( by positivity ) ( by positivity ), Real.log_exp, Real.log_exp ] at this ; rw [ div_add_div, le_div_iff₀ ] <;> nlinarith;
+    rw [ Real.log_mul ( by positivity ) ( by positivity ), Real.log_exp,
+        Real.log_exp ] at this ; rw [ div_add_div, le_div_iff₀ ] <;> nlinarith;
   by_cases hσ_pos : 0 < σ_sq;
   · by_cases hM_one : M = 1 <;> simp_all +decide [ div_eq_mul_inv ];
     · contrapose! h_max_bound;
-      exact ⟨ ( ∫ x, ⨆ k, Y k x ∂μ ) / σ_sq, div_pos h_max_bound hσ_pos, by ring_nf; nlinarith [ mul_inv_cancel₀ hσ_pos.ne' ] ⟩;
-    · convert h_max_bound ( Real.sqrt ( 2 * Real.log M / σ_sq ) ) ( by exact Real.sqrt_pos.mpr ( div_pos ( mul_pos zero_lt_two ( Real.log_pos ( mod_cast lt_of_le_of_ne hM ( Ne.symm hM_one ) ) ) ) hσ_pos ) ) using 1 ; ring_nf ; norm_num [ hσ_pos.le, hσ_pos.ne' ] ; ring_nf ; norm_num [ hσ_pos.le, hσ_pos.ne', hM.ne' ] ;
+      exact ⟨ ( ∫ x, ⨆ k, Y k x ∂μ ) / σ_sq, div_pos h_max_bound hσ_pos,
+          by ring_nf; nlinarith [ mul_inv_cancel₀ hσ_pos.ne' ] ⟩;
+    · convert h_max_bound ( Real.sqrt ( 2 * Real.log M / σ_sq ) )
+        ( by exact Real.sqrt_pos.mpr ( div_pos
+        ( mul_pos zero_lt_two ( Real.log_pos ( mod_cast lt_of_le_of_ne hM ( Ne.symm hM_one ) ) ) )
+        hσ_pos ) ) using 1 ; ring_nf ; norm_num [ hσ_pos.le, hσ_pos.ne' ] ; ring_nf ;
+        norm_num [ hσ_pos.le, hσ_pos.ne', hM.ne' ] ;
       have hlog_pos : 0 < Real.log M := by
         exact Real.log_pos (mod_cast lt_of_le_of_ne hM (Ne.symm hM_one))
       have hsqrtσ_pos : 0 < Real.sqrt σ_sq := Real.sqrt_pos.mpr hσ_pos
       have hsqrtlog_pos : 0 < Real.sqrt (Real.log M) := Real.sqrt_pos.mpr hlog_pos
       field_simp [hσ_pos.ne', hsqrtσ_pos.ne', hsqrtlog_pos.ne']
-      rw [Real.sq_sqrt (by positivity : (0 : ℝ) ≤ 2), Real.sq_sqrt hσ_pos.le, Real.sq_sqrt hlog_pos.le]
+      rw [Real.sq_sqrt (by positivity : (0 : ℝ) ≤ 2), Real.sq_sqrt hσ_pos.le,
+          Real.sq_sqrt hlog_pos.le]
       ring
   · norm_num [ show σ_sq = 0 by linarith ] at *;
     contrapose! h_max_bound;
-    exact ⟨ ( Real.log M + 1 ) / ( ∫ x, ⨆ k, Y k x ∂μ ), div_pos ( add_pos_of_nonneg_of_pos ( Real.log_nonneg ( Nat.one_le_cast.2 hM ) ) zero_lt_one ) h_max_bound, by rw [ div_div_eq_mul_div, div_lt_iff₀ ] <;> nlinarith [ Real.log_nonneg ( Nat.one_le_cast.2 hM ) ] ⟩
+    exact ⟨ ( Real.log M + 1 ) / ( ∫ x, ⨆ k, Y k x ∂μ ),
+      div_pos ( add_pos_of_nonneg_of_pos ( Real.log_nonneg ( Nat.one_le_cast.2 hM ) ) zero_lt_one )
+        h_max_bound,
+      by
+        rw [ div_div_eq_mul_div, div_lt_iff₀ ] <;>
+          nlinarith [ Real.log_nonneg ( Nat.one_le_cast.2 hM ) ] ⟩
 
 /-
 Bound for the Riemann sum of a non-increasing function with a geometric sequence.
@@ -282,22 +343,64 @@ lemma geometric_sum_bound
   2 * ∫ x in (D * 2 ^ (-(L + 1 : ℤ)))..(D * 2 ^ (-1 : ℤ)), f x := by
   induction' L with L ih <;> norm_num [ Finset.sum_range_succ, zpow_add₀, zpow_sub₀ ] at *;
 
-  have h_split : ∫ x in (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹)))..D * (1 / 2), f x = (∫ x in (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹)))..D * (1 / 2 * (2 ^ L)⁻¹), f x) + (∫ x in (D * (1 / 2 * (2 ^ L)⁻¹))..D * (1 / 2), f x) := by
-    rw [ intervalIntegral.integral_add_adjacent_intervals ] <;> apply_rules [ MeasureTheory.IntegrableOn.intervalIntegrable ];
-    · rw [ Set.uIcc_of_le ( by nlinarith [ show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity ] ) ];
-      exact ( hf.mono ( Set.Icc_subset_Icc ( by positivity ) ( by nlinarith [ show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity, inv_le_one_of_one_le₀ ( show ( 1 : ℝ ) ≤ 2 ^ L by exact one_le_pow₀ ( by norm_num ) ) ] ) ) ) |> fun h => h.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc );
+  have h_split : ∫ x in (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹)))..D * (1 / 2), f x =
+      (∫ x in (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹)))..D * (1 / 2 * (2 ^ L)⁻¹), f x) +
+      (∫ x in (D * (1 / 2 * (2 ^ L)⁻¹))..D * (1 / 2), f x) := by
+    rw [ intervalIntegral.integral_add_adjacent_intervals ] <;>
+        apply_rules [ MeasureTheory.IntegrableOn.intervalIntegrable ];
+    · rw
+        [ Set.uIcc_of_le
+        ( by nlinarith [ show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity ] ) ];
+      exact ( hf.mono ( Set.Icc_subset_Icc ( by positivity ) ( by
+          nlinarith [ show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity,
+            inv_le_one_of_one_le₀
+              ( show ( 1 : ℝ ) ≤ 2 ^ L by exact one_le_pow₀ ( by norm_num ) ) ] ) ) ) |>
+        fun h => h.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc );
     · field_simp;
-      exact ( hf.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc ) ) |> fun h => h.mono_set ( by rw [ Set.uIcc_of_le ( by gcongr ; norm_cast ; linarith [ Nat.one_le_pow L 2 zero_lt_two ] ) ] ; exact Set.Icc_subset_Icc ( by positivity ) ( by linarith [ show D / 2 ≤ D by linarith ] ) );
+      exact ( hf.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc ) ) |> fun h =>
+        h.mono_set ( by
+          rw [ Set.uIcc_of_le
+            ( by gcongr ; norm_cast ; linarith [ Nat.one_le_pow L 2 zero_lt_two ] ) ] ;
+          exact Set.Icc_subset_Icc ( by positivity )
+              ( by linarith [ show D / 2 ≤ D by linarith ] ) );
 
-  have h_integral_bound : ∫ x in (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹)))..D * (1 / 2 * (2 ^ L)⁻¹), f x ≥ (D * (1 / 2 * (2 ^ L)⁻¹) - D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹))) * f (D * (1 / 2 * (2 ^ L)⁻¹)) := by
-    have h_integral_bound : ∀ x ∈ Set.Icc (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹))) (D * (1 / 2 * (2 ^ L)⁻¹)), f x ≥ f (D * (1 / 2 * (2 ^ L)⁻¹)) := by
-      intro x hx; exact hf ⟨ by nlinarith [ hx.1, show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) ) by positivity ], by nlinarith [ hx.2, show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity, show ( 2 ^ L : ℝ ) ⁻¹ ≤ 1 by exact inv_le_one_of_one_le₀ <| one_le_pow₀ <| by norm_num ] ⟩ ⟨ by nlinarith [ hx.1, show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) ) by positivity ], by nlinarith [ hx.2, show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity, show ( 2 ^ L : ℝ ) ⁻¹ ≤ 1 by exact inv_le_one_of_one_le₀ <| one_le_pow₀ <| by norm_num ] ⟩ hx.2;
-    refine' le_trans _ ( intervalIntegral.integral_mono_on _ _ _ h_integral_bound ) <;> norm_num;
-    · exact mul_le_mul_of_nonneg_left ( mul_le_mul_of_nonneg_left ( mul_le_of_le_one_left ( by positivity ) ( by norm_num ) ) ( by positivity ) ) hD.le;
+  have h_integral_bound : ∫ x in (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹)))..D * (1 / 2 * (2 ^ L)⁻¹),
+      f x ≥ (D * (1 / 2 * (2 ^ L)⁻¹) - D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹))) *
+      f (D * (1 / 2 * (2 ^ L)⁻¹)) := by
+    have h_integral_bound : ∀ x ∈ Set.Icc (D * (1 / 2 * (1 / 2 * (2 ^ L)⁻¹)))
+        (D * (1 / 2 * (2 ^ L)⁻¹)), f x ≥ f (D * (1 / 2 * (2 ^ L)⁻¹)) := by
+      intro x hx; exact hf
+        ⟨
+          by
+            nlinarith [ hx.1,
+              show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) ) by positivity ],
+          by
+            nlinarith [ hx.2, show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity,
+              show ( 2 ^ L : ℝ ) ⁻¹ ≤ 1 by
+                exact inv_le_one_of_one_le₀ <| one_le_pow₀ <| by norm_num ]
+        ⟩
+        ⟨
+          by
+            nlinarith [ hx.1,
+              show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) ) by positivity ],
+          by
+            nlinarith [ hx.2, show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity,
+              show ( 2 ^ L : ℝ ) ⁻¹ ≤ 1 by
+                exact inv_le_one_of_one_le₀ <| one_le_pow₀ <| by norm_num ]
+        ⟩ hx.2;
+    refine le_trans ?_ ( intervalIntegral.integral_mono_on ?_ ?_ ?_ h_integral_bound ) <;> norm_num;
+    · exact mul_le_mul_of_nonneg_left
+        ( mul_le_mul_of_nonneg_left ( mul_le_of_le_one_left ( by positivity ) ( by norm_num ) )
+        ( by positivity ) ) hD.le;
     · apply_rules [ MeasureTheory.IntegrableOn.intervalIntegrable ];
       rw [ Set.uIcc_of_le ( by nlinarith [ show ( 0 : ℝ ) < D * ( 2 ^ L ) ⁻¹ by positivity ] ) ];
-      exact ( hf.mono ( Set.Icc_subset_Icc ( by positivity ) ( by nlinarith [ show ( 2 ^ L : ℝ ) ⁻¹ ≤ 1 by exact inv_le_one_of_one_le₀ ( one_le_pow₀ ( by norm_num ) ) ] ) ) ) |> fun h => h.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc );
-  linarith [ inv_pos.mpr ( pow_pos ( zero_lt_two' ℝ ) L ), mul_inv_cancel₀ ( ne_of_gt ( pow_pos ( zero_lt_two' ℝ ) L ) ), pow_pos ( zero_lt_two' ℝ ) L ]
+      exact ( hf.mono ( Set.Icc_subset_Icc ( by positivity ) ( by
+          nlinarith [ show ( 0 : ℝ ) ≤ D * ( 1 / 2 * ( 2 ^ L ) ⁻¹ ) by positivity,
+            inv_le_one_of_one_le₀
+              ( show ( 1 : ℝ ) ≤ 2 ^ L by exact one_le_pow₀ ( by norm_num ) ) ] ) ) ) |>
+        fun h => h.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc );
+  linarith [ inv_pos.mpr ( pow_pos ( zero_lt_two' ℝ ) L ),
+      mul_inv_cancel₀ ( ne_of_gt ( pow_pos ( zero_lt_two' ℝ ) L ) ), pow_pos ( zero_lt_two' ℝ ) L ]
 
 /-
 Auxiliary real-valued truncated Dudley integral for the internal Nat-valued cardinality.
@@ -314,11 +417,14 @@ lemma telescoping_sum_bound
   {L : ℕ} (hL : 1 ≤ L)
   (gamma : ℕ → α)
   (X : α → ℝ) :
-  |X (gamma L) - X (gamma 1)| ≤ ∑ k ∈ Finset.range (L - 1), |X (gamma (k + 2)) - X (gamma (k + 1))| := by
+  |X (gamma L) - X (gamma 1)| ≤ ∑ k ∈ Finset.range (L - 1), |X (gamma (k + 2)) -
+      X (gamma (k + 1))| := by
     induction' L with L ih;
     · contradiction;
     · rcases L with ( _ | L ) <;> simp_all +decide [ Finset.sum_range_succ ];
-      cases abs_cases ( X ( gamma ( L + 2 ) ) - X ( gamma 1 ) ) <;> cases abs_cases ( X ( gamma ( L + 2 ) ) - X ( gamma ( L + 1 ) ) ) <;> cases abs_cases ( X ( gamma ( L + 1 ) ) - X ( gamma 1 ) ) <;> linarith
+      cases abs_cases ( X ( gamma ( L + 2 ) ) - X ( gamma 1 ) ) <;>
+          cases abs_cases ( X ( gamma ( L + 2 ) ) - X ( gamma ( L + 1 ) ) ) <;>
+          cases abs_cases ( X ( gamma ( L + 1 ) ) - X ( gamma 1 ) ) <;> linarith
 
 /-
 Bound for a single step in the chain.
@@ -332,10 +438,11 @@ lemma single_step_bound
   {X : α → ℝ}
   (gamma : ℕ → α)
   (k : ℕ)
-  (h_chain_step : ∃ (h_succ : gamma (k + 2) ∈ U (k + 2)), gamma (k + 1) = pi_map (k + 1) ⟨gamma (k + 2), h_succ⟩)
+  (h_chain_step : ∃ (h_succ : gamma (k + 2) ∈ U (k + 2)), gamma (k + 1) =
+      pi_map (k + 1) ⟨gamma (k + 2), h_succ⟩)
   :
   |X (gamma (k + 2)) - X (gamma (k + 1))| ≤ ⨆ (u : U (k + 2)), |X u - X (pi_map (k + 1) u)| := by
-    refine' le_trans _ ( le_ciSup _ ⟨ gamma ( k + 2 ), h_chain_step.choose ⟩ )
+    refine le_trans ?_ ( le_ciSup ?_ ⟨ gamma ( k + 2 ), h_chain_step.choose ⟩ )
     · simp [h_chain_step.choose_spec]
     · exact Set.Finite.bddAbove <|
         Set.Finite.subset
@@ -357,19 +464,23 @@ lemma single_chain_bound
   {pi_map : (k : ℕ) → U (k + 1) → U k}
   {X : α → ℝ}
   (gamma : ℕ → α)
-  (h_chain : ∀ k, 1 ≤ k → k < L → ∃ (h_succ : gamma (k + 1) ∈ U (k + 1)), gamma k = pi_map k ⟨gamma (k + 1), h_succ⟩)
+  (h_chain : ∀ k, 1 ≤ k → k < L → ∃ (h_succ : gamma (k + 1) ∈ U (k + 1)), gamma k =
+      pi_map k ⟨gamma (k + 1), h_succ⟩)
   :
-  |X (gamma L) - X (gamma 1)| ≤ ∑ k ∈ Finset.range (L - 1), (⨆ (u : U (k + 2)), |X u - X (pi_map (k + 1) u)|) := by
+  |X (gamma L) - X (gamma 1)| ≤ ∑ k ∈ Finset.range (L - 1),
+      (⨆ (u : U (k + 2)), |X u - X (pi_map (k + 1) u)|) := by
     have := @telescoping_sum_bound α L hL gamma X;
-    refine' le_trans this ( Finset.sum_le_sum fun k hk => _ );
+    refine le_trans this ( Finset.sum_le_sum fun k hk => ?_ );
     simpa using
       (single_step_bound hU_finite gamma k
         (h_chain (k + 1) (by omega) (Nat.lt_pred_iff.mp (Finset.mem_range.mp hk))))
 
 /-
-If a finite covering exists, there exists a minimal finite covering with cardinality equal to the cardinality.
+If a finite covering exists, there exists a minimal finite covering with cardinality equal to the
+    cardinality.
 -/
-lemma exists_minimal_covering_of_finite_covering {α : Type*} [PseudoMetricSpace α] {T : Set α} {δ : ℝ} (h : ∃ u : Set α, u.Finite ∧ IsSubsetENet T u δ) :
+lemma exists_minimal_covering_of_finite_covering {α : Type*} [PseudoMetricSpace α] {T : Set α}
+    {δ : ℝ} (h : ∃ u : Set α, u.Finite ∧ IsSubsetENet T u δ) :
   ∃ u : Set α, u.Finite ∧ IsSubsetENet T u δ ∧ u.ncard = subsetENetCard T δ := by
     obtain ⟨ u, hu ⟩ := Nat.sInf_mem
       (show Set.Nonempty { n : ℕ | ∃ u : Finset α, IsSubsetENet T u δ ∧ u.card = n } from by
@@ -399,16 +510,21 @@ lemma exists_dudley_chain
     (∀ m < L, (U_seq m).ncard = subsetENetCard T (epsilon m)) ∧
     (∀ m < L, IsSubsetENet T (U_seq m) (epsilon m)) ∧
     (∀ m < L, ∀ u ∈ U_seq (m + 1), pi_map m u ∈ U_seq m ∧ dist u (pi_map m u) ≤ epsilon m) := by
-      have h_chain_construction : ∀ m < L, ∃ U_seq : (m : ℕ) → Set α, (∀ m < L, (U_seq m).Finite ∧ IsSubsetENet T (U_seq m) (epsilon m) ∧ (U_seq m).ncard = subsetENetCard T (epsilon m)) ∧ U_seq m ⊆ T ∧ U_seq L = U := by
+      have h_chain_construction : ∀ m < L, ∃ U_seq : (m : ℕ) → Set α,
+          (∀ m < L, (U_seq m).Finite ∧ IsSubsetENet T (U_seq m) (epsilon m) ∧ (U_seq m).ncard =
+          subsetENetCard T (epsilon m)) ∧ U_seq m ⊆ T ∧ U_seq L = U := by
         intro m hm;
-        have hU_seq : ∀ m < L, ∃ U_seq : Set α, U_seq.Finite ∧ IsSubsetENet T U_seq (epsilon m) ∧ U_seq.ncard = subsetENetCard T (epsilon m) := by
+        have hU_seq : ∀ m < L, ∃ U_seq : Set α, U_seq.Finite ∧
+            IsSubsetENet T U_seq (epsilon m) ∧ U_seq.ncard = subsetENetCard T (epsilon m) := by
           exact fun m a => exists_minimal_covering_of_finite_covering (h_finite_covering m a);
         choose! U_seq hU_seq using hU_seq;
         use fun n => if n = L then U else U_seq n;
         simp +zetaDelta at *;
-        exact ⟨ fun n hn => by rw [ ite_eq_right ( ne_of_lt hn ) ] ; exact hU_seq n hn, by rw [ ite_eq_right ( ne_of_lt hm ) ] ; exact hU_seq m hm |>.2.1.1 ⟩;
+        exact ⟨ fun n hn => by rw [ ite_eq_right ( ne_of_lt hn ) ] ; exact hU_seq n hn,
+          by rw [ ite_eq_right ( ne_of_lt hm ) ] ; exact hU_seq m hm |>.2.1.1 ⟩;
       cases' L with L L;
-      · exact ⟨ fun _ => U, fun _ => id, fun _ => hU_finite, fun _ => hU_subset, rfl, by norm_num, by norm_num, by norm_num ⟩;
+      · exact ⟨ fun _ => U, fun _ => id, fun _ => hU_finite, fun _ => hU_subset, rfl,
+          by norm_num, by norm_num, by norm_num ⟩;
       · obtain ⟨ U_seq, hU_seq₁, hU_seq₂, hU_seq ⟩ := h_chain_construction L ( Nat.lt_succ_self L );
         use fun m => if m < L + 1 then U_seq m else U_seq (L + 1);
         have h_pi_map : ∀ m < L + 1, ∀ u ∈ U_seq (m + 1), ∃ v ∈ U_seq m, dist u v ≤ epsilon m := by
@@ -469,7 +585,8 @@ lemma sub_gaussian_max_abs_bound
           change HasSubgaussianMGF (-Y i) ⟨σ_sq, hσi⟩ μ
           exact hYi.neg⟩
 
-    have h_metric_entropy_bound : ∫ ω, ⨆ i, Z i ω ∂μ ≤ Real.sqrt (2 * σ_sq * Real.log (Fintype.card (ι ⊕ ι))) := by
+    have h_metric_entropy_bound : ∫ ω, ⨆ i, Z i ω ∂μ ≤
+        Real.sqrt (2 * σ_sq * Real.log (Fintype.card (ι ⊕ ι))) := by
       convert metric_entropy_bound_for_sub_gaussian_maxima _ _ _;
       any_goals assumption;
       any_goals exact fun i ω => Z ( Fintype.equivFin ( ι ⊕ ι ) |>.symm i ) ω;
@@ -479,19 +596,22 @@ lemma sub_gaussian_max_abs_bound
     convert h_metric_entropy_bound using 3 <;> norm_num [ two_mul ];
     rw [ @ciSup_eq_of_forall_le_of_forall_lt_exists_gt ];
     · intro i; exact (by
-      exact max_le ( le_ciSup ( Finite.bddAbove_range fun i => Z i _ ) ( Sum.inl i ) ) ( le_ciSup ( Finite.bddAbove_range fun i => Z i _ ) ( Sum.inr i ) ));
+      exact max_le ( le_ciSup ( Finite.bddAbove_range fun i => Z i _ ) ( Sum.inl i ) )
+          ( le_ciSup ( Finite.bddAbove_range fun i => Z i _ ) ( Sum.inr i ) ));
     · intro w hw;
       contrapose! hw;
       convert ciSup_le _;
       · exact Sum.nonemptyRight;
-      · rintro ( i | i ) <;> [ exact le_trans ( le_abs_self _ ) ( hw i ) ; exact le_trans ( neg_le_abs _ ) ( hw i ) ]
+      · rintro ( i | i ) <;>
+          [ exact le_trans ( le_abs_self _ ) ( hw i ) ; exact le_trans ( neg_le_abs _ ) ( hw i ) ]
 
 /-
 Expectation bound for a single step in the chain.
 -/
 lemma expectation_bound_chain_step
   {α : Type*} [PseudoMetricSpace α]
-  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ]
+  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+      [MeasureTheory.IsProbabilityMeasure μ]
   {T : Set α}
   {X : Ω → α → ℝ}
   (h_sg : ∀ x ∈ T, ∀ y ∈ T, IsSubGaussian (fun ω => X ω x - X ω y) (dist x y ^ 2) μ)
@@ -504,21 +624,23 @@ lemma expectation_bound_chain_step
   (eps : ℝ) (h_eps : 0 ≤ eps)
   (h_dist : ∀ u ∈ U_next, dist u (pi_map u) ≤ eps)
   :
-  ∫ ω, (⨆ u ∈ U_next, |X ω u - X ω (pi_map u)|) ∂μ ≤ eps * Real.sqrt (2 * Real.log (U_next.ncard)) + eps * Real.sqrt (2 * Real.log 2) := by
+  ∫ ω, (⨆ u ∈ U_next, |X ω u - X ω (pi_map u)|) ∂μ ≤ eps *
+      Real.sqrt (2 * Real.log (U_next.ncard)) + eps * Real.sqrt (2 * Real.log 2) := by
     cases' hU_next_finite.exists_finset_coe with F hF;
     by_cases hF_empty : F.Nonempty <;> simp_all +decide;
-    ·
-      set Y : F → Ω → ℝ := fun u ω => X ω u - X ω (pi_map u);
+    · set Y : F → Ω → ℝ := fun u ω => X ω u - X ω (pi_map u);
 
-      have h_Y_bound : ∫ ω, (⨆ u : F, |Y u ω|) ∂μ ≤ Real.sqrt (2 * eps^2 * Real.log (2 * F.card)) := by
+      have h_Y_bound : ∫ ω, (⨆ u : F, |Y u ω|) ∂μ ≤
+          Real.sqrt (2 * eps^2 * Real.log (2 * F.card)) := by
         have h_Y_bound : ∀ u : F, IsSubGaussian (Y u) (eps^2) μ := by
           intro u
-          specialize h_sg u.val (hU_next_subset (hF.subset u.prop)) (pi_map u.val) (hU_curr_subset (h_pi u.val (hF.subset u.prop)));
-          refine' ⟨ _, _ ⟩;
+          specialize h_sg u.val (hU_next_subset (hF.subset u.prop)) (pi_map u.val)
+              (hU_curr_subset (h_pi u.val (hF.subset u.prop)));
+          refine ⟨ ?_, ?_ ⟩;
           exact sq_nonneg _;
-          refine' ⟨ _, fun t => _ ⟩;
+          refine ⟨ ?_, fun t => ?_ ⟩;
           · exact fun t => sub_gaussian_integrable h_sg t;
-          · refine' le_trans ( h_sg.choose_spec.2 t ) _;
+          · refine le_trans ( h_sg.choose_spec.2 t ) ?_;
             exact Real.exp_le_exp.mpr ( by
               gcongr
               exact (sq_le_sq₀ dist_nonneg h_eps).2 (h_dist _ (hF.subset u.2)) );
@@ -625,7 +747,8 @@ lemma chain_projection_mem {α : Type*} {U : ℕ → Set α} (L : ℕ) (pi_map :
 
 /-
 Telescoping sum bound for the chain projection.
-The difference between the value at the start and end of the chain is bounded by the sum of differences along the chain.
+The difference between the value at the start and end of the chain is bounded
+    by the sum of differences along the chain.
 -/
 lemma chain_telescoping_bound
   {α : Type*}
@@ -635,7 +758,8 @@ lemma chain_telescoping_bound
   (u : α)
   :
   |X (chain_projection L pi_map u L) - X (chain_projection L pi_map u 1)| ≤
-  ∑ k ∈ Finset.range (L - 1), |X (chain_projection L pi_map u (k + 2)) - X (chain_projection L pi_map u (k + 1))| := by
+  ∑ k ∈ Finset.range (L - 1), |X (chain_projection L pi_map u (k + 2)) -
+      X (chain_projection L pi_map u (k + 1))| := by
     simpa using
       (telescoping_sum_bound (L := L) hL (gamma := fun k => chain_projection L pi_map u k) (X := X))
 
@@ -656,17 +780,22 @@ lemma chain_projection_step_bound
   :
   |X (chain_projection L pi_map u (k + 2)) - X (chain_projection L pi_map u (k + 1))| ≤
   (⨆ z ∈ U (k + 2), |X z - X (pi_map (k + 1) z)|) := by
-    rw [ show chain_projection L pi_map u ( k+2 ) = chain_projection L pi_map u ( k+2 ) from rfl, show chain_projection L pi_map u ( k+1 ) = pi_map ( k+1 ) ( chain_projection L pi_map u ( k+2 ) ) from ?_ ];
+    rw [ show chain_projection L pi_map u ( k+2 ) = chain_projection L pi_map u ( k+2 ) from
+        rfl, show chain_projection L pi_map u ( k+1 ) =
+        pi_map ( k+1 ) ( chain_projection L pi_map u ( k+2 ) ) from ?_ ];
     · have h_chain_finite : chain_projection L pi_map u (k + 2) ∈ U (k + 2) := by
         apply chain_projection_mem;
         · assumption;
         · exact h_chain;
         · omega;
-      refine' le_trans _ ( le_ciSup _ ( chain_projection L pi_map u ( k + 2 ) ) );
-      · exact le_ciSup ⟨|X (chain_projection L pi_map u (k + 2)) - X (pi_map (k + 1) (chain_projection L pi_map u (k + 2)))|,
+      refine le_trans ?_ ( le_ciSup ?_ ( chain_projection L pi_map u ( k + 2 ) ) );
+      · exact le_ciSup ⟨|X (chain_projection L pi_map u (k + 2)) -
+          X (pi_map (k + 1) (chain_projection L pi_map u (k + 2)))|,
           Set.forall_mem_range.2 fun _ => le_rfl⟩ h_chain_finite;
-      · obtain ⟨ M, hM ⟩ := Set.Finite.bddAbove ( Set.Finite.image ( fun z => |X z - X ( pi_map ( k + 1 ) z ) - 0| ) ( hU_finite ( k + 2 ) ) );
-        refine' ⟨ Max.max M 1, Set.forall_mem_range.2 fun z => _ ⟩;
+      · obtain ⟨ M, hM ⟩ :=
+          Set.Finite.bddAbove ( Set.Finite.image ( fun z => |X z - X ( pi_map ( k + 1 ) z ) - 0| )
+          ( hU_finite ( k + 2 ) ) );
+        refine ⟨ Max.max M 1, Set.forall_mem_range.2 fun z => ?_ ⟩;
         rw [ @ciSup_eq_ite ]
         split_ifs with hz
         · exact le_trans (by simpa using hM ⟨z, hz, rfl⟩) (le_max_left _ _)
@@ -674,7 +803,8 @@ lemma chain_projection_step_bound
     · exact chain_projection_step L pi_map u ( k + 1 ) ( by omega )
 
 /-
-Bounds the difference between X(u) and X(projection of u at step 1) by the sum of suprema of differences at each step.
+Bounds the difference between X(u) and X(projection of u at step 1)
+    by the sum of suprema of differences at each step.
 Requires U to be finite.
 -/
 lemma chain_projection_bound
@@ -703,7 +833,8 @@ lemma chain_projection_bound
                 chain_projection_step_bound hU_finite u hu h_chain k (Finset.mem_range.mp hk)
 
 /-
-Bounds the supremum of the difference between X(u) and X(projection of u at step 1) over all u in U_L.
+Bounds the supremum of the difference between X(u) and X(projection of u at step 1) over all u in
+    U_L.
 -/
 lemma chain_sup_projection_bound
   {α : Type*}
@@ -717,13 +848,15 @@ lemma chain_sup_projection_bound
   (⨆ u ∈ U L, |X u - X (chain_projection L pi_map u 1)|) ≤
   ∑ k ∈ Finset.range (L - 1), (⨆ z ∈ U (k + 2), |X z - X (pi_map (k + 1) z)|) := by
     by_contra h_contra;
-    obtain ⟨u, hu⟩ : ∃ u ∈ U L, |X u - X (chain_projection L pi_map u 1)| > ∑ k ∈ Finset.range (L - 1), (⨆ z ∈ U (k + 2), |X z - X (pi_map (k + 1) z)|) := by
+    obtain ⟨u, hu⟩ : ∃ u ∈ U L, |X u - X (chain_projection L pi_map u 1)| > ∑ k ∈
+        Finset.range (L - 1), (⨆ z ∈ U (k + 2), |X z - X (pi_map (k + 1) z)|) := by
       push Not at h_contra;
       have h_nonempty : (U L).Nonempty := by
         by_contra h_empty
         rw [Set.not_nonempty_iff_eq_empty.mp h_empty] at h_contra
         simp at h_contra
-        exact not_lt_of_ge (Finset.sum_nonneg fun _ _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _) h_contra
+        exact not_lt_of_ge (Finset.sum_nonneg fun _ _ => Real.iSup_nonneg fun _ =>
+            Real.iSup_nonneg fun _ => abs_nonneg _) h_contra
       have : Nonempty α := ⟨h_nonempty.some⟩
       have : Nonempty (U L) := Set.Nonempty.to_subtype h_nonempty
       let f : U L → ℝ := fun u => |X u - X (chain_projection L pi_map u 1)|
@@ -736,8 +869,11 @@ lemma chain_sup_projection_bound
           simp [f]
         exact le_trans h_nonneg (le_ciSup h_bdd ⟨h_nonempty.some, h_nonempty.choose_spec⟩)
       have hciSup : (⨆ u : U L, f u) = ⨆ u ∈ U L, |X u - X (chain_projection L pi_map u 1)| := by
-        simpa [f] using (ciSup_subtype_fun (s := U L) (f := fun u => |X u - X (chain_projection L pi_map u 1)|) h_bdd h_empty_le)
-      have h_contra' : ∑ k ∈ Finset.range (L - 1), ⨆ z ∈ U (k + 2), |X z - X (pi_map (k + 1) z)| < ⨆ u : U L, f u := by
+        simpa [f] using
+            (ciSup_subtype_fun (s := U L) (f := fun u => |X u - X (chain_projection L pi_map u 1)|)
+            h_bdd h_empty_le)
+      have h_contra' : ∑ k ∈ Finset.range (L - 1), ⨆ z ∈ U (k + 2), |X z -
+          X (pi_map (k + 1) z)| < ⨆ u : U L, f u := by
         rw [hciSup]
         exact h_contra
       obtain ⟨u, hu⟩ := exists_lt_of_lt_ciSup h_contra'
@@ -754,7 +890,7 @@ lemma finite_sup_bound
   (u v : α) (hu : u ∈ A) (hv : v ∈ A) :
   |X u - X v| ≤ ⨆ x ∈ A, ⨆ y ∈ A, |X x - X y| := by
     have h_finset : ∀ x ∈ A, ∀ y ∈ A, |X x - X y| ≤ ⨆ x ∈ A, ⨆ y ∈ A, |X x - X y| := by
-      refine' fun x hx y hy => le_trans _ ( le_ciSup _ x );
+      refine fun x hx y hy => le_trans ?_ ( le_ciSup ?_ x );
       · exact
           le_trans
             (le_trans
@@ -765,16 +901,21 @@ lemma finite_sup_bound
                     Set.forall_mem_range.2 fun y => by
                       rw [ciSup_eq_ite]
                       split_ifs with hy'
-                      · exact Finset.single_le_sum (fun i _ => abs_nonneg (X x - X i)) (hA.mem_toFinset.mpr hy')
-                      · exact le_trans (by norm_num) (Finset.sum_nonneg fun i _ => abs_nonneg (X x - X i)) ⟩)
+                      · exact Finset.single_le_sum
+                          (fun i _ => abs_nonneg (X x - X i)) (hA.mem_toFinset.mpr hy')
+                      · exact le_trans (by norm_num)
+                          (Finset.sum_nonneg fun i _ => abs_nonneg (X x - X i)) ⟩)
                 y))
             (le_ciSup ⟨⨆ y ∈ A, |X x - X y|, Set.forall_mem_range.2 fun _ => le_rfl⟩ hx)
-      ·
-        have h_finite_range : Set.Finite (Set.range (fun x : α => ⨆ (hx : x ∈ A), ⨆ y ∈ A, |X x - X y|)) := by
+      · have h_finite_range :
+          Set.Finite (Set.range (fun x : α => ⨆ (hx : x ∈ A), ⨆ y ∈ A, |X x - X y|)) := by
 
-          have h_finite_range : Set.Finite (Set.image (fun x => ⨆ (hx : x ∈ A), ⨆ y ∈ A, |X x - X y|) A) := by
+          have h_finite_range :
+              Set.Finite (Set.image (fun x => ⨆ (hx : x ∈ A), ⨆ y ∈ A, |X x - X y|) A) := by
             exact hA.image _;
-          exact Set.Finite.subset ( h_finite_range.union ( Set.finite_singleton 0 ) ) ( Set.range_subset_iff.2 fun x => if hx : x ∈ A then Or.inl ⟨ x, hx, rfl ⟩ else Or.inr <| by simp [hx] );
+          exact Set.Finite.subset ( h_finite_range.union ( Set.finite_singleton 0 ) )
+              ( Set.range_subset_iff.2 fun x => if hx : x ∈
+              A then Or.inl ⟨ x, hx, rfl ⟩ else Or.inr <| by simp [hx] );
         exact h_finite_range.bddAbove;
     exact h_finset u hu v hv
 
@@ -799,8 +940,11 @@ lemma dudley_chain_bound_pointwise
     set u1 := chain_projection L pi_map u 1
     set v1 := chain_projection L pi_map v 1
     have h_triangle : |X u - X v| ≤ |X u - X u1| + |X u1 - X v1| + |X v1 - X v| := by
-      cases abs_cases ( X u - X v ) <;> cases abs_cases ( X u - X u1 ) <;> cases abs_cases ( X u1 - X v1 ) <;> cases abs_cases ( X v1 - X v ) <;> linarith;
-    have h_chain_bound : ∀ (w : α) (hw : w ∈ U_seq L), |X w - X (chain_projection L pi_map w 1)| ≤ ∑ k ∈ Finset.range (L - 1), (⨆ z ∈ U_seq (k + 2), |X z - X (pi_map (k + 1) z)|) := by
+      cases abs_cases ( X u - X v ) <;> cases abs_cases ( X u - X u1 ) <;>
+          cases abs_cases ( X u1 - X v1 ) <;> cases abs_cases ( X v1 - X v ) <;> linarith;
+    have h_chain_bound : ∀ (w : α) (hw : w ∈ U_seq L), |X w -
+        X (chain_projection L pi_map w 1)| ≤ ∑ k ∈ Finset.range (L - 1),
+        (⨆ z ∈ U_seq (k + 2), |X z - X (pi_map (k + 1) z)|) := by
       exact fun w hw => chain_projection_bound hL hU_finite w hw h_chain;
 
     have h_sup_bound : |X u1 - X v1| ≤ ⨆ x ∈ U_seq 1, ⨆ y ∈ U_seq 1, |X x - X y| := by
@@ -841,24 +985,39 @@ lemma integral_dudley_chain_bound
   (hU_finite : ∀ m, (U_seq m).Finite)
   (h_chain : ∀ m < L, ∀ u ∈ U_seq (m + 1), pi_map m u ∈ U_seq m)
   (h_integrable_1 : Integrable (fun ω => ⨆ x ∈ U_seq 1, ⨆ y ∈ U_seq 1, |X ω x - X ω y|) P)
-  (h_integrable_2 : ∀ k < L - 1, Integrable (fun ω => ⨆ z ∈ U_seq (k + 2), |X ω z - X ω (pi_map (k + 1) z)|) P)
+  (h_integrable_2 : ∀ k < L - 1, Integrable (fun ω => ⨆ z ∈ U_seq (k + 2), |X ω z -
+      X ω (pi_map (k + 1) z)|) P)
   :
   ∫ ω, (⨆ u ∈ U_seq L, ⨆ v ∈ U_seq L, |X ω u - X ω v|) ∂P ≤
   ∫ ω, (⨆ x ∈ U_seq 1, ⨆ y ∈ U_seq 1, |X ω x - X ω y|) ∂P +
-  2 * ∑ k ∈ Finset.range (L - 1), ∫ ω, (⨆ z ∈ U_seq (k + 2), |X ω z - X ω (pi_map (k + 1) z)|) ∂P := by
+  2 * ∑ k ∈ Finset.range (L - 1), ∫ ω,
+      (⨆ z ∈ U_seq (k + 2), |X ω z - X ω (pi_map (k + 1) z)|) ∂P := by
     rw [ ← MeasureTheory.integral_finsetSum ];
     · rw [ ← MeasureTheory.integral_const_mul ];
       rw [ ← MeasureTheory.integral_add ];
       · by_contra h_contra;
-        refine' h_contra ( MeasureTheory.integral_mono _ _ fun ω => _ );
-        · exact ( by by_contra h; rw [ MeasureTheory.integral_undef h ] at h_contra; exact h_contra <| by exact le_trans ( by norm_num ) <| MeasureTheory.integral_nonneg fun _ => add_nonneg ( by exact Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) <| mul_nonneg zero_le_two <| Finset.sum_nonneg fun _ _ => by exact Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ );
-        · exact MeasureTheory.Integrable.add h_integrable_1 ( MeasureTheory.Integrable.const_mul ( MeasureTheory.integrable_finsetSum _ fun i hi => h_integrable_2 i ( Finset.mem_range.mp hi ) ) _ );
-        ·
-          have h_pointwise : ∀ u ∈ U_seq L, ∀ v ∈ U_seq L, |X ω u - X ω v| ≤ (⨆ x ∈ U_seq 1, ⨆ y ∈ U_seq 1, |X ω x - X ω y|) + 2 * ∑ k ∈ Finset.range (L - 1), (⨆ z ∈ U_seq (k + 2), |X ω z - X ω (pi_map (k + 1) z)|) := by
+        refine h_contra ( MeasureTheory.integral_mono ?_ ?_ fun ω => ?_ );
+        · exact ( by
+            by_contra h; rw [ MeasureTheory.integral_undef h ] at h_contra;
+            exact h_contra <| by
+              exact le_trans ( by norm_num ) <| MeasureTheory.integral_nonneg fun _ =>
+                add_nonneg ( by exact Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ =>
+                  Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) <|
+                mul_nonneg zero_le_two <| Finset.sum_nonneg fun _ _ => by
+                  exact Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ );
+        · exact MeasureTheory.Integrable.add h_integrable_1
+            ( MeasureTheory.Integrable.const_mul ( MeasureTheory.integrable_finsetSum _ fun i hi =>
+            h_integrable_2 i ( Finset.mem_range.mp hi ) ) _ );
+        · have h_pointwise : ∀ u ∈ U_seq L, ∀ v ∈ U_seq L, |X ω u - X ω v| ≤
+            (⨆ x ∈ U_seq 1, ⨆ y ∈ U_seq 1, |X ω x - X ω y|) + 2 * ∑ k ∈ Finset.range (L - 1),
+            (⨆ z ∈ U_seq (k + 2), |X ω z - X ω (pi_map (k + 1) z)|) := by
             exact fun u a v a_1 => dudley_chain_bound_pointwise hL hU_finite h_chain u a v a_1;
           by_cases hL_empty : U_seq L = ∅;
           · simp [hL_empty];
-            exact add_nonneg ( Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) ( mul_nonneg zero_le_two ( Finset.sum_nonneg fun _ _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) );
+            exact add_nonneg ( Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ =>
+                Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ )
+                ( mul_nonneg zero_le_two ( Finset.sum_nonneg fun _ _ => Real.iSup_nonneg fun _ =>
+                Real.iSup_nonneg fun _ => abs_nonneg _ ) );
           · obtain ⟨u, hu⟩ : ∃ u, u ∈ U_seq L := by
               exact Set.nonempty_iff_ne_empty.2 hL_empty;
             convert ciSup_le fun v => ?_;
@@ -868,11 +1027,23 @@ lemma integral_dudley_chain_bound
               · convert ciSup_le fun w => ?_;
                 · exact Nonempty.intro (pi_map L (pi_map L u));
                 · rw [ @ciSup_eq_ite ];
-                  split_ifs with hw <;> [ exact h_pointwise _ hv _ hw; exact le_trans ( by norm_num ) ( add_nonneg ( Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) ( mul_nonneg zero_le_two ( Finset.sum_nonneg fun _ _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) ) ) ];
+                  split_ifs with hw <;>
+                      [ exact h_pointwise _ hv _ hw;
+                      exact le_trans ( by norm_num )
+                      ( add_nonneg ( Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ =>
+                      Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ )
+                      ( mul_nonneg zero_le_two ( Finset.sum_nonneg fun _ _ =>
+                      Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) ) ) ];
               · simp +decide [ Real.sSup_empty ];
-                exact add_nonneg ( Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) ( mul_nonneg zero_le_two ( Finset.sum_nonneg fun _ _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) );
+                exact add_nonneg ( Real.iSup_nonneg fun _ =>
+                    Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ =>
+                    abs_nonneg _ )
+                    ( mul_nonneg zero_le_two ( Finset.sum_nonneg fun _ _ =>
+                    Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _ ) );
       · exact h_integrable_1;
-      · exact MeasureTheory.Integrable.const_mul ( MeasureTheory.integrable_finsetSum _ fun i hi => h_integrable_2 i ( Finset.mem_range.mp hi ) ) _;
+      · exact MeasureTheory.Integrable.const_mul
+          ( MeasureTheory.integrable_finsetSum _ fun i hi =>
+          h_integrable_2 i ( Finset.mem_range.mp hi ) ) _;
     · exact fun k hk => h_integrable_2 k ( Finset.mem_range.mp hk )
 
 /-
@@ -888,31 +1059,53 @@ lemma dudley_analytical_sum_bound
   8 * ∫ x in Set.Icc (D * 2 ^ (-(L + 1 : ℝ))) (D * 2 ^ (-1 : ℝ)), f x := by
     induction' L with L ih;
     · norm_num;
-    ·
-      have h_split : ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-1 : ℝ))), f x = (∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))), f x) + (∫ x in (Icc (D * 2 ^ (-(L + 1) : ℝ)) (D * 2 ^ (-1 : ℝ))), f x) := by
-        rw [ MeasureTheory.integral_Icc_eq_integral_Ioc, MeasureTheory.integral_Icc_eq_integral_Ioc, MeasureTheory.integral_Icc_eq_integral_Ioc, ← MeasureTheory.setIntegral_union ] <;> norm_num;
+    · have h_split : ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-1 : ℝ))), f x =
+        (∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))), f x) +
+        (∫ x in (Icc (D * 2 ^ (-(L + 1) : ℝ)) (D * 2 ^ (-1 : ℝ))), f x) := by
+        rw [ MeasureTheory.integral_Icc_eq_integral_Ioc,
+            MeasureTheory.integral_Icc_eq_integral_Ioc, MeasureTheory.integral_Icc_eq_integral_Ioc,
+            ← MeasureTheory.setIntegral_union ] <;> norm_num;
         · rw [ Set.Ioc_union_Ioc_eq_Ioc ] <;> norm_num [ Real.rpow_add, Real.rpow_neg ];
-          · exact mul_le_mul_of_nonneg_left ( mul_le_mul_of_nonneg_right ( by norm_num ) ( by positivity ) ) hD.le;
-          · exact mul_le_mul_of_nonneg_left ( mul_le_of_le_one_right ( by norm_num ) ( inv_le_one_of_one_le₀ ( one_le_pow₀ ( by norm_num ) ) ) ) hD.le;
-        · refine' MeasureTheory.IntegrableOn.mono_set _ _;
-          exact Set.Icc 0 D;
+          · exact mul_le_mul_of_nonneg_left
+              ( mul_le_mul_of_nonneg_right ( by norm_num ) ( by positivity ) ) hD.le;
+          · exact mul_le_mul_of_nonneg_left
+              ( mul_le_of_le_one_right ( by norm_num )
+              ( inv_le_one_of_one_le₀ ( one_le_pow₀ ( by norm_num ) ) ) ) hD.le;
+        · refine MeasureTheory.IntegrableOn.mono_set (t := Set.Icc 0 D) ?_ ?_;
           · exact ( hf_antitone.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc ) );
-          · exact fun x hx => ⟨ le_trans ( by positivity ) hx.1.le, le_trans hx.2 ( by exact mul_le_of_le_one_right hD.le ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) ) ⟩;
-        · refine' MeasureTheory.IntegrableOn.mono_set _ ( Set.Ioc_subset_Icc_self );
-          refine' MeasureTheory.IntegrableOn.mono_set _ _;
-          exact Set.Icc 0 D;
+          · exact fun x hx => ⟨ le_trans ( by positivity ) hx.1.le, le_trans hx.2 ( by
+              exact mul_le_of_le_one_right hD.le
+                ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) ) ⟩;
+        · refine MeasureTheory.IntegrableOn.mono_set ?_ ( Set.Ioc_subset_Icc_self );
+          refine MeasureTheory.IntegrableOn.mono_set (t := Set.Icc 0 D) ?_ ?_;
           · exact ( hf_antitone.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc ) );
-          · exact Set.Icc_subset_Icc ( by positivity ) ( by nlinarith [ Real.rpow_pos_of_pos zero_lt_two ( -1 + -L : ℝ ) ] );
+          · exact Set.Icc_subset_Icc ( by positivity )
+              ( by nlinarith [ Real.rpow_pos_of_pos zero_lt_two ( -1 + -L : ℝ ) ] );
 
-      have h_integral_bound : ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))), f x ≥ (D * 2 ^ (-(L + 1) : ℝ) - D * 2 ^ (-(L + 2) : ℝ)) * f (D * 2 ^ (-(L + 1) : ℝ)) := by
-        have h_integral_bound : ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))), f x ≥ ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))), f (D * 2 ^ (-(L + 1) : ℝ)) := by
-          refine' MeasureTheory.setIntegral_mono_on _ _ _ _ <;> norm_num;
-          · refine' ( hf_antitone.integrableOn_isCompact _ ) |> fun h => h.mono_set _;
+      have h_integral_bound : ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))),
+          f x ≥ (D * 2 ^ (-(L + 1) : ℝ) - D * 2 ^ (-(L + 2) : ℝ)) * f (D * 2 ^ (-(L + 1) : ℝ)) := by
+        have h_integral_bound :
+            ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))), f x ≥
+            ∫ x in (Icc (D * 2 ^ (-(L + 2) : ℝ)) (D * 2 ^ (-(L + 1) : ℝ))),
+            f (D * 2 ^ (-(L + 1) : ℝ)) := by
+          refine MeasureTheory.setIntegral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+          · refine ( hf_antitone.integrableOn_isCompact ?_ ) |> fun h => h.mono_set ?_;
             · exact CompactIccSpace.isCompact_Icc;
-            · exact Set.Icc_subset_Icc ( by positivity ) ( by exact mul_le_of_le_one_right hD.le ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) );
-          · intro x hx₁ hx₂; refine' hf_antitone _ _ _ <;> norm_num [ Real.rpow_add, Real.rpow_neg ] at * <;> try nlinarith [ Real.rpow_pos_of_pos zero_lt_two ( -1 + -L : ℝ ), Real.rpow_pos_of_pos zero_lt_two ( -2 + -L : ℝ ) ] ;
-            · constructor <;> nlinarith [ inv_pos.mpr ( pow_pos ( zero_lt_two' ℝ ) L ), mul_inv_cancel₀ ( ne_of_gt ( pow_pos ( zero_lt_two' ℝ ) L ) ), pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) ( show L ≥ 0 by norm_num ) ];
-            · exact ⟨ hD.le, mul_le_of_le_one_right hD.le ( by linarith [ inv_le_one_of_one_le₀ ( one_le_pow₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) : ( 1 : ℝ ) ≤ 2 ^ L ) ] ) ⟩;
+            · exact Set.Icc_subset_Icc ( by positivity ) ( by
+                exact mul_le_of_le_one_right hD.le
+                  ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) );
+          · intro x hx₁ hx₂; refine hf_antitone ?_ ?_ ?_ <;>
+              norm_num [ Real.rpow_add, Real.rpow_neg ] at * <;>
+              try nlinarith [ Real.rpow_pos_of_pos zero_lt_two ( -1 + -L : ℝ ),
+              Real.rpow_pos_of_pos zero_lt_two ( -2 + -L : ℝ ) ] ;
+            · constructor <;> nlinarith [ inv_pos.mpr ( pow_pos ( zero_lt_two' ℝ ) L ),
+                mul_inv_cancel₀ ( ne_of_gt ( pow_pos ( zero_lt_two' ℝ ) L ) ),
+                pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) ( show L ≥ 0 by norm_num ) ];
+            · exact
+                ⟨ hD.le,
+                mul_le_of_le_one_right hD.le
+                ( by linarith [ inv_le_one_of_one_le₀ ( one_le_pow₀
+                ( by norm_num : ( 1 : ℝ ) ≤ 2 ) : ( 1 : ℝ ) ≤ 2 ^ L ) ] ) ⟩;
         convert h_integral_bound using 1 ; norm_num [ Real.rpow_add, Real.rpow_neg ] ; ring_nf;
         exact Or.inl ( mul_le_mul_of_nonneg_left ( by norm_num ) ( by positivity ) );
       have hp1 : (2:ℝ) ^ (-((L:ℝ) + 1)) = 2 ^ (-(L:ℝ)) / 2 := by
@@ -937,7 +1130,8 @@ lemma dudley_analytical_sum_bound
 /-
 If `u` is a centered `δ`-net, it is also a centered `δ'`-net for `δ ≤ δ'`.
 -/
-lemma IsSubsetENet_mono {α : Type*} [PseudoMetricSpace α] {T : Set α} {u : Set α} {δ δ' : ℝ} (h : δ ≤ δ') (hu : IsSubsetENet T u δ) :
+lemma IsSubsetENet_mono {α : Type*} [PseudoMetricSpace α] {T : Set α} {u : Set α} {δ δ' : ℝ}
+    (h : δ ≤ δ') (hu : IsSubsetENet T u δ) :
   IsSubsetENet T u δ' := by
     obtain ⟨hfin, hnet⟩ := hu.2
     exact ⟨hu.1, hfin, hnet.mono_eps h⟩
@@ -945,13 +1139,15 @@ lemma IsSubsetENet_mono {α : Type*} [PseudoMetricSpace α] {T : Set α} {u : Se
 /-
 If a finite centered net exists for the smaller radius, `subsetENetCard` is non-increasing.
 -/
-lemma subsetENetCard_le_of_le {α : Type*} [PseudoMetricSpace α] {T : Set α} {δ δ' : ℝ} (h : δ ≤ δ') (h_ex : ∃ u : Set α, IsSubsetENet T u δ ∧ u.Finite) :
+lemma subsetENetCard_le_of_le {α : Type*} [PseudoMetricSpace α] {T : Set α} {δ δ' : ℝ} (h : δ ≤ δ')
+    (h_ex : ∃ u : Set α, IsSubsetENet T u δ ∧ u.Finite) :
   subsetENetCard T δ' ≤ subsetENetCard T δ := by
 
     set S := fun r => {n : ℕ | ∃ u : Finset α, IsSubsetENet T u r ∧ u.card = n} with hS_def
     have hS_nonempty : S δ ≠ ∅ := by
-      rcases h_ex with ⟨ u, hu₁, hu₂ ⟩ ; exact Set.Nonempty.ne_empty ⟨ _, ⟨ hu₂.toFinset, by simpa using hu₁, rfl ⟩ ⟩ ;
-    refine' le_csInf _ _;
+      rcases h_ex with ⟨ u, hu₁, hu₂ ⟩ ;
+          exact Set.Nonempty.ne_empty ⟨ _, ⟨ hu₂.toFinset, by simpa using hu₁, rfl ⟩ ⟩ ;
+    refine le_csInf ?_ ?_;
     · exact Set.nonempty_iff_ne_empty.2 hS_nonempty;
     · rintro n ⟨ u, hu, rfl ⟩;
       exact Nat.sInf_le ⟨ u, IsSubsetENet_mono h hu, rfl ⟩
@@ -1045,27 +1241,21 @@ lemma exists_dudley_chain_consistent
     refine ⟨fun m => if m ≤ M then {cstar} else U_seq₀ m,
             fun m u => if m ≤ M then cstar else pi_map₀ m u,
             ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
-    ·
-      intro m; dsimp only; split_ifs <;> [exact Set.finite_singleton _; exact hUf₀ m]
-    ·
-      intro m; dsimp only; split_ifs
+    · intro m; dsimp only; split_ifs <;> [exact Set.finite_singleton _; exact hUf₀ m]
+    · intro m; dsimp only; split_ifs
       · exact Set.singleton_subset_iff.mpr hcstar_T
       · exact hUs₀ m
-    ·
-      dsimp only; rw [ite_eq_right (not_le.mpr hM_lt)]; exact hUL₀
-    ·
-      intro m hm; dsimp only; split_ifs with h
+    · dsimp only; rw [ite_eq_right (not_le.mpr hM_lt)]; exact hUL₀
+    · intro m hm; dsimp only; split_ifs with h
       · rw [Set.ncard_singleton]; exact (h_all_sing m h hm).symm
       · exact hUn₀ m hm
-    ·
-      intro m hm; dsimp only; split_ifs with h
+    · intro m hm; dsimp only; split_ifs with h
       · exact IsSubsetENet.of_exists_dist (Set.finite_singleton cstar)
           (Set.singleton_subset_iff.mpr hcstar_T)
           (fun x hx => ⟨cstar, Set.mem_singleton _,
             le_trans (hcstar_cov x hx) (h_eps_antitone m M h)⟩)
       · exact hUc₀ m hm
-    ·
-      intro m hm u hu; dsimp only at hu ⊢
+    · intro m hm u hu; dsimp only at hu ⊢
       by_cases hm_le : m ≤ M
       · simp only [ite_eq_left hm_le]
         constructor
@@ -1079,8 +1269,7 @@ lemma exists_dudley_chain_consistent
       · simp only [ite_eq_right hm_le]
         have hm1_gt : ¬(m + 1 ≤ M) := fun h => hm_le (by omega)
         simp only [ite_eq_right hm1_gt] at hu; exact hUp₀ m hm u hu
-    ·
-      intro m hm hN u hu; dsimp only at hu ⊢
+    · intro m hm hN u hu; dsimp only at hu ⊢
       have hm1_le_M : m + 1 ≤ M := by
         by_contra h; push Not at h; exact hM_max (m + 1) h hm hN
       simp only [ite_eq_left (show m ≤ M by omega), ite_eq_left hm1_le_M] at hu ⊢
@@ -1118,12 +1307,15 @@ lemma sub_gaussian_max_diff_bound
 
     set ι := {p : α × α | p.1 ∈ U ∧ p.2 ∈ U};
 
-    have h_metric_entropy : ∫ ω, (⨆ p : ι, (X ω p.val.1) - (X ω p.val.2)) ∂μ ≤ Real.sqrt (2 * σ_sq * Real.log (ι.ncard)) := by
-      have h_card : ∫ ω, (⨆ p : ι, (X ω p.val.1 - X ω p.val.2)) ∂μ ≤ Real.sqrt (2 * σ_sq * Real.log (Nat.card ι)) := by
+    have h_metric_entropy : ∫ ω, (⨆ p : ι, (X ω p.val.1) - (X ω p.val.2)) ∂μ ≤
+        Real.sqrt (2 * σ_sq * Real.log (ι.ncard)) := by
+      have h_card : ∫ ω, (⨆ p : ι, (X ω p.val.1 - X ω p.val.2)) ∂μ ≤
+          Real.sqrt (2 * σ_sq * Real.log (Nat.card ι)) := by
         have h_finite : Finite ι := by
           exact Set.Finite.to_subtype ( hU_fin.prod hU_fin )
         have h_nonempty : Nonempty ι := by
-          exact ⟨ ⟨ hU_nonempty.some, hU_nonempty.some ⟩, hU_nonempty.choose_spec, hU_nonempty.choose_spec ⟩
+          exact ⟨ ⟨ hU_nonempty.some, hU_nonempty.some ⟩, hU_nonempty.choose_spec,
+              hU_nonempty.choose_spec ⟩
         convert metric_entropy_bound_for_sub_gaussian_maxima_fintype _ _;
         all_goals try assumption;
         convert Nat.card_eq_fintype_card;
@@ -1139,31 +1331,55 @@ lemma sub_gaussian_max_diff_bound
           · exact ⟨ i ⟩;
           · intro x;
             rw [ @ciSup_eq_ite ];
-            split_ifs <;> [ exact le_ciSup ( show BddAbove ( Set.range fun p : { p : α × α // p.1 ∈ U ∧ p.2 ∈ U } => X _ p.val.1 - X _ p.val.2 ) from by
-                                              exact Set.Finite.bddAbove ( Set.Finite.subset ( hU_fin.prod hU_fin |> Set.Finite.image fun p : α × α => X ‹_› p.1 - X ‹_› p.2 ) fun p hp => by
+            split_ifs <;>
+                [ exact le_ciSup
+                ( show BddAbove ( Set.range fun p : { p : α × α // p.1 ∈ U ∧ p.2 ∈ U } =>
+                X _ p.val.1 - X _ p.val.2 ) from by
+                                              exact
+                                                  Set.Finite.bddAbove
+                                                  ( Set.Finite.subset ( hU_fin.prod hU_fin |>
+                                                  Set.Finite.image fun p : α × α => X ‹_› p.1 -
+                                                  X ‹_› p.2 ) fun p hp => by
                                                 rcases hp with ⟨q, rfl⟩
-                                                exact ⟨q.1, ⟨q.2.1, q.2.2⟩, rfl⟩ ) ) ⟨ ( i, x ), hi, by assumption ⟩ ; exact le_trans ( by norm_num ) ( Real.sSup_nonneg _ fun p hp => by unreachable! ) ];
-            refine' le_trans _ ( le_ciSup _ ⟨ ( i, i ), hi, hi ⟩ ) ; norm_num;
-            exact Set.Finite.bddAbove ( Set.Finite.subset ( Set.Finite.image ( fun p : α × α => X ‹_› p.1 - X ‹_› p.2 ) ( hU_fin.prod hU_fin ) ) fun p hp => by
+                                                exact ⟨q.1, ⟨q.2.1, q.2.2⟩, rfl⟩ ) )
+                                                  ⟨ ( i, x ), hi, by assumption ⟩ ;
+                                                  exact le_trans ( by norm_num )
+                                                    ( Real.sSup_nonneg _ fun p hp =>
+                                                      by unreachable! ) ];
+            refine le_trans ?_ ( le_ciSup ?_ ⟨ ( i, i ), hi, hi ⟩ ) ; norm_num;
+            exact Set.Finite.bddAbove
+                ( Set.Finite.subset ( Set.Finite.image ( fun p : α × α => X ‹_› p.1 - X ‹_› p.2 )
+                ( hU_fin.prod hU_fin ) ) fun p hp => by
               rcases hp with ⟨q, rfl⟩
               exact ⟨q, ⟨q.2.1, q.2.2⟩, rfl⟩ );
-        · refine' le_trans _ ( le_ciSup _ ⟨ ( hU_nonempty.some, hU_nonempty.some ), hU_nonempty.choose_spec, hU_nonempty.choose_spec ⟩ ) ; norm_num;
-          exact Set.Finite.bddAbove ( Set.Finite.subset ( hU_fin.prod hU_fin |> Set.Finite.image fun p : α × α => X ‹_› p.1 - X ‹_› p.2 ) fun x hx => by
+        · refine le_trans ?_
+            ( le_ciSup ?_ ⟨ ( hU_nonempty.some, hU_nonempty.some ), hU_nonempty.choose_spec,
+            hU_nonempty.choose_spec ⟩ ) ; norm_num;
+          exact Set.Finite.bddAbove
+              ( Set.Finite.subset ( hU_fin.prod hU_fin |> Set.Finite.image fun p : α × α =>
+              X ‹_› p.1 - X ‹_› p.2 ) fun x hx => by
             rcases hx with ⟨q, rfl⟩
             exact ⟨q, ⟨q.2.1, q.2.2⟩, rfl⟩ );
       · intro w hw
         obtain ⟨p, hp⟩ : ∃ p : ι, w < X ‹_› p.val.1 - X ‹_› p.val.2 := by
           contrapose! hw;
           convert ciSup_le _;
-          · exact ⟨ ⟨ ⟨ hU_nonempty.some, hU_nonempty.some ⟩, hU_nonempty.choose_spec, hU_nonempty.choose_spec ⟩ ⟩;
+          · exact ⟨ ⟨ ⟨ hU_nonempty.some, hU_nonempty.some ⟩, hU_nonempty.choose_spec,
+              hU_nonempty.choose_spec ⟩ ⟩;
           · exact hw;
         use p.val.1;
         rw [ ciSup_pos ];
-        · refine' lt_of_lt_of_le hp ( le_trans _ ( le_ciSup _ p.val.2 ) );
-          · exact le_ciSup ⟨X ‹_› p.val.1 - X ‹_› p.val.2, Set.forall_mem_range.2 fun _ => le_rfl⟩ p.2.2
-          · refine' ⟨ ∑ v ∈ hU_fin.toFinset, |X ‹_› p.val.1 - X ‹_› v|, Set.forall_mem_range.2 fun v => _ ⟩;
+        · refine lt_of_lt_of_le hp ( le_trans ?_ ( le_ciSup ?_ p.val.2 ) );
+          · exact le_ciSup ⟨X ‹_› p.val.1 - X ‹_› p.val.2, Set.forall_mem_range.2 fun _ =>
+              le_rfl⟩ p.2.2
+          · refine ⟨ ∑ v ∈ hU_fin.toFinset, |X ‹_› p.val.1 - X ‹_› v|,
+              Set.forall_mem_range.2 fun v => ?_ ⟩;
             rw [ @ciSup_eq_ite ];
-            split_ifs <;> [ exact le_trans ( le_abs_self _ ) ( Finset.single_le_sum ( fun a _ => abs_nonneg ( X ‹_› p.val.1 - X ‹_› a ) ) ( hU_fin.mem_toFinset.mpr ‹_› ) ) ; exact le_trans ( by norm_num ) ( Finset.sum_nonneg fun a _ => abs_nonneg _ ) ];
+            split_ifs <;>
+                [ exact le_trans ( le_abs_self _ )
+                ( Finset.single_le_sum ( fun a _ => abs_nonneg ( X ‹_› p.val.1 - X ‹_› a ) )
+                ( hU_fin.mem_toFinset.mpr ‹_› ) ) ;
+                exact le_trans ( by norm_num ) ( Finset.sum_nonneg fun a _ => abs_nonneg _ ) ];
         · exact p.2.1;
     · rw [ show ι = U ×ˢ U by ext x; simp [ι, Set.mem_prod], Set.ncard_prod ] ; simp +decide [ sq ]
 
@@ -1175,7 +1391,7 @@ lemma IsSubGaussian_mono {α : Type*} [MeasurableSpace α]
   (h : IsSubGaussian X σ_sq μ) (hle : σ_sq ≤ σ_sq') :
   IsSubGaussian X σ_sq' μ := by
     obtain ⟨ h₁, h₂ ⟩ := h;
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     linarith;
     constructor;
     · intro t;
@@ -1186,7 +1402,8 @@ lemma IsSubGaussian_mono {α : Type*} [MeasurableSpace α]
         exact hle ) )
 
 /-
-For a symmetric nonempty bounded set of reals, the supremum of the absolute values equals the supremum of the values.
+For a symmetric nonempty bounded set of reals,
+    the supremum of the absolute values equals the supremum of the values.
 -/
 lemma sSup_abs_eq_sSup_of_symmetric
   {S : Set ℝ} (hS_nonempty : S.Nonempty) (hS_bdd : BddAbove S)
@@ -1194,30 +1411,48 @@ lemma sSup_abs_eq_sSup_of_symmetric
   sSup (Set.image abs S) = sSup S := by
     rw [ @csSup_eq_of_forall_le_of_forall_lt_exists_gt ];
     · exact hS_nonempty.image _;
-    · rintro _ ⟨ x, hx, rfl ⟩ ; cases abs_cases x <;> linarith [ le_csSup hS_bdd hx, le_csSup hS_bdd ( hS_symm x hx ) ] ;
+    · rintro _ ⟨ x, hx, rfl ⟩ ; cases abs_cases x <;>
+        linarith [ le_csSup hS_bdd hx, le_csSup hS_bdd ( hS_symm x hx ) ] ;
     · intro w hw;
       rcases exists_lt_of_lt_csSup hS_nonempty hw with ⟨ x, hx₁, hx₂ ⟩;
       exact ⟨ |x|, Set.mem_image_of_mem _ hx₁, by cases abs_cases x <;> linarith ⟩
 
 /-
-For a finite nonempty set S, the maximum absolute difference of f on S equals the maximum difference of f on S.
+For a finite nonempty set S, the maximum absolute difference of f on S equals the maximum difference
+    of f on S.
 -/
-lemma sup_abs_diff_eq_sup_diff_finite {α : Type*} {f : α → ℝ} (S : Set α) (hS : S.Finite) (hS_nonempty : S.Nonempty) :
+lemma sup_abs_diff_eq_sup_diff_finite {α : Type*} {f : α → ℝ} (S : Set α) (hS : S.Finite)
+    (hS_nonempty : S.Nonempty) :
   (⨆ u ∈ S, ⨆ v ∈ S, |f u - f v|) = (⨆ u ∈ S, ⨆ v ∈ S, f u - f v) := by
 
     set D := {d : ℝ | ∃ u ∈ S, ∃ v ∈ S, d = f u - f v} with hD;
 
     have hD_bounded : BddAbove D ∧ BddBelow D := by
-      exact ⟨ ⟨ ∑ u ∈ hS.toFinset, |f u| + ∑ u ∈ hS.toFinset, |f u|, by rintro x ⟨ u, hu, v, hv, rfl ⟩ ; cases abs_cases ( f u ) <;> cases abs_cases ( f v ) <;> linarith [ Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) ) ( hS.mem_toFinset.mpr hu ), Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) ) ( hS.mem_toFinset.mpr hv ) ] ⟩, ⟨ - ( ∑ u ∈ hS.toFinset, |f u| + ∑ u ∈ hS.toFinset, |f u| ), by rintro x ⟨ u, hu, v, hv, rfl ⟩ ; cases abs_cases ( f u ) <;> cases abs_cases ( f v ) <;> linarith [ Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) ) ( hS.mem_toFinset.mpr hu ), Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) ) ( hS.mem_toFinset.mpr hv ) ] ⟩ ⟩;
+      exact ⟨ ⟨ ∑ u ∈ hS.toFinset, |f u| + ∑ u ∈ hS.toFinset, |f u|, by
+          rintro x ⟨ u, hu, v, hv, rfl ⟩ ; cases abs_cases ( f u ) <;> cases abs_cases ( f v ) <;>
+            linarith [
+              Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) ) ( hS.mem_toFinset.mpr hu ),
+              Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) )
+                ( hS.mem_toFinset.mpr hv ) ] ⟩,
+        ⟨ - ( ∑ u ∈ hS.toFinset, |f u| + ∑ u ∈ hS.toFinset, |f u| ), by
+          rintro x ⟨ u, hu, v, hv, rfl ⟩ ; cases abs_cases ( f u ) <;> cases abs_cases ( f v ) <;>
+            linarith [
+              Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) ) ( hS.mem_toFinset.mpr hu ),
+              Finset.single_le_sum ( fun a _ => abs_nonneg ( f a ) )
+                ( hS.mem_toFinset.mpr hv ) ] ⟩ ⟩;
 
     have hD_abs_eq_D : sSup (Set.image abs D) = sSup D := by
       apply_rules [ sSup_abs_eq_sSup_of_symmetric ];
-      · exact ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some, hS_nonempty.choose_spec, rfl ⟩ ⟩;
+      · exact ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some,
+          hS_nonempty.choose_spec, rfl ⟩ ⟩;
       · exact hD_bounded.1;
       · rintro _ ⟨ u, hu, v, hv, rfl ⟩ ; exact ⟨ v, hv, u, hu, by ring ⟩;
     convert hD_abs_eq_D using 1;
     · rw [ @csSup_eq_of_forall_le_of_forall_lt_exists_gt ];
-      · exact ⟨ _, ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some, hS_nonempty.choose_spec, rfl ⟩, rfl ⟩ ⟩;
+      · exact
+          ⟨ _,
+          ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some,
+          hS_nonempty.choose_spec, rfl ⟩, rfl ⟩ ⟩;
       · simp +zetaDelta at *;
         intro a x u hu v hv; subst hv; exact finite_sup_bound hS f x u hu v;
       · intro w hw;
@@ -1231,33 +1466,50 @@ lemma sup_abs_diff_eq_sup_diff_finite {α : Type*} {f : α → ℝ} (S : Set α)
             · exact ⟨ x ⟩;
             · intro y; rw [ @ciSup_eq_ite ] ; split_ifs with h;
               · exact hw _ ⟨_, ⟨x, hx, y, h, rfl⟩, rfl⟩;
-              · simp only [Real.sSup_empty]; exact le_trans (abs_nonneg _) (hw _ ⟨_, ⟨hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some, hS_nonempty.choose_spec, rfl⟩, rfl⟩);
+              · simp only [Real.sSup_empty];
+                  exact le_trans (abs_nonneg _)
+                  (hw _
+                  ⟨_, ⟨hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some,
+                  hS_nonempty.choose_spec, rfl⟩, rfl⟩);
           · simp +decide [ Real.sSup_empty ];
-            exact le_trans ( abs_nonneg _ ) ( hw _ ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some, hS_nonempty.choose_spec, rfl ⟩, rfl ⟩ );
+            exact le_trans ( abs_nonneg _ )
+                ( hw _ ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some,
+                hS_nonempty.choose_spec, rfl ⟩, rfl ⟩ );
     · convert ( ciSup_eq_of_forall_le_of_forall_lt_exists_gt _ _ );
       · exact ⟨ hS_nonempty.some ⟩;
       · intro u; by_cases hu : u ∈ S <;> simp +decide [ hu ] ;
         · convert ciSup_le fun v => ?_;
           · exact ⟨ u ⟩;
           · rw [ @ciSup_eq_ite ];
-            split_ifs <;> [ exact le_csSup hD_bounded.1 ⟨ u, hu, v, ‹_›, rfl ⟩ ; exact le_trans ( by norm_num ) ( show 0 ≤ sSup D from le_trans ( by norm_num ) ( le_csSup hD_bounded.1 ⟨ u, hu, u, hu, rfl ⟩ ) ) ];
-        · exact le_trans ( by norm_num ) ( le_csSup hD_bounded.1 ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some, hS_nonempty.choose_spec, rfl ⟩ );
+            split_ifs <;> [ exact le_csSup hD_bounded.1 ⟨ u, hu, v, ‹_›, rfl ⟩ ;
+                exact le_trans ( by norm_num ) ( show 0 ≤ sSup D from
+                le_trans ( by norm_num ) ( le_csSup hD_bounded.1 ⟨ u, hu, u, hu, rfl ⟩ ) ) ];
+        · exact le_trans ( by norm_num )
+            ( le_csSup hD_bounded.1 ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some,
+            hS_nonempty.choose_spec, rfl ⟩ );
       · intro w hw;
-        rcases exists_lt_of_lt_csSup ( show D.Nonempty from ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some, hS_nonempty.choose_spec, rfl ⟩ ⟩ ) hw with ⟨ d, ⟨ u, hu, v, hv, rfl ⟩, hd ⟩;
+        rcases exists_lt_of_lt_csSup ( show D.Nonempty from
+            ⟨ _, ⟨ hS_nonempty.some, hS_nonempty.choose_spec, hS_nonempty.some,
+            hS_nonempty.choose_spec, rfl ⟩ ⟩ ) hw with ⟨ d, ⟨ u, hu, v, hv, rfl ⟩, hd ⟩;
         use u;
         simp +decide [ hu ];
-        refine' lt_of_lt_of_le hd ( le_trans _ ( le_ciSup _ v ) );
+        refine lt_of_lt_of_le hd ( le_trans ?_ ( le_ciSup ?_ v ) );
         · exact le_ciSup ⟨f u - f v, Set.forall_mem_range.2 fun _ => le_rfl⟩ hv;
-        · refine' ⟨ ∑ x ∈ hS.toFinset, |f u - f x|, Set.forall_mem_range.2 fun x => _ ⟩;
+        · refine ⟨ ∑ x ∈ hS.toFinset, |f u - f x|, Set.forall_mem_range.2 fun x => ?_ ⟩;
           rw [ @ciSup_eq_ite ];
-          split_ifs <;> [ exact le_trans ( le_abs_self _ ) ( Finset.single_le_sum ( fun x _ => abs_nonneg ( f u - f x ) ) ( hS.mem_toFinset.mpr ‹_› ) ) ; exact le_trans ( by norm_num ) ( Finset.sum_nonneg fun x _ => abs_nonneg _ ) ]
+          split_ifs <;>
+              [ exact le_trans ( le_abs_self _ )
+              ( Finset.single_le_sum ( fun x _ => abs_nonneg ( f u - f x ) )
+              ( hS.mem_toFinset.mpr ‹_› ) ) ;
+              exact le_trans ( by norm_num ) ( Finset.sum_nonneg fun x _ => abs_nonneg _ ) ]
 
 /-
 Bound for the base case of the Dudley chain (U_1).
 -/
 lemma dudley_base_bound
   {α : Type*} [PseudoMetricSpace α]
-  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ]
+  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+      [MeasureTheory.IsProbabilityMeasure μ]
   {T : Set α}
   {X : Ω → α → ℝ}
   {D : ℝ} (hD : 0 ≤ D)
@@ -1266,18 +1518,22 @@ lemma dudley_base_bound
   (hU_card : U.ncard ≤ subsetENetCard T (D / 2))
   (h_diam : ∀ u ∈ U, ∀ v ∈ U, dist u v ≤ D)
   :
-  ∫ ω, (⨆ u ∈ U, ⨆ v ∈ U, |X ω u - X ω v|) ∂μ ≤ 2 * D * Real.sqrt (Real.log (subsetENetCard T (D / 2))) := by
+  ∫ ω, (⨆ u ∈ U, ⨆ v ∈ U, |X ω u - X ω v|) ∂μ ≤ 2 * D *
+      Real.sqrt (Real.log (subsetENetCard T (D / 2))) := by
     by_contra h_contra;
 
-    have h_sub_gaussian_max_diff_bound : ∫ ω, (⨆ u ∈ U, ⨆ v ∈ U, X ω u - X ω v) ∂μ ≤ Real.sqrt (2 * D^2 * Real.log (U.ncard^2)) := by
+    have h_sub_gaussian_max_diff_bound : ∫ ω, (⨆ u ∈ U, ⨆ v ∈ U, X ω u - X ω v) ∂μ ≤
+        Real.sqrt (2 * D^2 * Real.log (U.ncard^2)) := by
       convert sub_gaussian_max_diff_bound hU_finite hU_nonempty _ _ using 1;
       · exact borel α;
       · infer_instance;
       · positivity;
-      · exact fun u hu v hv => IsSubGaussian_mono ( h_sg u ( hU_subset hu ) v ( hU_subset hv ) ) ( pow_le_pow_left₀ ( dist_nonneg ) ( h_diam u hu v hv ) 2 );
-    refine' h_contra ( le_trans _ ( h_sub_gaussian_max_diff_bound.trans _ ) );
-    ·
-      have h_abs_eq_sup : ∀ ω, (⨆ u ∈ U, ⨆ v ∈ U, |X ω u - X ω v|) = (⨆ u ∈ U, ⨆ v ∈ U, X ω u - X ω v) := by
+      · exact fun u hu v hv =>
+          IsSubGaussian_mono ( h_sg u ( hU_subset hu ) v ( hU_subset hv ) )
+          ( pow_le_pow_left₀ ( dist_nonneg ) ( h_diam u hu v hv ) 2 );
+    refine h_contra ( le_trans ?_ ( h_sub_gaussian_max_diff_bound.trans ?_ ) );
+    · have h_abs_eq_sup : ∀ ω, (⨆ u ∈ U, ⨆ v ∈ U, |X ω u - X ω v|) =
+        (⨆ u ∈ U, ⨆ v ∈ U, X ω u - X ω v) := by
         exact fun ω => sup_abs_diff_eq_sup_diff_finite U hU_finite hU_nonempty;
       simp +decide only [h_abs_eq_sup];
       rfl;
@@ -1298,14 +1554,18 @@ Inequality for logarithms used in Dudley's bound.
 lemma log_inequality_for_dudley (N : ℕ) (hN : 2 ≤ N) :
   Real.sqrt (2 * Real.log (2 * N)) ≤ 2 * Real.sqrt (Real.log N) := by
     rw [ Real.sqrt_le_left ] <;> ring_nf <;> norm_num;
-    rw [ Real.sq_sqrt ( Real.log_nonneg ( by norm_cast; linarith ) ) ] ; rw [ Real.log_mul ( by positivity ) ( by positivity ) ] ; ring_nf ; nlinarith [ Real.log_two_gt_d9, Real.log_le_log ( by positivity ) ( show ( N :ℝ ) ≥ 2 by norm_cast ) ] ;
+    rw [ Real.sq_sqrt ( Real.log_nonneg ( by norm_cast; linarith ) ) ] ;
+        rw [ Real.log_mul ( by positivity ) ( by positivity ) ] ; ring_nf ;
+        nlinarith [ Real.log_two_gt_d9, Real.log_le_log ( by positivity ) ( show ( N :ℝ ) ≥
+        2 by norm_cast ) ] ;
 
 /-
 Bound for a single step in the Dudley chain.
 -/
 lemma dudley_step_bound
   {α : Type*} [PseudoMetricSpace α]
-  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ]
+  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+      [MeasureTheory.IsProbabilityMeasure μ]
   {T : Set α}
   {X : Ω → α → ℝ}
   (h_sg : ∀ x ∈ T, ∀ y ∈ T, IsSubGaussian (fun ω => X ω x - X ω y) (dist x y ^ 2) μ)
@@ -1320,22 +1580,39 @@ lemma dudley_step_bound
   (h_card : U_next.ncard ≤ subsetENetCard T (eps / 2))
   (h_consistent : subsetENetCard T (eps / 2) = 1 → ∀ u ∈ U_next, u = pi_map u)
   :
-  ∫ ω, (⨆ u ∈ U_next, |X ω u - X ω (pi_map u)|) ∂μ ≤ 4 * eps * Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
+  ∫ ω, (⨆ u ∈ U_next, |X ω u - X ω (pi_map u)|) ∂μ ≤ 4 * eps *
+      Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
 
     have h_exp_bound : ∫ ω, (⨆ u ∈ U_next, |X ω u - X ω (pi_map u)|) ∂μ ≤
       eps * Real.sqrt (2 * Real.log (U_next.ncard)) + eps * Real.sqrt (2 * Real.log 2) := by
         apply_rules [ expectation_bound_chain_step ];
     by_cases h_card_ge_two : 2 ≤ subsetENetCard T (eps / 2);
-    ·
-      have h_log_ineq : Real.sqrt (2 * Real.log (U_next.ncard)) + Real.sqrt (2 * Real.log 2) ≤ 4 * Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
-        have h_log_ineq : Real.sqrt (2 * Real.log (U_next.ncard)) ≤ Real.sqrt (2 * Real.log (subsetENetCard T (eps / 2))) := by
+    · have h_log_ineq : Real.sqrt (2 * Real.log (U_next.ncard)) + Real.sqrt (2 * Real.log 2) ≤
+        4 * Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
+        have h_log_ineq : Real.sqrt (2 * Real.log (U_next.ncard)) ≤
+            Real.sqrt (2 * Real.log (subsetENetCard T (eps / 2))) := by
           by_cases hU_next_empty : U_next.ncard = 0;
           · simp [hU_next_empty];
-          · exact Real.sqrt_le_sqrt <| mul_le_mul_of_nonneg_left ( Real.log_le_log ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero hU_next_empty ) <| Nat.cast_le.mpr h_card ) zero_le_two;
-        have h_log_ineq : Real.sqrt (2 * Real.log 2) ≤ 2 * Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
+          · exact Real.sqrt_le_sqrt <|
+              mul_le_mul_of_nonneg_left
+              ( Real.log_le_log ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero hU_next_empty ) <|
+              Nat.cast_le.mpr h_card ) zero_le_two;
+        have h_log_ineq : Real.sqrt (2 * Real.log 2) ≤ 2 *
+            Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
           rw [ Real.sqrt_le_iff ];
-          exact ⟨ by positivity, by rw [ mul_pow, Real.sq_sqrt ( Real.log_nonneg ( mod_cast h_card_ge_two.trans' ( by norm_num ) ) ) ] ; nlinarith [ Real.log_pos one_lt_two, Real.log_le_log ( by positivity ) ( show ( subsetENetCard T ( eps / 2 ) : ℝ ) ≥ 2 by norm_cast ) ] ⟩;
-        linarith [ show Real.sqrt ( 2 * Real.log ( subsetENetCard T ( eps / 2 ) ) ) ≤ 2 * Real.sqrt ( Real.log ( subsetENetCard T ( eps / 2 ) ) ) by rw [ Real.sqrt_mul ( by positivity ) ] ; nlinarith [ Real.sqrt_nonneg 2, Real.sqrt_nonneg ( Real.log ( subsetENetCard T ( eps / 2 ) ) ), Real.mul_self_sqrt ( show 0 ≤ 2 by positivity ), Real.mul_self_sqrt ( show 0 ≤ Real.log ( subsetENetCard T ( eps / 2 ) ) by exact Real.log_nonneg ( by norm_cast; linarith ) ) ] ];
+          exact ⟨ by positivity, by
+            rw [ mul_pow, Real.sq_sqrt
+              ( Real.log_nonneg ( mod_cast h_card_ge_two.trans' ( by norm_num ) ) ) ] ;
+            nlinarith [ Real.log_pos one_lt_two, Real.log_le_log ( by positivity )
+              ( show ( subsetENetCard T ( eps / 2 ) : ℝ ) ≥ 2 by norm_cast ) ] ⟩;
+        linarith [ show Real.sqrt ( 2 * Real.log ( subsetENetCard T ( eps / 2 ) ) ) ≤
+            2 * Real.sqrt ( Real.log ( subsetENetCard T ( eps / 2 ) ) ) by
+          rw [ Real.sqrt_mul ( by positivity ) ] ;
+          nlinarith [ Real.sqrt_nonneg 2,
+            Real.sqrt_nonneg ( Real.log ( subsetENetCard T ( eps / 2 ) ) ),
+            Real.mul_self_sqrt ( show 0 ≤ 2 by positivity ),
+            Real.mul_self_sqrt ( show 0 ≤ Real.log ( subsetENetCard T ( eps / 2 ) ) by
+              exact Real.log_nonneg ( by norm_cast; linarith ) ) ] ];
       nlinarith;
     · interval_cases _ : subsetENetCard T ( eps / 2 ) <;> simp +decide at h_card ⊢;
       · simp_all +decide [ Set.ncard_def ];
@@ -1343,7 +1620,7 @@ lemma dudley_step_bound
         filter_upwards [ ] with;
         by_cases hU_nonempty : U_next.Nonempty
         · have : Nonempty α := ⟨hU_nonempty.some⟩
-          refine' le_antisymm _ _;
+          refine le_antisymm ?_ ?_;
           · apply ciSup_le
             intro u
             rw [ ciSup_eq_ite ]
@@ -1363,16 +1640,21 @@ lemma dudley_sum_bound
   (L : ℕ) (hL : 1 ≤ L) :
   ∑ k ∈ Finset.range (L - 1), 4 * (D * 2 ^ (-(k + 1 : ℝ))) * f (D * 2 ^ (-(k + 2 : ℝ))) ≤
   16 * ∫ x in Set.Icc (D * 2 ^ (-(L + 1 : ℝ))) (D * 2 ^ (-2 : ℝ)), f x := by
-    convert dudley_analytical_sum_bound _ _ _ using 1 <;> norm_num [ mul_assoc, mul_comm, mul_left_comm ];
+    convert dudley_analytical_sum_bound _ _ _ using 1 <;>
+        norm_num [ mul_assoc, mul_comm, mul_left_comm ];
     rotate_left;
     rotate_left;
     use fun x => f ( x / 2 );
     exact D;
     any_goals exact L - 1;
     · exact hD;
-    · exact fun x hx y hy hxy => hf_antitone ⟨ by linarith [ hx.1 ], by linarith [ hx.2 ] ⟩ ⟨ by linarith [ hy.1 ], by linarith [ hy.2 ] ⟩ ( by linarith );
+    · exact fun x hx y hy hxy => hf_antitone ⟨ by linarith [ hx.1 ], by linarith [ hx.2 ] ⟩
+        ⟨ by linarith [ hy.1 ], by linarith [ hy.2 ] ⟩ ( by linarith );
     · norm_num [ Real.rpow_add, Real.rpow_neg ] ; ring_nf;
-    · rw [ MeasureTheory.integral_Icc_eq_integral_Ioc, MeasureTheory.integral_Icc_eq_integral_Ioc ] ; rw [ ← intervalIntegral.integral_of_le, ← intervalIntegral.integral_of_le ] <;> norm_num [ Real.rpow_add, Real.rpow_neg ] <;> ring_nf <;> norm_num [ hD.le ] ;
+    · rw [ MeasureTheory.integral_Icc_eq_integral_Ioc,
+        MeasureTheory.integral_Icc_eq_integral_Ioc ] ;
+        rw [ ← intervalIntegral.integral_of_le, ← intervalIntegral.integral_of_le ] <;>
+        norm_num [ Real.rpow_add, Real.rpow_neg ] <;> ring_nf <;> norm_num [ hD.le ] ;
       · cases L <;> norm_num [ pow_succ' ] at * ; ring_nf at *;
       · exact mul_le_of_le_one_right hD.le ( pow_le_one₀ ( by norm_num ) ( by norm_num ) );
       · nlinarith [ pow_le_pow_of_le_one ( by norm_num : ( 0 : ℝ ) ≤ 1 / 2 ) ( by norm_num ) hL ]
@@ -1393,18 +1675,22 @@ lemma dudley_base_bound_integral
         apply_rules [ subsetENetCard_antitoneOn_Ioc ];
       intro x hx y hy hxy;
       simp +zetaDelta at *;
-      by_cases h : subsetENetCard T y = 0 <;> by_cases h' : subsetENetCard T x = 0 <;> simp_all +decide;
+      by_cases h : subsetENetCard T y = 0 <;> by_cases h' : subsetENetCard T x = 0 <;>
+          simp_all +decide;
       · exact False.elim <| by
           simpa [h, h'] using hf_antitone ⟨hx.1, hx.2⟩ ⟨hy.1, hy.2⟩ hxy
-      · exact Real.sqrt_le_sqrt ( Real.log_le_log ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero h ) ) ( Nat.cast_le.mpr ( hf_antitone ⟨ hx.1, hx.2 ⟩ ⟨ hy.1, hy.2 ⟩ hxy ) ) );
+      · exact Real.sqrt_le_sqrt
+          ( Real.log_le_log ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero h ) )
+          ( Nat.cast_le.mpr ( hf_antitone ⟨ hx.1, hx.2 ⟩ ⟨ hy.1, hy.2 ⟩ hxy ) ) );
 
-    have h_integral_bound : ∫ x in Set.Icc (D / 4) (D / 2), f x ≥ ∫ x in Set.Icc (D / 4) (D / 2), f (D / 2) := by
-      refine' MeasureTheory.setIntegral_mono_on _ _ _ _ <;> norm_num;
-      ·
-        have hf_antitone_on : AntitoneOn f (Set.Icc (D / 4) (D / 2)) := by
+    have h_integral_bound : ∫ x in Set.Icc (D / 4) (D / 2), f x ≥
+        ∫ x in Set.Icc (D / 4) (D / 2), f (D / 2) := by
+      refine MeasureTheory.setIntegral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+      · have hf_antitone_on : AntitoneOn f (Set.Icc (D / 4) (D / 2)) := by
           exact hf_antitone.mono ( fun x hx => ⟨ by linarith [ hx.1 ], by linarith [ hx.2 ] ⟩ );
         exact ( hf_antitone_on.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc ) );
-      · intro x hx₁ hx₂; exact hf_antitone ⟨ by linarith, by linarith ⟩ ⟨ by linarith, by linarith ⟩ ( by linarith ) ;
+      · intro x hx₁ hx₂; exact hf_antitone ⟨ by linarith, by linarith ⟩
+          ⟨ by linarith, by linarith ⟩ ( by linarith ) ;
     have hlen : max (D / 2 - D / 4) 0 = D / 4 := by
       rw [max_eq_left]
       · ring_nf
@@ -1426,21 +1712,35 @@ lemma dudley_term_bound
   4 * (D * 2 ^ (-(k + 1 : ℝ))) * f (D * 2 ^ (-(k + 2 : ℝ))) ≤
   16 * ∫ x in Set.Icc (D * 2 ^ (-(k + 3 : ℝ))) (D * 2 ^ (-(k + 2 : ℝ))), f x := by
 
-    have h_int_le : ∫ x in (Set.Icc (D * 2 ^ (-(k + 3 : ℝ))) (D * 2 ^ (-(k + 2 : ℝ)))), f x ≥ ∫ x in (Set.Icc (D * 2 ^ (-(k + 3 : ℝ))) (D * 2 ^ (-(k + 2 : ℝ)))), f (D * 2 ^ (-(k + 2 : ℝ))) := by
-      refine' MeasureTheory.setIntegral_mono_on _ _ _ _ <;> norm_num;
-      · refine' ( hf_antitone.mono _ ) |> fun h => h.integrableOn_isCompact ( CompactIccSpace.isCompact_Icc ) |> fun h => h.mono_set ( Set.Icc_subset_Icc _ _ );
-        exact fun ⦃a⦄ a => a;
+    have h_int_le : ∫ x in (Set.Icc (D * 2 ^ (-(k + 3 : ℝ))) (D * 2 ^ (-(k + 2 : ℝ)))), f x ≥
+        ∫ x in (Set.Icc (D * 2 ^ (-(k + 3 : ℝ))) (D * 2 ^ (-(k + 2 : ℝ)))),
+        f (D * 2 ^ (-(k + 2 : ℝ))) := by
+      refine MeasureTheory.setIntegral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+      · refine ( hf_antitone.integrableOn_isCompact CompactIccSpace.isCompact_Icc ).mono_set
+          ( Set.Icc_subset_Icc ?_ ?_ );
         · positivity;
-        · exact mul_le_of_le_one_right hD.le ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith );
+        · exact mul_le_of_le_one_right hD.le
+            ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith );
       · intro x hx₁ hx₂; apply_rules [ hf_antitone ] ; ring_nf at *; norm_num at *;
-        · exact ⟨ le_trans ( by positivity ) hx₁, le_trans hx₂ ( mul_le_of_le_one_right ( by positivity ) ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) ) ⟩;
-        · exact ⟨ by positivity, by exact mul_le_of_le_one_right hD.le ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) ⟩;
+        · exact ⟨ le_trans ( by positivity ) hx₁,
+            le_trans hx₂
+            ( mul_le_of_le_one_right ( by positivity )
+            ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) ) ⟩;
+        · exact ⟨ by positivity, by
+            exact mul_le_of_le_one_right hD.le
+              ( by rw [ Real.rpow_le_one_iff_of_pos ] <;> norm_num ; linarith ) ⟩;
     norm_num [ Real.rpow_add, Real.rpow_neg ] at *;
-    rw [ max_eq_left ] at h_int_le <;> nlinarith [ show 0 < D * ( 1 / 2 * ( 2 ^ k : ℝ ) ⁻¹ ) by positivity, show 0 < D * ( 1 / 8 * ( 2 ^ k : ℝ ) ⁻¹ ) by positivity, inv_pos.mpr ( show 0 < ( 2 ^ k : ℝ ) by positivity ) ]
+    rw [ max_eq_left ] at h_int_le <;>
+        nlinarith
+        [ show 0 < D *
+        ( 1 / 2 * ( 2 ^ k : ℝ ) ⁻¹ )
+        by positivity, show 0 < D * ( 1 / 8 * ( 2 ^ k : ℝ ) ⁻¹ ) by positivity, inv_pos.mpr ( show 0
+        < ( 2 ^ k : ℝ ) by positivity ) ]
 
 lemma dudley_step_bound_tight
   {α : Type*} [PseudoMetricSpace α]
-  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω} [MeasureTheory.IsProbabilityMeasure μ]
+  {Ω : Type*} [MeasurableSpace Ω] {μ : MeasureTheory.Measure Ω}
+      [MeasureTheory.IsProbabilityMeasure μ]
   {T : Set α}
   {X : Ω → α → ℝ}
   (h_sg : ∀ x ∈ T, ∀ y ∈ T, IsSubGaussian (fun ω => X ω x - X ω y) (dist x y ^ 2) μ)
@@ -1455,10 +1755,11 @@ lemma dudley_step_bound_tight
   (h_card : U_next.ncard ≤ subsetENetCard T (eps / 2))
   (h_consistent : subsetENetCard T (eps / 2) = 1 → ∀ u ∈ U_next, u = pi_map u)
   :
-  ∫ ω, (⨆ u ∈ U_next, |X ω u - X ω (pi_map u)|) ∂μ ≤ 2 * eps * Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
+  ∫ ω, (⨆ u ∈ U_next, |X ω u - X ω (pi_map u)|) ∂μ ≤ 2 * eps *
+      Real.sqrt (Real.log (subsetENetCard T (eps / 2))) := by
     by_cases h_cases : subsetENetCard T (eps / 2) = 1;
     · norm_num [ h_cases ];
-      refine' MeasureTheory.integral_nonpos fun ω => _;
+      refine MeasureTheory.integral_nonpos fun ω => ?_;
       by_cases hU_nonempty : U_next.Nonempty
       · have : Nonempty α := ⟨hU_nonempty.some⟩
         apply ciSup_le
@@ -1472,15 +1773,19 @@ lemma dudley_step_bound_tight
         · norm_num
       · rw [Set.not_nonempty_iff_eq_empty.mp hU_nonempty]
         simp
-    ·
-      set N := subsetENetCard T (eps / 2);
+    · set N := subsetENetCard T (eps / 2);
 
-      have h_sub_gaussian_max_abs_bound : ∫ ω, ⨆ u ∈ U_next, |X ω u - X ω (pi_map u)| ∂μ ≤ eps * Real.sqrt (2 * Real.log (2 * U_next.ncard)) := by
-        have h_sub_gaussian_max_abs_bound : ∀ u ∈ U_next, IsSubGaussian (fun ω => X ω u - X ω (pi_map u)) (eps ^ 2) μ := by
-          intro u hu; specialize h_sg u ( hU_next_subset hu ) ( pi_map u ) ( hU_curr_subset ( h_pi u hu ) ) ; exact (by
+      have h_sub_gaussian_max_abs_bound : ∫ ω, ⨆ u ∈ U_next, |X ω u - X ω (pi_map u)| ∂μ ≤
+          eps * Real.sqrt (2 * Real.log (2 * U_next.ncard)) := by
+        have h_sub_gaussian_max_abs_bound : ∀ u ∈ U_next,
+            IsSubGaussian (fun ω => X ω u - X ω (pi_map u)) (eps ^ 2) μ := by
+          intro u hu; specialize h_sg u ( hU_next_subset hu ) ( pi_map u )
+              ( hU_curr_subset ( h_pi u hu ) ) ; exact (by
           exact IsSubGaussian_mono h_sg ( pow_le_pow_left₀ ( dist_nonneg ) ( h_dist u hu ) 2 ));
         by_cases h : U_next.Nonempty;
-        · convert sub_gaussian_max_abs_bound ( show 0 ≤ eps ^ 2 by positivity ) ( show ∀ i : U_next, IsSubGaussian ( fun ω => X ω i - X ω ( pi_map i ) ) ( eps ^ 2 ) μ from fun i => h_sub_gaussian_max_abs_bound i i.2 ) using 1;
+        · convert sub_gaussian_max_abs_bound ( show 0 ≤ eps ^ 2 by positivity )
+            ( show ∀ i : U_next, IsSubGaussian ( fun ω => X ω i - X ω ( pi_map i ) )
+            ( eps ^ 2 ) μ from fun i => h_sub_gaussian_max_abs_bound i i.2 ) using 1;
           any_goals exact Set.Finite.fintype hU_next_finite;
           · congr! 2;
             convert ( ciSup_eq_of_forall_le_of_forall_lt_exists_gt _ _ );
@@ -1489,7 +1794,9 @@ lemma dudley_step_bound_tight
               rw [ @ciSup_eq_ite ];
               split_ifs <;> norm_num;
               · apply le_csSup;
-                · exact Set.Finite.bddAbove ( Set.Finite.subset ( hU_next_finite.image fun u => |X ‹_› u - X ‹_› ( pi_map u )| ) fun x hx => by
+                · exact Set.Finite.bddAbove
+                    ( Set.Finite.subset ( hU_next_finite.image fun u => |X ‹_› u -
+                    X ‹_› ( pi_map u )| ) fun x hx => by
                     rcases hx with ⟨u, rfl⟩
                     exact ⟨u, u.2, rfl⟩ );
                 · exact ⟨ ⟨ i, by assumption ⟩, rfl ⟩;
@@ -1503,16 +1810,18 @@ lemma dudley_step_bound_tight
           · exact ⟨ h.some, h.choose_spec ⟩;
         · rw [ show U_next = ∅ by simp [ Set.not_nonempty_iff_eq_empty.mp h ] ] ; norm_num;
 
-      have h_log_inequality : Real.sqrt (2 * Real.log (2 * U_next.ncard)) ≤ 2 * Real.sqrt (Real.log N) := by
+      have h_log_inequality : Real.sqrt (2 * Real.log (2 * U_next.ncard)) ≤ 2 *
+          Real.sqrt (Real.log N) := by
         have h_log_inequality : Real.sqrt (2 * Real.log (2 * N)) ≤ 2 * Real.sqrt (Real.log N) := by
           by_cases hN : N = 0;
           · simp [hN];
-          · have h_log_inequality : Real.sqrt (2 * Real.log (2 * N)) ≤ 2 * Real.sqrt (Real.log N) := by
+          · have h_log_inequality : Real.sqrt (2 * Real.log (2 * N)) ≤ 2 *
+              Real.sqrt (Real.log N) := by
               have hN_ge_2 : 2 ≤ N := by
                 exact Nat.lt_of_le_of_ne ( Nat.pos_of_ne_zero hN ) ( Ne.symm h_cases )
               exact log_inequality_for_dudley N hN_ge_2;
             exact h_log_inequality;
-        refine' le_trans _ h_log_inequality;
+        refine le_trans ?_ h_log_inequality;
         by_cases h : U_next.ncard = 0
         · simp [h]
         · have hU_next_ncard_pos : 0 < U_next.ncard := Nat.pos_of_ne_zero h
@@ -1551,14 +1860,18 @@ lemma dudleyEntropyIntegral_antitone
     have hf_antitone : AntitoneOn f (Set.Icc δ₁ D) := by
       intro x hx y hy hxy
       simp +zetaDelta
-      by_cases h : subsetENetCard T y = 0 <;> by_cases h' : subsetENetCard T x = 0 <;> simp_all +decide
+      by_cases h : subsetENetCard T y = 0 <;> by_cases h' : subsetENetCard T x = 0 <;>
+          simp_all +decide
       · exact False.elim <| by
           simpa [h, h'] using
             subsetENetCard_antitoneOn_Ioc h_finite_cov
               ⟨by linarith [hx.1], by linarith [hx.2]⟩
               ⟨by linarith [hy.1], by linarith [hy.2]⟩
               hxy
-      · exact Real.sqrt_le_sqrt (Real.log_le_log (Nat.cast_pos.mpr (Nat.pos_of_ne_zero h)) (Nat.cast_le.mpr (subsetENetCard_antitoneOn_Ioc h_finite_cov ⟨by linarith [hx.1], by linarith [hx.2]⟩ ⟨by linarith [hy.1], by linarith [hy.2]⟩ hxy)))
+      · exact Real.sqrt_le_sqrt (Real.log_le_log (Nat.cast_pos.mpr (Nat.pos_of_ne_zero h))
+          (Nat.cast_le.mpr
+          (subsetENetCard_antitoneOn_Ioc h_finite_cov ⟨by linarith [hx.1], by linarith [hx.2]⟩
+          ⟨by linarith [hy.1], by linarith [hy.2]⟩ hxy)))
     exact hf_antitone.integrableOn_isCompact isCompact_Icc
   · exact Filter.Eventually.of_forall fun x => Real.sqrt_nonneg _
   · exact Filter.Eventually.of_forall fun x hx => ⟨by linarith [hx.1], hx.2⟩
@@ -1579,15 +1892,18 @@ lemma expectation_one_step_bound
   ∫ ω, globalOsc (X ω) T ∂P ≤
     2 * ∫ ω, localOsc (X ω) T δ ∂P +
     2 * ∫ ω, (⨆ u ∈ U, |X ω u - X ω u₀|) ∂P := by
-  have h_pointwise : ∀ ω, globalOsc (X ω) T ≤ 2 * localOsc (X ω) T δ + 2 * (⨆ u ∈ U, |X ω u - X ω u₀|) :=
+  have h_pointwise : ∀ ω, globalOsc (X ω) T ≤ 2 * localOsc (X ω) T δ + 2 *
+      (⨆ u ∈ U, |X ω u - X ω u₀|) :=
     fun ω => one_step_discretization_bound hU_fin hU_subset hU_cover u₀ hu₀
-  have h_rhs_integrable : Integrable (fun ω => 2 * localOsc (X ω) T δ + 2 * (⨆ u ∈ U, |X ω u - X ω u₀|)) P :=
+  have h_rhs_integrable :
+      Integrable (fun ω => 2 * localOsc (X ω) T δ + 2 * (⨆ u ∈ U, |X ω u - X ω u₀|)) P :=
     (h_integrable_local.const_mul 2).add (h_integrable_sup.const_mul 2)
   calc ∫ ω, globalOsc (X ω) T ∂P
       ≤ ∫ ω, (2 * localOsc (X ω) T δ + 2 * (⨆ u ∈ U, |X ω u - X ω u₀|)) ∂P :=
         MeasureTheory.integral_mono h_integrable_global h_rhs_integrable (fun ω => h_pointwise ω)
     _ = 2 * ∫ ω, localOsc (X ω) T δ ∂P + 2 * ∫ ω, (⨆ u ∈ U, |X ω u - X ω u₀|) ∂P := by
-        rw [MeasureTheory.integral_add (h_integrable_local.const_mul 2) (h_integrable_sup.const_mul 2),
+        rw [MeasureTheory.integral_add (h_integrable_local.const_mul 2)
+            (h_integrable_sup.const_mul 2),
             MeasureTheory.integral_const_mul, MeasureTheory.integral_const_mul]
 
 /-
@@ -1607,7 +1923,8 @@ lemma basepoint_to_pairwise
   rw [@ciSup_eq_ite]
   split_ifs with hu
   · exact finite_sup_bound hU_fin X u u₀ hu hu₀
-  · exact le_trans (by norm_num) (Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _)
+  · exact le_trans (by norm_num) (Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ =>
+      Real.iSup_nonneg fun _ => Real.iSup_nonneg fun _ => abs_nonneg _)
 
 /-- Finite step suprema of sub-Gaussian increments are integrable. -/
 lemma integrable_step_sup_of_subGaussian
@@ -1703,7 +2020,8 @@ lemma integrable_pairwise_sup_of_subGaussian
     simp
 
 /-
-Chaining entropy bound: the expected pairwise sup over a finite cover is bounded by the entropy integral.
+Chaining entropy bound:
+    the expected pairwise sup over a finite cover is bounded by the entropy integral.
 This is the core technical lemma combining the chain construction with the base and step bounds.
 -/
 lemma chaining_entropy_bound
@@ -1722,8 +2040,7 @@ lemma chaining_entropy_bound
     16 * dudleyEntropyIntegral T (δ' / 4) D := by
 
   by_cases hU_single : U.ncard ≤ 1
-  ·
-    have hU1 : U.ncard = 1 := Nat.le_antisymm hU_single
+  · have hU1 : U.ncard = 1 := Nat.le_antisymm hU_single
       (Set.ncard_pos hU_fin |>.mpr hU_nonempty)
     obtain ⟨u₀, hu₀_eq⟩ := Set.ncard_eq_one.mp hU1
     refine le_trans ?_ (mul_nonneg (by norm_num : (0:ℝ) ≤ 16) ?_)
@@ -1882,28 +2199,21 @@ lemma chaining_entropy_bound
       have hk_lt : k < L - 1 := Finset.mem_range.mp hk_range
       apply dudley_step_bound_tight h_sg (U_seq (k + 1)) (U_seq (k + 2))
         (hUs (k + 1)) (hUs (k + 2)) (hUf (k + 2))
-      ·
-        intro u hu; exact (hUp (k + 1) (by omega) u hu).1
-      ·
-        exact (h_eps_pos (k + 1)).le
-      ·
-        intro u hu; exact (hUp (k + 1) (by omega) u hu).2
-      ·
-        rw [h_eps_half]
+      · intro u hu; exact (hUp (k + 1) (by omega) u hu).1
+      · exact (h_eps_pos (k + 1)).le
+      · intro u hu; exact (hUp (k + 1) (by omega) u hu).2
+      · rw [h_eps_half]
         by_cases h_case : k + 2 < L
         · exact le_of_eq (hUn (k + 2) h_case)
         · have hk2_eq : k + 2 = L := by omega
           rw [hk2_eq, hUL]
           exact le_trans hU_ncard (subsetENetCard_antitoneOn_Ioc h_finite_cov
             ⟨h_eps_pos L, h_eps_le_D L⟩ ⟨hδ', le_trans hδ'D (by linarith)⟩ heps_L_le)
-      ·
-        intro h_eq_1 u hu
+      · intro h_eq_1 u hu
         rw [h_eps_half] at h_eq_1
         by_cases h_kL : k + 2 < L
-        ·
-          exact (h_chain_consistent (k + 1) (by omega) h_eq_1 u hu).symm
-        ·
-          exfalso
+        · exact (h_chain_consistent (k + 1) (by omega) h_eq_1 u hu).symm
+        · exfalso
           have hk2_eq : k + 2 = L := by omega
           rw [hk2_eq] at h_eq_1
           have : 2 ≤ subsetENetCard T (eps L) :=
@@ -2098,7 +2408,8 @@ theorem truncated_dudley_entropy_bound_aux
     h_integrable_global h_integrable_local h_integrable_sup
   have h_bp : ∀ ω, (⨆ u ∈ U, |X ω u - X ω u₀|) ≤ (⨆ u ∈ U, ⨆ v ∈ U, |X ω u - X ω v|) :=
     fun ω => basepoint_to_pairwise hU_fin hu₀
-  have h_integrable_pairwise := integrable_pairwise_sup_of_subGaussian h_sg hU_fin hU_subset ⟨u₀, hu₀⟩
+  have h_integrable_pairwise := integrable_pairwise_sup_of_subGaussian h_sg hU_fin hU_subset
+      ⟨u₀, hu₀⟩
   have h_sup_le_pairwise : ∫ ω, (⨆ u ∈ U, |X ω u - X ω u₀|) ∂P ≤
       ∫ ω, (⨆ u ∈ U, ⨆ v ∈ U, |X ω u - X ω v|) ∂P :=
     MeasureTheory.integral_mono h_integrable_sup h_integrable_pairwise h_bp

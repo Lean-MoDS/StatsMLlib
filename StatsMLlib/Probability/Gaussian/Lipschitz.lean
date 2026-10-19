@@ -56,11 +56,13 @@ lemma integrable_exp_mul_abs_eval_stdGaussianPi (t : ℝ) (i : Fin n) :
       have h_eq : exp (t * -w i) = exp (-t * w i) := by ring_nf
       rw [h_eq]
       exact le_add_of_nonneg_left (le_of_lt (exp_pos _))
-  have h_sum_int : Integrable (fun w => exp (t * w i) + exp (-t * w i)) (GaussianMeasure.stdGaussianPi n) :=
+  have h_sum_int :
+      Integrable (fun w => exp (t * w i) + exp (-t * w i)) (GaussianMeasure.stdGaussianPi n) :=
     (GaussianMeasure.integrable_exp_mul_eval_stdGaussianPi i t).add
       (GaussianMeasure.integrable_exp_mul_eval_stdGaussianPi i (-t))
   apply Integrable.mono h_sum_int
-  · exact (continuous_exp.comp (continuous_const.mul (continuous_abs.comp (continuous_apply i)))).aestronglyMeasurable
+  · exact (continuous_exp.comp
+      (continuous_const.mul (continuous_abs.comp (continuous_apply i)))).aestronglyMeasurable
   · filter_upwards with w
     simp only [Real.norm_eq_abs, abs_exp]
     have h_sum_pos : 0 ≤ exp (t * w i) + exp (-t * w i) :=
@@ -72,7 +74,8 @@ lemma integrable_exp_mul_abs_eval_stdGaussianPi (t : ℝ) (i : Fin n) :
 lemma norm_integrable_stdGaussianPi :
     Integrable (fun w : Fin n → ℝ => ‖w‖) (GaussianMeasure.stdGaussianPi n) := by
   -- Use ‖w‖ ≤ Σᵢ |wᵢ| for pi-norm (sup norm)
-  apply Integrable.mono (integrable_finsetSum Finset.univ (fun i _ => integrable_abs_eval_stdGaussianPi i))
+  apply Integrable.mono (integrable_finsetSum Finset.univ (fun i _ =>
+      integrable_abs_eval_stdGaussianPi i))
   · exact continuous_norm.aestronglyMeasurable
   · filter_upwards with w
     simp only [Real.norm_eq_abs]

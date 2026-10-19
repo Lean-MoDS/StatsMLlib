@@ -20,8 +20,8 @@ import Mathlib.Analysis.Normed.Module.FiniteDimension
 /-!
 # Strong Gaussian Sobolev Space Definitions
 
-This file defines the Gaussian Sobolev space W^{1,2}(γ) for C¹ function space and related infrastructure
-for the density theorem: C_c^∞(ℝⁿ) is dense in W^{1,2}(γ) for C¹.
+This file defines the Gaussian Sobolev space W^{1,2}(γ) for C¹ function space and related
+infrastructure for the density theorem: C_c^∞(ℝⁿ) is dense in W^{1,2}(γ) for C¹.
 
 ## Main Definitions
 
@@ -207,7 +207,8 @@ lemma smoothCutoffR_nonneg (R : ℝ) (x : E n) : 0 ≤ smoothCutoffR R x :=
 lemma smoothCutoffR_le_one (R : ℝ) (x : E n) : smoothCutoffR R x ≤ 1 :=
   smoothCutoff_le_one _
 
-lemma smoothCutoffR_contDiff {R : ℝ} (hR : 0 < R) : ContDiff ℝ (⊤ : ℕ∞) (smoothCutoffR R : E n → ℝ) := by
+lemma smoothCutoffR_contDiff {R : ℝ} (hR : 0 < R) :
+    ContDiff ℝ (⊤ : ℕ∞) (smoothCutoffR R : E n → ℝ) := by
   rw [contDiff_iff_contDiffAt]
   intro x
   by_cases hx : ‖x‖ < R
@@ -525,7 +526,9 @@ lemma stdMollifierEps_eq_zero_of_abs_ge {ε : ℝ} (hε : 0 < ε) {x : ℝ} (hx 
       have h1 : (-1 : ℝ) * ε < x := by
         calc (-1 : ℝ) * ε = -ε := by ring
           _ = (-ε / ε) * ε := by rw [div_mul_cancel₀]; exact ne_of_gt hε
-          _ < (x / ε) * ε := by apply mul_lt_mul_of_pos_right; rw [neg_div]; simp [ne_of_gt hε]; exact hleft; exact hε
+          _ < (x / ε) * ε := by
+              apply mul_lt_mul_of_pos_right; rw [neg_div]; simp [ne_of_gt hε]; exact hleft
+              exact hε
           _ = x := by rw [div_mul_cancel₀]; exact ne_of_gt hε
       linarith
     have hx_ge : x ≥ ε := by
@@ -570,7 +573,8 @@ lemma stdMollifierEps_integral_eq_one {ε : ℝ} (hε : 0 < ε) :
   rw [h_eq]
   -- Use integral_comp_smul: ∫ f(R • x) = |R^{-dim}| • ∫ f(x)
   -- For dim = 1: ∫ f(ε⁻¹ • x) = |ε| • ∫ f(x)
-  rw [MeasureTheory.Measure.integral_comp_smul_of_nonneg volume stdMollifier ε⁻¹ (hR := inv_nonneg.mpr hε.le)]
+  rw [MeasureTheory.Measure.integral_comp_smul_of_nonneg volume stdMollifier ε⁻¹
+      (hR := inv_nonneg.mpr hε.le)]
   have hdim : Module.finrank ℝ ℝ = 1 := Module.finrank_self ℝ
   simp only [hdim, pow_one, inv_inv, smul_eq_mul, stdMollifier_integral_eq_one, mul_one]
   field_simp

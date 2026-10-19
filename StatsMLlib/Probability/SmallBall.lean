@@ -74,8 +74,10 @@ lemma integral_exp_neg_mul_le_inv_of_dens_le_one
         simp [hf_supp x hx]
       exact integrableOn_zero.congr_fun h_zero measurableSet_Iio
     · -- On Ici 0: bounded by exp(-tx) which is integrable
-      have hf_aesm : AEStronglyMeasurable (fun x => (f x).toReal * exp (-t * x)) (volume.restrict (Ici 0)) :=
-        (hf_meas.ennreal_toReal.mul (measurable_exp.comp (measurable_const.mul measurable_id))).aestronglyMeasurable
+      have hf_aesm :
+          AEStronglyMeasurable (fun x => (f x).toReal * exp (-t * x)) (volume.restrict (Ici 0)) :=
+        (hf_meas.ennreal_toReal.mul
+            (measurable_exp.comp (measurable_const.mul measurable_id))).aestronglyMeasurable
       -- exp(-tx) is integrable on Ici 0 = Ioi 0 ∪ {0}
       have h_exp_int_Ici : IntegrableOn (fun x => exp (-t * x)) (Ici 0) volume := by
         rw [show Ici (0 : ℝ) = Ioi 0 ∪ {0} by ext; simp [le_iff_lt_or_eq, eq_comm]]
@@ -212,7 +214,8 @@ theorem mgf_neg_le_inv_of_pdf_bounded
   have h_eq : ∫ ω, exp ((-t) * X ω) ∂μ = ∫ x, (pdf X μ volume x).toReal * exp ((-t) * x) := by
     have hf_aesm : AEStronglyMeasurable (fun x : ℝ => exp ((-t) * x)) volume :=
       (measurable_exp.comp (measurable_const.mul measurable_id)).aestronglyMeasurable
-    have h := @pdf.integral_pdf_smul _ _ _ _ μ volume _ _ _ _ X hpdf (fun x => exp ((-t) * x)) hf_aesm
+    have h :=
+        @pdf.integral_pdf_smul _ _ _ _ μ volume _ _ _ _ X hpdf (fun x => exp ((-t) * x)) hf_aesm
     simp only [smul_eq_mul] at h
     exact h.symm
   rw [h_eq]
@@ -222,7 +225,8 @@ theorem mgf_neg_le_inv_of_pdf_bounded
     -- So pdf is 0 a.e. on (-∞, 0)
     have h_map : μ.map X (Iio 0) = 0 := by
       rw [Measure.map_apply hX measurableSet_Iio]
-      have h_subset : X ⁻¹' Iio 0 ⊆ {ω | ¬(0 ≤ X ω)} := fun ω hω => not_le.mpr (Set.mem_preimage.mp hω)
+      have h_subset : X ⁻¹' Iio 0 ⊆ {ω | ¬(0 ≤ X ω)} :=
+          fun ω hω => not_le.mpr (Set.mem_preimage.mp hω)
       exact measure_mono_null h_subset (ae_iff.mp hX_nn)
     -- Use that pdf integrates to the pushforward measure
     have h_integral : ∫⁻ x in Iio 0, pdf X μ volume x ∂volume ≤ μ.map X (Iio 0) :=

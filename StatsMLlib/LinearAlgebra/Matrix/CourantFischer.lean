@@ -472,13 +472,15 @@ theorem bddBelow_range_singularQuotientOn [FiniteDimensional 𝕜 E]
   rintro _ ⟨x, rfl⟩
   exact hC ⟨⟨(x : E), x.property⟩, rfl⟩
 
-/-- The restricted singular-quotient infimum is bounded above by every nonzero vector in the subspace. -/
+/-- The restricted singular-quotient infimum is bounded above by every nonzero vector in the
+subspace. -/
 theorem minSingularQuotientOn_le_of_mem [FiniteDimensional 𝕜 E]
     (T : E →ₗ[𝕜] F) {U : Submodule 𝕜 E} {x : E} (hxU : x ∈ U) (hx0 : x ≠ 0) :
     minSingularQuotientOn T U ≤ singularQuotient T x := by
   exact ciInf_le (bddBelow_range_singularQuotientOn T U) ⟨⟨x, hxU⟩, hx0⟩
 
-/-- The restricted singular-quotient supremum is bounded below by every nonzero vector in the subspace. -/
+/-- The restricted singular-quotient supremum is bounded below by every nonzero vector in the
+subspace. -/
 theorem le_maxSingularQuotientOn_of_mem [FiniteDimensional 𝕜 E]
     (T : E →ₗ[𝕜] F) {U : Submodule 𝕜 E} {x : E} (hxU : x ∈ U) (hx0 : x ≠ 0) :
     singularQuotient T x ≤ maxSingularQuotientOn T U := by
@@ -1138,7 +1140,8 @@ theorem hasEigenvalue_iInf_rayleigh [Nontrivial E] (hT : T.IsSymmetric) :
       (⨅ x : { x : E // x ≠ 0 }, RCLike.re ⟪T x, x⟫ / ‖(x : E)‖ ^ 2 : ℝ) :=
   hT.hasEigenvalue_iInf_of_finiteDimensional
 
-/-- Eigenvectors in the sorted orthonormal eigenbasis attain their eigenvalues as Rayleigh quotients. -/
+/-- Eigenvectors in the sorted orthonormal eigenbasis attain their eigenvalues as Rayleigh
+quotients. -/
 theorem rayleighQuotient_eigenvectorBasis {n : ℕ} (hT : T.IsSymmetric)
     (hn : Module.finrank 𝕜 E = n) (i : Fin n) :
     LinearMap.rayleighQuotient T (hT.eigenvectorBasis hn i) =
@@ -1421,9 +1424,8 @@ theorem singularValues_eq_singularCourantFischerMaxMin_succ
         exact le_ciSup hbd ⟨L, hLdim⟩
   · unfold singularCourantFischerMaxMin
     refine ciSup_le fun U => ?_
-    obtain ⟨x, hxU, hxTrailing, hx0⟩ :=
-      T.isSymmetric_adjoint_comp_self.exists_ne_zero_mem_inf_trailingEigenSubspace_of_finrank_eq_succ
-        hn i U U.property
+    obtain ⟨x, hxU, hxTrailing, hx0⟩ := T.isSymmetric_adjoint_comp_self
+      |>.exists_ne_zero_mem_inf_trailingEigenSubspace_of_finrank_eq_succ hn i U U.property
     exact (minSingularQuotientOn_le_of_mem T hxU hx0).trans
       (singularQuotient_le_singularValues_of_mem_gram_trailingEigenSubspace T hn i hxTrailing hx0)
 

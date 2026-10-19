@@ -60,7 +60,8 @@ theorem gaussian_logSobolev_CompSmo {f : ℝ → ℝ} (hf : CompactlySupportedSm
         ∂rademacherProductMeasure (n + 1)) atTop
       (𝓝 (4 * ∫ x, (deriv f x)^2 ∂stdGaussianMeasure)) :=
     tendsto_sum_sq_shifted_four_deriv_sq hf
-  -- Step 3: The RHS of the discrete inequality converges to (1/2) * 4 * ∫ (deriv f)² = 2 * ∫ (deriv f)²
+  -- Step 3: The RHS of the discrete inequality converges to
+  -- (1/2) * 4 * ∫ (deriv f)² = 2 * ∫ (deriv f)²
   have h_rhs : Tendsto (fun n => (1/2 : ℝ) * ∑ i : Fin (n + 1), ∫ x,
       (f (rademacherSumProd (n + 1) x) - f (rademacherSumShifted (n + 1) i x))^2
         ∂rademacherProductMeasure (n + 1)) atTop

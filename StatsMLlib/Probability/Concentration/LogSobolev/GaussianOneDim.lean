@@ -493,7 +493,8 @@ theorem gaussian_logSobolev_W12_real {f : ℝ → ℝ}
     have hf_mem : MemLp (fun x => ‖fderiv ℝ f x‖) 2 μ := hf.2.norm
     have hg_mem : ∀ k, MemLp (fun x => ‖fderiv ℝ (g k) x‖) 2 μ := by
       intro k
-      obtain ⟨C, hC_nonneg, hC_bound⟩ := TaylorBound.deriv_bounded_of_compactlySupported (hg_compact k)
+      obtain ⟨C, hC_nonneg, hC_bound⟩ :=
+        TaylorBound.deriv_bounded_of_compactlySupported (hg_compact k)
       have h_bound : ∀ x, ‖fderiv ℝ (g k) x‖ ≤ C := by
         intro x
         have h_deriv : |deriv (g k) x| ≤ C := hC_bound x
@@ -811,7 +812,8 @@ theorem gaussian_logSobolev_W12_real {f : ℝ → ℝ}
           have hq_cont : Continuous q := hf_diff.continuous.pow 2
           exact (phi_continuous.comp hq_cont).add continuous_const
         have h_asm : AEStronglyMeasurable h μ := h_cont.aestronglyMeasurable
-        have h_lintegral_le : ∫⁻ x, ENNReal.ofReal (h x) ∂μ ≤ ENNReal.ofReal (L + 1 / Real.exp 1) := by
+        have h_lintegral_le :
+            ∫⁻ x, ENNReal.ofReal (h x) ∂μ ≤ ENNReal.ofReal (L + 1 / Real.exp 1) := by
           calc ∫⁻ x, ENNReal.ofReal (h x) ∂μ
               = ∫⁻ x, Filter.liminf (fun n => ENNReal.ofReal (hk n x)) atTop ∂μ := by
                 refine lintegral_congr_ae ?_
