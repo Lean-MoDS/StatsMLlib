@@ -109,7 +109,8 @@ theorem rademacher_second_moment : ∫ x, x^2 ∂rademacherMeasure = 1 := by
     simp
 
 /-- The variance of a Rademacher random variable is 1. -/
-theorem rademacher_variance_one : ∫ x, x^2 ∂rademacherMeasure - (∫ x, x ∂rademacherMeasure)^2 = 1 := by
+theorem rademacher_variance_one : ∫ x, x^2 ∂rademacherMeasure -
+    (∫ x, x ∂rademacherMeasure)^2 = 1 := by
   rw [rademacher_expectation_zero, rademacher_second_moment]
   ring
 
@@ -170,7 +171,8 @@ lemma IndepRademacherSeq.integrable (seq : IndepRademacherSeq Ω P) (i : ℕ) :
     Integrable (seq.ε i) (↑P) := by
   -- Use the fact that P.map ε_i = rademacherMeasure and id is integrable on rademacherMeasure
   have h := seq.isRademacher i
-  have him := integrable_map_measure (μ := ↑P) aestronglyMeasurable_id (seq.measurable i).aemeasurable
+  have him :=
+      integrable_map_measure (μ := ↑P) aestronglyMeasurable_id (seq.measurable i).aemeasurable
   rw [h] at him
   exact him.mp integrable_id_rademacherMeasure
 

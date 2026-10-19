@@ -163,7 +163,8 @@ lemma tendsto_cos_pow_exp (t : ℝ) :
   rw [Asymptotics.isLittleO_iff]
   intro c hc
   -- Use cos(x) = 1 - x²/2 + O(x⁴) and eventually |t/√n| ≤ 1
-  filter_upwards [eventually_ge_atTop (max (Nat.ceil (t^2) + 1) (Nat.ceil (|t|^4 * (5/96) / c) + 1))]
+  filter_upwards [eventually_ge_atTop
+      (max (Nat.ceil (t^2) + 1) (Nat.ceil (|t|^4 * (5/96) / c) + 1))]
     with n hn
   have hn1 : n ≥ Nat.ceil (t^2) + 1 := le_of_max_le_left hn
   have hn2 : n ≥ Nat.ceil (|t|^4 * (5/96) / c) + 1 := le_of_max_le_right hn
@@ -439,7 +440,8 @@ lemma taylor_bound_on_law {f : ℝ → ℝ} (hf : CompactlySupportedSmooth f) (n
   have eq2 : ∫ x, f x ∂(rademacherProductMeasure (n + 1)).map (rademacherSumProd (n + 1)) =
       ∫ x, f (rademacherSumProd (n + 1) x) ∂rademacherProductMeasure (n + 1) := by
     rw [integral_map haem hf.continuous.aestronglyMeasurable]
-  have eq3 : ∫ x, (deriv f x)^2 ∂(rademacherProductMeasure (n + 1)).map (rademacherSumProd (n + 1)) =
+  have eq3 : ∫ x,
+      (deriv f x)^2 ∂(rademacherProductMeasure (n + 1)).map (rademacherSumProd (n + 1)) =
       ∫ x, (deriv f (rademacherSumProd (n + 1) x))^2 ∂rademacherProductMeasure (n + 1) := by
     simpa only [Pi.pow_apply] using
       integral_map haem ((deriv_continuous_of_compactlySupported hf).pow 2).aestronglyMeasurable
@@ -448,7 +450,8 @@ lemma taylor_bound_on_law {f : ℝ → ℝ} (hf : CompactlySupportedSmooth f) (n
     rw [integral_map haem (deriv_continuous_of_compactlySupported hf).abs.aestronglyMeasurable]
   rw [eq1, eq2, eq3, eq4]
   -- Convert variance on product space
-  have hvar : variance (fun x => f (rademacherSumProd (n + 1) x)) (rademacherProductMeasure (n + 1)) =
+  have hvar : variance (fun x => f (rademacherSumProd (n + 1) x))
+      (rademacherProductMeasure (n + 1)) =
       ∫ x, (f (rademacherSumProd (n + 1) x))^2 ∂rademacherProductMeasure (n + 1) -
       (∫ x, f (rademacherSumProd (n + 1) x) ∂rademacherProductMeasure (n + 1))^2 := by
     rw [variance_eq_sub]
@@ -762,7 +765,8 @@ theorem tendsto_n_sq_diff_sub_four_deriv_sq {f : ℝ → ℝ} (hf : CompactlySup
         simp only [Nat.cast_add, Nat.cast_one]
         exact Filter.tendsto_atTop_add_const_right atTop 1 tendsto_natCast_atTop_atTop
       exact tendsto_inv_atTop_zero.comp (tendsto_sqrt_atTop.comp h')
-    have h16KC' : Tendsto (fun n : ℕ => 16 * K * C' * (Real.sqrt (↑(n + 1) : ℝ))⁻¹) atTop (𝓝 0) := by
+    have h16KC' : Tendsto (fun n : ℕ => 16 * K * C' *
+        (Real.sqrt (↑(n + 1) : ℝ))⁻¹) atTop (𝓝 0) := by
       simpa using hsqrt_tendsto.const_mul (16 * K * C')
     simp_rw [div_eq_mul_inv]
     exact h16KC'
@@ -811,10 +815,12 @@ theorem tendsto_n_sq_diff_sub_four_deriv_sq {f : ℝ → ℝ} (hf : CompactlySup
               apply AEStronglyMeasurable.sub
               · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                   ((measurable_rademacherSumProd (n + 1)).add
-                    ((measurable_const.sub (measurable_pi_apply 0)).div measurable_const)).aemeasurable
+                    ((measurable_const.sub (measurable_pi_apply 0)).div
+                        measurable_const)).aemeasurable
               · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                   ((measurable_rademacherSumProd (n + 1)).sub
-                    ((measurable_const.add (measurable_pi_apply 0)).div measurable_const)).aemeasurable
+                    ((measurable_const.add (measurable_pi_apply 0)).div
+                        measurable_const)).aemeasurable
             · exact hC'_nonneg
             · filter_upwards with x
               exact rescaledDiff_bounded hf (n + 1) x
@@ -913,7 +919,8 @@ theorem tendsto_sum_sq_diff_four_deriv_sq {f : ℝ → ℝ} (hf : CompactlySuppo
       have hσ_symm : σ.symm = σ := Equiv.symm_swap 0 i
       have hσ_i : σ i = 0 := Equiv.swap_apply_right 0 i
       -- rademacherSumProd is invariant under coordinate permutation
-      have hsum_inv : ∀ x, rademacherSumProd (n + 1) (swapEquiv x) = rademacherSumProd (n + 1) x := by
+      have hsum_inv : ∀ x, rademacherSumProd (n + 1) (swapEquiv x) =
+          rademacherSumProd (n + 1) x := by
         intro x
         unfold rademacherSumProd
         rw [MeasurableEquiv.coe_piCongrLeft]
@@ -1055,7 +1062,8 @@ theorem tendsto_sum_sq_shifted_four_deriv_sq {f : ℝ → ℝ} (hf : CompactlySu
       have hσ_symm : σ.symm = σ := Equiv.symm_swap 0 i
       have hσ_i : σ i = 0 := Equiv.swap_apply_right 0 i
       -- rademacherSumProd is invariant under coordinate permutation
-      have hsum_inv : ∀ x, rademacherSumProd (n + 1) (swapEquiv x) = rademacherSumProd (n + 1) x := by
+      have hsum_inv : ∀ x, rademacherSumProd (n + 1) (swapEquiv x) =
+          rademacherSumProd (n + 1) x := by
         intro x
         unfold rademacherSumProd
         rw [MeasurableEquiv.coe_piCongrLeft]
@@ -1089,7 +1097,8 @@ theorem tendsto_sum_sq_shifted_four_deriv_sq {f : ℝ → ℝ} (hf : CompactlySu
       let swapEquiv := MeasurableEquiv.piCongrLeft (fun _ : Fin (n + 1) => ℝ) σ
       have hσ_symm : σ.symm = σ := Equiv.symm_swap 0 i
       have hσ_i : σ i = 0 := Equiv.swap_apply_right 0 i
-      have hsum_inv : ∀ x, rademacherSumProd (n + 1) (swapEquiv x) = rademacherSumProd (n + 1) x := by
+      have hsum_inv : ∀ x, rademacherSumProd (n + 1) (swapEquiv x) =
+          rademacherSumProd (n + 1) x := by
         intro x
         unfold rademacherSumProd
         rw [MeasurableEquiv.coe_piCongrLeft]
@@ -1176,7 +1185,8 @@ def compactlySupportedSqMulLogToBCF {f : ℝ → ℝ} (hf : CompactlySupportedSm
   let M := Classical.choose (sq_mul_log_sq_bounded_of_compactlySupported hf)
   BoundedContinuousFunction.ofNormedAddCommGroup (fun x => (f x)^2 * Real.log ((f x)^2))
     (continuous_sq_mul_log_sq hf) M (fun x => by
-      rw [Real.norm_eq_abs]; exact Classical.choose_spec (sq_mul_log_sq_bounded_of_compactlySupported hf) x)
+      rw [Real.norm_eq_abs]; exact Classical.choose_spec
+          (sq_mul_log_sq_bounded_of_compactlySupported hf) x)
 
 @[simp]
 lemma compactlySupportedSqMulLogToBCF_apply {f : ℝ → ℝ} (hf : CompactlySupportedSmooth f) (x : ℝ) :
@@ -1227,7 +1237,8 @@ theorem tendsto_entropy_f_sq {f : ℝ → ℝ} (hf : CompactlySupportedSmooth f)
   -- Term 3: (∫ f²) * log(∫ f²) converges (composition of h2 with continuous function x * log x)
   have h3 : Tendsto (fun n => (∫ x, (f x)^2 ∂(rademacherLaw (n + 1)).toMeasure) *
       Real.log (∫ x, (f x)^2 ∂(rademacherLaw (n + 1)).toMeasure))
-      atTop (𝓝 ((∫ x, (f x)^2 ∂stdGaussianMeasure) * Real.log (∫ x, (f x)^2 ∂stdGaussianMeasure))) := by
+      atTop (𝓝 ((∫ x, (f x)^2 ∂stdGaussianMeasure) *
+          Real.log (∫ x, (f x)^2 ∂stdGaussianMeasure))) := by
     -- Use that x * log x is continuous, so g(aₙ) → g(a) when aₙ → a
     exact Real.continuous_mul_log.continuousAt.tendsto.comp h2
   -- Combine: entropy = term1 - term3

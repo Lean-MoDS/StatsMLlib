@@ -381,7 +381,8 @@ lemma optimalU_in_dualEntropySet [IsProbabilityMeasure μ]
       · rfl
       · simp only [zero_mul]
     -- Show optimalU_mul_Y_toReal is integrable
-    have h_eq2 : (fun ω => Y ω * log (Y ω) - log mean * Y ω) =ᵐ[μ] optimalU_mul_Y_toReal Y mean := by
+    have h_eq2 : (fun ω => Y ω * log (Y ω) - log mean * Y ω) =ᵐ[μ]
+        optimalU_mul_Y_toReal Y mean := by
       filter_upwards [hY_nn] with ω hY_nn_ω
       simp only [optimalU_mul_Y_toReal]
       split_ifs with hY_pos
@@ -418,7 +419,8 @@ lemma zero_in_dualEntropySet_of_mean_zero [IsProbabilityMeasure μ]
     (Y : Ω → ℝ) :
     (0 : ℝ) ∈ dualEntropySet μ Y := by
   -- Use U = 0 (constant function)
-  refine ⟨fun _ => (0 : ℝ), measurable_const.coe_real_ereal, ?_, fun _ => 0, measurable_const, ?_, ?_, ?_⟩
+  refine ⟨fun _ => (0 : ℝ), measurable_const.coe_real_ereal, ?_, fun _ => 0,
+      measurable_const, ?_, ?_, ?_⟩
   · -- E[e^0] = E[1] = 1
     simp only [expIntegralEReal, lintegral_const, MeasureTheory.measure_univ]
     simp only [EReal.coe_zero, EReal.exp_zero, one_mul]
@@ -684,7 +686,8 @@ theorem entropy_duality [IsProbabilityMeasure μ]
     · -- sSup ≤ entropy: all elements ≤ entropy
       apply csSup_le
       · -- Set is nonempty (entropy is in it)
-        exact ⟨entropy μ Y, optimalU_in_dualEntropySet Y hY_meas hY_nn hY_int hY_mean_pos hY_log_int⟩
+        exact ⟨entropy μ Y,
+            optimalU_in_dualEntropySet Y hY_meas hY_nn hY_int hY_mean_pos hY_log_int⟩
       · -- All elements ≤ entropy
         intro x hx
         exact dualEntropySet_le_entropy Y hY_meas hY_nn hY_int hY_log_int x hx

@@ -18,7 +18,8 @@ in W^{1,2}(γ) for functions with compact support.
 
 * `mollify_smooth` - f ⋆ ρ_ε is smooth (C^∞)
 * `mollify_compact_support` - if f has compact support, so does f ⋆ ρ_ε
-* `mollify_L2_convergence_gaussian_continuous` - mollification L² convergence for continuous functions
+* `mollify_L2_convergence_gaussian_continuous` - mollification L² convergence for continuous
+  functions
 * `mollify_L2_convergence_gaussian` - ‖g ⋆ ρ_ε - g‖_{L²(γ)} → 0 as ε → 0
 * `tendsto_mollify_W12` - For fixed R, f^(R,ε) → f^(R) in W^{1,2}(γ) as ε → 0
 
@@ -228,7 +229,8 @@ lemma mollify_tendsto_pointwise {n : ℕ} {g : E n → ℝ} (hg_cont : Continuou
       rw [show g x = ∫ y, g x * stdMollifierPi n ε y by
         rw [MeasureTheory.integral_const_mul, h_int_one, mul_one]]
       rw [← integral_sub]
-      · have h_bound : |∫ y, g (x - y) * stdMollifierPi n ε y - g x * stdMollifierPi n ε y| ≤ δ / 2 := by
+      · have h_bound : |∫ y, g (x - y) * stdMollifierPi n ε y - g x *
+          stdMollifierPi n ε y| ≤ δ / 2 := by
           calc |∫ y, g (x - y) * stdMollifierPi n ε y - g x * stdMollifierPi n ε y|
               = |∫ y, (g (x - y) - g x) * stdMollifierPi n ε y| := by
                 congr 1; congr 1; ext y; ring
@@ -240,7 +242,8 @@ lemma mollify_tendsto_pointwise {n : ℕ} {g : E n → ℝ} (hg_cont : Continuou
                 apply integral_mono_of_nonneg
                 · filter_upwards with y
                   exact mul_nonneg (abs_nonneg _) (stdMollifierPi_nonneg ε hε_pos y)
-                · exact Integrable.const_mul ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
+                · exact Integrable.const_mul
+                    ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
                     (stdMollifierPi_hasCompactSupport hε_pos)) _
                 · filter_upwards with y
                   by_cases hy_supp : y ∈ tsupport (stdMollifierPi n ε)
@@ -258,7 +261,8 @@ lemma mollify_tendsto_pointwise {n : ℕ} {g : E n → ℝ} (hg_cont : Continuou
                     exact stdMollifierPi_nonneg ε hε_pos y
                   · have hy_not_supp : y ∉ Function.support (stdMollifierPi n ε) :=
                       fun h => hy_supp (subset_closure h)
-                    have hy_zero : stdMollifierPi n ε y = 0 := Function.notMem_support.mp hy_not_supp
+                    have hy_zero : stdMollifierPi n ε y = 0 :=
+                        Function.notMem_support.mp hy_not_supp
                     simp only [hy_zero, mul_zero, le_refl]
             _ = (δ / 2) * ∫ y, stdMollifierPi n ε y := MeasureTheory.integral_const_mul _ _
             _ = (δ / 2) * 1 := by rw [h_int_one]
@@ -270,7 +274,8 @@ lemma mollify_tendsto_pointwise {n : ℕ} {g : E n → ℝ} (hg_cont : Continuou
         have hprod_supp : HasCompactSupport (fun y => g (x - y) * stdMollifierPi n ε y) :=
           (stdMollifierPi_hasCompactSupport hε_pos).mul_left
         exact hprod_cont.integrable_of_hasCompactSupport hprod_supp
-      · exact Integrable.const_mul ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
+      · exact Integrable.const_mul
+          ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
           (stdMollifierPi_hasCompactSupport hε_pos)) (g x)
 
 /-! #### Uniform Convergence on Compact Sets -/
@@ -333,7 +338,8 @@ lemma mollify_tendsto_uniformly_on_compact {n : ℕ} {g : E n → ℝ} {K : Set 
   rw [show g x = ∫ y, g x * stdMollifierPi n ε y by
     rw [MeasureTheory.integral_const_mul, h_int_one, mul_one]]
   rw [← integral_sub]
-  · have h_bound : |∫ y, g (x - y) * stdMollifierPi n ε y - g x * stdMollifierPi n ε y| ≤ δ / 2 := by
+  · have h_bound : |∫ y, g (x - y) * stdMollifierPi n ε y - g x *
+      stdMollifierPi n ε y| ≤ δ / 2 := by
       calc |∫ y, g (x - y) * stdMollifierPi n ε y - g x * stdMollifierPi n ε y|
           = |∫ y, (g (x - y) - g x) * stdMollifierPi n ε y| := by
             congr 1; congr 1; ext y; ring
@@ -343,8 +349,10 @@ lemma mollify_tendsto_uniformly_on_compact {n : ℕ} {g : E n → ℝ} {K : Set 
             rw [abs_mul, abs_of_nonneg (stdMollifierPi_nonneg ε hε_pos y)]
         _ ≤ ∫ y, (δ / 2) * stdMollifierPi n ε y := by
             apply integral_mono_of_nonneg
-            · exact ae_of_all _ fun y => mul_nonneg (abs_nonneg _) (stdMollifierPi_nonneg ε hε_pos y)
-            · exact Integrable.const_mul ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
+            · exact ae_of_all _ fun y =>
+                mul_nonneg (abs_nonneg _) (stdMollifierPi_nonneg ε hε_pos y)
+            · exact Integrable.const_mul
+                ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
                 (stdMollifierPi_hasCompactSupport hε_pos)) _
             · apply ae_of_all _
               intro y
@@ -367,7 +375,8 @@ lemma mollify_tendsto_uniformly_on_compact {n : ℕ} {g : E n → ℝ} {K : Set 
                   exact Set.add_mem_add hx (Metric.mem_closedBall_self (by linarith : (0 : ℝ) ≤ 1))
                 have hg_close := hη_unif (x - y) hxy_mem x hx_mem hdist
                 simp only [dist_eq_norm, Real.norm_eq_abs] at hg_close
-                exact mul_le_mul_of_nonneg_right (le_of_lt hg_close) (stdMollifierPi_nonneg ε hε_pos y)
+                exact mul_le_mul_of_nonneg_right (le_of_lt hg_close)
+                    (stdMollifierPi_nonneg ε hε_pos y)
               · have hy_not_supp : y ∉ Function.support (stdMollifierPi n ε) :=
                   fun h => hy_supp (subset_closure h)
                 have hy_zero : stdMollifierPi n ε y = 0 := Function.notMem_support.mp hy_not_supp
@@ -383,7 +392,8 @@ lemma mollify_tendsto_uniformly_on_compact {n : ℕ} {g : E n → ℝ} {K : Set 
       ring
     rw [h_neg, abs_neg]
     linarith [h_bound]
-  · exact Integrable.const_mul ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
+  · exact Integrable.const_mul
+      ((stdMollifierPi_contDiff hε_pos).continuous.integrable_of_hasCompactSupport
       (stdMollifierPi_hasCompactSupport hε_pos)) (g x)
   · have hg_sub_cont : Continuous (fun y => g (x - y)) := hg_cont.comp (continuous_sub_left x)
     have hprod_cont : Continuous (fun y => g (x - y) * stdMollifierPi n ε y) :=
@@ -433,7 +443,8 @@ lemma eLpNorm_tendsto_zero_of_tendstoUniformly_restrict {n : ℕ} {f : ℕ → E
     obtain ⟨N, hN⟩ := hN
     use N
     intro i hi
-    have h_bound : eLpNorm (f i - g) 2 (volume.restrict s) ≤ ENNReal.ofReal δ * (volume s) ^ (1/2 : ℝ) := by
+    have h_bound : eLpNorm (f i - g) 2 (volume.restrict s) ≤ ENNReal.ofReal δ *
+        (volume s) ^ (1/2 : ℝ) := by
       calc eLpNorm (f i - g) 2 (volume.restrict s)
           ≤ eLpNorm (fun _ => δ) 2 (volume.restrict s) := by
             apply eLpNorm_mono_ae (hfg_meas i).restrict
@@ -471,7 +482,8 @@ lemma eLpNorm_tendsto_zero_of_tendstoUniformly_restrict {n : ℕ} {f : ℕ → E
             apply div_nonneg ENNReal.toReal_nonneg
             linarith [h_sqrt_pos]
           rw [← ENNReal.ofReal_mul hε_nonneg]
-          have h_simp : ε.toReal / (2 * (volume s).toReal.sqrt) * (volume s).toReal.sqrt = ε.toReal / 2 := by
+          have h_simp : ε.toReal / (2 * (volume s).toReal.sqrt) *
+              (volume s).toReal.sqrt = ε.toReal / 2 := by
             field_simp
           rw [h_simp]
           calc ENNReal.ofReal (ε.toReal / 2)
@@ -577,7 +589,8 @@ lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (h
       (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
   rw [ENNReal.tendsto_nhds_zero]
   intro δ hδ
-  have hK : IsCompact (Metric.closedBall (0 : E n) (2 * R + 1)) := isCompact_closedBall 0 (2 * R + 1)
+  have hK : IsCompact (Metric.closedBall (0 : E n) (2 * R + 1)) :=
+      isCompact_closedBall 0 (2 * R + 1)
   have hμ : volume (Metric.closedBall (0 : E n) (2 * R + 1)) < ⊤ := by
     exact measure_closedBall_lt_top
   have h_unif := mollify_tendsto_uniformly_on_compact hK hg_cont
@@ -598,7 +611,8 @@ lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (h
   have h_evt_sqrt : ∀ᶠ (ε : ℝ) in nhdsWithin 0 (Set.Ioi 0), ε * Real.sqrt (n : ℝ) < 1 := by
     by_cases hn : n = 0
     · simp only [hn, Nat.cast_zero, Real.sqrt_zero, mul_zero, zero_lt_one, Filter.eventually_true]
-    · have hn_pos : 0 < Real.sqrt (n : ℝ) := Real.sqrt_pos.mpr (Nat.cast_pos.mpr (Nat.pos_of_ne_zero hn))
+    · have hn_pos : 0 < Real.sqrt (n : ℝ) :=
+        Real.sqrt_pos.mpr (Nat.cast_pos.mpr (Nat.pos_of_ne_zero hn))
       have h_bound : 0 < 1 / Real.sqrt (n : ℝ) := div_pos one_pos hn_pos
       filter_upwards [Ioo_mem_nhdsGT h_bound] with ε hε
       calc ε * Real.sqrt n < (1 / Real.sqrt n) * Real.sqrt n := by
@@ -608,7 +622,8 @@ lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (h
     filter_upwards [self_mem_nhdsWithin] with ε hε
     exact hε
   filter_upwards [h_evt, h_evt_sqrt, h_evt_pos] with ε hε_unif hε_sqrt hε_pos
-  have h_supp_diff : ∀ x, x ∉ Metric.closedBall (0 : E n) (2 * R + 1) → (mollify ε g - g) x = 0 := by
+  have h_supp_diff : ∀ x, x ∉ Metric.closedBall (0 : E n) (2 * R + 1) →
+      (mollify ε g - g) x = 0 := by
     intro x hx
     simp only [Pi.sub_apply]
     have hg_x : g x = 0 := by
@@ -674,7 +689,8 @@ lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (h
             simp only [Pi.sub_apply] at h
             rw [h, abs_zero]
             exact hη_pos.le
-    _ = ENNReal.ofReal |η| * (volume.restrict (Metric.closedBall (0 : E n) (2 * R + 1)) Set.univ) ^ (1/2 : ℝ) := by
+    _ = ENNReal.ofReal |η| *
+        (volume.restrict (Metric.closedBall (0 : E n) (2 * R + 1)) Set.univ) ^ (1/2 : ℝ) := by
         rw [eLpNorm_const]
         · congr 1
           · rw [Real.enorm_eq_ofReal_abs]
@@ -701,12 +717,16 @@ lemma mollify_L2_convergence_continuous {n : ℕ} {g : E n → ℝ} {R : ℝ} (h
                 exact ENNReal.ofReal_pos.mpr h_rad_pos
               rw [h_pow] at this
               exact (lt_irrefl 0 this).elim
-            · have hgamma : 0 < Real.Gamma (Fintype.card (Fin n) / 2 + 1) := Real.Gamma_pos_of_pos (by positivity)
+            · have hgamma : 0 < Real.Gamma (Fintype.card (Fin n) / 2 + 1) :=
+                Real.Gamma_pos_of_pos (by positivity)
               have hsqrt : 0 < Real.sqrt Real.pi := Real.sqrt_pos.mpr Real.pi_pos
               have hpow : 0 < Real.sqrt Real.pi ^ Fintype.card (Fin n) := pow_pos hsqrt _
-              have h_pos : 0 < Real.sqrt Real.pi ^ Fintype.card (Fin n) / Real.Gamma (Fintype.card (Fin n) / 2 + 1) :=
+              have h_pos : 0 < Real.sqrt Real.pi ^ Fintype.card (Fin n) /
+                  Real.Gamma (Fintype.card (Fin n) / 2 + 1) :=
                 div_pos hpow hgamma
-              have h_ne : (0 : ℝ≥0∞) < ENNReal.ofReal (Real.sqrt Real.pi ^ Fintype.card (Fin n) / Real.Gamma (Fintype.card (Fin n) / 2 + 1)) :=
+              have h_ne : (0 : ℝ≥0∞) <
+                  ENNReal.ofReal (Real.sqrt Real.pi ^ Fintype.card (Fin n) /
+                  Real.Gamma (Fintype.card (Fin n) / 2 + 1)) :=
                 ENNReal.ofReal_pos.mpr h_pos
               rw [h_const] at h_ne
               exact (lt_irrefl 0 h_ne).elim
@@ -937,12 +957,16 @@ lemma mollify_L2_convergence_gaussian_continuous {n : ℕ} {g : E n → ℝ} {R 
             rw [ENNReal.toReal_rpow]
             exact (ENNReal.ofReal_toReal h_rpow_ne_top).symm
           rw [h1]
-          rw [← ENNReal.ofReal_mul (by linarith : 0 ≤ δr / (2 * (stdGaussianE n K).toReal.sqrt + 1))]
-          calc ENNReal.ofReal (δr / (2 * (stdGaussianE n K).toReal.sqrt + 1) * (stdGaussianE n K).toReal.sqrt)
+          rw [← ENNReal.ofReal_mul (by linarith : 0 ≤ δr /
+              (2 * (stdGaussianE n K).toReal.sqrt + 1))]
+          calc ENNReal.ofReal (δr / (2 * (stdGaussianE n K).toReal.sqrt + 1) *
+              (stdGaussianE n K).toReal.sqrt)
               ≤ ENNReal.ofReal δr := by
                 apply ENNReal.ofReal_le_ofReal
-                calc (δr / (2 * (stdGaussianE n K).toReal.sqrt + 1)) * (stdGaussianE n K).toReal.sqrt
-                    = δr * ((stdGaussianE n K).toReal.sqrt / (2 * (stdGaussianE n K).toReal.sqrt + 1)) := by ring
+                calc (δr / (2 * (stdGaussianE n K).toReal.sqrt + 1)) *
+                    (stdGaussianE n K).toReal.sqrt
+                    = δr * ((stdGaussianE n K).toReal.sqrt /
+                        (2 * (stdGaussianE n K).toReal.sqrt + 1)) := by ring
                   _ ≤ δr * 1 := by
                       apply mul_le_mul_of_nonneg_left _ hδr_pos.le
                       rw [div_le_one h_denom_pos]
@@ -1001,8 +1025,10 @@ lemma cutoff_product_fderiv_continuous {f : E n → ℝ} {R : ℝ} (hR : 0 < R)
     (hf_diff : Differentiable ℝ f)
     (hf_grad_cont : Continuous (fun x => fderiv ℝ f x)) :
     Continuous (fun x => fderiv ℝ (f * smoothCutoffR R) x) := by
-  have hχ_diff := (@smoothCutoffR_contDiff n R hR).differentiable (WithTop.coe_ne_zero.mpr ENat.top_ne_zero)
-  have hχ_cont : Continuous (fun x => smoothCutoffR R x) := (@smoothCutoffR_contDiff n R hR).continuous
+  have hχ_diff :=
+      (@smoothCutoffR_contDiff n R hR).differentiable (WithTop.coe_ne_zero.mpr ENat.top_ne_zero)
+  have hχ_cont : Continuous (fun x => smoothCutoffR R x) :=
+      (@smoothCutoffR_contDiff n R hR).continuous
   have hχ_fderiv_cont : Continuous (fun x => fderiv ℝ (smoothCutoffR R) x) :=
     (@smoothCutoffR_contDiff n R hR).continuous_fderiv (WithTop.coe_ne_zero.mpr ENat.top_ne_zero)
   have h_eq : ∀ x, fderiv ℝ (f * smoothCutoffR R) x =
@@ -1076,7 +1102,8 @@ lemma gradient_L2_convergence_gaussian {g : E n → ℝ} {R : ℝ} (hR : 0 < R)
     (hg_diff : Differentiable ℝ g)
     (hg_grad_cont : Continuous (fun x => fderiv ℝ g x))
     (hg_supp : tsupport g ⊆ Metric.closedBall 0 (2 * R)) :
-    Filter.Tendsto (fun ε => eLpNorm (fun x => ‖fderiv ℝ (mollify ε g) x - fderiv ℝ g x‖) 2 (stdGaussianE n))
+    Filter.Tendsto (fun ε =>
+        eLpNorm (fun x => ‖fderiv ℝ (mollify ε g) x - fderiv ℝ g x‖) 2 (stdGaussianE n))
       (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
   have hg_c1 : ContDiff ℝ 1 g := contDiff_one_iff_fderiv.mpr ⟨hg_diff, hg_grad_cont⟩
   have hg_compact : HasCompactSupport g :=
@@ -1173,7 +1200,8 @@ lemma gradient_L2_convergence_gaussian {g : E n → ℝ} {R : ℝ} (hR : 0 < R)
       set δ' := δ / (Real.sqrt n + 1) with hδ'_def
       have hδ'_pos : δ' > 0 := div_pos hδ (by linarith [Real.sqrt_nonneg n])
       have h_finite_inter : ∀ᶠ ε in nhdsWithin (0 : ℝ) (Set.Ioi 0),
-          ∀ i, ∀ x ∈ K', dist (fderiv ℝ g x (b i)) (mollify ε (fun y => fderiv ℝ g y (b i)) x) < δ' := by
+          ∀ i, ∀ x ∈ K',
+              dist (fderiv ℝ g x (b i)) (mollify ε (fun y => fderiv ℝ g y (b i)) x) < δ' := by
         have := Filter.eventually_all.mpr (fun i => h_eps_i i δ' hδ'_pos)
         filter_upwards [this] with ε hε i x hx
         exact hε i x hx
@@ -1187,11 +1215,13 @@ lemma gradient_L2_convergence_gaussian {g : E n → ℝ} {R : ℝ} (hR : 0 < R)
         simp only [Metric.mem_ball, dist_zero_right, Real.norm_eq_abs, abs_of_pos hε_pos]
         exact hε_lt_ε₀
       have hε_in_Ioi : ε ∈ Set.Ioi (0 : ℝ) := hε_pos
-      have h_bound_basis : ∀ i, |mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i)| < δ' := by
+      have h_bound_basis : ∀ i, |mollify ε (fun y => fderiv ℝ g y (b i)) x -
+          fderiv ℝ g x (b i)| < δ' := by
         intro i
         have := hU_cond ε hε_in_U hε_in_Ioi i x (hK_sub_K' hx)
         rwa [Real.dist_eq, abs_sub_comm] at this
-      have h_commute : ∀ i, fderiv ℝ (mollify ε g) x (b i) = mollify ε (fun y => fderiv ℝ g y (b i)) x := by
+      have h_commute : ∀ i, fderiv ℝ (mollify ε g) x (b i) =
+          mollify ε (fun y => fderiv ℝ g y (b i)) x := by
         intro i
         exact fderiv_mollify_eq_mollify_fderiv_apply hε_pos hg_c1 hg_compact x (b i)
       have h_bound_sqrt : Real.sqrt n * δ' < δ := by
@@ -1218,10 +1248,13 @@ lemma gradient_L2_convergence_gaussian {g : E n → ℝ} {R : ℝ} (hR : 0 < R)
                   (mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i))|
               ≤ ∑ i : Fin n, |b.repr v i| *
                   |mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i)| := by
-            calc |∑ i, b.repr v i * (mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i))|
-                ≤ ∑ i, |b.repr v i * (mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i))| :=
+            calc |∑ i, b.repr v i *
+                (mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i))|
+                ≤ ∑ i, |b.repr v i *
+                    (mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i))| :=
                   Finset.abs_sum_le_sum_abs _ _
-              _ = ∑ i, |b.repr v i| * |mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i)| := by
+              _ = ∑ i, |b.repr v i| * |mollify ε (fun y => fderiv ℝ g y (b i)) x -
+                  fderiv ℝ g x (b i)| := by
                   congr 1; ext i; exact abs_mul _ _
           have h2 : ∑ i : Fin n, |b.repr v i| *
                 |mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i)|
@@ -1253,10 +1286,13 @@ lemma gradient_L2_convergence_gaussian {g : E n → ℝ} {R : ℝ} (hR : 0 < R)
                   rw [Real.sqrt_mul (Nat.cast_nonneg n), Real.sqrt_sq (le_of_lt hδ'_pos)]
 
           calc |∑ i, b.repr v i * (mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i))|
-              ≤ ∑ i, |b.repr v i| * |mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i)| := h1
+              ≤ ∑ i, |b.repr v i| * |mollify ε (fun y => fderiv ℝ g y (b i)) x -
+                  fderiv ℝ g x (b i)| := h1
             _ ≤ (∑ i, |b.repr v i| ^ 2).sqrt *
-                (∑ i, |mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i)| ^ 2).sqrt := h2
-            _ = 1 * (∑ i, |mollify ε (fun y => fderiv ℝ g y (b i)) x - fderiv ℝ g x (b i)| ^ 2).sqrt := by
+                (∑ i, |mollify ε (fun y => fderiv ℝ g y (b i)) x -
+                    fderiv ℝ g x (b i)| ^ 2).sqrt := h2
+            _ = 1 * (∑ i, |mollify ε (fun y => fderiv ℝ g y (b i)) x -
+                fderiv ℝ g x (b i)| ^ 2).sqrt := by
                 rw [h_sum_eq_one]
             _ ≤ 1 * (Real.sqrt n * δ') := by
                 apply mul_le_mul_of_nonneg_left h_sum_bound zero_le_one
@@ -1318,7 +1354,8 @@ lemma tendsto_mollify_W12 {n : ℕ} (f : E n → ℝ) {R : ℝ} (hR : 0 < R)
     (hf_diff : Differentiable ℝ f)
     (hf_grad_cont : Continuous (fun x => fderiv ℝ f x)) :
     Filter.Tendsto (fun ε =>
-        GaussianSobolevNormSq n (mollify ε (f * smoothCutoffR R) - f * smoothCutoffR R) (stdGaussianE n))
+        GaussianSobolevNormSq n (mollify ε (f * smoothCutoffR R) - f * smoothCutoffR R)
+          (stdGaussianE n))
       (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
   set g := f * smoothCutoffR R
   have hg_supp : tsupport g ⊆ Metric.closedBall 0 (2 * R) := cutoff_product_support hR
