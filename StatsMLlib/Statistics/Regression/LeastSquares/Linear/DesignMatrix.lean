@@ -12,7 +12,8 @@ This file defines the design matrix multiplication and its connection to empiric
 
 ## Main Definitions
 
-* `designMatrixMul`: The design matrix multiplication X maps θ ∈ ℝ^d to (⟨θ, x₁⟩, ..., ⟨θ, xₙ⟩) ∈ ℝ^n
+* `designMatrixMul`: The design matrix multiplication X maps θ ∈ ℝ^d to
+  (⟨θ, x₁⟩, ..., ⟨θ, xₙ⟩) ∈ ℝ^n
 * `designMatrixLinearMap`: The design matrix as a linear map
 
 ## Main Results
@@ -42,7 +43,8 @@ the empirical norm ‖g‖_n = (1/√n)‖Xu‖₂.
 
 /-- The design matrix multiplication: X maps θ ∈ ℝ^d to (⟨θ, x₁⟩, ..., ⟨θ, xₙ⟩) ∈ ℝ^n.
 We use WithLp.equiv to properly convert between Fin n → ℝ and EuclideanSpace ℝ (Fin n). -/
-noncomputable def designMatrixMul (x : Fin n → EuclideanSpace ℝ (Fin d)) (θ : EuclideanSpace ℝ (Fin d)) :
+noncomputable def designMatrixMul (x : Fin n → EuclideanSpace ℝ (Fin d))
+    (θ : EuclideanSpace ℝ (Fin d)) :
     EuclideanSpace ℝ (Fin n) :=
   (WithLp.equiv 2 (Fin n → ℝ)).symm (fun i => @inner ℝ _ _ θ (x i))
 

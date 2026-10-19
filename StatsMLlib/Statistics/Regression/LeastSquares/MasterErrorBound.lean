@@ -107,7 +107,8 @@ Z(u) is a supremum of linear functions ⟨a_g, w⟩ with ‖a_g‖₂ ≤ σu/�
 lemma Z_supremum_lipschitz (hn : 0 < n) (σ u : ℝ) (hσ : 0 < σ) (hu : 0 < u)
     (H : Set (X → ℝ)) (x : Fin n → X)
     (hne : (empiricalSphere n H u x).Nonempty)
-    (hbdd : ∀ w : Fin n → ℝ, BddAbove {y | ∃ g ∈ empiricalSphere n H u x, y = |σ / n * ∑ i, w i * g (x i)|}) :
+    (hbdd : ∀ w : Fin n → ℝ,
+      BddAbove {y | ∃ g ∈ empiricalSphere n H u x, y = |σ / n * ∑ i, w i * g (x i)|}) :
     LipschitzWith (Real.toNNReal (σ * u / Real.sqrt n))
       (Z_supremum n σ H u x ∘ (EuclideanSpace.equiv (Fin n) ℝ)) := by
   rw [lipschitzWith_iff_dist_le_mul]
@@ -160,7 +161,8 @@ lemma Z_supremum_lipschitz (hn : 0 < n) (σ u : ℝ) (hσ : 0 < σ) (hu : 0 < u)
       ext i
       ring
     rw [h_inner]
-    have h_cs_inner := abs_sum_le_sqrt_sq_mul_sqrt_sq (fun i => w₁ i - w₂ i) (fun i => σ / n * g (x i))
+    have h_cs_inner :=
+      abs_sum_le_sqrt_sq_mul_sqrt_sq (fun i => w₁ i - w₂ i) (fun i => σ / n * g (x i))
     calc |∑ i, (w₁ i - w₂ i) * (σ / n * g (x i))|
         ≤ Real.sqrt (∑ i, (w₁ i - w₂ i)^2) * Real.sqrt (∑ i, (σ / n * g (x i))^2) := h_cs_inner
       _ = Real.sqrt (∑ i, (w₁ i - w₂ i)^2) * (σ * u / Real.sqrt n) := by
@@ -238,7 +240,8 @@ lemma Z_supremum_lipschitz (hn : 0 < n) (σ u : ℝ) (hσ : 0 < σ) (hu : 0 < u)
               rw [← heq]; dsimp only []
               by_cases hh : h ∈ empiricalSphere n H u x
               · rw [ciSup_pos hh]; apply le_csSup hbdd₂; exact ⟨h, hh, rfl⟩
-              · rw [ciSup_neg hh, Real.sSup_empty]; apply Real.sSup_nonneg; intro y ⟨_, _, hy⟩; exact hy ▸ abs_nonneg _⟩
+              · rw [ciSup_neg hh, Real.sSup_empty]; apply Real.sSup_nonneg
+                intro y ⟨_, _, hy⟩; exact hy ▸ abs_nonneg _⟩
       · apply mul_nonneg hL_nonneg dist_nonneg
   -- Z(w₂) ≤ Z(w₁) + L * dist (by symmetry)
   have h_sub₂ : (⨆ g ∈ empiricalSphere n H u x, |σ / n * ∑ i, w₂ i * g (x i)|) ≤
@@ -286,7 +289,8 @@ lemma Z_supremum_lipschitz (hn : 0 < n) (σ u : ℝ) (hσ : 0 < σ) (hu : 0 < u)
           rw [← heq]; dsimp only []
           by_cases hh : h ∈ empiricalSphere n H u x
           · rw [ciSup_pos hh]; apply le_csSup hbdd₁; exact ⟨h, hh, rfl⟩
-          · rw [ciSup_neg hh, Real.sSup_empty]; apply Real.sSup_nonneg; intro y ⟨_, _, hy⟩; exact hy ▸ abs_nonneg _
+          · rw [ciSup_neg hh, Real.sSup_empty]; apply Real.sSup_nonneg
+            intro y ⟨_, _, hy⟩; exact hy ▸ abs_nonneg _
         apply le_ciSup_of_le hbdd₁' g
         rw [ciSup_pos hg]
       have h3' : |σ / n * ∑ i, (w₂ i - w₁ i) * g (x i)| ≤ σ * u / Real.sqrt n * dist v₂ v₁ := by
@@ -301,9 +305,11 @@ lemma Z_supremum_lipschitz (hn : 0 < n) (σ u : ℝ) (hσ : 0 < σ) (hu : 0 < u)
             ext i
             ring
           rw [h_inner]
-          have h_cs_inner := abs_sum_le_sqrt_sq_mul_sqrt_sq (fun i => w₂ i - w₁ i) (fun i => σ / n * g (x i))
+          have h_cs_inner :=
+            abs_sum_le_sqrt_sq_mul_sqrt_sq (fun i => w₂ i - w₁ i) (fun i => σ / n * g (x i))
           calc |∑ i, (w₂ i - w₁ i) * (σ / n * g (x i))|
-              ≤ Real.sqrt (∑ i, (w₂ i - w₁ i)^2) * Real.sqrt (∑ i, (σ / n * g (x i))^2) := h_cs_inner
+              ≤ Real.sqrt (∑ i, (w₂ i - w₁ i)^2) * Real.sqrt (∑ i, (σ / n * g (x i))^2) :=
+                h_cs_inner
             _ = Real.sqrt (∑ i, (w₂ i - w₁ i)^2) * (σ * u / Real.sqrt n) := by
                 congr 1
                 exact coefficient_euclidean_norm hn σ u hσ g x hg_norm
@@ -329,7 +335,8 @@ lemma Z_supremum_lipschitz (hn : 0 < n) (σ u : ℝ) (hσ : 0 < σ) (hu : 0 < u)
               rw [← heq]; dsimp only []
               by_cases hh : h ∈ empiricalSphere n H u x
               · rw [ciSup_pos hh]; apply le_csSup hbdd₁; exact ⟨h, hh, rfl⟩
-              · rw [ciSup_neg hh, Real.sSup_empty]; apply Real.sSup_nonneg; intro y ⟨_, _, hy⟩; exact hy ▸ abs_nonneg _⟩
+              · rw [ciSup_neg hh, Real.sSup_empty]; apply Real.sSup_nonneg
+                intro y ⟨_, _, hy⟩; exact hy ▸ abs_nonneg _⟩
       · apply mul_nonneg hL_nonneg dist_nonneg
   -- Combine to get |Z(w₁) - Z(w₂)| ≤ L * dist
   rw [abs_sub_le_iff]
@@ -432,10 +439,12 @@ lemma Z_le_sigma_mul_localComplexity (n : ℕ) (hn : 0 < n) (σ : ℝ) (H : Set 
         by_cases hh : h ∈ localizedBall H u x
         · simp only [ciSup_pos hh]
           -- |σ/n * ∑ w_i h(x_i)| ≤ bound
-          have h_cs : |∑ i, w i * h (x i)| ≤ Real.sqrt (∑ i, (w i)^2) * Real.sqrt (∑ i, (h (x i))^2) := by
+          have h_cs : |∑ i, w i * h (x i)| ≤
+              Real.sqrt (∑ i, (w i)^2) * Real.sqrt (∑ i, (h (x i))^2) := by
             rw [abs_le]
             constructor
-            · have h' := Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i => -w i) (fun i => h (x i))
+            · have h' :=
+                Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i => -w i) (fun i => h (x i))
               simp_rw [neg_mul, Finset.sum_neg_distrib, neg_sq] at h'
               linarith
             · exact Real.sum_mul_le_sqrt_mul_sqrt Finset.univ w (fun i => h (x i))
@@ -453,7 +462,8 @@ lemma Z_le_sigma_mul_localComplexity (n : ℕ) (hn : 0 < n) (σ : ℝ) (H : Set 
               calc ∑ i, (h (x i))^2 = n * ((n : ℝ)⁻¹ * ∑ i, (h (x i))^2) := by field_simp
                 _ ≤ n * u^2 := by nlinarith [sq_nonneg u]
             calc Real.sqrt (∑ i, (h (x i))^2) ≤ Real.sqrt (n * u^2) := Real.sqrt_le_sqrt h_sum
-              _ = Real.sqrt n * |u| := Real.sqrt_mul (Nat.cast_nonneg n) (u^2) ▸ Real.sqrt_sq_eq_abs u ▸ rfl
+              _ = Real.sqrt n * |u| :=
+                Real.sqrt_mul (Nat.cast_nonneg n) (u^2) ▸ Real.sqrt_sq_eq_abs u ▸ rfl
               _ = Real.sqrt n * u := by rw [abs_of_nonneg h_u_nonneg]
           calc |σ / n * ∑ i, w i * h (x i)| = |σ| / n * |∑ i, w i * h (x i)| := by
                 rw [abs_mul, abs_div]
@@ -462,7 +472,8 @@ lemma Z_le_sigma_mul_localComplexity (n : ℕ) (hn : 0 < n) (σ : ℝ) (H : Set 
             _ ≤ |σ| / n * (Real.sqrt (∑ i, (w i)^2) * Real.sqrt (∑ i, (h (x i))^2)) := by
                 apply mul_le_mul_of_nonneg_left h_cs; positivity
             _ ≤ |σ| / n * (Real.sqrt (∑ i, (w i)^2) * (Real.sqrt n * u)) := by
-                apply mul_le_mul_of_nonneg_left; apply mul_le_mul_of_nonneg_left h_norm; positivity; positivity
+                apply mul_le_mul_of_nonneg_left; apply mul_le_mul_of_nonneg_left h_norm
+                positivity; positivity
             _ = |σ| * u * Real.sqrt (∑ i, (w i)^2) / Real.sqrt n := by
                 field_simp
                 rw [Real.sq_sqrt (Nat.cast_nonneg n)]
@@ -470,7 +481,8 @@ lemma Z_le_sigma_mul_localComplexity (n : ℕ) (hn : 0 < n) (σ : ℝ) (H : Set 
             _ ≤ bound := le_add_of_nonneg_right (by linarith)
         · -- When h ∉ ball, the inner iSup is sSup ∅ = 0 in ℝ
           have h_iSup_eq : (⨆ _ : h ∈ localizedBall H u x, |σ / n * ∑ i, w i * h (x i)|) = 0 := by
-            have h_range_empty : Set.range (fun _ : h ∈ localizedBall H u x => |σ / n * ∑ i, w i * h (x i)|) = ∅ := by
+            have h_range_empty : Set.range
+                (fun _ : h ∈ localizedBall H u x => |σ / n * ∑ i, w i * h (x i)|) = ∅ := by
               ext y
               simp only [Set.mem_range, Set.mem_empty_iff_false, iff_false]
               intro ⟨hmem, _⟩
@@ -557,7 +569,8 @@ lemma Z_le_sigma_mul_localComplexity (n : ℕ) (hn : 0 < n) (σ : ℝ) (H : Set 
   -- Now factor out σ
   have h2 : ⨆ g ∈ localizedBall H u x, |σ / n * ∑ i, w i * g (x i)| =
       σ * ⨆ g ∈ localizedBall H u x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)| := by
-    have h_factor : ∀ g : X → ℝ, |σ / n * ∑ i, w i * g (x i)| = σ * |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)| := by
+    have h_factor : ∀ g : X → ℝ,
+        |σ / n * ∑ i, w i * g (x i)| = σ * |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)| := by
       intro g
       rw [div_eq_mul_inv, mul_assoc, abs_mul, abs_of_pos hσ]
     conv_lhs =>
@@ -591,7 +604,8 @@ lemma Z_expectation_bound (hn : 0 < n) {σ δ_star u : ℝ}
         σ * (⨆ g ∈ localizedBall H u x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|) :=
       fun w => Z_le_sigma_mul_localComplexity n hn σ H u x w hσ
     have h_int_bound : ∫ w, Z_supremum n σ H u x w ∂(stdGaussianPi n) ≤
-        ∫ w, σ * (⨆ g ∈ localizedBall H u x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|) ∂(stdGaussianPi n) := by
+        ∫ w, σ * (⨆ g ∈ localizedBall H u x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|)
+          ∂(stdGaussianPi n) := by
       apply integral_mono_of_nonneg
       · -- Z is nonneg
         apply ae_of_all
@@ -732,10 +746,12 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
             by_cases hh : h ∈ empiricalSphere n H u x
             · simp only [ciSup_pos hh]
               -- Bound using Cauchy-Schwarz (same as in Z_le_sigma_mul_localComplexity)
-              have h_cs : |∑ i, w i * h (x i)| ≤ Real.sqrt (∑ i, (w i)^2) * Real.sqrt (∑ i, (h (x i))^2) := by
+              have h_cs : |∑ i, w i * h (x i)| ≤
+                  Real.sqrt (∑ i, (w i)^2) * Real.sqrt (∑ i, (h (x i))^2) := by
                 rw [abs_le]
                 constructor
-                · have h' := Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i => -w i) (fun i => h (x i))
+                · have h' :=
+                    Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i => -w i) (fun i => h (x i))
                   simp_rw [neg_mul, Finset.sum_neg_distrib, neg_sq] at h'
                   linarith
                 · exact Real.sum_mul_le_sqrt_mul_sqrt Finset.univ w (fun i => h (x i))
@@ -746,7 +762,8 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
                   have h_inner_nonneg : 0 ≤ (n : ℝ)⁻¹ * ∑ i, (h (x i))^2 := by positivity
                   have h_eq : (n : ℝ)⁻¹ * ∑ i, (h (x i))^2 = u^2 := by
                     calc (n : ℝ)⁻¹ * ∑ i, (h (x i))^2
-                        = Real.sqrt ((n : ℝ)⁻¹ * ∑ i, (h (x i))^2) ^ 2 := (sq_sqrt h_inner_nonneg).symm
+                        = Real.sqrt ((n : ℝ)⁻¹ * ∑ i, (h (x i))^2) ^ 2 :=
+                          (sq_sqrt h_inner_nonneg).symm
                       _ = u ^ 2 := by rw [hh_norm]
                   have hn_pos' : (0 : ℝ) < n := Nat.cast_pos.mpr hn
                   field_simp at h_eq ⊢
@@ -763,10 +780,13 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
                 _ = |σ| / n * (Real.sqrt (∑ i, (w i)^2) * (Real.sqrt n * u)) := by rw [h_norm_eq]
                 _ = |σ| * u * Real.sqrt (∑ i, (w i)^2) / Real.sqrt n := by
                     field_simp; rw [Real.sq_sqrt (Nat.cast_nonneg n)]; ring
-                _ ≤ |σ| * u * Real.sqrt (∑ i, (w i)^2) / Real.sqrt n + 1 := le_add_of_nonneg_right (by linarith)
+                _ ≤ |σ| * u * Real.sqrt (∑ i, (w i)^2) / Real.sqrt n + 1 :=
+                    le_add_of_nonneg_right (by linarith)
             · -- h ∉ sphere, so inner iSup = sSup ∅ = 0
-              have h_eq_zero : (⨆ _ : h ∈ empiricalSphere n H u x, |σ / n * ∑ i, w i * h (x i)|) = 0 := by
-                have h_range_empty : Set.range (fun _ : h ∈ empiricalSphere n H u x => |σ / n * ∑ i, w i * h (x i)|) = ∅ := by
+              have h_eq_zero :
+                  (⨆ _ : h ∈ empiricalSphere n H u x, |σ / n * ∑ i, w i * h (x i)|) = 0 := by
+                have h_range_empty : Set.range
+                    (fun _ : h ∈ empiricalSphere n H u x => |σ / n * ∑ i, w i * h (x i)|) = ∅ := by
                   ext y; simp only [Set.mem_range, Set.mem_empty_iff_false, iff_false]
                   intro ⟨hmem, _⟩; exact hh hmem
                 simp only [iSup, h_range_empty, Real.sSup_empty]
@@ -803,7 +823,8 @@ theorem bad_event_probability_bound (hn : 0 < n) {σ δ_star u : ℝ}
 
   -- Transfer: measures of sets match
   have h_meas_eq : μ_E {y | u^2 ≤ Z_E y - ∫ z, Z_E z ∂μ_E} =
-      stdGaussianPi n {w | u^2 ≤ Z_supremum n σ H u x w - ∫ z, Z_supremum n σ H u x z ∂(stdGaussianPi n)} := by
+      stdGaussianPi n
+        {w | u^2 ≤ Z_supremum n σ H u x w - ∫ z, Z_supremum n σ H u x z ∂(stdGaussianPi n)} := by
     -- First rewrite the integral using h_int_eq
     conv_lhs => rw [h_int_eq]
     simp only [μ_E, stdGaussianE]
@@ -866,7 +887,8 @@ lemma goodEvent_implies_process_bound {n : ℕ} {σ t δ_star : ℝ}
     {H : Set (X → ℝ)} {x : Fin n → X} {w : Fin n → ℝ}
     (hw : w ∈ goodEvent n σ H t δ_star x)
     (g : X → ℝ) (hg : g ∈ empiricalOuterRegion n H (Real.sqrt (t * δ_star)) x) :
-    |σ / n * ∑ i, w i * g (x i)| < 2 * empiricalNorm n (fun i => g (x i)) * Real.sqrt (t * δ_star) := by
+    |σ / n * ∑ i, w i * g (x i)| <
+      2 * empiricalNorm n (fun i => g (x i)) * Real.sqrt (t * δ_star) := by
   simp only [goodEvent, Set.mem_compl_iff, badEvent, Set.mem_ofPred_eq] at hw
   push Not at hw
   exact hw g hg
@@ -926,7 +948,8 @@ theorem master_error_bound (hn : 0 < n)
 
   -- The good event implies the bound
   have h_good_implies : goodEvent n M.σ H t δ_star M.x ⊆
-      {w | (empiricalNorm n (fun i => f_hat w (M.x i) - M.f_star (M.x i)))^2 ≤ 16 * t * δ_star} := by
+      {w | (empiricalNorm n (fun i => f_hat w (M.x i) - M.f_star (M.x i)))^2 ≤
+        16 * t * δ_star} := by
     intro w hw
     simp only [Set.mem_ofPred_eq]
     -- Set Δ = f_hat - f_star
@@ -953,7 +976,8 @@ theorem master_error_bound (hn : 0 < n)
           exact le_of_lt hcase
 
       -- Use the good event bound
-      have h_process_bound := goodEvent_implies_process_bound hw (fun y => f_hat w y - M.f_star y) hΔ_outer
+      have h_process_bound :=
+        goodEvent_implies_process_bound hw (fun y => f_hat w y - M.f_star y) hΔ_outer
 
       -- Use basic inequality
       have h_basic := basic_inequality hn M F (f_hat w) w (hf_hat w) hF_star
@@ -967,7 +991,8 @@ theorem master_error_bound (hn : 0 < n)
         -- |σ/n Σ wᵢΔᵢ| < 2‖Δ‖_n u
         calc M.σ / ↑n * ∑ i, w i * (f_hat w (M.x i) - M.f_star (M.x i))
             ≤ |M.σ / ↑n * ∑ i, w i * (f_hat w (M.x i) - M.f_star (M.x i))| := le_abs_self _
-          _ ≤ 2 * empiricalNorm n (fun i => (fun y => f_hat w y - M.f_star y) (M.x i)) * u := le_of_lt h_abs
+          _ ≤ 2 * empiricalNorm n (fun i => (fun y => f_hat w y - M.f_star y) (M.x i)) * u :=
+              le_of_lt h_abs
           _ = 2 * norm_Δ * u := by simp only [hnorm_def, hΔ_def]
 
       -- From basic inequality: (1/2)‖Δ‖_n² ≤ (σ/n) Σ wᵢΔᵢ

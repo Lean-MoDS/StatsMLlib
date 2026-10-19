@@ -70,7 +70,8 @@ lemma coveringNumber_le_card {A : Type*} [PseudoMetricSpace A] {t : Finset A} {e
 `coveringNumber_le_card` asks for an `IsENet`, which is phrased with closed balls; a
 cover by open balls of the same radius is a stronger hypothesis, so it is often the one
 available at a use site. -/
-lemma coveringNumber_le_card_of_cover {A : Type*} [PseudoMetricSpace A] {t : Finset A} {eps : ℝ} {s : Set A}
+lemma coveringNumber_le_card_of_cover {A : Type*} [PseudoMetricSpace A] {t : Finset A} {eps : ℝ}
+    {s : Set A}
     (ht : s ⊆ ⋃ y ∈ t, Metric.ball y eps) :
     coveringNumber eps s ≤ (t.card : WithTop ℕ) := by
   refine coveringNumber_le_card ?_
@@ -81,7 +82,8 @@ lemma coveringNumber_le_card_of_cover {A : Type*} [PseudoMetricSpace A] {t : Fin
 
 /-- Every subset of a finite pseudometric space is covered by taking all of its points
 as centres, so its covering number is at most the cardinality of the type. -/
-lemma coveringNumber_le_fintype_card {A : Type*} [PseudoMetricSpace A] [Fintype A] {eps : ℝ} (heps : 0 < eps) (s : Set A) :
+lemma coveringNumber_le_fintype_card {A : Type*} [PseudoMetricSpace A] [Fintype A] {eps : ℝ}
+    (heps : 0 < eps) (s : Set A) :
     coveringNumber eps s ≤ (Fintype.card A : WithTop ℕ) := by
   classical
   refine le_trans (coveringNumber_le_card (t := Finset.univ) ?_) ?_
@@ -255,7 +257,8 @@ lemma exists_optimal_enet {eps : ℝ} {s : Set A}
     (heps : 0 < eps) (hs : TotallyBounded s) :
     ∃ t : Finset A, IsENet t eps s ∧ (t.card : WithTop ℕ) = coveringNumber eps s := by
   -- The set of cardinalities of eps-nets is nonempty
-  have hne_set : {n : WithTop ℕ | ∃ t : Finset A, IsENet t eps s ∧ (t.card : WithTop ℕ) = n}.Nonempty := by
+  have hne_set :
+      {n : WithTop ℕ | ∃ t : Finset A, IsENet t eps s ∧ (t.card : WithTop ℕ) = n}.Nonempty := by
     obtain ⟨t, ht⟩ := exists_finset_isENet_of_totallyBounded heps hs
     exact ⟨t.card, t, ht, rfl⟩
   exact csInf_mem hne_set
@@ -332,8 +335,10 @@ lemma coveringNumber_pos_of_nonempty_totallyBounded {eps : ℝ} {s : Set A}
   rw [h] at hn
   have hzero : coveringNumber eps s = 0 := hn
   unfold coveringNumber at hzero
-  have hmem : (0 : WithTop ℕ) ∈ {n : WithTop ℕ | ∃ t : Finset A, IsENet t eps s ∧ (t.card : WithTop ℕ) = n} := by
-    have hne_set : {n : WithTop ℕ | ∃ t : Finset A, IsENet t eps s ∧ (t.card : WithTop ℕ) = n}.Nonempty := by
+  have hmem : (0 : WithTop ℕ) ∈
+      {n : WithTop ℕ | ∃ t : Finset A, IsENet t eps s ∧ (t.card : WithTop ℕ) = n} := by
+    have hne_set :
+        {n : WithTop ℕ | ∃ t : Finset A, IsENet t eps s ∧ (t.card : WithTop ℕ) = n}.Nonempty := by
       obtain ⟨t, ht⟩ := exists_finset_isENet_of_totallyBounded heps hs
       exact ⟨t.card, t, ht, rfl⟩
     have hsInf := csInf_mem hne_set
@@ -531,7 +536,9 @@ theorem coveringNumber_image_of_isometry {f : A → B} (hf : Isometry f) (hbij :
     by_cases hcover : coveringNumber eps (f '' s) = ⊤
     · simp [hcover]
     push Not at hcover
-    have hne : {m : WithTop ℕ | ∃ t : Finset B, IsENet t eps (f '' s) ∧ (t.card : WithTop ℕ) = m}.Nonempty := by
+    have hne :
+        {m : WithTop ℕ |
+          ∃ t : Finset B, IsENet t eps (f '' s) ∧ (t.card : WithTop ℕ) = m}.Nonempty := by
       by_contra hemp
       have : coveringNumber eps (f '' s) = ⊤ := by
         unfold coveringNumber

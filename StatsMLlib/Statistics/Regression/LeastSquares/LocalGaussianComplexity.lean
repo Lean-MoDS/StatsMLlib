@@ -54,7 +54,8 @@ lemma gaussianReal_zero_map_neg (v : NNReal) :
   simpa [h2] using h
 
 /-- Standard Gaussian is negation-invariant -/
-instance gaussianReal_zero_IsNegInvariant (v : NNReal) : (gaussianReal (0 : ℝ) v).IsNegInvariant where
+instance gaussianReal_zero_IsNegInvariant (v : NNReal) :
+    (gaussianReal (0 : ℝ) v).IsNegInvariant where
   neg_eq_self := by
     rw [Measure.neg_def, gaussianReal_zero_map_neg]
 
@@ -176,7 +177,8 @@ lemma innerProductProcess_sub (n : ℕ) (v₁ v₂ : EmpiricalSpace n) (w : Fin 
   rw [h_sub]
   ring
 
-/-- Key: The empirical process Z_g equals the inner product process applied to empiricalMetricImage -/
+/-- Key: The empirical process Z_g equals the inner product process applied to
+empiricalMetricImage -/
 lemma empiricalProcess_eq_innerProductProcess (n : ℕ) (x : Fin n → X) (g : X → ℝ) (w : Fin n → ℝ) :
     empiricalProcess n x g w = innerProductProcess n (empiricalMetricImage n x g) w := by
   unfold empiricalProcess innerProductProcess empiricalMetricImage
@@ -370,7 +372,8 @@ lemma inner_abs_le_norm_mul_norm' (n : ℕ) (a b : Fin n → ℝ) :
   -- Combine: -(∑ab) ≤ √... means -√... ≤ ∑ab
   rw [abs_le]
   constructor
-  · linarith [mul_nonneg (Real.sqrt_nonneg (∑ i : Fin n, a i ^ 2)) (Real.sqrt_nonneg (∑ i : Fin n, b i ^ 2))]
+  · linarith [mul_nonneg (Real.sqrt_nonneg (∑ i : Fin n, a i ^ 2))
+      (Real.sqrt_nonneg (∑ i : Fin n, b i ^ 2))]
   · exact h_upper
 
 /-- Empirical process is bounded by δ times normalized w norm -/
@@ -386,7 +389,8 @@ lemma empiricalProcess_le_delta_norm (n : ℕ) (hn : 0 < n) (x : Fin n → X) (H
   -- Cauchy-Schwarz: |∑ wᵢgᵢ| ≤ √(Σ wᵢ²) * √(Σ gᵢ²)
   have h_cs : |∑ i, w i * gx i| ≤ euclideanNorm n w * euclideanNorm n gx :=
     inner_abs_le_norm_mul_norm' n w gx
-  -- euclideanNorm gx = √(Σ gᵢ²), and empiricalNorm = √(n⁻¹ Σ gᵢ²), so euclideanNorm = √n * empiricalNorm
+  -- euclideanNorm gx = √(Σ gᵢ²), and empiricalNorm = √(n⁻¹ Σ gᵢ²),
+  -- so euclideanNorm = √n * empiricalNorm
   have h_norm_gx_sq : (euclideanNorm n gx)^2 = n * (empiricalNorm n gx)^2 := by
     unfold euclideanNorm EmpiricalProcess.empiricalNorm
     rw [sq_sqrt, sq_sqrt]
@@ -437,8 +441,10 @@ lemma empiricalProcess_le_delta_norm (n : ℕ) (hn : 0 < n) (x : Fin n → X) (H
 
 This follows from Cauchy-Schwarz: sup_{g ∈ B_n(δ)} |Z w g| ≤ δ * ‖w‖ / √n,
 and the Gaussian norm is integrable by Fernique's theorem. -/
-lemma localGaussianComplexity_integrand_integrable (n : ℕ) (H : Set (X → ℝ)) (δ : ℝ) (hδ : 0 < δ) (x : Fin n → X) :
-    Integrable (fun w => ⨆ g ∈ localizedBall H δ x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|) (stdGaussianPi n) := by
+lemma localGaussianComplexity_integrand_integrable (n : ℕ) (H : Set (X → ℝ)) (δ : ℝ) (hδ : 0 < δ)
+    (x : Fin n → X) :
+    Integrable (fun w => ⨆ g ∈ localizedBall H δ x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|)
+      (stdGaussianPi n) := by
   by_cases hn : n = 0
   case pos =>
     subst hn
@@ -457,10 +463,12 @@ lemma localGaussianComplexity_integrand_integrable (n : ℕ) (H : Set (X → ℝ
   case neg =>
     push Not at hn
     have hn_pos : 0 < n := Nat.pos_of_ne_zero hn
-    have h_bound_int : Integrable (fun w => δ / Real.sqrt n * euclideanNorm n w) (stdGaussianPi n) :=
+    have h_bound_int :
+        Integrable (fun w => δ / Real.sqrt n * euclideanNorm n w) (stdGaussianPi n) :=
       (euclideanNorm_integrable_stdGaussianPi n).const_mul _
     apply Integrable.mono' h_bound_int
-    · set F : (Fin n → ℝ) → ℝ := fun w => ⨆ g ∈ localizedBall H δ x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|
+    · set F : (Fin n → ℝ) → ℝ :=
+        fun w => ⨆ g ∈ localizedBall H δ x, |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|
       set f : (X → ℝ) → (Fin n → ℝ) → ℝ := fun g w => ⨆ (_ : g ∈ localizedBall H δ x),
           |(n : ℝ)⁻¹ * ∑ i, w i * g (x i)|
       have h_bdd : ∀ w, BddAbove (Set.range fun g => f g w) := fun w => by
@@ -473,7 +481,8 @@ lemma localGaussianComplexity_integrand_integrable (n : ℕ) (H : Set (X → ℝ
           exact empiricalProcess_le_delta_norm n hn_pos x H δ hδ g hg w
         · show f g w ≤ _
           simp only [f, ciSup_neg hg, Real.sSup_empty]
-          apply mul_nonneg (div_nonneg (le_of_lt hδ) (Real.sqrt_nonneg _)) (euclideanNorm_nonneg _ _)
+          apply mul_nonneg (div_nonneg (le_of_lt hδ) (Real.sqrt_nonneg _))
+            (euclideanNorm_nonneg _ _)
       have h_lsc : LowerSemicontinuous F := by
         have heq : F = fun w => ⨆ g, f g w := by ext w; rfl
         rw [heq]; apply lowerSemicontinuous_ciSup h_bdd; intro g
@@ -499,7 +508,8 @@ lemma localGaussianComplexity_integrand_integrable (n : ℕ) (H : Set (X → ℝ
       · intro g; by_cases hg : g ∈ localizedBall H δ x
         · simp only [ciSup_pos hg]; exact empiricalProcess_le_delta_norm n hn_pos x H δ hδ g hg w
         · rw [ciSup_neg hg, Real.sSup_empty]
-          apply mul_nonneg (div_nonneg (le_of_lt hδ) (Real.sqrt_nonneg _)) (euclideanNorm_nonneg _ _)
+          apply mul_nonneg (div_nonneg (le_of_lt hδ) (Real.sqrt_nonneg _))
+            (euclideanNorm_nonneg _ _)
       · apply mul_nonneg (div_nonneg (le_of_lt hδ) (Real.sqrt_nonneg _)) (euclideanNorm_nonneg _ _)
 
 /-- For star-shaped H, the function δ ↦ G_n(δ;H)/δ is non-increasing.
@@ -560,10 +570,13 @@ lemma gaussian_complexity_ratio_antitone (n : ℕ) (H : Set (X → ℝ)) (x : Fi
           have hn_pos : (0 : ℝ) < n := Nat.cast_pos.mpr (Nat.pos_of_ne_zero hn)
           have hn_nonneg : (0 : ℝ) ≤ n := le_of_lt hn_pos
           have hinv_nonneg : (0 : ℝ) ≤ (n : ℝ)⁻¹ := inv_nonneg.mpr hn_nonneg
-          have hCS_upper := Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i => w i) (fun i => g (x i))
-          have hCS_neg : ∑ i : Fin n, (-(w i)) * g (x i) ≤ √(∑ i : Fin n, (-(w i)) ^ 2) * √(∑ i : Fin n, g (x i) ^ 2) :=
+          have hCS_upper :=
+            Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i => w i) (fun i => g (x i))
+          have hCS_neg : ∑ i : Fin n, (-(w i)) * g (x i) ≤
+              √(∑ i : Fin n, (-(w i)) ^ 2) * √(∑ i : Fin n, g (x i) ^ 2) :=
             Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i => -(w i)) (fun i => g (x i))
-          have hCS_neg' : -(∑ i : Fin n, w i * g (x i)) ≤ √(∑ i : Fin n, w i ^ 2) * √(∑ i : Fin n, g (x i) ^ 2) := by
+          have hCS_neg' : -(∑ i : Fin n, w i * g (x i)) ≤
+              √(∑ i : Fin n, w i ^ 2) * √(∑ i : Fin n, g (x i) ^ 2) := by
             have h1 : ∑ i : Fin n, (-(w i)) * g (x i) = -(∑ i : Fin n, w i * g (x i)) := by
               simp only [neg_mul, Finset.sum_neg_distrib]
             have h2 : ∑ i : Fin n, (-(w i)) ^ 2 = ∑ i : Fin n, w i ^ 2 := by
@@ -571,10 +584,12 @@ lemma gaussian_complexity_ratio_antitone (n : ℕ) (H : Set (X → ℝ)) (x : Fi
               intro i _; ring
             rw [h1, h2] at hCS_neg
             exact hCS_neg
-          have hCS : |∑ i : Fin n, w i * g (x i)| ≤ √(∑ i : Fin n, w i ^ 2) * √(∑ i : Fin n, g (x i) ^ 2) := by
+          have hCS : |∑ i : Fin n, w i * g (x i)| ≤
+              √(∑ i : Fin n, w i ^ 2) * √(∑ i : Fin n, g (x i) ^ 2) := by
             rw [abs_le]
             constructor
-            · linarith [mul_nonneg (Real.sqrt_nonneg (∑ i : Fin n, w i ^ 2)) (Real.sqrt_nonneg (∑ i : Fin n, g (x i) ^ 2))]
+            · linarith [mul_nonneg (Real.sqrt_nonneg (∑ i : Fin n, w i ^ 2))
+                (Real.sqrt_nonneg (∑ i : Fin n, g (x i) ^ 2))]
             · exact hCS_upper
           calc |(n : ℝ)⁻¹ * ∑ i : Fin n, w i * g (x i)|
               = (n : ℝ)⁻¹ * |∑ i : Fin n, w i * g (x i)| := by
@@ -632,7 +647,8 @@ lemma gaussian_complexity_ratio_antitone (n : ℕ) (H : Set (X → ℝ)) (x : Fi
       ≤ (∫ w, (t / δ) * ⨆ g ∈ localizedBall H δ x, Z w g ∂stdGaussianPi n) * δ := by
         apply mul_le_mul_of_nonneg_right _ (le_of_lt hδ)
         apply integral_mono_of_nonneg
-        · apply ae_of_all; intro w; exact Real.iSup_nonneg (fun _ => Real.iSup_nonneg (fun _ => abs_nonneg _))
+        · apply ae_of_all; intro w
+          exact Real.iSup_nonneg (fun _ => Real.iSup_nonneg (fun _ => abs_nonneg _))
         · apply Integrable.const_mul
           exact localGaussianComplexity_integrand_integrable n H δ hδ x
         · exact ae_of_all _ h_pointwise
@@ -663,8 +679,8 @@ lemma empiricalProcess_zero (n : ℕ) (x : Fin n → X) (w : Fin n → ℝ) :
 /-- For star-shaped H, E[sup |Z_g|] ≤ 2 E[sup Z_g] under Gaussian measure.
 
 Uses Gaussian symmetry: E[sup(-Z_g)] = E[sup Z_g] since w and -w have the same distribution. -/
-lemma integral_abs_sup_le_two_mul_integral_sup_of_starShaped (n : ℕ) (H : Set (X → ℝ)) (x : Fin n → X)
-    (hH : IsStarShaped H)
+lemma integral_abs_sup_le_two_mul_integral_sup_of_starShaped (n : ℕ) (H : Set (X → ℝ))
+    (x : Fin n → X) (hH : IsStarShaped H)
     (hint_pos : Integrable (fun w => ⨆ g ∈ H, empiricalProcess n x g w) (stdGaussianPi n))
     (hint_neg : Integrable (fun w => ⨆ g ∈ H, -empiricalProcess n x g w) (stdGaussianPi n)) :
     ∫ w, ⨆ g ∈ H, |empiricalProcess n x g w| ∂(stdGaussianPi n) ≤
@@ -725,7 +741,8 @@ lemma integral_abs_sup_le_two_mul_integral_sup_of_starShaped (n : ℕ) (H : Set 
           linarith
 
       have h_nonneg_pos : 0 ≤ ⨆ g ∈ H, Z g w := h_nonneg_sup (fun g => Z g w) (hZ0 w) hbdd_pos
-      have h_nonneg_neg : 0 ≤ ⨆ g ∈ H, -Z g w := h_nonneg_sup (fun g => -Z g w) (by simp [hZ0 w]) hbdd_neg
+      have h_nonneg_neg : 0 ≤ ⨆ g ∈ H, -Z g w :=
+        h_nonneg_sup (fun g => -Z g w) (by simp [hZ0 w]) hbdd_neg
 
       apply ciSup_le
       intro g
@@ -792,7 +809,8 @@ lemma EmpiricalSpace.coord_sq_le (n : ℕ) (i : Fin n) (v : EmpiricalSpace n) :
   unfold EmpiricalProcess.empiricalNorm
   rw [sq_sqrt (by positivity : 0 ≤ (n : ℝ)⁻¹ * ∑ j : Fin n, (v j)^2)]
   have h_single : (v i : ℝ)^2 ≤ ∑ j : Fin n, (v j : ℝ)^2 := by
-    exact Finset.single_le_sum (f := fun j => (v j : ℝ)^2) (fun j _ => sq_nonneg _) (Finset.mem_univ i)
+    exact Finset.single_le_sum (f := fun j => (v j : ℝ)^2) (fun j _ => sq_nonneg _)
+      (Finset.mem_univ i)
   calc (v i)^2 ≤ ∑ j : Fin n, (v j)^2 := h_single
     _ = n * ((n : ℝ)⁻¹ * ∑ j : Fin n, (v j)^2) := by field_simp
 
@@ -957,12 +975,14 @@ lemma dudley_empiricalProcess (n : ℕ) (hn : 0 < n) (x : Fin n → X)
   have hcont' : ∀ w, Continuous (fun (v : ↥Gx) => Z v.1 w) := hcont
   have h_sup_eq : ∀ w, (⨆ g ∈ G, empiricalProcess n x g w) =
       ⨆ v ∈ Gx, innerProductProcess n v w := fun w => by
-    have h_eq : ∀ g, empiricalProcess n x g w = innerProductProcess n (empiricalMetricImage n x g) w :=
+    have h_eq : ∀ g,
+        empiricalProcess n x g w = innerProductProcess n (empiricalMetricImage n x g) w :=
       fun g => empiricalProcess_eq_innerProductProcess n x g w
     simp_rw [h_eq]
     simp only [Gx]
     have hG_nonempty : G.Nonempty := hG_ne
-    have h_bdd : BddAbove (Set.range fun (g : ↥G) => innerProductProcess n (empiricalMetricImage n x g.1) w) := by
+    have h_bdd : BddAbove (Set.range fun (g : ↥G) =>
+        innerProductProcess n (empiricalMetricImage n x g.1) w) := by
       use Real.sqrt (∑ i, (w i)^2) * D + 1
       intro y hy
       obtain ⟨⟨g, hg⟩, rfl⟩ := hy
@@ -1004,7 +1024,8 @@ lemma dudley_empiricalProcess (n : ℕ) (hn : 0 < n) (x : Fin n → X)
       have hn_pos : (0 : ℝ) < n := Nat.cast_pos.mpr hn
       have hD_nonneg : 0 ≤ D := le_of_lt hD
       have h_sum_sq : ∑ i, (g (x i))^2 ≤ n * D^2 := by
-        have h1 : empiricalNorm n (fun i => g (x i)) = Real.sqrt ((n : ℝ)⁻¹ * ∑ i, (g (x i))^2) := rfl
+        have h1 : empiricalNorm n (fun i => g (x i)) =
+            Real.sqrt ((n : ℝ)⁻¹ * ∑ i, (g (x i))^2) := rfl
         have h_norm_nonneg : 0 ≤ empiricalNorm n (fun i => g (x i)) := by
           unfold EmpiricalProcess.empiricalNorm
           positivity
@@ -1117,7 +1138,8 @@ lemma local_gaussian_complexity_bound (n : ℕ) (hn : 0 < n) (H : Set (X → ℝ
     (hint_neg : Integrable (fun w => ⨆ g ∈ localizedBall H δ x, -empiricalProcess n x g w)
       (stdGaussianPi n)) :
     LocalGaussianComplexity n H δ x ≤
-    (24 * Real.sqrt 2) / Real.sqrt n * entropyIntegral (empiricalMetricImage n x '' localizedBall H δ x) (2*δ) := by
+    (24 * Real.sqrt 2) / Real.sqrt n *
+      entropyIntegral (empiricalMetricImage n x '' localizedBall H δ x) (2*δ) := by
   let G := localizedBall H δ x
   let Gx := empiricalMetricImage n x '' G
   let μ := stdGaussianPi n
@@ -1128,7 +1150,8 @@ lemma local_gaussian_complexity_bound (n : ℕ) (hn : 0 < n) (H : Set (X → ℝ
   have hdiam : Metric.diam Gx ≤ 2 * δ := localizedBall_diam n H δ (le_of_lt hδ) x
   have h0_center : ∀ i, (0 : X → ℝ) (x i) = 0 := fun _ => rfl
   unfold LocalGaussianComplexity
-  have h_abs_bound := integral_abs_sup_le_two_mul_integral_sup_of_starShaped n G x hG_star hint_pos hint_neg
+  have h_abs_bound :=
+    integral_abs_sup_le_two_mul_integral_sup_of_starShaped n G x hG_star hint_pos hint_neg
   have h_dudley := dudley_empiricalProcess n hn x G hH_tb (2*δ) hD hdiam
     (0 : X → ℝ) h0_G h0_center hfinite hcont
   calc ∫ w, ⨆ h ∈ G, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)| ∂μ

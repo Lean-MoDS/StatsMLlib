@@ -193,13 +193,15 @@ theorem diam_linearLocalizedBallImage_le (hn : 0 < n)
     ext i
     simp only [designMatrixMul_apply, inner_sub_left]
     rfl
-  have h_norm_bound : ‖designMatrixMul x (θ₁ - θ₂)‖ ≤ ‖designMatrixMul x θ₁‖ + ‖designMatrixMul x θ₂‖ := by
+  have h_norm_bound :
+      ‖designMatrixMul x (θ₁ - θ₂)‖ ≤ ‖designMatrixMul x θ₁‖ + ‖designMatrixMul x θ₂‖ := by
     rw [h_linear]
     exact norm_sub_le _ _
   calc (n : ℝ)⁻¹.sqrt * ‖designMatrixMul x (θ₁ - θ₂)‖
       ≤ (n : ℝ)⁻¹.sqrt * (‖designMatrixMul x θ₁‖ + ‖designMatrixMul x θ₂‖) := by
         apply mul_le_mul_of_nonneg_left h_norm_bound hsqrt_inv_nonneg
-      _ = (n : ℝ)⁻¹.sqrt * ‖designMatrixMul x θ₁‖ + (n : ℝ)⁻¹.sqrt * ‖designMatrixMul x θ₂‖ := by ring
+      _ = (n : ℝ)⁻¹.sqrt * ‖designMatrixMul x θ₁‖ +
+            (n : ℝ)⁻¹.sqrt * ‖designMatrixMul x θ₂‖ := by ring
       _ ≤ δ + δ := by
         apply add_le_add
         · -- (n⁻¹).sqrt * ‖Xθ₁‖ ≤ δ

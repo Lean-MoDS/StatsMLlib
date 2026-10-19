@@ -76,7 +76,8 @@ lemma linearLocalizedBallImage_totallyBounded (hn : 0 < n)
   intro ε hε
   -- Get a finite cover for the image
   have hε_scaled : 0 < ε * Real.sqrt n := mul_pos hε hsqrt_pos
-  obtain ⟨t, ht_finite, ht_cover⟩ := Metric.totallyBounded_iff.mp htb_euc (ε * Real.sqrt n) hε_scaled
+  obtain ⟨t, ht_finite, ht_cover⟩ :=
+    Metric.totallyBounded_iff.mp htb_euc (ε * Real.sqrt n) hε_scaled
   -- Map back to EmpiricalSpace
   use t.image (euclideanToEmpirical n)
   constructor
@@ -84,7 +85,8 @@ lemma linearLocalizedBallImage_totallyBounded (hn : 0 < n)
   · intro y hy
     -- y is in linearLocalizedBallImage
     -- empiricalToEuclidean y is in the image, so covered by some ball
-    have hy_euc : empiricalToEuclidean n y ∈ empiricalToEuclidean n '' linearLocalizedBallImage n d δ x :=
+    have hy_euc :
+        empiricalToEuclidean n y ∈ empiricalToEuclidean n '' linearLocalizedBallImage n d δ x :=
       Set.mem_image_of_mem _ hy
     have hy_cover := ht_cover hy_euc
     rw [Set.mem_iUnion₂] at hy_cover
@@ -95,7 +97,8 @@ lemma linearLocalizedBallImage_totallyBounded (hn : 0 < n)
     -- dist y (euclideanToEmpirical z) = dist(empiricalToEuclidean y, z) / √n
     have hdist := dist_euclidean_eq_sqrt_n_mul_dist_empirical hn y (euclideanToEmpirical n z)
     simp only [empiricalToEuclidean_euclideanToEmpirical] at hdist
-    have hdist' : dist y (euclideanToEmpirical n z) = dist (empiricalToEuclidean n y) z / Real.sqrt n := by
+    have hdist' :
+        dist y (euclideanToEmpirical n z) = dist (empiricalToEuclidean n y) z / Real.sqrt n := by
       have hne : Real.sqrt n ≠ 0 := ne_of_gt hsqrt_pos
       field_simp at hdist ⊢
       linarith
@@ -154,15 +157,20 @@ lemma metricEntropy_linearLocalizedBall_le (hn : 0 < n) (hd : 0 < d)
     -- m = coveringNumber ε (linearLocalizedBallImage)
     -- Need to show: metricEntropyOfNat m ≤ d * log(1 + 2δ/ε)
     -- The covering number of euclideanBall is finite
-    have htb_ball : TotallyBounded (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) :=
+    have htb_ball :
+        TotallyBounded (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) :=
       euclideanBall_totallyBounded _
-    have hfin_ball : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) < ⊤ :=
+    have hfin_ball : coveringNumber (ε * Real.sqrt n)
+        (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) < ⊤ :=
       coveringNumber_lt_top_of_totallyBounded hε_scaled htb_ball
-    have hne_ball : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) ≠ ⊤ :=
+    have hne_ball : coveringNumber (ε * Real.sqrt n)
+        (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) ≠ ⊤ :=
       ne_top_of_lt hfin_ball
     -- Extract natural number from ball covering number
-    let m_ball := (coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d)))).untop hne_ball
-    have hm_ball_eq : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) = m_ball :=
+    let m_ball := (coveringNumber (ε * Real.sqrt n)
+        (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d)))).untop hne_ball
+    have hm_ball_eq : coveringNumber (ε * Real.sqrt n)
+        (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) = m_ball :=
       (WithTop.coe_untop _ hne_ball).symm
     -- m ≤ m_ball (using that euclideanBall = Metric.closedBall 0)
     have hm_le_ball : m ≤ m_ball := by
@@ -190,7 +198,8 @@ lemma metricEntropy_linearLocalizedBall_le (hn : 0 < n) (hd : 0 < d)
 lemma sqrtEntropy_linearLocalizedBall_le (hn : 0 < n) (hd : 0 < d)
     (x : Fin n → EuclideanSpace ℝ (Fin d)) {ε δ : ℝ} (hε : 0 < ε) (hδ : 0 < δ)
     (hinj : Function.Injective (designMatrixMul x)) :
-    sqrtEntropy ε (linearLocalizedBallImage n d δ x) ≤ Real.sqrt (d * Real.log (1 + 2 * δ / ε)) := by
+    sqrtEntropy ε (linearLocalizedBallImage n d δ x) ≤
+      Real.sqrt (d * Real.log (1 + 2 * δ / ε)) := by
   unfold sqrtEntropy
   apply Real.sqrt_le_sqrt
   exact metricEntropy_linearLocalizedBall_le hn hd x hε hδ hinj
@@ -226,7 +235,8 @@ theorem linearEntropyIntegral_le_explicit (hn : 0 < n) (hd : 0 < d)
     intro ε hε
     exact Real.sqrt_nonneg _
   -- Measurability of the explicit bound function
-  have hmeas : Measurable (fun ε : ℝ => ENNReal.ofReal (Real.sqrt (d * Real.log (1 + 2 * δ / ε)))) := by
+  have hmeas :
+      Measurable (fun ε : ℝ => ENNReal.ofReal (Real.sqrt (d * Real.log (1 + 2 * δ / ε)))) := by
     apply ENNReal.measurable_ofReal.comp
     apply Measurable.sqrt
     apply Measurable.mul measurable_const
@@ -271,7 +281,8 @@ theorem linearEntropyIntegral_le_explicit (hn : 0 < n) (hd : 0 < d)
             _ = Real.sqrt d * Real.sqrt (Real.log (1 + 2 * δ)) +
                 Real.sqrt d * Real.sqrt (-Real.log ε) := by
               rw [Real.sqrt_mul (Nat.cast_nonneg d), Real.sqrt_mul (Nat.cast_nonneg d)]
-            _ = Real.sqrt d * (Real.sqrt (Real.log (1 + 2 * δ)) + Real.sqrt (-Real.log ε)) := by ring
+            _ = Real.sqrt d * (Real.sqrt (Real.log (1 + 2 * δ)) + Real.sqrt (-Real.log ε)) := by
+              ring
       -- Establish integrability of the bounding function
       have h_Ioo_finite : volume (Set.Ioo (0 : ℝ) 1) ≠ ⊤ := by
         rw [Real.volume_Ioo]; exact ENNReal.ofReal_ne_top
@@ -319,7 +330,8 @@ theorem linearEntropyIntegral_le_explicit (hn : 0 < n) (hd : 0 < d)
               _ = Real.sqrt d * Real.sqrt (Real.log (1 + 2 * δ)) +
                   Real.sqrt d * Real.sqrt (-Real.log ε) := by
                 rw [Real.sqrt_mul (Nat.cast_nonneg d), Real.sqrt_mul (Nat.cast_nonneg d)]
-              _ = Real.sqrt d * (Real.sqrt (Real.log (1 + 2 * δ)) + Real.sqrt (-Real.log ε)) := by ring
+              _ = Real.sqrt d * (Real.sqrt (Real.log (1 + 2 * δ)) + Real.sqrt (-Real.log ε)) := by
+                ring
         -- Establish integrability of the bounding function
         have h_Ioo_finite : volume (Set.Ioo (0 : ℝ) 1) ≠ ⊤ := by
           rw [Real.volume_Ioo]; exact ENNReal.ofReal_ne_top
@@ -368,7 +380,8 @@ theorem linearEntropyIntegral_le_explicit (hn : 0 < n) (hd : 0 < d)
     intro ε hε
     exact hnn ε hε
   calc (∫⁻ ε in Set.Ioc (0 : ℝ) D, dudleyIntegrand ε (linearLocalizedBallImage n d δ x))
-      ≤ ∫⁻ ε in Set.Ioc (0 : ℝ) D, ENNReal.ofReal (Real.sqrt (d * Real.log (1 + 2 * δ / ε))) := hmono
+      ≤ ∫⁻ ε in Set.Ioc (0 : ℝ) D,
+          ENNReal.ofReal (Real.sqrt (d * Real.log (1 + 2 * δ / ε))) := hmono
     _ = ENNReal.ofReal (∫ ε in Set.Ioc (0 : ℝ) D, Real.sqrt (d * Real.log (1 + 2 * δ / ε))) := by
         rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal]
         · exact hint
@@ -571,7 +584,8 @@ lemma linearEntropyIntegral_integrableOn {δ D : ℝ} (hδ : 0 < δ) (hDδ : D �
       · -- (0, 1]: same bound as D ≤ 1 case
         rw [integrableOn_Ioc_iff_integrableOn_Ioo]
         have hlog_1_2d_nonneg : 0 ≤ Real.log (1 + 2 * δ) := Real.log_nonneg (by linarith)
-        have hfin : volume (Set.Ioo (0:ℝ) 1) ≠ ⊤ := by rw [Real.volume_Ioo]; exact ENNReal.ofReal_ne_top
+        have hfin : volume (Set.Ioo (0:ℝ) 1) ≠ ⊤ := by
+          rw [Real.volume_Ioo]; exact ENNReal.ofReal_ne_top
         have hint_const : MeasureTheory.IntegrableOn
             (fun _ : ℝ => Real.sqrt d * Real.sqrt (Real.log (1 + 2 * δ)))
             (Set.Ioo 0 1) volume :=
@@ -622,7 +636,8 @@ lemma linearEntropyIntegral_integrableOn {δ D : ℝ} (hδ : 0 < δ) (hDδ : D �
           rw [Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
           have hu_ge : 1 ≤ u := le_of_lt hu.1
           have h_term_pos : 0 < 1 + 2 * δ / u := by
-            have : 0 < 2 * δ / u := div_pos (by linarith) (lt_of_lt_of_le (by linarith : (0:ℝ) < 1) hu_ge)
+            have : 0 < 2 * δ / u :=
+              div_pos (by linarith) (lt_of_lt_of_le (by linarith : (0:ℝ) < 1) hu_ge)
             linarith
           apply Real.sqrt_le_sqrt
           apply mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg d)
@@ -667,7 +682,8 @@ These lemmas generalize the entropy bounds from requiring full rank (hinj) to on
 that the design matrix has positive rank. The bounds use `designMatrixRank x` instead of `d`. -/
 
 /-- The metric entropy of the linear localized ball is bounded by r * log(1 + 2δ/ε)
-    where r = designMatrixRank x. This follows from the covering number bound N(ε, s) ≤ (1 + 2δ/ε)^r. -/
+    where r = designMatrixRank x. This follows from the covering number bound
+    N(ε, s) ≤ (1 + 2δ/ε)^r. -/
 lemma metricEntropy_linearLocalizedBall_rank_le (hn : 0 < n)
     (x : Fin n → EuclideanSpace ℝ (Fin d)) {ε δ : ℝ} (hε : 0 < ε) (hδ : 0 < δ)
     (hr : 0 < designMatrixRank x) :
@@ -706,15 +722,20 @@ lemma metricEntropy_linearLocalizedBall_rank_le (hn : 0 < n)
     -- m = coveringNumber ε (linearLocalizedBallImage)
     -- Need to show: metricEntropyOfNat m ≤ r * log(1 + 2δ/ε)
     -- The covering number of euclideanBall is finite
-    have htb_ball : TotallyBounded (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) :=
+    have htb_ball : TotallyBounded (euclideanBall (δ * Real.sqrt n) :
+        Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) :=
       euclideanBall_totallyBounded _
-    have hfin_ball : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) < ⊤ :=
+    have hfin_ball : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) :
+        Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) < ⊤ :=
       coveringNumber_lt_top_of_totallyBounded hε_scaled htb_ball
-    have hne_ball : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) ≠ ⊤ :=
+    have hne_ball : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) :
+        Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) ≠ ⊤ :=
       ne_top_of_lt hfin_ball
     -- Extract natural number from ball covering number
-    let m_ball := (coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin (designMatrixRank x))))).untop hne_ball
-    have hm_ball_eq : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) = m_ball :=
+    let m_ball := (coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) :
+        Set (EuclideanSpace ℝ (Fin (designMatrixRank x))))).untop hne_ball
+    have hm_ball_eq : coveringNumber (ε * Real.sqrt n) (euclideanBall (δ * Real.sqrt n) :
+        Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) = m_ball :=
       (WithTop.coe_untop _ hne_ball).symm
     -- m ≤ m_ball (using that euclideanBall = Metric.closedBall 0)
     have hm_le_ball : m ≤ m_ball := by
@@ -724,7 +745,8 @@ lemma metricEntropy_linearLocalizedBall_rank_le (hn : 0 < n)
     have hball_le : (m_ball : ℝ) ≤ (1 + 2 * δ / ε) ^ (designMatrixRank x) := by
       convert hball_bound using 2
     -- m ≤ (1 + 2δ/ε)^r
-    have hm_le : (m : ℝ) ≤ (1 + 2 * δ / ε) ^ (designMatrixRank x) := le_trans (Nat.cast_le.mpr hm_le_ball) hball_le
+    have hm_le : (m : ℝ) ≤ (1 + 2 * δ / ε) ^ (designMatrixRank x) :=
+      le_trans (Nat.cast_le.mpr hm_le_ball) hball_le
     -- Use metricEntropyOfNat_le_log
     have hN_pos : 1 < (1 + 2 * δ / ε) ^ (designMatrixRank x) := by
       have hbase : 1 < 1 + 2 * δ / ε := by
@@ -733,7 +755,8 @@ lemma metricEntropy_linearLocalizedBall_rank_le (hn : 0 < n)
       have hr_ne : designMatrixRank x ≠ 0 := Nat.pos_iff_ne_zero.mp hr
       exact one_lt_pow₀ hbase hr_ne
     calc metricEntropyOfNat m
-        ≤ Real.log ((1 + 2 * δ / ε) ^ (designMatrixRank x)) := metricEntropyOfNat_le_log hN_pos hm_le
+        ≤ Real.log ((1 + 2 * δ / ε) ^ (designMatrixRank x)) :=
+          metricEntropyOfNat_le_log hN_pos hm_le
       _ = (designMatrixRank x) * Real.log (1 + 2 * δ / ε) := by rw [Real.log_pow]
 
 /-- The square root entropy bound using rank. -/
@@ -774,17 +797,21 @@ theorem linearEntropyIntegral_rank_le (hn : 0 < n)
         dudleyIntegrand ε (linearLocalizedBallImage n d δ x) ≤
         ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := fun ε hε =>
       dudleyIntegrand_linearLocalizedBall_rank_le hn x hε.1 hδ hr
-    have hnn : ∀ ε ∈ Set.Ioc (0 : ℝ) (2*δ), 0 ≤ Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε)) :=
+    have hnn : ∀ ε ∈ Set.Ioc (0 : ℝ) (2*δ),
+        0 ≤ Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε)) :=
       fun _ _ => Real.sqrt_nonneg _
-    have hmeas : Measurable (fun ε : ℝ => ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε)))) := by
+    have hmeas : Measurable (fun ε : ℝ =>
+        ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε)))) := by
       apply ENNReal.measurable_ofReal.comp
       apply Measurable.sqrt
       apply Measurable.mul measurable_const
       apply Real.measurable_log.comp
       apply Measurable.add measurable_const
       apply Measurable.div measurable_const measurable_id
-    have hmono : ∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ), dudleyIntegrand ε (linearLocalizedBallImage n d δ x) ≤
-        ∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ), ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := by
+    have hmono : ∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ),
+        dudleyIntegrand ε (linearLocalizedBallImage n d δ x) ≤
+        ∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ),
+          ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := by
       apply MeasureTheory.setLIntegral_mono hmeas
       intro ε hε
       exact hbound ε hε
@@ -796,8 +823,10 @@ theorem linearEntropyIntegral_rank_le (hn : 0 < n)
       intro ε hε
       exact hnn ε hε
     calc (∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ), dudleyIntegrand ε (linearLocalizedBallImage n d δ x))
-        ≤ ∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ), ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := hmono
-      _ = ENNReal.ofReal (∫ ε in Set.Ioc (0 : ℝ) (2*δ), Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := by
+        ≤ ∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ),
+            ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := hmono
+      _ = ENNReal.ofReal (∫ ε in Set.Ioc (0 : ℝ) (2*δ),
+            Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := by
           rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal]
           · exact hint
           · apply MeasureTheory.ae_of_all
@@ -809,20 +838,23 @@ theorem linearEntropyIntegral_rank_le (hn : 0 < n)
     rw [intervalIntegral.integral_of_le (by linarith : (0 : ℝ) ≤ 2 * δ)]
   -- Step 3: Change of variables ε = 2δu
   have h3 : ∫ ε in (0 : ℝ)..(2*δ), Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε)) =
-      (2*δ) * ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u))) := by
+      (2*δ) * ∫ u in (0 : ℝ)..1,
+        Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u))) := by
     have := @intervalIntegral.mul_integral_comp_mul_left 0 1
         (fun ε => Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) (2*δ)
     simp only [mul_zero, mul_one] at this
     exact this.symm
   -- Step 4: Helper lemma for simplification 2δ/(2δu) = 1/u for u > 0
-  have h4 : ∀ u ∈ Set.Ioo (0 : ℝ) 1, (fun u => Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u)))) u =
+  have h4 : ∀ u ∈ Set.Ioo (0 : ℝ) 1,
+      (fun u => Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u)))) u =
       (fun u => Real.sqrt ((designMatrixRank x) * Real.log (1 + 1 / u))) u := by
     intro u ⟨hu_pos, _⟩
     have h2δ_ne : (2 : ℝ) * δ ≠ 0 := by linarith
     simp only
     congr 2
     rw [div_mul_eq_div_div, div_self h2δ_ne, one_div]
-  have h4' : ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u))) =
+  have h4' :
+      ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u))) =
       ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 1 / u)) := by
     rw [intervalIntegral.integral_of_le (by norm_num : (0 : ℝ) ≤ 1)]
     rw [intervalIntegral.integral_of_le (by norm_num : (0 : ℝ) ≤ 1)]
@@ -874,7 +906,8 @@ theorem linearEntropyIntegral_rank_le (hn : 0 < n)
         rw [Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
         calc Real.sqrt ((designMatrixRank x) * Real.log (1 + 1 / u))
             ≤ Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 / u)) := h5 u hu
-          _ ≤ Real.sqrt (designMatrixRank x) * (Real.sqrt (Real.log 3) + Real.sqrt (-Real.log u)) := by
+          _ ≤ Real.sqrt (designMatrixRank x) *
+                (Real.sqrt (Real.log 3) + Real.sqrt (-Real.log u)) := by
               rw [Real.sqrt_mul (Nat.cast_nonneg (designMatrixRank x))]
               exact mul_le_mul_of_nonneg_left (sqrt_log_one_plus_two_div_bound hu)
                 (Real.sqrt_nonneg (designMatrixRank x))
@@ -903,11 +936,14 @@ theorem linearEntropyIntegral_rank_le (hn : 0 < n)
   calc linearEntropyIntegral n d δ (2*δ) x
       ≤ ∫ ε in Set.Ioc 0 (2*δ), Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε)) := h1
     _ = ∫ ε in (0 : ℝ)..(2*δ), Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε)) := h2
-    _ = (2*δ) * ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u))) := h3
-    _ = (2*δ) * ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 1 / u)) := by rw [h4']
+    _ = (2*δ) * ∫ u in (0 : ℝ)..1,
+          Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ((2*δ) * u))) := h3
+    _ = (2*δ) * ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 1 / u)) := by
+        rw [h4']
     _ ≤ (2*δ) * ∫ u in (0 : ℝ)..1, Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 / u)) := by
         apply mul_le_mul_of_nonneg_left h5_bound (by linarith)
-    _ = (2*δ) * (Real.sqrt (designMatrixRank x) * ∫ u in (0 : ℝ)..1, Real.sqrt (Real.log (1 + 2 / u))) := by rw [h6]
+    _ = (2*δ) * (Real.sqrt (designMatrixRank x) *
+          ∫ u in (0 : ℝ)..1, Real.sqrt (Real.log (1 + 2 / u))) := by rw [h6]
     _ < (2*δ) * (Real.sqrt (designMatrixRank x) * 2) := by
         apply mul_lt_mul_of_pos_left _ hD
         apply mul_lt_mul_of_pos_left h7 (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hr))
@@ -930,7 +966,8 @@ lemma linearEntropyIntegralENNReal_rank_ne_top (hn : 0 < n)
         ≤ ∫⁻ ε in Set.Ioc (0 : ℝ) (2*δ),
             ENNReal.ofReal (Real.sqrt ((designMatrixRank x) * Real.log (1 + 2 * δ / ε))) := by
           apply MeasureTheory.setLIntegral_mono
-          · exact (ENNReal.measurable_ofReal.comp (measurable_sqrt_d_log_one_plus_c_div (designMatrixRank x) (2*δ)))
+          · exact (ENNReal.measurable_ofReal.comp
+              (measurable_sqrt_d_log_one_plus_c_div (designMatrixRank x) (2*δ)))
           · intro ε hε
             exact hbound_dudley ε hε
       _ = ENNReal.ofReal (∫ ε in Set.Ioc (0 : ℝ) (2*δ),

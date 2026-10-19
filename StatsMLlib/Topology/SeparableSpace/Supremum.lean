@@ -14,8 +14,8 @@ universe u v w
 
 open TopologicalSpace
 
-lemma closure_mem_le_sSup {E : Type v} [ConditionallyCompleteLattice E] [TopologicalSpace E] [OrderClosedTopology E]
-  {s : Set E} (hs' : BddAbove s) {b : E} (hb : b ∈ closure s) :
+lemma closure_mem_le_sSup {E : Type v} [ConditionallyCompleteLattice E] [TopologicalSpace E]
+  [OrderClosedTopology E] {s : Set E} (hs' : BddAbove s) {b : E} (hb : b ∈ closure s) :
   b ≤ sSup s := by
     have : s ⊆ Set.Iic (sSup s) := by
       intro x hx
@@ -24,8 +24,8 @@ lemma closure_mem_le_sSup {E : Type v} [ConditionallyCompleteLattice E] [Topolog
       apply closure_minimal this isClosed_Iic
     exact this hb
 
-lemma sSup_eq_closure_sSup {E : Type v} [ConditionallyCompleteLattice E] [TopologicalSpace E] [OrderClosedTopology E]
-  {s : Set E} (hs : s.Nonempty) (hs' : BddAbove s) :
+lemma sSup_eq_closure_sSup {E : Type v} [ConditionallyCompleteLattice E] [TopologicalSpace E]
+  [OrderClosedTopology E] {s : Set E} (hs : s.Nonempty) (hs' : BddAbove s) :
   sSup s = sSup (closure s) := by
   have h' : (BddAbove (closure s)) := by
     use sSup s
@@ -37,7 +37,8 @@ lemma sSup_eq_closure_sSup {E : Type v} [ConditionallyCompleteLattice E] [Topolo
   · apply csSup_le (by aesop)
     exact fun b hb ↦ closure_mem_le_sSup hs' hb
 
-lemma closure_range_eq_closure_denseSeq {X : Type u} [TopologicalSpace X] [SeparableSpace X] [Nonempty X]
+lemma closure_range_eq_closure_denseSeq {X : Type u} [TopologicalSpace X] [SeparableSpace X]
+  [Nonempty X]
   {E : Type v} [ConditionallyCompleteLattice E] [TopologicalSpace E] [OrderClosedTopology E]
   {f : X → E} (hf : Continuous f) :
   closure (Set.range f) = closure (Set.range (f ∘ denseSeq X)) := by

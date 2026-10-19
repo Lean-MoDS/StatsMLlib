@@ -190,7 +190,8 @@ lemma integral_sqrt_neg_log_Ioo :
     intro t ht
     simp only [abs_neg, abs_of_pos (Real.exp_pos _), Real.log_exp, neg_neg]
     rw [smul_eq_mul, mul_comm]
-  have h_int_eq : ∫ x in Set.Ioi (0 : ℝ), |-(Real.exp (-x))| • Real.sqrt (-Real.log (Real.exp (-x))) =
+  have h_int_eq :
+      ∫ x in Set.Ioi (0 : ℝ), |-(Real.exp (-x))| • Real.sqrt (-Real.log (Real.exp (-x))) =
       ∫ t in Set.Ioi (0 : ℝ), Real.sqrt t * Real.exp (-t) := by
     apply MeasureTheory.setIntegral_congr_fun measurableSet_Ioi
     exact h_eq
@@ -339,7 +340,8 @@ theorem integral_constant_bound :
       (∫ u in Set.Ioo (0 : ℝ) 1, Real.sqrt (Real.log 3)) +
       ∫ u in Set.Ioo (0 : ℝ) 1, Real.sqrt (-Real.log u) :=
     MeasureTheory.integral_add h_const_int integrableOn_sqrt_neg_log
-  -- Evaluate the first integral: ∫ √(log 3) du over Ioo 0 1 = √(log 3) * measure(Ioo 0 1) = √(log 3)
+  -- Evaluate the first integral:
+  -- ∫ √(log 3) du over Ioo 0 1 = √(log 3) * measure(Ioo 0 1) = √(log 3)
   have h_const : ∫ u in Set.Ioo (0 : ℝ) 1, Real.sqrt (Real.log 3) = Real.sqrt (Real.log 3) := by
     rw [MeasureTheory.setIntegral_const]
     -- Need to show: volume.real (Set.Ioo 0 1) • √(log 3) = √(log 3)

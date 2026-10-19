@@ -81,7 +81,8 @@ lemma empiricalNorm_smul_of_nonneg {f : Fin n → ℝ} {α : ℝ} (hα : 0 ≤ �
   simp only [h1]
   rw [← Finset.mul_sum]
   -- Goal: √(n⁻¹ * (α² * Σf²)) = α * √(n⁻¹ * Σf²)
-  have h2 : (n : ℝ)⁻¹ * (α ^ 2 * ∑ i : Fin n, f i ^ 2) = α ^ 2 * ((n : ℝ)⁻¹ * ∑ i : Fin n, f i ^ 2) := by
+  have h2 : (n : ℝ)⁻¹ * (α ^ 2 * ∑ i : Fin n, f i ^ 2) =
+      α ^ 2 * ((n : ℝ)⁻¹ * ∑ i : Fin n, f i ^ 2) := by
     ring
   rw [h2]
   rw [Real.sqrt_mul (sq_nonneg α)]
@@ -242,7 +243,8 @@ lemma scaled_biSup_le {H : Set (X → ℝ)} (hH : IsStarShaped H)
         have h0_mem : (0 : X → ℝ) ∈ localizedBall H t x := zero_mem_localizedBall hH ht
         have h0_val : |(n : ℝ)⁻¹ * ∑ i, w i * (0 : X → ℝ) (x i)| = 0 := by
           simp only [Pi.zero_apply, mul_zero, Finset.sum_const_zero, mul_zero, abs_zero]
-        have h0_in : (0 : ℝ) ∈ {y | ∃ h ∈ localizedBall H t x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)|} := by
+        have h0_in :
+            (0 : ℝ) ∈ {y | ∃ h ∈ localizedBall H t x, y = |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)|} := by
           exact ⟨0, h0_mem, h0_val.symm⟩
         exact le_trans (le_refl 0) (hM h0_in)
       use M  -- Same bound works since localizedBall δ ⊆ localizedBall t
@@ -315,7 +317,8 @@ lemma scaled_biSup_le {H : Set (X → ℝ)} (hH : IsStarShaped H)
     have h_empty : IsEmpty (h ∈ localizedBall H t x) := by
       rw [isEmpty_Prop]
       exact hh
-    have h_zero : (⨆ _ : h ∈ localizedBall H t x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)| * (δ / t)) = 0 := by
+    have h_zero :
+        (⨆ _ : h ∈ localizedBall H t x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)| * (δ / t)) = 0 := by
       simp only [iSup_of_empty']
       exact Real.sSup_empty
     rw [h_zero]
@@ -367,7 +370,8 @@ theorem gaussian_complexity_monotone {H : Set (X → ℝ)} (hH : IsStarShaped H)
   rw [h_lhs]
 
   -- Rewrite RHS to have t on the left: (∫ sup_δ) * t = t * (∫ sup_δ)
-  rw [mul_comm (∫ w, ⨆ h ∈ localizedBall H δ x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)| ∂(stdGaussianPi n)) t]
+  rw [mul_comm
+    (∫ w, ⨆ h ∈ localizedBall H δ x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)| ∂(stdGaussianPi n)) t]
 
   -- It suffices to show (δ/t) * ∫ sup_t ≤ ∫ sup_δ, then multiply by t
   apply mul_le_mul_of_nonneg_left _ (le_of_lt ht)
@@ -375,7 +379,8 @@ theorem gaussian_complexity_monotone {H : Set (X → ℝ)} (hH : IsStarShaped H)
   -- Pull scalar into the integral: c * ∫ f = ∫ c • f
   have h_smul_eq : δ / t * (∫ w, ⨆ h ∈ localizedBall H t x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)|
       ∂(stdGaussianPi n)) =
-      ∫ w, (δ / t) * (⨆ h ∈ localizedBall H t x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)|) ∂(stdGaussianPi n) := by
+      ∫ w, (δ / t) * (⨆ h ∈ localizedBall H t x, |(n : ℝ)⁻¹ * ∑ i, w i * h (x i)|)
+        ∂(stdGaussianPi n) := by
     rw [← smul_eq_mul, ← integral_smul]
     simp only [smul_eq_mul]
   rw [h_smul_eq]

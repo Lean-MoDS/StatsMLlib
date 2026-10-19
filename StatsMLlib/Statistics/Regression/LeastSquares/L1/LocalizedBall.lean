@@ -83,7 +83,8 @@ theorem l1LocalizedBall_param_bound {d : ℕ} {R δ : ℝ} {θ_star : EuclideanS
   obtain ⟨Δ, hΔ_norm, hΔ_eq⟩ := l1ShiftedClass_param_bound hθ_star h_shifted
   exact ⟨Δ, hΔ_norm, hΔ_eq, by rw [hΔ_eq] at h_norm; exact h_norm⟩
 
-/-- Under column norm bound, functions in B_n(δ) correspond to Δ with ‖Δ‖₁ ≤ 2R and ‖Δ‖₁-controlled empirical norm -/
+/-- Under column norm bound, functions in B_n(δ) correspond to Δ with ‖Δ‖₁ ≤ 2R and
+‖Δ‖₁-controlled empirical norm -/
 theorem l1LocalizedBall_param_empirical_bound {d : ℕ} {R δ : ℝ}
     {θ_star : EuclideanSpace ℝ (Fin d)}
     (hθ_star : l1norm θ_star ≤ R) {x : Fin n → EuclideanSpace ℝ (Fin d)}
@@ -142,7 +143,8 @@ lemma l1EmpiricalImage_dist_zero (x : Fin n → EuclideanSpace ℝ (Fin d))
     (h : (EuclideanSpace ℝ (Fin d)) → ℝ) :
     dist (l1EmpiricalImage x h) (0 : EmpiricalSpace n) = empiricalNorm n (fun i => h (x i)) := by
   unfold dist EmpiricalSpace.instDist
-  show empiricalNorm n ((l1EmpiricalImage x h) - (0 : EmpiricalSpace n)) = empiricalNorm n (fun i => h (x i))
+  show empiricalNorm n ((l1EmpiricalImage x h) - (0 : EmpiricalSpace n)) =
+    empiricalNorm n (fun i => h (x i))
   congr 1
   ext i
   -- (l1EmpiricalImage x h - 0) i = h (x i)

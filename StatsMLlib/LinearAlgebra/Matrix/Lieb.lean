@@ -96,7 +96,8 @@ variable {n : Type*} [Fintype n] [DecidableEq n]
 
 /-! ## CStar bridge for real matrices -/
 
-/-- The entrywise inclusion from real matrices to complex matrices as a star algebra homomorphism. -/
+/-- The entrywise inclusion from real matrices to complex matrices as a star algebra
+homomorphism. -/
 noncomputable def realMatrixToComplexMatrixStarAlgHom :
     Matrix n n ℝ →⋆ₐ[ℝ] Matrix n n ℂ :=
   { (RCLike.ofRealStarAlgHom ℂ).toAlgHom.mapMatrix with

@@ -46,7 +46,8 @@ def linearPredictorClass (d : ℕ) : Set ((EuclideanSpace ℝ (Fin d)) → ℝ) 
   {f | ∃ θ : EuclideanSpace ℝ (Fin d), f = fun x => @inner ℝ _ _ θ x}
 
 /-- Zero function is a linear predictor (with θ = 0) -/
-lemma zero_mem_linearPredictorClass : (0 : (EuclideanSpace ℝ (Fin d)) → ℝ) ∈ linearPredictorClass d := by
+lemma zero_mem_linearPredictorClass :
+    (0 : (EuclideanSpace ℝ (Fin d)) → ℝ) ∈ linearPredictorClass d := by
   use 0
   ext x
   simp only [Pi.zero_apply, inner_zero_left]

@@ -45,23 +45,31 @@ theorem linear_local_gaussian_complexity_bound (n d : ℕ) (hn : 0 < n) (hd : 0 
   -- Step 1: Apply local_gaussian_complexity_bound
   have h1 := local_gaussian_complexity_bound n hn (linearPredictorClass d) δ hδ x
     linearPredictorClass_isStarShaped
-    (by rw [← linearLocalizedBallImage_eq_empiricalImage]; exact linearLocalizedBallImage_totallyBounded hn x δ)
-    (by rw [← linearLocalizedBallImage_eq_empiricalImage]; exact linearEntropyIntegralENNReal_ne_top hn hd x hδ hinj)
-    (fun w => by rw [← linearLocalizedBallImage_eq_empiricalImage]; exact linear_innerProductProcess_continuous x w)
+    (by
+      rw [← linearLocalizedBallImage_eq_empiricalImage]
+      exact linearLocalizedBallImage_totallyBounded hn x δ)
+    (by
+      rw [← linearLocalizedBallImage_eq_empiricalImage]
+      exact linearEntropyIntegralENNReal_ne_top hn hd x hδ hinj)
+    (fun w => by
+      rw [← linearLocalizedBallImage_eq_empiricalImage]
+      exact linear_innerProductProcess_continuous x w)
     (linear_empiricalProcess_sup_integrable_pos hn x hδ)
     (linear_empiricalProcess_sup_integrable_neg hn x hδ)
   -- Step 2: Get the entropy integral bound
   have h2 := linearEntropyIntegral_le hn hd x hδ hinj
   -- Step 3: Connect linearEntropyIntegral to entropyIntegral
   have heq : linearEntropyIntegral n d δ (2*δ) x =
-      entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x) (2*δ) := by
+      entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x)
+        (2*δ) := by
     unfold linearEntropyIntegral
     rw [← linearLocalizedBallImage_eq_empiricalImage]
   rw [heq] at h2
   -- Step 4: Combine bounds
   calc LocalGaussianComplexity n (linearPredictorClass d) δ x
       ≤ (24 * Real.sqrt 2) / Real.sqrt n *
-          entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x) (2*δ) := h1
+          entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x)
+            (2*δ) := h1
     _ ≤ (24 * Real.sqrt 2) / Real.sqrt n * (4 * δ * Real.sqrt d) := by
         apply mul_le_mul_of_nonneg_left (le_of_lt h2)
         apply div_nonneg _ (Real.sqrt_nonneg n)
@@ -86,23 +94,31 @@ theorem linear_local_gaussian_complexity_bound_rank (n d : ℕ) (hn : 0 < n)
   -- Step 1: Apply local_gaussian_complexity_bound
   have h1 := local_gaussian_complexity_bound n hn (linearPredictorClass d) δ hδ x
     linearPredictorClass_isStarShaped
-    (by rw [← linearLocalizedBallImage_eq_empiricalImage]; exact linearLocalizedBallImage_totallyBounded hn x δ)
-    (by rw [← linearLocalizedBallImage_eq_empiricalImage]; exact linearEntropyIntegralENNReal_rank_ne_top hn x hδ hr)
-    (fun w => by rw [← linearLocalizedBallImage_eq_empiricalImage]; exact linear_innerProductProcess_continuous x w)
+    (by
+      rw [← linearLocalizedBallImage_eq_empiricalImage]
+      exact linearLocalizedBallImage_totallyBounded hn x δ)
+    (by
+      rw [← linearLocalizedBallImage_eq_empiricalImage]
+      exact linearEntropyIntegralENNReal_rank_ne_top hn x hδ hr)
+    (fun w => by
+      rw [← linearLocalizedBallImage_eq_empiricalImage]
+      exact linear_innerProductProcess_continuous x w)
     (linear_empiricalProcess_sup_integrable_pos hn x hδ)
     (linear_empiricalProcess_sup_integrable_neg hn x hδ)
   -- Step 2: Get the entropy integral bound using rank
   have h2 := linearEntropyIntegral_rank_le hn x hδ hr
   -- Step 3: Connect linearEntropyIntegral to entropyIntegral
   have heq : linearEntropyIntegral n d δ (2*δ) x =
-      entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x) (2*δ) := by
+      entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x)
+        (2*δ) := by
     unfold linearEntropyIntegral
     rw [← linearLocalizedBallImage_eq_empiricalImage]
   rw [heq] at h2
   -- Step 4: Combine bounds
   calc LocalGaussianComplexity n (linearPredictorClass d) δ x
       ≤ (24 * Real.sqrt 2) / Real.sqrt n *
-          entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x) (2*δ) := h1
+          entropyIntegral (empiricalMetricImage n x '' localizedBall (linearPredictorClass d) δ x)
+            (2*δ) := h1
     _ ≤ (24 * Real.sqrt 2) / Real.sqrt n * (4 * δ * Real.sqrt (designMatrixRank x)) := by
         apply mul_le_mul_of_nonneg_left (le_of_lt h2)
         apply div_nonneg _ (Real.sqrt_nonneg n)
