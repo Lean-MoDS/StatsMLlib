@@ -69,7 +69,8 @@ theorem double_rademacher_flip (σ : Signs n) : rademacher_flip n k (rademacher_
   · dsimp [rademacher_flip]
     simp [h]
 
-theorem bijective_rademacher_flip : Bijective (rademacher_flip n k) := Involutive.bijective (double_rademacher_flip n k)
+theorem bijective_rademacher_flip : Bijective (rademacher_flip n k)
+    := Involutive.bijective (double_rademacher_flip n k)
 
 theorem sign_sum_eq_zero : ∑ σ : Signs n, (σ k : ℝ) = 0 := by
   have : ∑ σ : Signs n, (σ k : ℝ) = ∑ σ : Signs n, (rademacher_flip n k σ k : ℝ) := by
@@ -94,7 +95,8 @@ theorem sign_sum_eq_zero : ∑ σ : Signs n, (σ k : ℝ) = 0 := by
     _ = 0 := by simp
   grind
 
-theorem sign_flip_product_invariance : ∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) = ∑ σ : Signs n, (rademacher_flip n k σ k : ℝ) * (rademacher_flip n k σ l : ℝ) := by
+theorem sign_flip_product_invariance : ∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) =
+    ∑ σ : Signs n, (rademacher_flip n k σ k : ℝ) * (rademacher_flip n k σ l : ℝ) := by
   apply Finset.sum_bijective
   · apply bijective_rademacher_flip
     exact k
@@ -126,15 +128,18 @@ theorem pair_sum_zero (pkl : k ≠ l) : ∀ σ : Fin n → ({-1, 1} : Finset ℤ
 theorem rademacher_orthogonality (n : ℕ) (k l : Fin n) (pkl : k ≠ l):
     ∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) = 0 := by
   have sum_partition : ∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) =
-                      (1/2) * ∑ σ : Signs n, ((σ k : ℝ) * σ l + (rademacher_flip n k σ) k * (rademacher_flip n k σ) l) := by
+                      (1/2) * ∑ σ : Signs n, ((σ k : ℝ) * σ l + (rademacher_flip n k σ) k *
+                          (rademacher_flip n k σ) l) := by
     calc
     _ = (1/2) * (∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) + ∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ)) := by
       field_simp
       simp only [Int.reduceNeg, mul_eq_mul_left_iff]
       left
       norm_num
-    _ = (1/2) * (∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) + ∑ σ : Signs n, (rademacher_flip n k σ k : ℝ) * (rademacher_flip n k σ l : ℝ)) := by
-      have p : ∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) = ∑ σ : Signs n, (rademacher_flip n k σ k : ℝ) * (rademacher_flip n k σ l : ℝ) := sign_flip_product_invariance n k l
+    _ = (1/2) * (∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) + ∑ σ : Signs n,
+        (rademacher_flip n k σ k : ℝ) * (rademacher_flip n k σ l : ℝ)) := by
+      have p : ∑ σ : Signs n, (σ k : ℝ) * (σ l : ℝ) = ∑ σ : Signs n, (rademacher_flip n k σ k : ℝ) *
+          (rademacher_flip n k σ l : ℝ) := sign_flip_product_invariance n k l
       rw [p]
     _ = _ := by
       apply congrArg
@@ -170,7 +175,7 @@ lemma empiricalRademacherComplexity_eq_empiricalRademacherComplexity_pmf
       ext σ
       simp
       exact CommMonoid.mul_comm ((signVecPMF n) σ).toReal (g σ)
-    . dsimp [g]
+    · dsimp [g]
       rw [<- MeasureTheory.memLp_one_iff_integrable]
       simp
   have huniform :
@@ -190,7 +195,8 @@ noncomputable def empiricalRademacherComplexity_pmf_without_abs
 
 lemma empiricalRademacherComplexity_without_abs_eq_empiricalRademacherComplexity_pmf_without_abs
     (f : ι → 𝒳 → ℝ) (S : Fin n → 𝒳) :
-    empiricalRademacherComplexity_without_abs n f S = empiricalRademacherComplexity_pmf_without_abs n f S := by
+    empiricalRademacherComplexity_without_abs n f S =
+        empiricalRademacherComplexity_pmf_without_abs n f S := by
   dsimp [empiricalRademacherComplexity_without_abs, empiricalRademacherComplexity_pmf_without_abs]
   set g : Signs n → ℝ :=
     (fun σ => ⨆ i, (n : ℝ)⁻¹ * ∑ k : Fin n, (((σ k).1 : ℤ) : ℝ) * f i (S k))
@@ -202,7 +208,7 @@ lemma empiricalRademacherComplexity_without_abs_eq_empiricalRademacherComplexity
       ext σ
       simp
       exact CommMonoid.mul_comm ((signVecPMF n) σ).toReal (g σ)
-    . dsimp [g]
+    · dsimp [g]
       rw [<- MeasureTheory.memLp_one_iff_integrable]
       simp
   have huniform :

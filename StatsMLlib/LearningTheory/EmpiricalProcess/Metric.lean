@@ -175,7 +175,8 @@ lemma ofFun_toFun (n : ℕ) (v : EmpiricalSpace n) : ofFun n (toFun n v) = v := 
 
 end EmpiricalSpace
 
-/-- Empirical metric image: Map a function g : X → ℝ to its empirical representation in EmpiricalSpace n.
+/-- Empirical metric image: Map a function g : X → ℝ to its empirical representation in
+EmpiricalSpace n.
 This is the evaluation at sample points: g ↦ (g(x₁), ..., g(xₙ)). -/
 def empiricalMetricImage {X : Type*} (n : ℕ) (x : Fin n → X) (g : X → ℝ) : EmpiricalSpace n :=
   fun i => g (x i)

@@ -45,7 +45,8 @@ theorem uniform_deviation_expectation_le_two_smul_rademacher_complexity
     (hn : 0 < n) (X : Ω → 𝒳)
     (hf : ∀ i, Measurable (f i ∘ X))
     {b : ℝ} (hb : 0 ≤ b) (hf' : ∀ i x, |f i x| ≤ b) :
-    μⁿ[fun ω : Fin n → Ω ↦ uniformDeviation n f μ X (X ∘ ω)] ≤ 2 * rademacherComplexity n f μ X := by
+    μⁿ[fun ω : Fin n → Ω ↦ uniformDeviation n f μ X (X ∘ ω)] ≤ 2 * rademacherComplexity n f μ X
+        := by
   apply le_of_mul_le_mul_left _ (Nat.cast_pos.mpr hn)
   calc
     (n : ℝ) * μⁿ[fun ω : Fin n → Ω ↦ uniformDeviation n f μ X (X ∘ ω)] =
@@ -122,7 +123,8 @@ theorem uniform_deviation_tail_bound_countable
   intro ω h
   have : 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω) := h
   have : μⁿ[fun ω ↦ uniformDeviation n f μ X (X ∘ ω)] ≤ 2 * rademacherComplexity n f μ X :=
-    uniform_deviation_expectation_le_two_smul_rademacher_complexity hn X (fun i ↦ (hf i).comp hX) hb hf'
+    uniform_deviation_expectation_le_two_smul_rademacher_complexity hn X (fun i ↦
+        (hf i).comp hX) hb hf'
   show ε ≤ uniformDeviation n f μ X (X ∘ ω) - μⁿ[fun ω ↦ uniformDeviation n f μ X (X ∘ ω)]
   linarith
 
@@ -192,7 +194,8 @@ lemma uniformDeviation_eq
       apply Measurable.aestronglyMeasurable
       measurability
 
-/-- (Main Theorem) Separable-class tail bound obtained via reduction to a countable dense subclass. -/
+/-- (Main Theorem) Separable-class tail bound obtained via reduction to a countable dense
+subclass. -/
 theorem uniform_deviation_tail_bound_separable
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
     [TopologicalSpace ι] [SeparableSpace ι]  [FirstCountableTopology ι]
@@ -207,7 +210,8 @@ theorem uniform_deviation_tail_bound_separable
       (- ε ^ 2 * t * n).exp := by
   let f' := f ∘ denseSeq ι
   calc
-    _ = (μⁿ (fun ω ↦ 2 * rademacherComplexity n f' μ X + ε ≤ uniformDeviation n f' μ X (X ∘ ω))).toReal := by
+    _ = (μⁿ (fun ω ↦ 2 * rademacherComplexity n f' μ X + ε ≤
+        uniformDeviation n f' μ X (X ∘ ω))).toReal := by
       congr
       ext ω
       rw [RademacherComplexity_eq n f hf'' μ X]
