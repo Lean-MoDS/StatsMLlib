@@ -170,7 +170,8 @@ theorem deriv_deriv_gPlus {t : ℝ} (ht : -1 < t) : deriv (deriv gPlus) t = 1 / 
     exact deriv_gPlus hs
   rw [Filter.EventuallyEq.deriv_eq hdiff]
   have h1 : DifferentiableAt ℝ (fun s => 1 + s) t := differentiableAt_id.const_add 1
-  have hlog_diff : DifferentiableAt ℝ (fun s => log (1 + s)) t := (differentiableAt_log h.ne').comp t h1
+  have hlog_diff : DifferentiableAt ℝ (fun s => log (1 + s)) t :=
+    (differentiableAt_log h.ne').comp t h1
   have h_deriv_add : deriv (fun s => log (1 + s) + 1) t =
       deriv (fun s => log (1 + s)) t + deriv (fun _ => (1 : ℝ)) t :=
     deriv_add hlog_diff (differentiableAt_const 1)
@@ -191,7 +192,8 @@ theorem deriv_deriv_gMinus {t : ℝ} (ht : t < 1) : deriv (deriv gMinus) t = 1 /
     exact deriv_gMinus hs
   rw [Filter.EventuallyEq.deriv_eq hdiff]
   have h1 : DifferentiableAt ℝ (fun s => 1 - s) t := differentiableAt_id.const_sub 1
-  have hlog_diff : DifferentiableAt ℝ (fun s => log (1 - s)) t := (differentiableAt_log h.ne').comp t h1
+  have hlog_diff : DifferentiableAt ℝ (fun s => log (1 - s)) t :=
+    (differentiableAt_log h.ne').comp t h1
   have h_deriv_sub : deriv (fun s => -log (1 - s) - 1) t =
       deriv (fun y => -log (1 - y)) t - deriv (fun _ => (1 : ℝ)) t :=
     deriv_sub hlog_diff.neg (differentiableAt_const 1)
@@ -218,8 +220,10 @@ theorem deriv2_phi {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) :
   rw [Filter.EventuallyEq.deriv_eq hdiff]
   have hd1 : DifferentiableAt ℝ (fun s => 1 + s) t := differentiableAt_id.const_add 1
   have hd2 : DifferentiableAt ℝ (fun s => 1 - s) t := differentiableAt_id.const_sub 1
-  have hlog1_diff : DifferentiableAt ℝ (fun s => log (1 + s)) t := (differentiableAt_log h1.ne').comp t hd1
-  have hlog2_diff : DifferentiableAt ℝ (fun s => log (1 - s)) t := (differentiableAt_log h2.ne').comp t hd2
+  have hlog1_diff : DifferentiableAt ℝ (fun s => log (1 + s)) t :=
+    (differentiableAt_log h1.ne').comp t hd1
+  have hlog2_diff : DifferentiableAt ℝ (fun s => log (1 - s)) t :=
+    (differentiableAt_log h2.ne').comp t hd2
   have h_deriv_sub : deriv (fun s => log (1 + s) - log (1 - s)) t =
       deriv (fun s => log (1 + s)) t - deriv (fun s => log (1 - s)) t :=
     deriv_sub hlog1_diff hlog2_diff
@@ -352,7 +356,8 @@ theorem two_point_inequality {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
     -- Apply convexity definition
     have hconvex := hconv.2 ha_mem hb_mem hw1 hw2 hsum
     simp only [smul_eq_mul] at hconvex
-    -- hconvex : (1/2 * a + 1/2 * b) * log(1/2 * a + 1/2 * b) ≤ 1/2 * (a * log a) + 1/2 * (b * log b)
+    -- hconvex : (1/2 * a + 1/2 * b) * log(1/2 * a + 1/2 * b) ≤
+    --   1/2 * (a * log a) + 1/2 * (b * log b)
     have hmid' : 1/2 * a + 1/2 * b = (a + b) / 2 := by ring
     rw [hmid'] at hconvex
     have hrhs : 1/2 * (a * log a) + 1/2 * (b * log b) = (a * log a + b * log b) / 2 := by ring
@@ -423,7 +428,8 @@ theorem deriv_sqrtTerm {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) :
   have hd_inner_val : deriv (fun s => 1 - s^2) t = -2 * t := by
     have hd_const : DifferentiableAt ℝ (fun _ : ℝ => (1 : ℝ)) t := differentiableAt_const 1
     have hd_pow : DifferentiableAt ℝ (fun s => s^2) t := differentiableAt_pow 2
-    have h_sub_deriv : deriv (fun s => 1 - s^2) t = deriv (fun _ => (1 : ℝ)) t - deriv (fun s => s^2) t :=
+    have h_sub_deriv :
+        deriv (fun s => 1 - s^2) t = deriv (fun _ => (1 : ℝ)) t - deriv (fun s => s^2) t :=
       deriv_sub hd_const hd_pow
     -- Compute deriv (fun s => s^2) t explicitly using HasDerivAt
     have hd_sq : deriv (fun s : ℝ => s^2) t = 2 * t := by
@@ -518,7 +524,8 @@ theorem deriv2_sqrtTerm {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) :
   have d_inner : deriv (fun s => 1 - s^2) t = -2 * t := by
     have hd_const : DifferentiableAt ℝ (fun _ : ℝ => (1 : ℝ)) t := differentiableAt_const 1
     have hd_pow : DifferentiableAt ℝ (fun s => s^2) t := differentiableAt_pow 2
-    have h_sub_deriv : deriv (fun s => 1 - s^2) t = deriv (fun _ => (1 : ℝ)) t - deriv (fun s => s^2) t :=
+    have h_sub_deriv :
+        deriv (fun s => 1 - s^2) t = deriv (fun _ => (1 : ℝ)) t - deriv (fun s => s^2) t :=
       deriv_sub hd_const hd_pow
     have hd_sq : deriv (fun s : ℝ => s^2) t = 2 * t := by
       have h := hasDerivAt_pow 2 t
@@ -612,7 +619,8 @@ theorem differentiableAt_deriv_rothausDefect {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ
     differentiableAt_const 1 |>.sub (differentiableAt_pow 2)
   have hd1 : DifferentiableAt ℝ (fun s => 1 + s) t := differentiableAt_id.const_add 1
   have hd2 : DifferentiableAt ℝ (fun s => 1 - s) t := differentiableAt_id.const_sub 1
-  have hdiff_rhs : DifferentiableAt ℝ (fun s => 2 * s / sqrt (1 - s^2) - (log (1 + s) - log (1 - s))) t :=
+  have hdiff_rhs :
+      DifferentiableAt ℝ (fun s => 2 * s / sqrt (1 - s^2) - (log (1 + s) - log (1 - s))) t :=
     (hd_num.div (hd_inner.sqrt h1.ne') (sqrt_ne_zero'.mpr h1)).sub
       (((differentiableAt_log h1p.ne').comp t hd1).sub ((differentiableAt_log h1m.ne').comp t hd2))
   exact hdiff_rhs.congr_of_eventuallyEq heq
@@ -646,11 +654,14 @@ theorem rothausDefect_nonneg {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) : 0 ≤ rot
       intro x hx
       have hx_mem : x ∈ Ioo (-1 : ℝ) 1 := ⟨by linarith [ht.1, hξ₁_mem.1, hx.1], by linarith [hx.2]⟩
       exact (differentiableAt_deriv_rothausDefect hx_mem).differentiableWithinAt
-    obtain ⟨ξ₂, hξ₂_mem, hξ₂_eq⟩ := exists_deriv_eq_slope (deriv rothausDefect) hξ₁_neg hcont' hdiff'
+    obtain ⟨ξ₂, hξ₂_mem, hξ₂_eq⟩ :=
+      exists_deriv_eq_slope (deriv rothausDefect) hξ₁_neg hcont' hdiff'
     simp only [deriv_rothausDefect_zero] at hξ₂_eq
     -- deriv rothausDefect(0) - deriv rothausDefect(ξ₁) = deriv² rothausDefect(ξ₂) * (0 - ξ₁)
-    -- So deriv rothausDefect(ξ₁) = -deriv² rothausDefect(ξ₂) * (-ξ₁) = deriv² rothausDefect(ξ₂) * ξ₁
-    have hξ₂_in : ξ₂ ∈ Ioo (-1 : ℝ) 1 := ⟨by linarith [ht.1, hξ₁_mem.1, hξ₂_mem.1], by linarith [hξ₂_mem.2]⟩
+    -- So deriv rothausDefect(ξ₁) = -deriv² rothausDefect(ξ₂) * (-ξ₁)
+    --   = deriv² rothausDefect(ξ₂) * ξ₁
+    have hξ₂_in : ξ₂ ∈ Ioo (-1 : ℝ) 1 :=
+      ⟨by linarith [ht.1, hξ₁_mem.1, hξ₂_mem.1], by linarith [hξ₂_mem.2]⟩
     have h_deriv_ξ₁ : deriv rothausDefect ξ₁ = deriv (deriv rothausDefect) ξ₂ * ξ₁ := by
       -- hξ₂_eq : deriv (deriv rothausDefect) ξ₂ = (0 - deriv rothausDefect ξ₁) / (0 - ξ₁)
       have hξ₁_ne : ξ₁ ≠ 0 := ne_of_lt hξ₁_neg
@@ -659,7 +670,8 @@ theorem rothausDefect_nonneg {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) : 0 ≤ rot
         exact sub_ne_zero.mpr hξ₁_ne.symm
       simp only [zero_sub] at h1
       linarith
-    -- Now combine: rothausDefect(t) = deriv rothausDefect(ξ₁) * t / t = -deriv rothausDefect(ξ₁) * (-t) / (-t)
+    -- Now combine: rothausDefect(t) = deriv rothausDefect(ξ₁) * t / t
+    --   = -deriv rothausDefect(ξ₁) * (-t) / (-t)
     have h_rothausDefect_t : rothausDefect t = deriv (deriv rothausDefect) ξ₂ * ξ₁ * t := by
       -- hξ₁_eq : deriv rothausDefect ξ₁ = (0 - rothausDefect t) / (0 - t)
       have ht_ne : t ≠ 0 := ne_of_lt ht_neg
@@ -701,9 +713,11 @@ theorem rothausDefect_nonneg {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) : 0 ≤ rot
       intro x hx
       have hx_mem : x ∈ Ioo (-1 : ℝ) 1 := ⟨by linarith [hx.1], by linarith [ht.2, hξ₁_mem.2, hx.2]⟩
       exact (differentiableAt_deriv_rothausDefect hx_mem).differentiableWithinAt
-    obtain ⟨ξ₂, hξ₂_mem, hξ₂_eq⟩ := exists_deriv_eq_slope (deriv rothausDefect) hξ₁_pos hcont' hdiff'
+    obtain ⟨ξ₂, hξ₂_mem, hξ₂_eq⟩ :=
+      exists_deriv_eq_slope (deriv rothausDefect) hξ₁_pos hcont' hdiff'
     simp only [deriv_rothausDefect_zero] at hξ₂_eq
-    have hξ₂_in : ξ₂ ∈ Ioo (-1 : ℝ) 1 := ⟨by linarith [hξ₂_mem.1], by linarith [ht.2, hξ₁_mem.2, hξ₂_mem.2]⟩
+    have hξ₂_in : ξ₂ ∈ Ioo (-1 : ℝ) 1 :=
+      ⟨by linarith [hξ₂_mem.1], by linarith [ht.2, hξ₁_mem.2, hξ₂_mem.2]⟩
     have h_deriv_ξ₁ : deriv rothausDefect ξ₁ = deriv (deriv rothausDefect) ξ₂ * ξ₁ := by
       -- hξ₂_eq : deriv (deriv rothausDefect) ξ₂ = (deriv rothausDefect ξ₁ - 0) / (ξ₁ - 0)
       have hξ₁_ne : ξ₁ ≠ 0 := ne_of_gt hξ₁_pos

@@ -316,7 +316,8 @@ lemma sum_expected_condEnt_le_grad_norm (n : ℕ) (g : (Fin n → ℝ) → ℝ)
           Measure.map (fun p : (Fin n → ℝ) × ℝ => Function.update p.1 i p.2)
               ((GaussianMeasure.stdGaussianPi n).prod (gaussianReal 0 1))
               = Measure.map (fun q : ℝ × (Fin n → ℝ) => Function.update q.2 i q.1)
-                  (Measure.map Prod.swap ((GaussianMeasure.stdGaussianPi n).prod (gaussianReal 0 1))) := by
+                  (Measure.map Prod.swap
+                    ((GaussianMeasure.stdGaussianPi n).prod (gaussianReal 0 1))) := by
                 -- update ∘ swap
                 rw [Measure.map_map h_map measurable_swap]
                 rfl
@@ -375,7 +376,8 @@ lemma sum_expected_condEnt_le_grad_norm (n : ℕ) (g : (Fin n → ℝ) → ℝ)
             Measure.map (fun p : (Fin n → ℝ) × ℝ => Function.update p.1 i p.2)
                 ((GaussianMeasure.stdGaussianPi n).prod (gaussianReal 0 1))
                 = Measure.map (fun q : ℝ × (Fin n → ℝ) => Function.update q.2 i q.1)
-                    (Measure.map Prod.swap ((GaussianMeasure.stdGaussianPi n).prod (gaussianReal 0 1))) := by
+                    (Measure.map Prod.swap
+                      ((GaussianMeasure.stdGaussianPi n).prod (gaussianReal 0 1))) := by
                   rw [Measure.map_map h_map measurable_swap]
                   rfl
             _ = Measure.map (fun q : ℝ × (Fin n → ℝ) => Function.update q.2 i q.1)
@@ -423,7 +425,8 @@ lemma sum_expected_condEnt_le_grad_norm (n : ℕ) (g : (Fin n → ℝ) → ℝ)
     -- factor out the constant 2
     have h_sum'' :
         ∑ i ∈ Finset.univ, 2 * ∫ z, (partialDeriv i g z)^2 ∂(GaussianMeasure.stdGaussianPi n) =
-          2 * ∑ i ∈ Finset.univ, ∫ z, (partialDeriv i g z)^2 ∂(GaussianMeasure.stdGaussianPi n) := by
+          2 * ∑ i ∈ Finset.univ,
+            ∫ z, (partialDeriv i g z)^2 ∂(GaussianMeasure.stdGaussianPi n) := by
       simpa using
         (Finset.mul_sum (s := Finset.univ)
           (f := fun i => ∫ z, (partialDeriv i g z)^2 ∂(GaussianMeasure.stdGaussianPi n))
@@ -432,7 +435,8 @@ lemma sum_expected_condEnt_le_grad_norm (n : ℕ) (g : (Fin n → ℝ) → ℝ)
         ∑ i ∈ Finset.univ,
           ∫ x, SubAddEnt.condEntExceptCoord (μs := fun _ : Fin n => gaussianReal 0 1) i
             (fun z => (g z)^2) x ∂(GaussianMeasure.stdGaussianPi n) ≤
-          2 * ∑ i ∈ Finset.univ, ∫ z, (partialDeriv i g z)^2 ∂(GaussianMeasure.stdGaussianPi n) := by
+          2 * ∑ i ∈ Finset.univ,
+            ∫ z, (partialDeriv i g z)^2 ∂(GaussianMeasure.stdGaussianPi n) := by
       simpa [h_sum''] using h_sum'
     convert h_sum''' using 1
   -- convert sum of integrals to integral of sum

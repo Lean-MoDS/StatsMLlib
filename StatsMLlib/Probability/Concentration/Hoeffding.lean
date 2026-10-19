@@ -40,7 +40,8 @@ theorem cgf_zero_deriv [IsProbabilityMeasure μ] {X : Ω → ℝ} (h0 : μ[X] = 
   simp only [zero_mul, tilted_const', measure_univ, inv_one, one_smul]
   exact h0
 
-theorem cgf_le_quadratic_of_nonneg [IsProbabilityMeasure μ] (t a b : ℝ) {X : Ω → ℝ} (ht : 0 ≤ t) (hX : AEMeasurable X μ)
+theorem cgf_le_quadratic_of_nonneg [IsProbabilityMeasure μ] (t a b : ℝ) {X : Ω → ℝ} (ht : 0 ≤ t)
+  (hX : AEMeasurable X μ)
   (h : ∀ᵐ (ω : Ω) ∂μ, X ω ∈ Set.Icc a b) (h0 : ∫ (x : Ω), X x ∂μ = 0) (w : ¬t = 0) :
   cgf X μ t ≤ t ^ 2 * (b - a) ^ 2 / 8 := by
   let f := fun t ↦ cgf X μ t
@@ -89,7 +90,8 @@ theorem cgf_le_quadratic_of_nonneg [IsProbabilityMeasure μ] (t a b : ℝ) {X : 
               isProbabilityMeasure_tilted (integrable_expt_bound hX h)
             have hμ := tilted_absolutelyContinuous μ fun ω ↦ x * X ω
             apply variance_eq_sub <|
-              MeasureTheory.memLp_of_bounded (hμ h) (AEMeasurable.aestronglyMeasurable (hX.mono_ac hμ)) 2
+              MeasureTheory.memLp_of_bounded (hμ h)
+                (AEMeasurable.aestronglyMeasurable (hX.mono_ac hμ)) 2
           rw [p]
           simp only [Pi.pow_apply, mul_one]
           ring
