@@ -798,7 +798,8 @@ theorem jensenGap_joint_convex (x₀ x₁ y₀ y₁ : ℝ)
           linarith [hy₁.lt_of_ne' hs₁_zero]
       -- jensenGap(x₁/2, y₁/2) = (s₁/4) * D(p₁) and jensenGap(x₁, y₁) = (s₁/2) * D(p₁)
       have hsum_half_pos : 0 < x₁/2 + y₁/2 := by linarith
-      rw [jensenGap_eq_scaled_binaryKL (by linarith : 0 ≤ x₁/2) (by linarith : 0 ≤ y₁/2) hsum_half_pos]
+      rw [jensenGap_eq_scaled_binaryKL (by linarith : 0 ≤ x₁/2) (by linarith : 0 ≤ y₁/2)
+        hsum_half_pos]
       rw [jensenGap_eq_scaled_binaryKL hx₁ hy₁ hs₁_pos]
       -- Goal: 2 * ((x₁/2 + y₁/2) / 2 * D(...)) ≤ (x₁ + y₁) / 2 * D(x₁/(x₁+y₁))
       -- Note: (x₁/2 + y₁/2) / 2 = (x₁ + y₁) / 4 and (x₁/2)/(x₁/2 + y₁/2) = x₁/(x₁+y₁)
@@ -827,7 +828,8 @@ theorem jensenGap_joint_convex (x₀ x₁ y₀ y₁ : ℝ)
         simp only [hs₀, hx₀_eq, zero_add] at hs₀_zero
         linarith [hy₀.lt_of_ne' hs₀_zero]
     have hsum_half_pos₀ : 0 < x₀/2 + y₀/2 := by linarith
-    rw [jensenGap_eq_scaled_binaryKL (by linarith : 0 ≤ x₀/2) (by linarith : 0 ≤ y₀/2) hsum_half_pos₀]
+    rw [jensenGap_eq_scaled_binaryKL (by linarith : 0 ≤ x₀/2) (by linarith : 0 ≤ y₀/2)
+      hsum_half_pos₀]
     rw [jensenGap_eq_scaled_binaryKL hx₀ hy₀ hs₀_pos]
     -- Similar simplification as the s₁ case
     have hp₀_eq' : x₀ / 2 / (x₀ / 2 + y₀ / 2) = x₀ / (x₀ + y₀) := by field_simp
@@ -1152,14 +1154,18 @@ theorem han_inequality {n : ℕ} (h : (Fin n → Bool) → ℝ) :
             rw [bernoulli_integral_succ_split]
             -- Goal: (∫ sliceTrue + ∫ sliceFalse) / 2 = ∫ (castSucc true + castSucc false) / 2
             -- First simplify LHS
-            have h_sliceTrue : ∫ ε', twoPointEntropyCoord j (sliceTrue h) ε' ∂(bernoulliUniform n) =
-                ∫ ε', twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' true) ∂(bernoulliUniform n) := by
+            have h_sliceTrue :
+                ∫ ε', twoPointEntropyCoord j (sliceTrue h) ε' ∂(bernoulliUniform n) =
+                  ∫ ε', twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' true)
+                    ∂(bernoulliUniform n) := by
               apply integral_congr_ae
               filter_upwards with ε'
               rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' true]
               simp only [ite_true]
-            have h_sliceFalse : ∫ ε', twoPointEntropyCoord j (sliceFalse h) ε' ∂(bernoulliUniform n) =
-                ∫ ε', twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' false) ∂(bernoulliUniform n) := by
+            have h_sliceFalse :
+                ∫ ε', twoPointEntropyCoord j (sliceFalse h) ε' ∂(bernoulliUniform n) =
+                  ∫ ε', twoPointEntropyCoord (Fin.castSucc j) h (Fin.snoc ε' false)
+                    ∂(bernoulliUniform n) := by
               apply integral_congr_ae
               filter_upwards with ε'
               rw [twoPointEntropyCoord_castSucc_eq_slice j h ε' false]
@@ -1169,8 +1175,10 @@ theorem han_inequality {n : ℕ} (h : (Fin n → Bool) → ℝ) :
             rw [integral_div]
 
     -- Step 6: Sum over j < n
-    have hsum_bound : ∑ j : Fin n, ∫ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ∂(bernoulliUniform n) ≤
-        ∑ j : Fin n, ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε ∂(bernoulliUniform (n+1)) := by
+    have hsum_bound :
+        ∑ j : Fin n, ∫ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ∂(bernoulliUniform n) ≤
+          ∑ j : Fin n, ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε
+            ∂(bernoulliUniform (n+1)) := by
       apply Finset.sum_le_sum
       intro j _
       exact hconv_bound j
@@ -1186,7 +1194,8 @@ theorem han_inequality {n : ℕ} (h : (Fin n → Bool) → ℝ) :
           ∑ j : Fin n, ∫ ε', twoPointEntropyCoord j (condMeanSqrt h) ε' ∂(bernoulliUniform n) := by
           exact add_le_add_right hih _
       _ ≤ ∫ ε, twoPointEntropyCoord (Fin.last n) h ε ∂(bernoulliUniform (n+1)) +
-          ∑ j : Fin n, ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε ∂(bernoulliUniform (n+1)) := by
+          ∑ j : Fin n, ∫ ε, twoPointEntropyCoord (Fin.castSucc j) h ε
+            ∂(bernoulliUniform (n+1)) := by
           exact add_le_add_right hsum_bound _
       _ = ∑ j : Fin (n+1), ∫ ε, twoPointEntropyCoord j h ε ∂(bernoulliUniform (n+1)) := by
           -- Split sum over Fin (n+1) into castSucc terms plus last term
@@ -1300,7 +1309,8 @@ theorem rademacherSumProd_flip_eq_shifted {n : ℕ} [NeZero n] (j : Fin n)
           exact h2 i (Finset.mem_of_mem_erase hi) (Finset.ne_of_mem_erase hi)
       _ = -x j + (∑ i : Fin n, x i - x j) := by
           have hsum_erase : ∑ i ∈ Finset.univ.erase j, x i = ∑ i : Fin n, x i - x j := by
-            have hsplit := Finset.add_sum_erase Finset.univ (fun i : Fin n => x i) (Finset.mem_univ j)
+            have hsplit :=
+              Finset.add_sum_erase Finset.univ (fun i : Fin n => x i) (Finset.mem_univ j)
             linarith
           rw [hsum_erase]
       _ = (∑ i : Fin n, x i) - 2 * x j := by ring
@@ -1321,7 +1331,8 @@ theorem continuous_rademacherSumProd (n : ℕ) : Continuous (rademacherSumProd n
     exact continuous_apply i
   exact hsum.const_smul ((√n)⁻¹)
 
-/-- Key lemma: The bernoulliUniform measure pushes forward to rademacherProductMeasure via toRademacher. -/
+/-- Key lemma: The bernoulliUniform measure pushes forward to rademacherProductMeasure via
+toRademacher. -/
 theorem bernoulliUniform_map_toRademacher {n : ℕ} :
     (bernoulliUniform n).map toRademacher = rademacherProductMeasure n := by
   -- Both measures are probability measures supported on {±1}^n with equal weights
@@ -1331,7 +1342,8 @@ theorem bernoulliUniform_map_toRademacher {n : ℕ} :
   induction n with
   | zero =>
     -- For n = 0, both spaces are singletons
-    simp only [bernoulliUniform, rademacherProductMeasure, Measure.map_apply measurable_toRademacher hs]
+    simp only [bernoulliUniform, rademacherProductMeasure,
+      Measure.map_apply measurable_toRademacher hs]
     -- Simplify LHS: (1⁻¹ • count) = count since 1⁻¹ = 1 in ENNReal
     simp only [Finset.card_univ, Fintype.card_fun, Fintype.card_fin, Fintype.card_bool,
       pow_zero, Nat.cast_one, inv_one, one_smul]
@@ -1379,7 +1391,8 @@ theorem bernoulliUniform_map_toRademacher {n : ℕ} :
       unfold rademacherProductMeasure
       rw [Measure.pi_pi (fun _ => RademacherApprox.rademacherMeasure)]
       -- Each factor is rademacherMeasure {toRademacher ε i} = 1/2
-      have h_each : ∀ i : Fin (n+1), RademacherApprox.rademacherMeasure {toRademacher ε i} = 1/2 := by
+      have h_each :
+          ∀ i : Fin (n+1), RademacherApprox.rademacherMeasure {toRademacher ε i} = 1/2 := by
         intro i
         unfold toRademacher signValue RademacherApprox.rademacherMeasure
         simp only [Measure.coe_add, Measure.coe_smul, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
@@ -1534,7 +1547,8 @@ theorem gradient_eq_sum_shifted {n : ℕ} [NeZero n] {f : ℝ → ℝ} (hf : Con
   simp only [gradientNormSq]
   -- Step 2: Exchange integral and sum (integral of sum = sum of integrals for finite sums)
   rw [integral_finsetSum Finset.univ (fun j _ => Integrable.of_finite)]
-  -- Step 3: For each term, show the integrand is the same after using flip-to-shifted correspondence
+  -- Step 3: For each term, show the integrand is the same after using flip-to-shifted
+  -- correspondence
   congr 1
   ext j
   have hflip : ∀ ε, rademacherSumProd n (toRademacher (flipCoord j ε)) =
