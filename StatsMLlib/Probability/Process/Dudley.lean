@@ -344,7 +344,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
       apply Finset.sup'_le hT
       intro u hu
       calc f u ≤ |f u| := le_abs_self _
-        _ ≤ ∑ v ∈ T, |f v| := Finset.single_le_sum (f := fun v => |f v|) (fun _ _ => abs_nonneg _) hu
+        _ ≤ ∑ v ∈ T, |f v| :=
+          Finset.single_le_sum (f := fun v => |f v|) (fun _ _ => abs_nonneg _) hu
 
   -- Similar bound for pairs
   have h_sup'_abs_bound_pair : ∀ {T : Finset (A × A)} (hT : T.Nonempty) (f : A × A → ℝ),
@@ -362,7 +363,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
     · apply Finset.sup'_le hT
       intro p hp
       calc f p ≤ |f p| := le_abs_self _
-        _ ≤ ∑ q ∈ T, |f q| := Finset.single_le_sum (f := fun q => |f q|) (fun _ _ => abs_nonneg _) hp
+        _ ≤ ∑ q ∈ T, |f q| :=
+          Finset.single_le_sum (f := fun q => |f q|) (fun _ _ => abs_nonneg _) hp
 
   have h_SBase_fin_int : Integrable SBase_fin μ := by
     have h_dom_int : Integrable (fun ω => ∑ u ∈ dn.nets 0, |X u ω - X t₀ ω|) μ :=
@@ -417,7 +419,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
 
   -- Base level integral bound: E[SBase_fin] ≤ C * σ * D * √(log |net_0|)
   have h_base_bound_card_ge_2 : (dn.nets 0).card ≥ 2 →
-      ∃ C : ℝ, C > 0 ∧ C ≤ Real.sqrt 2 ∧ ∫ ω, SBase_fin ω ∂μ ≤ C * σ * D * Real.sqrt (Real.log (dn.nets 0).card) := by
+      ∃ C : ℝ, C > 0 ∧ C ≤ Real.sqrt 2 ∧
+        ∫ ω, SBase_fin ω ∂μ ≤ C * σ * D * Real.sqrt (Real.log (dn.nets 0).card) := by
     intro hcard
     -- Pick a base point u₀ from net_0 using the nonemptiness witness
     let u₀ := (hnet_nonempty 0).choose
@@ -438,7 +441,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
       intro ω
       simp only [SBase_fin, SBase_shifted]
       -- sup_u (X u - X t₀) = sup_u ((X u - X u₀) + (X u₀ - X t₀))
-      have h_rewrite : ∀ u, X u ω - X t₀ ω = (X u ω - X u₀ ω) + (X u₀ ω - X t₀ ω) := fun u => by ring
+      have h_rewrite : ∀ u, X u ω - X t₀ ω = (X u ω - X u₀ ω) + (X u₀ ω - X t₀ ω) :=
+        fun u => by ring
       have h_eq_fns : (fun u => X u ω - X t₀ ω) = (fun u => (X u ω - X u₀ ω) + (X u₀ ω - X t₀ ω)) :=
         funext h_rewrite
       rw [h_eq_fns]
@@ -484,7 +488,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
     have h_int_eq : ∫ ω, SBase_fin ω ∂μ = ∫ ω, SBase_shifted ω ∂μ + ∫ ω, (X u₀ ω - X t₀ ω) ∂μ := by
       calc ∫ ω, SBase_fin ω ∂μ
         _ = ∫ ω, SBase_shifted ω + (X u₀ ω - X t₀ ω) ∂μ := by congr; exact funext h_shift
-        _ = ∫ ω, SBase_shifted ω ∂μ + ∫ ω, (X u₀ ω - X t₀ ω) ∂μ := integral_add h_shifted_int (hX_int u₀ t₀)
+        _ = ∫ ω, SBase_shifted ω ∂μ + ∫ ω, (X u₀ ω - X t₀ ω) ∂μ :=
+          integral_add h_shifted_int (hX_int u₀ t₀)
     -- The centering kills the second term
     rw [h_int_eq, hX_centered u₀ t₀, add_zero]
     -- Now bound the shifted sup using subGaussian_finite_max_bound'
@@ -498,7 +503,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
     have h_sup'_to_biSup : ∀ ω, SBase_shifted ω = ⨆ u ∈ dn.nets 0, (X u ω - X u₀ ω) := by
       intro ω
       simp only [SBase_shifted]
-      rw [← biSup_eq_sup'_of_finset (hnet_nonempty 0) (fun u => X u ω - X u₀ ω) (h_nonneg_witness ω)]
+      rw [← biSup_eq_sup'_of_finset (hnet_nonempty 0) (fun u => X u ω - X u₀ ω)
+        (h_nonneg_witness ω)]
     calc ∫ ω, SBase_shifted ω ∂μ
       _ = ∫ ω, ⨆ u ∈ dn.nets 0, (X u ω - X u₀ ω) ∂μ := by congr; exact funext h_sup'_to_biSup
       _ ≤ C * σ * D * Real.sqrt (Real.log (dn.nets 0).card) := hC_bound_all u₀ hu₀_mem
@@ -541,7 +547,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
     exact h_sup'_abs_bound (hnet_nonempty K) (fun u => X u ω - X t₀ ω)
 
   -- Pathwise bound: S_net ≤ SBase_fin + ∑ SΔ_trans k (tail is exactly zero)
-  have h_S_net_pathwise_trans : ∀ᵐ ω ∂μ, S_net ω ≤ SBase_fin ω + ∑ k ∈ Finset.range K, SΔ_trans k ω := by
+  have h_S_net_pathwise_trans :
+      ∀ᵐ ω ∂μ, S_net ω ≤ SBase_fin ω + ∑ k ∈ Finset.range K, SΔ_trans k ω := by
     apply Filter.Eventually.of_forall
     intro ω
     apply Finset.sup'_le (hnet_nonempty K)
@@ -556,7 +563,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
     have h_incr : ∀ k ∈ Finset.range K,
         X (transProj (k + 1) u) ω - X (transProj k u) ω ≤ SΔ_trans k ω := by
       intro k hk
-      have h_pair_mem : (transProj k u, transProj (k + 1) u) ∈ (h_chain_trans_finite k).toFinset := by
+      have h_pair_mem :
+          (transProj k u, transProj (k + 1) u) ∈ (h_chain_trans_finite k).toFinset := by
         simp only [Set.Finite.mem_toFinset]
         exact ⟨u, hu, rfl, rfl⟩
       exact Finset.le_sup' (fun p => X p.2 ω - X p.1 ω) h_pair_mem
@@ -634,18 +642,22 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
     -- h1: ∫ SBase_fin ≤ (2√2) σ · dyadicRHS
     have h1 : ∫ (ω : Ω), SBase_fin ω ∂μ ≤ (2 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) := by
       -- D · sqrtE(ε₁) ≤ 2 · dyadicRHS (k=0 term gives D · 2⁻¹ · sqrtE(ε₁))
-            have h_sqrtE_le_rhs : D * sqrtEntropy (dyadicScale D 1) s ≤ 2 * dyadicRHS_real s D (K + 1) := by
+            have h_sqrtE_le_rhs :
+                D * sqrtEntropy (dyadicScale D 1) s ≤ 2 * dyadicRHS_real s D (K + 1) := by
               unfold dyadicRHS_real dyadicScale
               -- For (K + 1), the sum is over Finset.range (K + 1), which includes k = 0
-              have h_sum_has_zero : 0 ∈ Finset.range (K + 1) := Finset.mem_range.mpr (Nat.zero_lt_succ K)
+              have h_sum_has_zero : 0 ∈ Finset.range (K + 1) :=
+                Finset.mem_range.mpr (Nat.zero_lt_succ K)
               -- The sum includes at least the k=0 term, which has value (1/2) * sqrtE(D/2, s)
-              let f : ℕ → ℝ := fun k => (2 : ℝ)^(-((k : ℤ) + 1)) * sqrtEntropy (D * (2 : ℝ)^(-((k : ℤ) + 1))) s
+              let f : ℕ → ℝ := fun k =>
+                (2 : ℝ)^(-((k : ℤ) + 1)) * sqrtEntropy (D * (2 : ℝ)^(-((k : ℤ) + 1))) s
               have h_single := Finset.single_le_sum
                 (f := f) (a := 0)
                 (fun k _ => mul_nonneg (by positivity) (sqrtEntropy_nonneg _ _))
                 h_sum_has_zero
               -- So: f 0 = (1/2) * sqrtE(D/2, s) ≤ sum
-              have h_tail_nonneg : 0 ≤ D * (2 : ℝ)^(-((K + 1) : ℤ)) * sqrtEntropy (D * (2 : ℝ)^(-((K + 1) : ℤ))) s := by
+              have h_tail_nonneg : 0 ≤ D * (2 : ℝ)^(-((K + 1) : ℤ)) *
+                  sqrtEntropy (D * (2 : ℝ)^(-((K + 1) : ℤ))) s := by
                 apply mul_nonneg (mul_nonneg (le_of_lt hD) (by positivity)) (sqrtEntropy_nonneg _ _)
               -- Now the main calc: D * sqrtE ≤ 2 * dyadicRHS_real
               -- Convert h_single to explicit form: f 0 = 2^(-1) * sqrtE(D * 2^(-1), s)
@@ -660,14 +672,16 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
                 _ = D * sqrtEntropy (D * (2 : ℝ)⁻¹) s := by rw [h_two_inv]
                 _ = 2 * (D * (2 : ℝ)⁻¹ * sqrtEntropy (D * (2 : ℝ)⁻¹) s) := by ring
                 _ ≤ 2 * (D * ∑ k ∈ Finset.range (K + 1), f k) := by
-                    have h_assoc : D * 2⁻¹ * sqrtEntropy (D * 2⁻¹) s = D * (2⁻¹ * sqrtEntropy (D * 2⁻¹) s) := by ring
+                    have h_assoc : D * 2⁻¹ * sqrtEntropy (D * 2⁻¹) s =
+                        D * (2⁻¹ * sqrtEntropy (D * 2⁻¹) s) := by ring
                     rw [h_assoc]
                     exact mul_le_mul_of_nonneg_left h_D_single (by norm_num : (0 : ℝ) ≤ 2)
                 _ = 2 * (D * ∑ k ∈ Finset.range (K + 1), (2 : ℝ)^(-((k : ℤ) + 1)) *
                     sqrtEntropy (D * (2 : ℝ)^(-((k : ℤ) + 1))) s) := by rfl
                 _ ≤ 2 * (D * ∑ k ∈ Finset.range (K + 1), (2 : ℝ)^(-((k : ℤ) + 1)) *
                     sqrtEntropy (D * (2 : ℝ)^(-((k : ℤ) + 1))) s +
-                    D * (2 : ℝ)^(-((K + 1) : ℤ)) * sqrtEntropy (D * (2 : ℝ)^(-((K + 1) : ℤ))) s) := by
+                    D * (2 : ℝ)^(-((K + 1) : ℤ)) *
+                      sqrtEntropy (D * (2 : ℝ)^(-((K + 1) : ℤ))) s) := by
                     linarith
             calc ∫ (ω : Ω), SBase_fin ω ∂μ
               _ ≤ C_base * σ * D * sqrtEntropy (dyadicScale D 1) s := h_base_sqrtE
@@ -689,12 +703,15 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
                     · apply mul_nonneg (le_of_lt hD)
                       apply Finset.sum_nonneg
                       intro k _
-                      apply mul_nonneg (zpow_nonneg (by norm_num : (0:ℝ) ≤ 2) _) (sqrtEntropy_nonneg _ _)
-                    · apply mul_nonneg (mul_nonneg (le_of_lt hD) (zpow_nonneg (by norm_num : (0:ℝ) ≤ 2) _))
+                      apply mul_nonneg (zpow_nonneg (by norm_num : (0:ℝ) ≤ 2) _)
+                        (sqrtEntropy_nonneg _ _)
+                    · apply mul_nonneg
+                        (mul_nonneg (le_of_lt hD) (zpow_nonneg (by norm_num : (0:ℝ) ≤ 2) _))
                       exact sqrtEntropy_nonneg _ _
                   calc C_base * 2 * σ * dyadicRHS_real s D (K + 1)
                     _ = C_base * 2 * (σ * dyadicRHS_real s D (K + 1)) := by ring
-                    _ ≤ (2 * Real.sqrt 2) * (σ * dyadicRHS_real s D (K + 1)) := mul_le_mul_of_nonneg_right h_CB_bound h_rhs_nonneg'
+                    _ ≤ (2 * Real.sqrt 2) * (σ * dyadicRHS_real s D (K + 1)) :=
+                        mul_le_mul_of_nonneg_right h_CB_bound h_rhs_nonneg'
                     _ = (2 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) := by ring
 
     -- Integrability of SΔ_trans (via domination by SΔ_fin for k < K, constant 0 for k ≥ K)
@@ -732,7 +749,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
           · calc SΔ_trans k ω
               _ ≤ SΔ_fin k ω := h_upper ω
               _ ≤ |SΔ_fin k ω| := le_abs_self _
-              _ ≤ |SΔ_fin k ω| + |X p₀.2 ω - X p₀.1 ω| := by linarith [abs_nonneg (X p₀.2 ω - X p₀.1 ω)]
+              _ ≤ |SΔ_fin k ω| + |X p₀.2 ω - X p₀.1 ω| := by
+                  linarith [abs_nonneg (X p₀.2 ω - X p₀.1 ω)]
         apply Integrable.mono ((h_SΔ_fin_int k).abs.add hp₀_int.abs) h_meas
         filter_upwards with ω
         simp only [Pi.add_apply, Real.norm_eq_abs]
@@ -752,15 +770,19 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
             simp only [Set.Finite.mem_toFinset] at hp
             obtain ⟨u, hu, hp1, hp2⟩ := hp
             simp only [transProj] at hp1 hp2
-            have h1 : transitiveProj dn hnet_nonempty K k u = u := transitiveProj_of_le dn hnet_nonempty K k hk u
-            have h2 : transitiveProj dn hnet_nonempty K (k + 1) u = u := transitiveProj_of_le dn hnet_nonempty K (k + 1) (by omega) u
+            have h1 : transitiveProj dn hnet_nonempty K k u = u :=
+              transitiveProj_of_le dn hnet_nonempty K k hk u
+            have h2 : transitiveProj dn hnet_nonempty K (k + 1) u = u :=
+              transitiveProj_of_le dn hnet_nonempty K (k + 1) (by omega) u
             rw [hp1, hp2, h1, h2, sub_self]
           · -- 0 ≤ sup (since all elements equal 0)
             have hp₀' := (h_chain_trans_finite k).mem_toFinset.mp hp₀
             obtain ⟨u₀, hu₀, hp₀_1, hp₀_2⟩ := hp₀'
             simp only [transProj] at hp₀_1 hp₀_2
-            have h1 : transitiveProj dn hnet_nonempty K k u₀ = u₀ := transitiveProj_of_le dn hnet_nonempty K k hk u₀
-            have h2 : transitiveProj dn hnet_nonempty K (k + 1) u₀ = u₀ := transitiveProj_of_le dn hnet_nonempty K (k + 1) (by omega) u₀
+            have h1 : transitiveProj dn hnet_nonempty K k u₀ = u₀ :=
+              transitiveProj_of_le dn hnet_nonempty K k hk u₀
+            have h2 : transitiveProj dn hnet_nonempty K (k + 1) u₀ = u₀ :=
+              transitiveProj_of_le dn hnet_nonempty K (k + 1) (by omega) u₀
             calc (0 : ℝ) = X u₀ ω - X u₀ ω := by ring
               _ = X p₀.2 ω - X p₀.1 ω := by rw [hp₀_1, hp₀_2, h1, h2]
               _ ≤ SΔ_trans k ω := h_lower ω
@@ -807,7 +829,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
                 Real.log_le_log h_mgf_pos h_mgf_bound
             _ = t^2 * (σ * dyadicScale D k)^2 / 2 := Real.log_exp _
         calc ∫ ω, SΔ_trans k ω ∂μ
-          _ ≤ (σ * dyadicScale D k) * Real.sqrt (2 * Real.log (h_chain_trans_finite k).toFinset.card) :=
+          _ ≤ (σ * dyadicScale D k) *
+              Real.sqrt (2 * Real.log (h_chain_trans_finite k).toFinset.card) :=
               expected_max_subGaussian hσ'_pos h_ne hcard_trans
                 (fun p _ => ((hX_meas p.2).sub (hX_meas p.1)).aemeasurable)
                 (fun p _ => hX_int p.2 p.1)
@@ -879,7 +902,8 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
               apply sqrt_log_card_le_sqrtEntropy_of_card_le (dyadicScale_pos hD (k + 2)) hs
               -- Convert from ℕ ≤ ℕ (after untop) to WithTop ℕ ≤ WithTop ℕ
               have hne : coveringNumber (dyadicScale D (k + 2)) s ≠ ⊤ :=
-                ne_top_of_lt (coveringNumber_lt_top_of_totallyBounded (dyadicScale_pos hD (k + 2)) hs)
+                ne_top_of_lt
+                  (coveringNumber_lt_top_of_totallyBounded (dyadicScale_pos hD (k + 2)) hs)
               rw [← WithTop.coe_untop (coveringNumber (dyadicScale D (k + 2)) s) hne]
               exact WithTop.coe_le_coe.mpr (hcard_bound (k + 1))
             have h_sum_le : ∑ k ∈ Finset.range K, dyadicScale D k *
@@ -892,12 +916,16 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
             have h2d_trans : ∑ k ∈ Finset.range K, dyadicScale D k *
                 sqrtEntropy (dyadicScale D (k + 2)) s ≤ 4 * dyadicRHS_real s D (K + 1) := by
               have h_scale_factor : ∀ k, dyadicScale D k = 4 * dyadicScale D (k + 2) := by
-                intro k; simp only [dyadicScale]; rw [zpow_neg, zpow_neg, zpow_natCast, zpow_natCast]
+                intro k; simp only [dyadicScale]
+                rw [zpow_neg, zpow_neg, zpow_natCast, zpow_natCast]
                 have h_pow : (2:ℝ)^(k+2) = (2:ℝ)^k * 4 := by rw [pow_add]; norm_num
                 rw [h_pow]; field_simp
-              have h_sum_eq : ∑ k ∈ Finset.range K, dyadicScale D k * sqrtEntropy (dyadicScale D (k + 2)) s =
-                  4 * ∑ k ∈ Finset.range K, dyadicScale D (k + 2) * sqrtEntropy (dyadicScale D (k + 2)) s := by
-                have : ∀ k ∈ Finset.range K, dyadicScale D k * sqrtEntropy (dyadicScale D (k + 2)) s =
+              have h_sum_eq :
+                  ∑ k ∈ Finset.range K, dyadicScale D k * sqrtEntropy (dyadicScale D (k + 2)) s =
+                  4 * ∑ k ∈ Finset.range K,
+                    dyadicScale D (k + 2) * sqrtEntropy (dyadicScale D (k + 2)) s := by
+                have : ∀ k ∈ Finset.range K,
+                    dyadicScale D k * sqrtEntropy (dyadicScale D (k + 2)) s =
                     4 * (dyadicScale D (k + 2) * sqrtEntropy (dyadicScale D (k + 2)) s) := by
                   intro k _; rw [h_scale_factor k]; ring
                 rw [Finset.sum_congr rfl this, ← Finset.mul_sum]
@@ -906,38 +934,53 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
               unfold dyadicRHS_real
               have h_unfold_scale_k2 : ∀ k, dyadicScale D (k + 2) = D * (2:ℝ)^(-((k:ℤ) + 2)) := by
                 intro k; simp only [dyadicScale, Nat.cast_add, Nat.cast_ofNat]
-              have h_sum_rewrite : ∑ k ∈ Finset.range K, dyadicScale D (k + 2) * sqrtEntropy (dyadicScale D (k + 2)) s =
-                  D * ∑ k ∈ Finset.range K, (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s := by
-                have : ∀ k ∈ Finset.range K, dyadicScale D (k + 2) * sqrtEntropy (dyadicScale D (k + 2)) s =
+              have h_sum_rewrite : ∑ k ∈ Finset.range K,
+                    dyadicScale D (k + 2) * sqrtEntropy (dyadicScale D (k + 2)) s =
+                  D * ∑ k ∈ Finset.range K,
+                    (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s := by
+                have : ∀ k ∈ Finset.range K,
+                    dyadicScale D (k + 2) * sqrtEntropy (dyadicScale D (k + 2)) s =
                     D * ((2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s) := by
                   intro k _; rw [h_unfold_scale_k2 k]; ring
                 rw [Finset.sum_congr rfl this, ← Finset.mul_sum]
               rw [h_sum_rewrite]
-              have h_index_shift : ∑ k ∈ Finset.range K, (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s ≤
-                  ∑ k ∈ Finset.range (K + 1), (2:ℝ)^(-((k:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 1))) s := by
-                let f := fun j : ℕ => (2:ℝ)^(-((j:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((j:ℤ) + 1))) s
-                have h_lhs_eq : ∑ k ∈ Finset.range K, (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s =
+              have h_index_shift : ∑ k ∈ Finset.range K,
+                    (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s ≤
+                  ∑ k ∈ Finset.range (K + 1),
+                    (2:ℝ)^(-((k:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 1))) s := by
+                let f := fun j : ℕ =>
+                  (2:ℝ)^(-((j:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((j:ℤ) + 1))) s
+                have h_lhs_eq : ∑ k ∈ Finset.range K,
+                    (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s =
                     ∑ k ∈ Finset.range K, f (k + 1) := by
                   apply Finset.sum_congr rfl; intro k _; simp only [f]; congr 2
                 rw [h_lhs_eq]
-                have h_sum_ico : ∑ k ∈ Finset.range K, f (k + 1) = ∑ j ∈ Finset.Ico 1 (K + 1), f j := by
+                have h_sum_ico :
+                    ∑ k ∈ Finset.range K, f (k + 1) = ∑ j ∈ Finset.Ico 1 (K + 1), f j := by
                   symm; rw [Finset.sum_Ico_eq_sum_range]; simp only [Nat.add_sub_cancel]
                   apply Finset.sum_congr rfl; intro x _; ring_nf
                 rw [h_sum_ico]
                 apply Finset.sum_le_sum_of_subset_of_nonneg
                 · intro j hj; simp only [Finset.mem_Ico, Finset.mem_range] at hj ⊢; omega
-                · intro j _ _; apply mul_nonneg (zpow_nonneg (by norm_num : (0:ℝ) ≤ 2) _) (sqrtEntropy_nonneg _ _)
-              calc D * ∑ k ∈ Finset.range K, (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s
-                _ ≤ D * ∑ k ∈ Finset.range (K + 1), (2:ℝ)^(-((k:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 1))) s := by
+                · intro j _ _
+                  apply mul_nonneg (zpow_nonneg (by norm_num : (0:ℝ) ≤ 2) _)
+                    (sqrtEntropy_nonneg _ _)
+              calc D * ∑ k ∈ Finset.range K,
+                      (2:ℝ)^(-((k:ℤ) + 2)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 2))) s
+                _ ≤ D * ∑ k ∈ Finset.range (K + 1),
+                      (2:ℝ)^(-((k:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 1))) s := by
                     apply mul_le_mul_of_nonneg_left h_index_shift (le_of_lt hD)
-                _ ≤ D * ∑ k ∈ Finset.range (K + 1), (2:ℝ)^(-((k:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 1))) s +
+                _ ≤ D * ∑ k ∈ Finset.range (K + 1),
+                      (2:ℝ)^(-((k:ℤ) + 1)) * sqrtEntropy (D * (2:ℝ)^(-((k:ℤ) + 1))) s +
                     D * (2:ℝ)^(-((K + 1):ℤ)) * sqrtEntropy (D * (2:ℝ)^(-((K + 1):ℤ))) s := by
                     apply le_add_of_nonneg_right
                     apply mul_nonneg (mul_nonneg (le_of_lt hD) _) (sqrtEntropy_nonneg _ _)
                     apply zpow_nonneg (by norm_num : (0:ℝ) ≤ 2)
             -- Final assembly: √2 × 4 = 4√2 (exact)
-            calc Real.sqrt 2 * σ * ∑ k ∈ Finset.range K, dyadicScale D k * Real.sqrt (Real.log (dn.nets (k + 1)).card)
-              _ ≤ Real.sqrt 2 * σ * ∑ k ∈ Finset.range K, dyadicScale D k * sqrtEntropy (dyadicScale D (k + 2)) s := by
+            calc Real.sqrt 2 * σ * ∑ k ∈ Finset.range K,
+                    dyadicScale D k * Real.sqrt (Real.log (dn.nets (k + 1)).card)
+              _ ≤ Real.sqrt 2 * σ * ∑ k ∈ Finset.range K,
+                    dyadicScale D k * sqrtEntropy (dyadicScale D (k + 2)) s := by
                   apply mul_le_mul_of_nonneg_left h_sum_le
                   apply mul_nonneg (Real.sqrt_nonneg _) (le_of_lt hσ)
               _ ≤ Real.sqrt 2 * σ * (4 * dyadicRHS_real s D (K + 1)) := by
@@ -952,10 +995,12 @@ lemma dudley_chaining_bound_core {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
       exact h_SΔ_trans_int k
 
     -- Sum bound using transitive projection (6√2)
-    have h_sum_bound_trans : ∫ (ω : Ω), SBase_fin ω ∂μ + ∫ (ω : Ω), ∑ k ∈ Finset.range K, SΔ_trans k ω ∂μ
+    have h_sum_bound_trans :
+        ∫ (ω : Ω), SBase_fin ω ∂μ + ∫ (ω : Ω), ∑ k ∈ Finset.range K, SΔ_trans k ω ∂μ
         ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) := by
       calc ∫ (ω : Ω), SBase_fin ω ∂μ + ∫ (ω : Ω), ∑ k ∈ Finset.range K, SΔ_trans k ω ∂μ
-        _ ≤ (2 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) + (4 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) :=
+        _ ≤ (2 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) +
+            (4 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) :=
             add_le_add h1 h2_trans
         _ = (2 * Real.sqrt 2 + 4 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) := by ring
         _ = (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) := by ring
@@ -1024,7 +1069,8 @@ the expected supremum is bounded by the entropy integral:
 where {tₙ} is a dense sequence in s. The constant 12√2 ≈ 17 arises from transitive projection
 in the dyadic chaining argument.
 -/
-theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : Type v} [PseudoMetricSpace A]
+theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : Type v}
+    [PseudoMetricSpace A]
     {μ : Measure Ω} [IsProbabilityMeasure μ]
     {X : A → Ω → ℝ} {σ : ℝ} (hσ : 0 < σ)
     (hX : IsSubGaussianProcess μ X σ)
@@ -1038,7 +1084,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
     -- Finiteness and continuity for limit argument
     (hfinite : entropyIntegralENNReal s D ≠ ⊤)
     (hcont : ∀ ω, Continuous (fun (t : ↥s) => X t.1 ω)) :
-    ∫ ω, ⨆ n : ℕ, X (denseSeqInTB hs ⟨t₀, ht₀⟩ n).1 ω ∂μ ≤ (12 * Real.sqrt 2) * σ * entropyIntegral s D := by
+    ∫ ω, ⨆ n : ℕ, X (denseSeqInTB hs ⟨t₀, ht₀⟩ n).1 ω ∂μ ≤
+      (12 * Real.sqrt 2) * σ * entropyIntegral s D := by
   classical
 
   -- ══════════════════════════════════════════════════════════════════════════════
@@ -1092,7 +1139,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       simp only [Y, hcenter ω, sub_zero]
     conv_lhs => arg 2; ext ω; rw [h_Y_eq ω]
     have hcard_bound : ∀ k, (dn.nets k).card ≤ (coveringNumber (dyadicScale D (k + 1)) s).untop
-        (ne_top_of_lt (coveringNumber_lt_top_of_totallyBounded (dyadicScale_pos hD (k + 1)) hs)) := by
+        (ne_top_of_lt
+          (coveringNumber_lt_top_of_totallyBounded (dyadicScale_pos hD (k + 1)) hs)) := by
       intro k
       exact dn_good.card_bound k
     exact dudley_chaining_bound_core hσ hX hs hD hdiam K hK hX_meas hX_int hX_centered
@@ -1132,7 +1180,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       _ < ε := hN K hK
 
   -- X(proj_K(tₙ))(ω) → X(tₙ)(ω) by path continuity
-  have h_X_tendsto : ∀ n ω, Filter.Tendsto (fun K => X (proj K n) ω) Filter.atTop (nhds (X (t n) ω)) := by
+  have h_X_tendsto :
+      ∀ n ω, Filter.Tendsto (fun K => X (proj K n) ω) Filter.atTop (nhds (X (t n) ω)) := by
     intro n ω
     have h_cont_at := (hcont ω).continuousAt (x := ⟨t n, ht_mem n⟩)
     have h_proj_in_s : ∀ K, proj K n ∈ s := fun K => dn.nets_subset K (h_proj_mem K n)
@@ -1197,7 +1246,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       simp only [Finset.sup'_apply]
 
     -- Uniform L¹ bound: 𝔼[|Y_K|] = 𝔼[Y_K] + 2𝔼[Y_K⁻] ≤ C₁ + 2√(2π)σD
-    have h_bound_exist : ∃ R : NNReal, ∀ K, 1 ≤ K → MeasureTheory.eLpNorm (Y K) 1 μ ≤ (R : ℝ≥0∞) := by
+    have h_bound_exist :
+        ∃ R : NNReal, ∀ K, 1 ≤ K → MeasureTheory.eLpNorm (Y K) 1 μ ≤ (R : ℝ≥0∞) := by
       -- dyadicRHS bounded by 4 * entropyIntegral
       have h_rhs_bounded : ∃ C₁ : ℝ, 0 < C₁ ∧ ∀ K, 1 ≤ K → dyadicRHS_real s D (K + 1) ≤ C₁ := by
         have hδ_pos : ∀ K : ℕ, 0 < D * (2 : ℝ)^(-((K + 1) : ℤ)) := by
@@ -1234,9 +1284,11 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
               apply zpow_le_one_of_nonpos₀ (by norm_num : (1 : ℝ) ≤ 2)
               simp only [Left.neg_nonpos_iff]
               exact Int.natCast_nonneg (K + 1)
-            calc D * (2 : ℝ) ^ (-((K + 1) : ℤ)) ≤ D * 1 := mul_le_mul_of_nonneg_left h1 (le_of_lt hD)
+            calc D * (2 : ℝ) ^ (-((K + 1) : ℤ)) ≤ D * 1 :=
+                  mul_le_mul_of_nonneg_left h1 (le_of_lt hD)
               _ = D := mul_one D
-          have h_le_gap : δ * sqrtEntropy δ s ≤ entropyIntegral s D - entropyIntegralTrunc s δ D := by
+          have h_le_gap :
+              δ * sqrtEntropy δ s ≤ entropyIntegral s D - entropyIntegralTrunc s δ D := by
             have h_gap_eq : entropyIntegral s D - entropyIntegralTrunc s δ D =
                 (entropyIntegralENNReal s D - entropyIntegralENNRealTrunc s δ D).toReal := by
               unfold entropyIntegral entropyIntegralTrunc
@@ -1362,7 +1414,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           _ ≤ Real.sqrt (2 * Real.pi) * σ * D := h_proj_abs_bound K
 
       -- E[|Y_K|] ≤ C via |Y| = Y + 2Y⁻
-      have h_abs_bound : ∀ K, 1 ≤ K → ∫ ω, |Y K ω| ∂μ ≤ (6 * Real.sqrt 2) * σ * C₁ + 2 * Real.sqrt (2 * Real.pi) * σ * D := by
+      have h_abs_bound : ∀ K, 1 ≤ K → ∫ ω, |Y K ω| ∂μ ≤
+          (6 * Real.sqrt 2) * σ * C₁ + 2 * Real.sqrt (2 * Real.pi) * σ * D := by
         intro K hK
         have h_abs_eq : ∀ ω, |Y K ω| = Y K ω + 2 * (Y K ω)⁻ := by
           intro ω
@@ -1378,7 +1431,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
         conv_lhs => arg 2; ext ω; rw [h_abs_eq ω]
         rw [h_int_split]
         calc ∫ ω, Y K ω ∂μ + 2 * ∫ ω, (Y K ω)⁻ ∂μ
-          _ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) + 2 * (Real.sqrt (2 * Real.pi) * σ * D) := by
+          _ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) +
+                2 * (Real.sqrt (2 * Real.pi) * σ * D) := by
               apply add_le_add (h_core_bound K hK)
               apply mul_le_mul_of_nonneg_left (h_neg_part_bound K hK) (by norm_num)
           _ ≤ (6 * Real.sqrt 2) * σ * C₁ + 2 * (Real.sqrt (2 * Real.pi) * σ * D) := by
@@ -1398,7 +1452,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       rw [MeasureTheory.eLpNorm_one_eq_lintegral_enorm (h_Y_meas K).aestronglyMeasurable]
       simp only [Real.enorm_eq_ofReal_abs]
       have h_int_abs := (h_Y_int K hK).abs
-      rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal h_int_abs (ae_of_all μ (fun ω => abs_nonneg _))]
+      rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal h_int_abs
+        (ae_of_all μ (fun ω => abs_nonneg _))]
       exact ENNReal.ofReal_le_coe.mpr (h_abs_bound K hK)
 
     obtain ⟨R, hR⟩ := h_bound_exist
@@ -1442,7 +1497,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
     exact tendsto_le_liminf_of_le' (h_X_tendsto n ω) (fun K => h_le_Y K n ω)
       (h_Y_bdd_below ω) h_liminf_ne_top
 
-  have h_pointwise_sup : ∀ᵐ ω ∂μ, (⨆ n, X (t n) ω) ≤ Filter.liminf (fun K => Y K ω) Filter.atTop := by
+  have h_pointwise_sup :
+      ∀ᵐ ω ∂μ, (⨆ n, X (t n) ω) ≤ Filter.liminf (fun K => Y K ω) Filter.atTop := by
     filter_upwards [h_pointwise] with ω h_all_n
     by_cases h_bdd : BddAbove (Set.range (fun n => X (t n) ω))
     · exact ciSup_le (fun n => h_all_n n)
@@ -1508,18 +1564,21 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
         exact h1.sub h2
 
       -- E[|Δ_K|] ≤ 3√(2π)σD·2^{-K} via sub-Gaussian first moment bound
-      have h_Δ_moment : ∀ K, ∫ ω, |Δ K ω| ∂μ ≤ 3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ)) := by
+      have h_Δ_moment :
+          ∀ K, ∫ ω, |Δ K ω| ∂μ ≤ 3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ)) := by
         intro K
         have h_bound := subGaussian_first_moment_bound hσ hX (proj (K + 1) 0) (proj K 0)
             (hX_int (proj (K + 1) 0) (proj K 0)) (hX_int_exp (proj (K + 1) 0) (proj K 0))
-        have h_dist : dist (proj (K + 1) 0) (proj K 0) ≤ dyadicScale D (K + 1) + dyadicScale D K := by
+        have h_dist :
+            dist (proj (K + 1) 0) (proj K 0) ≤ dyadicScale D (K + 1) + dyadicScale D K := by
           calc dist (proj (K + 1) 0) (proj K 0)
               ≤ dist (proj (K + 1) 0) (t 0) + dist (t 0) (proj K 0) := dist_triangle _ _ _
             _ ≤ dyadicScale D (K + 1) + dyadicScale D K := by
                 apply add_le_add
                 · rw [dist_comm]; exact h_proj_dist (K + 1) 0
                 · exact h_proj_dist K 0
-        have h_scale_bound : dyadicScale D (K + 1) + dyadicScale D K ≤ 3 * D * (2 : ℝ)^(-(K : ℤ)) := by
+        have h_scale_bound :
+            dyadicScale D (K + 1) + dyadicScale D K ≤ 3 * D * (2 : ℝ)^(-(K : ℤ)) := by
           simp only [dyadicScale]
           have h1 : (2 : ℝ)^(-(↑(K + 1) : ℤ)) = (2 : ℝ)^(-(K : ℤ)) / 2 := by
             have : (↑(K + 1) : ℤ) = (K : ℤ) + 1 := by simp
@@ -1529,7 +1588,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           calc D * ((2 : ℝ)^(-(K : ℤ)) / 2) + D * (2 : ℝ)^(-(K : ℤ))
               = D * (2 : ℝ)^(-(K : ℤ)) * (1/2 + 1) := by ring
             _ = D * (2 : ℝ)^(-(K : ℤ)) * (3/2) := by norm_num
-            _ ≤ 3 * D * (2 : ℝ)^(-(K : ℤ)) := by nlinarith [hD.le, zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (-(K : ℤ))]
+            _ ≤ 3 * D * (2 : ℝ)^(-(K : ℤ)) := by
+                nlinarith [hD.le, zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (-(K : ℤ))]
         calc ∫ ω, |Δ K ω| ∂μ = ∫ ω, |X (proj (K + 1) 0) ω - X (proj K 0) ω| ∂μ := rfl
           _ ≤ Real.sqrt (2 * Real.pi) * σ * dist (proj (K + 1) 0) (proj K 0) := h_bound
           _ ≤ Real.sqrt (2 * Real.pi) * σ * (dyadicScale D (K + 1) + dyadicScale D K) := by
@@ -1570,13 +1630,16 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                   simp only [Real.norm_eq_abs] at h_int_norm
                   exact h_int_norm
                 · exact ae_of_all μ (fun ω => abs_nonneg _)
-            _ ≤ ∑' (K : ℕ), ENNReal.ofReal (3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ))) := by
+            _ ≤ ∑' (K : ℕ),
+                  ENNReal.ofReal (3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ))) := by
                 apply ENNReal.tsum_le_tsum
                 intro K
                 exact ENNReal.ofReal_le_ofReal (h_Δ_moment K)
             _ < ⊤ := by
-                calc ∑' (K : ℕ), ENNReal.ofReal (3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ)))
-                    = ENNReal.ofReal (∑' (K : ℕ), 3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ))) := by
+                calc ∑' (K : ℕ),
+                      ENNReal.ofReal (3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ)))
+                    = ENNReal.ofReal
+                      (∑' (K : ℕ), 3 * Real.sqrt (2 * Real.pi) * σ * D * (2 : ℝ)^(-(K : ℤ))) := by
                       rw [ENNReal.ofReal_tsum_of_nonneg]
                       · intro K
                         apply mul_nonneg
@@ -1607,7 +1670,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
         exact (Real.coe_toNNReal _ (abs_nonneg _)).symm
 
       -- Telescoping bound: |g| ≤ |X(t₀)| + |X(proj_0(0)) - X(t₀)| + ∑_K |Δ_K|
-      have h_g_bound_ae : ∀ᵐ ω ∂μ, |g ω| ≤ |X (t 0) ω| + |X (proj 0 0) ω - X (t 0) ω| + ∑' K, |Δ K ω| := by
+      have h_g_bound_ae :
+          ∀ᵐ ω ∂μ, |g ω| ≤ |X (t 0) ω| + |X (proj 0 0) ω - X (t 0) ω| + ∑' K, |Δ K ω| := by
         filter_upwards [h_Δ_summable_ae] with ω h_summable
         have h_conv := h_X_tendsto 0 ω
         have h_telescope : ∀ K, X (proj K 0) ω - X (proj 0 0) ω = ∑ j ∈ Finset.range K, Δ j ω := by
@@ -1623,7 +1687,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           calc |X (proj K 0) ω - X (t 0) ω|
               = |(X (proj K 0) ω - X (proj 0 0) ω) + (X (proj 0 0) ω - X (t 0) ω)| := by ring_nf
             _ ≤ |X (proj K 0) ω - X (proj 0 0) ω| + |X (proj 0 0) ω - X (t 0) ω| := abs_add_le _ _
-            _ = |∑ j ∈ Finset.range K, Δ j ω| + |X (proj 0 0) ω - X (t 0) ω| := by rw [h_telescope K]
+            _ = |∑ j ∈ Finset.range K, Δ j ω| + |X (proj 0 0) ω - X (t 0) ω| := by
+                rw [h_telescope K]
             _ ≤ ∑ j ∈ Finset.range K, |Δ j ω| + |X (proj 0 0) ω - X (t 0) ω| := by
                 gcongr
                 exact Finset.abs_sum_le_sum_abs _ _
@@ -1663,7 +1728,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           _ = |X (t 0) ω| + |X (proj 0 0) ω - X (t 0) ω| + ∑' J, |Δ J ω| := by ring
 
       -- Dominating function is integrable (∑' K, |Δ K| via interchange of sum and integral)
-      have h_dom_int : Integrable (fun ω => |X (t 0) ω| + |X (proj 0 0) ω - X (t 0) ω| + ∑' K, |Δ K ω|) μ := by
+      have h_dom_int :
+          Integrable (fun ω => |X (t 0) ω| + |X (proj 0 0) ω - X (t 0) ω| + ∑' K, |Δ K ω|) μ := by
         apply Integrable.add
         apply Integrable.add
         · exact h_t0_int.abs
@@ -1708,7 +1774,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                     rw [ofReal_integral_eq_lintegral_ofReal (h_Δ_abs_int K)
                         (ae_of_all μ (fun ω => abs_nonneg _))]
                 _ < ⊤ := by
-                    have h_nonneg : ∀ K, 0 ≤ ∫ ω, |Δ K ω| ∂μ := fun K => integral_nonneg (fun _ => abs_nonneg _)
+                    have h_nonneg : ∀ K, 0 ≤ ∫ ω, |Δ K ω| ∂μ :=
+                      fun K => integral_nonneg (fun _ => abs_nonneg _)
                     rw [← ENNReal.ofReal_tsum_of_nonneg h_nonneg h_sum_Δ_summable]
                     exact ENNReal.ofReal_lt_top
             exact ⟨h_ae_meas, h_finite⟩
@@ -1824,8 +1891,10 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
         · -- Unbounded case: liminf = 0
           have h_liminf_eq_zero : Filter.liminf (fun K => Z K ω) Filter.atTop = 0 := by
             unfold Filter.liminf Filter.limsInf
-            have h_unbdd : ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
-              simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map] at h_cobdd
+            have h_unbdd :
+                ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
+              simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map]
+                at h_cobdd
               intro ⟨b, hb⟩
               apply h_cobdd
               use b
@@ -1977,7 +2046,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
               have h_meas : Measurable (fun ω => Filter.liminf (fun K => Z K ω) Filter.atTop) :=
                 Measurable.liminf (fun K => h_Z_meas K)
               -- Step 2: liminf Z is nonnegative a.e.
-              have h_nonneg_ae : 0 ≤ᵐ[μ] (fun ω => Filter.liminf (fun K => Z K ω) Filter.atTop) := by
+              have h_nonneg_ae :
+                  0 ≤ᵐ[μ] (fun ω => Filter.liminf (fun K => Z K ω) Filter.atTop) := by
                 filter_upwards [h_liminf_Z] with ω hω
                 show 0 ≤ Filter.liminf (fun K => Z K ω) Filter.atTop
                 by_cases hcobdd : Filter.IsCoboundedUnder (· ≥ ·) Filter.atTop (fun K => Z K ω)
@@ -1985,12 +2055,15 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                   exact Filter.Eventually.of_forall (fun K => h_Z_nonneg K ω)
                 · -- Unbounded case: liminf = 0 in ℝ
                   unfold Filter.liminf Filter.limsInf
-                  have h_unbdd : ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
-                    simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map] at hcobdd
+                  have h_unbdd :
+                      ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
+                    simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map]
+                      at hcobdd
                     intro ⟨b, hb⟩; apply hcobdd; use b; intro a ha; exact hb ha
                   rw [Real.sSup_of_not_bddAbove h_unbdd]
               -- Step 3: lintegral is finite - use Fatou and bounds on ∫ Z_K
-              have h_lintegral_finite : ∫⁻ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ∂μ ≠ ⊤ := by
+              have h_lintegral_finite :
+                  ∫⁻ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ∂μ ≠ ⊤ := by
                 let g' : ℕ → Ω → ℝ≥0∞ := fun K ω => ENNReal.ofReal (Z K ω)
                 have hg'_meas : ∀ K, Measurable (g' K) := fun K =>
                   ENNReal.measurable_ofReal.comp (h_Z_meas K)
@@ -1999,13 +2072,15 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                   MeasureTheory.lintegral_liminf_le hg'_meas
                 -- Bound: use dyadicRHS converges → bounded
                 -- Direct bound: dyadicRHS ≤ 4 * entropyIntegral (using upstream lemma)
-                have h_dyadic_bdd : ∃ B : ℝ, 0 ≤ B ∧ ∀ K, 1 ≤ K → dyadicRHS_real s D (K + 1) ≤ B := by
+                have h_dyadic_bdd :
+                    ∃ B : ℝ, 0 ≤ B ∧ ∀ K, 1 ≤ K → dyadicRHS_real s D (K + 1) ≤ B := by
                   use 4 * entropyIntegral s D + 1
                   constructor
                   · have h_int_nonneg := entropyIntegral_nonneg (s := s) (D := D)
                     linarith
                   · intro K hK
-                    have := dyadicRHS_le_four_times_entropyIntegral hs hD (Nat.le_add_left 1 K) hfinite
+                    have :=
+                      dyadicRHS_le_four_times_entropyIntegral hs hD (Nat.le_add_left 1 K) hfinite
                     linarith
                 obtain ⟨C, hC_nonneg, hC_bound⟩ := h_dyadic_bdd
                 -- Include |∫ g| in bound since ∫ g might be negative
@@ -2016,23 +2091,29 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                   calc ∫ ω, Z K ω ∂μ = ∫ ω, Y K ω ∂μ - ∫ ω, g ω ∂μ :=
                       MeasureTheory.integral_sub (h_Y_int K hK) h_g_int
                     _ ≤ ∫ ω, Y K ω ∂μ + |∫ ω, g ω ∂μ| := by linarith [neg_abs_le (∫ ω, g ω ∂μ)]
-                    _ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) + |∫ ω, g ω ∂μ| := by linarith
+                    _ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) + |∫ ω, g ω ∂μ| := by
+                        linarith
                     _ ≤ B := by
                         simp only [B]
                         have h1 : dyadicRHS_real s D (K + 1) ≤ C := hC_bound K hK
-                        have h2 : (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) ≤ (6 * Real.sqrt 2) * σ * C := by
+                        have h2 : (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) ≤
+                            (6 * Real.sqrt 2) * σ * C := by
                           apply mul_le_mul_of_nonneg_left h1
                           positivity
                         linarith
-                have h_lintegral_eq : ∀ K, 1 ≤ K → ∫⁻ ω, g' K ω ∂μ = ENNReal.ofReal (∫ ω, Z K ω ∂μ) :=
+                have h_lintegral_eq :
+                    ∀ K, 1 ≤ K → ∫⁻ ω, g' K ω ∂μ = ENNReal.ofReal (∫ ω, Z K ω ∂μ) :=
                   fun K hK => by
                     have h_nonneg_K : 0 ≤ᵐ[μ] Z K := Filter.Eventually.of_forall (h_Z_nonneg K)
                     symm
-                    exact MeasureTheory.ofReal_integral_eq_lintegral_ofReal (h_Z_int K hK) h_nonneg_K
-                have h_lintegral_bound : ∀ K, 1 ≤ K → ∫⁻ ω, g' K ω ∂μ ≤ ENNReal.ofReal B := fun K hK => by
+                    exact MeasureTheory.ofReal_integral_eq_lintegral_ofReal (h_Z_int K hK)
+                      h_nonneg_K
+                have h_lintegral_bound :
+                    ∀ K, 1 ≤ K → ∫⁻ ω, g' K ω ∂μ ≤ ENNReal.ofReal B := fun K hK => by
                   rw [h_lintegral_eq K hK]
                   exact ENNReal.ofReal_le_ofReal (hB_bound K hK)
-                have h_liminf_bound : Filter.liminf (fun K => ∫⁻ ω, g' K ω ∂μ) Filter.atTop ≤ ENNReal.ofReal B := by
+                have h_liminf_bound :
+                    Filter.liminf (fun K => ∫⁻ ω, g' K ω ∂μ) Filter.atTop ≤ ENNReal.ofReal B := by
                   apply Filter.liminf_le_of_le
                   · exact ⟨0, Filter.Eventually.of_forall (fun _ => zero_le)⟩
                   · intro b hb
@@ -2042,10 +2123,12 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                     have h_and := Filter.Eventually.and hb h_evt
                     obtain ⟨K, hK_ge, hK_le⟩ := h_and.exists
                     exact le_trans hK_ge hK_le
-                have h_ofReal_liminf_le : ∀ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ≤
+                have h_ofReal_liminf_le :
+                    ∀ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ≤
                     Filter.liminf (fun K => g' K ω) Filter.atTop := fun ω => by
                   by_cases hcobdd : Filter.IsCoboundedUnder (· ≥ ·) Filter.atTop (fun K => Z K ω)
-                  · have h_bdd_below : Filter.IsBoundedUnder (· ≥ ·) Filter.atTop (fun K => Z K ω) :=
+                  · have h_bdd_below :
+                        Filter.IsBoundedUnder (· ≥ ·) Filter.atTop (fun K => Z K ω) :=
                       Filter.isBoundedUnder_of_eventually_ge
                         (Filter.Eventually.of_forall (fun K => h_Z_nonneg K ω))
                     have h_mono : Monotone ENNReal.ofReal := fun _ _ h => ENNReal.ofReal_le_ofReal h
@@ -2053,8 +2136,10 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                         ENNReal.continuous_ofReal.continuousAt hcobdd h_bdd_below
                     rw [h_eq]; rfl
                   · unfold Filter.liminf Filter.limsInf
-                    have h_unbdd : ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
-                      simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map] at hcobdd
+                    have h_unbdd : ¬BddAbove
+                        {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
+                      simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map]
+                        at hcobdd
                       intro ⟨b, hb⟩; apply hcobdd; use b; intro a ha; exact hb ha
                     rw [Real.sSup_of_not_bddAbove h_unbdd]
                     simp only [ENNReal.ofReal_zero, zero_le]
@@ -2064,9 +2149,11 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                   MeasureTheory.lintegral_mono h_ofReal_liminf_le
                 have h2 : ∫⁻ ω, Filter.liminf (fun K => g' K ω) Filter.atTop ∂μ ≤
                     Filter.liminf (fun K => ∫⁻ ω, g' K ω ∂μ) Filter.atTop := h_fatou_enn
-                have h3 : Filter.liminf (fun K => ∫⁻ ω, g' K ω ∂μ) Filter.atTop ≤ ENNReal.ofReal B :=
+                have h3 :
+                    Filter.liminf (fun K => ∫⁻ ω, g' K ω ∂μ) Filter.atTop ≤ ENNReal.ofReal B :=
                   h_liminf_bound
-                have h_chain : ∫⁻ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ∂μ ≤
+                have h_chain :
+                    ∫⁻ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ∂μ ≤
                     ENNReal.ofReal B := le_trans h1 (le_trans h2 h3)
                 rw [h_eq_top] at h_chain
                 exact absurd (top_unique h_chain).symm ENNReal.top_ne_ofReal
@@ -2089,15 +2176,18 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           rw [Filter.eventually_map, Filter.eventually_atTop]
           use 1
           intro K hK
-          have h_dyadic_le := dyadicRHS_le_four_times_entropyIntegral hs hD (Nat.le_add_left 1 K) hfinite
-          calc ∫ ω, Y K ω ∂μ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) := h_core_bound K hK
+          have h_dyadic_le :=
+            dyadicRHS_le_four_times_entropyIntegral hs hD (Nat.le_add_left 1 K) hfinite
+          calc ∫ ω, Y K ω ∂μ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) :=
+                h_core_bound K hK
             _ ≤ (6 * Real.sqrt 2) * σ * (4 * entropyIntegral s D) := by
                 apply mul_le_mul_of_nonneg_left h_dyadic_le
                 apply mul_nonneg (by positivity : (0:ℝ) ≤ 6 * Real.sqrt 2) (le_of_lt hσ)
         have h_cobdd : Filter.IsCoboundedUnder (· ≥ ·) Filter.atTop (fun K => ∫ ω, Y K ω ∂μ) :=
           h_bdd_above.isCoboundedUnder_ge
         -- Rewrite the h_int_eq to use + (-c) form
-        have h_int_eq' : ∀ᶠ K in Filter.atTop, ∫ ω, Z K ω ∂μ = ∫ ω, Y K ω ∂μ + (-(∫ ω, g ω ∂μ)) := by
+        have h_int_eq' :
+            ∀ᶠ K in Filter.atTop, ∫ ω, Z K ω ∂μ = ∫ ω, Y K ω ∂μ + (-(∫ ω, g ω ∂μ)) := by
           filter_upwards [h_int_eq] with K hK
           linarith
         calc Filter.liminf (fun K => ∫ ω, Z K ω ∂μ) Filter.atTop
@@ -2124,7 +2214,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
             Filter.liminf (fun K => Z K ω) Filter.atTop + g ω := by
           filter_upwards [h_liminf_Z] with ω hω
           linarith
-        have h_int_liminf_Z : Integrable (fun ω => Filter.liminf (fun K => Z K ω) Filter.atTop) μ := by
+        have h_int_liminf_Z :
+            Integrable (fun ω => Filter.liminf (fun K => Z K ω) Filter.atTop) μ := by
           have h_meas : Measurable (fun ω => Filter.liminf (fun K => Z K ω) Filter.atTop) :=
             Measurable.liminf (fun K => h_Z_meas K)
           have h_nonneg_ae : 0 ≤ᵐ[μ] (fun ω => Filter.liminf (fun K => Z K ω) Filter.atTop) := by
@@ -2134,11 +2225,14 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
             · apply Filter.le_liminf_of_le hcobdd
               exact Filter.Eventually.of_forall (fun K => h_Z_nonneg K ω)
             · unfold Filter.liminf Filter.limsInf
-              have h_unbdd : ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
-                simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map] at hcobdd
+              have h_unbdd :
+                  ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
+                simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map]
+                  at hcobdd
                 intro ⟨b, hb⟩; apply hcobdd; use b; intro a ha; exact hb ha
               rw [Real.sSup_of_not_bddAbove h_unbdd]
-          have h_lintegral_finite : ∫⁻ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ∂μ ≠ ⊤ := by
+          have h_lintegral_finite :
+              ∫⁻ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ∂μ ≠ ⊤ := by
             let g' : ℕ → Ω → ℝ≥0∞ := fun K ω => ENNReal.ofReal (Z K ω)
             have hg'_meas : ∀ K, Measurable (g' K) := fun K =>
               ENNReal.measurable_ofReal.comp (h_Z_meas K)
@@ -2161,11 +2255,13 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
               calc ∫ ω, Z K ω ∂μ = ∫ ω, Y K ω ∂μ - ∫ ω, g ω ∂μ :=
                   MeasureTheory.integral_sub (h_Y_int K hK) h_g_int
                 _ ≤ ∫ ω, Y K ω ∂μ + |∫ ω, g ω ∂μ| := by linarith [neg_abs_le (∫ ω, g ω ∂μ)]
-                _ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) + |∫ ω, g ω ∂μ| := by linarith
+                _ ≤ (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) + |∫ ω, g ω ∂μ| := by
+                    linarith
                 _ ≤ B := by
                     simp only [B]
                     have h1 : dyadicRHS_real s D (K + 1) ≤ C := hC_bound K hK
-                    have h2 : (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) ≤ (6 * Real.sqrt 2) * σ * C := by
+                    have h2 : (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) ≤
+                        (6 * Real.sqrt 2) * σ * C := by
                       apply mul_le_mul_of_nonneg_left h1; positivity
                     linarith
             have h_lintegral_eq : ∀ K, 1 ≤ K → ∫⁻ ω, g' K ω ∂μ = ENNReal.ofReal (∫ ω, Z K ω ∂μ) :=
@@ -2173,10 +2269,12 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                 have h_nonneg_K : 0 ≤ᵐ[μ] Z K := Filter.Eventually.of_forall (h_Z_nonneg K)
                 symm
                 exact MeasureTheory.ofReal_integral_eq_lintegral_ofReal (h_Z_int K hK) h_nonneg_K
-            have h_lintegral_bound : ∀ K, 1 ≤ K → ∫⁻ ω, g' K ω ∂μ ≤ ENNReal.ofReal B := fun K hK => by
+            have h_lintegral_bound :
+                ∀ K, 1 ≤ K → ∫⁻ ω, g' K ω ∂μ ≤ ENNReal.ofReal B := fun K hK => by
               rw [h_lintegral_eq K hK]
               exact ENNReal.ofReal_le_ofReal (hB_bound K hK)
-            have h_liminf_bound : Filter.liminf (fun K => ∫⁻ ω, g' K ω ∂μ) Filter.atTop ≤ ENNReal.ofReal B := by
+            have h_liminf_bound :
+                Filter.liminf (fun K => ∫⁻ ω, g' K ω ∂μ) Filter.atTop ≤ ENNReal.ofReal B := by
               apply Filter.liminf_le_of_le
               · exact ⟨0, Filter.Eventually.of_forall (fun _ => zero_le)⟩
               · intro b hb
@@ -2186,7 +2284,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                 have h_and := Filter.Eventually.and hb h_evt
                 obtain ⟨K, hK_ge, hK_le⟩ := h_and.exists
                 exact le_trans hK_ge hK_le
-            have h_ofReal_liminf_le : ∀ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ≤
+            have h_ofReal_liminf_le :
+                ∀ ω, ENNReal.ofReal (Filter.liminf (fun K => Z K ω) Filter.atTop) ≤
                 Filter.liminf (fun K => g' K ω) Filter.atTop := fun ω => by
               by_cases hcobdd : Filter.IsCoboundedUnder (· ≥ ·) Filter.atTop (fun K => Z K ω)
               · have h_bdd_below : Filter.IsBoundedUnder (· ≥ ·) Filter.atTop (fun K => Z K ω) :=
@@ -2197,8 +2296,10 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
                     ENNReal.continuous_ofReal.continuousAt hcobdd h_bdd_below
                 rw [h_eq]; rfl
               · unfold Filter.liminf Filter.limsInf
-                have h_unbdd : ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
-                  simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map] at hcobdd
+                have h_unbdd :
+                    ¬BddAbove {a | ∀ᶠ n in Filter.map (fun K => Z K ω) Filter.atTop, a ≤ n} := by
+                  simp only [Filter.IsCoboundedUnder, Filter.IsCobounded, Filter.eventually_map]
+                    at hcobdd
                   intro ⟨b, hb⟩; apply hcobdd; use b; intro a ha; exact hb ha
                 rw [Real.sSup_of_not_bddAbove h_unbdd]
                 simp only [ENNReal.ofReal_zero, zero_le]
@@ -2254,7 +2355,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           rw [abs_of_nonneg h_sup_nonneg]
           calc ⨆ n, X (t n) ω ≤ Filter.liminf (fun K => Y K ω) Filter.atTop := hω
             _ ≤ |Filter.liminf (fun K => Y K ω) Filter.atTop| := le_abs_self _
-            _ ≤ |X (t 0) ω| + |Filter.liminf (fun K => Y K ω) Filter.atTop| := le_add_of_nonneg_left (abs_nonneg _)
+            _ ≤ |X (t 0) ω| + |Filter.liminf (fun K => Y K ω) Filter.atTop| :=
+                le_add_of_nonneg_left (abs_nonneg _)
         · -- sup < 0
           push Not at h_sup_nonneg
           -- |sup| = -sup ≤ -X(t 0) since X(t 0) ≤ sup
@@ -2262,7 +2364,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           have h_X_t0_le : X (t 0) ω ≤ ⨆ n, X (t n) ω := le_ciSup h_bdd_above 0
           calc -(⨆ n, X (t n) ω) ≤ -X (t 0) ω := neg_le_neg h_X_t0_le
             _ ≤ |X (t 0) ω| := neg_le_abs _
-            _ ≤ |X (t 0) ω| + |Filter.liminf (fun K => Y K ω) Filter.atTop| := le_add_of_nonneg_right (abs_nonneg _)
+            _ ≤ |X (t 0) ω| + |Filter.liminf (fun K => Y K ω) Filter.atTop| :=
+                le_add_of_nonneg_right (abs_nonneg _)
       exact MeasureTheory.integral_mono_ae h_int_sup h_int_liminf h_pointwise_sup
 
     exact le_trans h_step1 h_fatou_Y
@@ -2305,7 +2408,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       have hδ_pos' : 0 < δ := hδ_pos K
       have hδ_le_D : δ ≤ D := by
         simp only [δ]
-        have h1 : (2 : ℝ) ^ (-((K + 1) : ℤ)) ≤ 1 := zpow_le_one_of_nonpos₀ (by norm_num) (by linarith)
+        have h1 : (2 : ℝ) ^ (-((K + 1) : ℤ)) ≤ 1 :=
+          zpow_le_one_of_nonpos₀ (by norm_num) (by linarith)
         calc D * (2 : ℝ) ^ (-((K + 1) : ℤ)) ≤ D * 1 := mul_le_mul_of_nonneg_left h1 (le_of_lt hD)
           _ = D := mul_one D
       -- The gap equals the integral over (0, δ]
@@ -2382,7 +2486,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
 
   -- Upper bound: dyadicRHS ≤ 2*entropyIntegral + 2*δf(δ)
   have h_dyadic_upper : ∀ K, 1 ≤ K → dyadicRHS_real s D (K + 1) ≤
-      2 * entropyIntegral s D + 2 * (D * 2^(-((K+1) : ℤ))) * sqrtEntropy (D * 2^(-((K+1) : ℤ))) s := by
+      2 * entropyIntegral s D +
+        2 * (D * 2^(-((K+1) : ℤ))) * sqrtEntropy (D * 2^(-((K+1) : ℤ))) s := by
     intro K hK
     have h1 := dyadicRHS_le_twice_entropyIntegralTrunc_add_tail hs hD (Nat.le_add_left 1 K)
     have h2 := entropyIntegralTrunc_le_entropyIntegral hD (K + 1) hfinite
@@ -2395,7 +2500,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
           linarith
 
   -- (11√2)σ * dyadicRHS is bounded above (needed for IsCoboundedUnder)
-  have h_rhs_bounded_above : ∃ B : ℝ, ∀ K, 1 ≤ K → (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) ≤ B := by
+  have h_rhs_bounded_above :
+      ∃ B : ℝ, ∀ K, 1 ≤ K → (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) ≤ B := by
     use (6 * Real.sqrt 2) * σ * (4 * entropyIntegral s D)
     intro K hK
     have h_le := dyadicRHS_le_four_times_entropyIntegral hs hD (Nat.le_add_left 1 K) hfinite
@@ -2415,12 +2521,14 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
     obtain ⟨N, hN⟩ := ha
     -- At K = max N 1, we have both: function(K) ≥ a and function(K) ≤ B
     have hK : max N 1 ≥ 1 := le_max_right N 1
-    have h1 : (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (max N 1 + 1) ≥ a := hN (max N 1) (le_max_left N 1)
+    have h1 : (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (max N 1 + 1) ≥ a :=
+      hN (max N 1) (le_max_left N 1)
     have h2 : (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (max N 1 + 1) ≤ B := hB (max N 1) hK
     linarith
 
   -- Upper bound on liminf: liminf((6√2)σ*dyadicRHS) ≤ (12√2)σ*entropyIntegral
-  have h_liminf_upper : Filter.liminf (fun K => (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1)) Filter.atTop
+  have h_liminf_upper :
+      Filter.liminf (fun K => (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1)) Filter.atTop
       ≤ (12 * Real.sqrt 2) * σ * entropyIntegral s D := by
     -- For each K: (6√2)σ*dyadicRHS ≤ (12√2)σ*entropyIntegral + (12√2)σ*tail(K)
     have h_upper_with_tail : ∀ K, 1 ≤ K → (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1) ≤
@@ -2434,11 +2542,13 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
             apply mul_le_mul_of_nonneg_left h
             apply mul_nonneg (by positivity : (0:ℝ) ≤ 6 * Real.sqrt 2) (le_of_lt hσ)
         _ = (12 * Real.sqrt 2) * σ * entropyIntegral s D +
-            (12 * Real.sqrt 2) * σ * (D * 2^(-((K+1) : ℤ))) * sqrtEntropy (D * 2^(-((K+1) : ℤ))) s := by ring
+            (12 * Real.sqrt 2) * σ * (D * 2^(-((K+1) : ℤ))) *
+              sqrtEntropy (D * 2^(-((K+1) : ℤ))) s := by ring
 
     -- The tail tends to 0, so liminf(tail) = 0
     have h_tail_tendsto_scaled : Filter.Tendsto
-        (fun K : ℕ => (12 * Real.sqrt 2) * σ * (D * (2 : ℝ)^(-(↑K + 1 : ℤ))) * sqrtEntropy (D * (2 : ℝ)^(-(↑K + 1 : ℤ))) s)
+        (fun K : ℕ => (12 * Real.sqrt 2) * σ * (D * (2 : ℝ)^(-(↑K + 1 : ℤ))) *
+          sqrtEntropy (D * (2 : ℝ)^(-(↑K + 1 : ℤ))) s)
         Filter.atTop (nhds 0) := by
       have h := h_tail_tendsto.const_mul ((6 * Real.sqrt 2) * σ)
       simp only [mul_zero] at h
@@ -2457,7 +2567,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
       simp only [add_zero] at h_sum
       exact h_sum
 
-    have h_liminf_eq : Filter.liminf g Filter.atTop = (12 * Real.sqrt 2) * σ * entropyIntegral s D :=
+    have h_liminf_eq :
+        Filter.liminf g Filter.atTop = (12 * Real.sqrt 2) * σ * entropyIntegral s D :=
       h_const_plus_vanishing.liminf_eq
 
     -- (6√2)σ * dyadicRHS is bounded below by 0
@@ -2517,7 +2628,8 @@ theorem dudley_chaining_bound_countable {Ω : Type u} [MeasurableSpace Ω] {A : 
 
   calc ∫ ω, ⨆ n, X (t n) ω ∂μ
     _ ≤ Filter.liminf (fun K => ∫ ω, Y K ω ∂μ) Filter.atTop := h_fatou
-    _ ≤ Filter.liminf (fun K => (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1)) Filter.atTop := by
+    _ ≤ Filter.liminf (fun K => (6 * Real.sqrt 2) * σ * dyadicRHS_real s D (K + 1))
+          Filter.atTop := by
         apply Filter.liminf_le_liminf
         · filter_upwards [Filter.eventually_ge_atTop 1] with K hK
           exact h_core_bound K hK

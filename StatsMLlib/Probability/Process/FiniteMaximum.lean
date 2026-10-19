@@ -131,7 +131,8 @@ theorem expected_max_subGaussian {ι : Type*}
     have h1 : (sqrt (2 * log n) / σ)^2 = (2 * log n) / σ^2 := by
       rw [div_pow, sq_sqrt (by positivity : 0 ≤ 2 * log n)]
     calc (1 / (sqrt (2 * log n) / σ)) * (log n + (sqrt (2 * log n) / σ)^2 * σ^2 / 2)
-      _ = (σ / sqrt (2 * log n)) * (log n + (2 * log n) / σ^2 * σ^2 / 2) := by rw [one_div, inv_div, h1]
+      _ = (σ / sqrt (2 * log n)) * (log n + (2 * log n) / σ^2 * σ^2 / 2) := by
+          rw [one_div, inv_div, h1]
       _ = (σ / sqrt (2 * log n)) * (log n + log n) := by
           congr 1
           field_simp
@@ -178,7 +179,8 @@ theorem expected_max_subGaussian {ι : Type*}
           · exact ae_of_all μ (fun ω => (exp_pos _).le)
           · exact hsum_int
           · exact ae_of_all μ (fun ω => exp_mul_sup'_le_sum hs (fun i => X i ω) t_opt)
-      _ = ∑ i ∈ s, ∫ ω, exp (t_opt * X i ω) ∂μ := integral_finsetSum s (fun i hi => hX_int_exp i hi t_opt)
+      _ = ∑ i ∈ s, ∫ ω, exp (t_opt * X i ω) ∂μ :=
+          integral_finsetSum s (fun i hi => hX_int_exp i hi t_opt)
       _ ≤ ∑ i ∈ s, exp (t_opt^2 * σ^2 / 2) := Finset.sum_le_sum (fun i hi => hMGF_bound i hi)
       _ = n * exp (t_opt^2 * σ^2 / 2) := by simp [Finset.sum_const, hn_def]
 
