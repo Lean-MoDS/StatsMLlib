@@ -351,7 +351,8 @@ lemma f_mul_log_condExpFirstK_integrable (k : Fin (n + 1)) (f : (Fin n → Ω) �
   have hfφ_int : Integrable (f ∘ φ) (μˢ.prod μˢ) := hφ_mp.integrable_comp_of_integrable hf_int
 
   -- The product function (x, y) ↦ f(φ(x,y)) * log(T(x)) is integrable
-  have hprod_int : Integrable (fun p : (Fin n → Ω) × (Fin n → Ω) => f (φ p) * log (T p.1)) (μˢ.prod μˢ) := by
+  have hprod_int : Integrable (fun p : (Fin n → Ω) × (Fin n → Ω) => f (φ p) *
+      log (T p.1)) (μˢ.prod μˢ) := by
 
     -- Use Fubini for integrability
     have hprod_aesm : AEStronglyMeasurable (fun p => f (φ p) * log (T p.1)) (μˢ.prod μˢ) := by
@@ -372,7 +373,8 @@ lemma f_mul_log_condExpFirstK_integrable (k : Fin (n + 1)) (f : (Fin n → Ω) �
         rw [norm_mul]
       rw [h1]
       have h2 : ∫ y, ‖f (φ (x, y))‖ * ‖log (T x)‖ ∂μˢ = ‖log (T x)‖ * ∫ y, ‖f (φ (x, y))‖ ∂μˢ := by
-        have heq : ∀ y, ‖f (φ (x, y))‖ * ‖log (T x)‖ = ‖log (T x)‖ * ‖f (φ (x, y))‖ := fun y => mul_comm _ _
+        have heq : ∀ y, ‖f (φ (x, y))‖ * ‖log (T x)‖ = ‖log (T x)‖ * ‖f (φ (x, y))‖ :=
+            fun y => mul_comm _ _
         simp_rw [heq]
         exact integral_const_mul _ _
       rw [h2]
@@ -408,7 +410,8 @@ lemma f_mul_log_condExpFirstK_integrable (k : Fin (n + 1)) (f : (Fin n → Ω) �
             simp_rw [hnorm_eq]
             rw [ofReal_integral_eq_lintegral_ofReal]
             · -- Integrability of the norm function
-              have heq : (fun y => ‖f (φ (x, y)) * log (T x)‖) = (fun y => ‖f (φ (x, y))‖ * ‖log (T x)‖) := by
+              have heq : (fun y => ‖f (φ (x, y)) * log (T x)‖) =
+                  (fun y => ‖f (φ (x, y))‖ * ‖log (T x)‖) := by
                 ext y; exact norm_mul _ _
               rw [heq]
               exact hint.norm.mul_const _
@@ -491,7 +494,8 @@ theorem condExpFirstK_tower_of_integrable_slice (k : Fin n) (f : (Fin n → Ω) 
   -- Show RHS inner integrand equals G z w
   have hRHS_eq : ∀ z : Ω, ∀ w : Fin n → Ω,
       (fun j => if j.val < (k.succ : Fin (n + 1)).val then
-           (Function.update x k z) j else w j) = (fun j => if j.val < k.val then x j else if j = k then z else w j) := by
+           (Function.update x k z) j else w j) =
+               (fun j => if j.val < k.val then x j else if j = k then z else w j) := by
     intro z w
     ext j
     simp only [Fin.val_succ]
@@ -507,7 +511,8 @@ theorem condExpFirstK_tower_of_integrable_slice (k : Fin n) (f : (Fin n → Ω) 
         simp only [hj_eq, Nat.lt_succ_self, ↓reduceIte, Nat.lt_irrefl]
         exact Function.update_self k z x
       · -- j ≠ k and j.val ≥ k.val, so j.val > k.val, so j.val ≥ k.val + 1
-        have hj_gt : j.val > k.val := Nat.lt_of_le_of_ne (Nat.le_of_not_lt hj_lt) (fun h => hj_eq (Fin.ext h.symm))
+        have hj_gt : j.val > k.val :=
+            Nat.lt_of_le_of_ne (Nat.le_of_not_lt hj_lt) (fun h => hj_eq (Fin.ext h.symm))
         have hj_ge_succ : ¬(j.val < k.val + 1) := Nat.not_lt_of_ge hj_gt
         simp only [hj_ge_succ, ↓reduceIte, hj_lt, hj_eq]
 
@@ -536,11 +541,13 @@ theorem condExpFirstK_tower_of_integrable_slice (k : Fin n) (f : (Fin n → Ω) 
     · by_cases hj_eq : j = k
       · subst hj_eq
         simp only [Nat.lt_succ_self, ↓reduceIte, hj_lt]
-      · have hj_gt : j.val > k.val := Nat.lt_of_le_of_ne (Nat.le_of_not_lt hj_lt) (fun h => hj_eq (Fin.ext h.symm))
+      · have hj_gt : j.val > k.val :=
+          Nat.lt_of_le_of_ne (Nat.le_of_not_lt hj_lt) (fun h => hj_eq (Fin.ext h.symm))
         have hj_ge_succ : ¬(j.val < k.val + 1) := Nat.not_lt_of_ge hj_gt
         simp only [hj_ge_succ, ↓reduceIte, hj_lt, hj_eq]
 
-  -- Show: for all w, the integrand in the unfolded RHS equals f(...) with (if j = k then z else x j)
+  -- Show: for all w, the integrand in the unfolded RHS equals f(...) with
+  -- (if j = k then z else x j)
   have hRHS_update_eq : ∀ z : Ω, ∀ w : Fin n → Ω, ∀ j : Fin n,
       (if j.val < (k.succ : Fin (n + 1)).val then (Function.update x k z) j else w j) =
       (if j.val < (k.succ : Fin (n + 1)).val then (if j = k then z else x j) else w j) := by
@@ -555,7 +562,8 @@ theorem condExpFirstK_tower_of_integrable_slice (k : Fin n) (f : (Fin n → Ω) 
   -- Now use the simplified form
   have hRHS_simp : ∀ z : Ω, ∀ w : Fin n → Ω,
       (fun j => if j.val < (k.succ : Fin (n + 1)).val then (Function.update x k z) j else w j) =
-      (fun j => if j.val < (k.succ : Fin (n + 1)).val then (if j = k then z else x j) else w j) := by
+      (fun j => if j.val < (k.succ : Fin (n + 1)).val then (if j = k then z else x j)
+          else w j) := by
     intro z w; ext j; exact hRHS_update_eq z w j
 
   have hRHS_eq_G' : ∀ z : Ω, ∀ w : Fin n → Ω,
@@ -683,7 +691,8 @@ theorem condExpFirstK_tower (k : Fin n) (f : (Fin n → Ω) → ℝ)
     · simp only [hφ_def, ite_eq_right h]; exact measurable_snd.eval
 
   -- Key: φ is measure-preserving from μˢ.prod μˢ to μˢ
-  have hφ_mp : MeasurePreserving φ (μˢ.prod μˢ) μˢ := ⟨hφ_meas, map_select_coords_prod_pi k.castSucc⟩
+  have hφ_mp : MeasurePreserving φ (μˢ.prod μˢ) μˢ :=
+      ⟨hφ_meas, map_select_coords_prod_pi k.castSucc⟩
 
   -- f ∘ φ is integrable on μˢ.prod μˢ because f is integrable on μˢ
   have hcomp_int : Integrable (f ∘ φ) (μˢ.prod μˢ) :=
@@ -788,7 +797,8 @@ lemma condExpExceptCoord_mul_log_condExpFirstK_integrable (i : Fin n) (f : (Fin 
       calc Measure.map (fun p : (Fin n → Ω) × Ω => Function.update p.1 i p.2) (μˢ.prod (μs i))
         _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
             (Measure.map Prod.swap (μˢ.prod (μs i))) := (Measure.map_map hg measurable_swap).symm
-        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1) ((μs i).prod μˢ) := by
+        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
+            ((μs i).prod μˢ) := by
             rw [Measure.prod_swap]
         _ = μˢ := map_update_prod_pi i
 
@@ -830,15 +840,18 @@ lemma condExpExceptCoord_mul_log_condExpFirstK_integrable (i : Fin n) (f : (Fin 
     _ = ∫⁻ p, ‖f (Function.update p.1 i p.2) * log (T_i p.1)‖₊ ∂(μˢ.prod (μs i)) := by
         symm
         exact lintegral_prod _ ((hf_meas.comp (measurable_update' (a := i))).mul
-            (measurable_log.comp (hT_meas.comp measurable_fst))).nnnorm.coe_nnreal_ennreal.aemeasurable
+            (measurable_log.comp
+                (hT_meas.comp measurable_fst))).nnnorm.coe_nnreal_ennreal.aemeasurable
     -- Use T_i(update x i y) = T_i(x)
-    _ = ∫⁻ p, ‖f (Function.update p.1 i p.2) * log (T_i (Function.update p.1 i p.2))‖₊ ∂(μˢ.prod (μs i)) := by
+    _ = ∫⁻ p, ‖f (Function.update p.1 i p.2) *
+        log (T_i (Function.update p.1 i p.2))‖₊ ∂(μˢ.prod (μs i)) := by
         apply lintegral_congr
         intro p
         rw [hlogT_const p.1 p.2]
     -- Apply measure-preserving property
     _ = ∫⁻ z, ‖f z * log (T_i z)‖₊ ∂μˢ := by
-        have h := hmp.lintegral_comp (hf_meas.mul (measurable_log.comp hT_meas)).nnnorm.coe_nnreal_ennreal
+        have h :=
+            hmp.lintegral_comp (hf_meas.mul (measurable_log.comp hT_meas)).nnnorm.coe_nnreal_ennreal
         exact h
     _ < ⊤ := hflogT_int.2
 
@@ -867,7 +880,8 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
       calc Measure.map (fun p : (Fin n → Ω) × Ω => Function.update p.1 i p.2) (μˢ.prod (μs i))
         _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
             (Measure.map Prod.swap (μˢ.prod (μs i))) := (Measure.map_map hg' measurable_swap).symm
-        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1) ((μs i).prod μˢ) := by
+        _ = Measure.map (fun q : Ω × (Fin n → Ω) => Function.update q.2 i q.1)
+            ((μs i).prod μˢ) := by
             rw [Measure.prod_swap]
         _ = μˢ := map_update_prod_pi i
 
@@ -996,8 +1010,10 @@ lemma condExpFirstK_pos_on_slice_ae (i : Fin n) (f : (Fin n → Ω) → ℝ)
       rw [← ae_iff]
       exact hT_nonneg
     rw [ae_iff]
-    have h_eq : {p : (Fin n → Ω) × Ω | ¬0 ≤ condExpFirstK (μs := μs) i.succ f (Function.update p.1 i p.2)} =
-        (fun p => Function.update p.1 i p.2) ⁻¹' {x | ¬0 ≤ condExpFirstK (μs := μs) i.succ f x} := rfl
+    have h_eq :
+        {p : (Fin n → Ω) × Ω | ¬0 ≤ condExpFirstK (μs := μs) i.succ f (Function.update p.1 i p.2)} =
+        (fun p => Function.update p.1 i p.2) ⁻¹'
+          {x | ¬0 ≤ condExpFirstK (μs := μs) i.succ f x} := rfl
     rw [h_eq]
     have hbad_meas : MeasurableSet {x | ¬0 ≤ condExpFirstK (μs := μs) i.succ f x} :=
       (condExpFirstK_measurable i.succ f hf_meas) measurableSet_Ici.compl
@@ -1057,7 +1073,8 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
   have h_rw : (fun x => f x * (log (condExpFirstK (μs := μs) i.succ f x) -
                           log (condExpFirstK (μs := μs) i.castSucc f x))) =ᵐ[μˢ]
               (fun x => f x * (log (condExpFirstK (μs := μs) i.succ f x) -
-                     log (condExpExceptCoord (μs := μs) i (condExpFirstK (μs := μs) i.succ f) x))) := by
+                     log (condExpExceptCoord (μs := μs) i
+                         (condExpFirstK (μs := μs) i.succ f) x))) := by
     filter_upwards [h_tower] with x hx
     rw [hx]
 
@@ -1065,7 +1082,8 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
 
   have h_indep : ∀ x y : Fin n → Ω,
       condExpExceptCoord (μs := μs) i (condExpFirstK (μs := μs) i.succ f) x =
-      condExpExceptCoord (μs := μs) i (condExpFirstK (μs := μs) i.succ f) (Function.update x i (y i)) := by
+      condExpExceptCoord (μs := μs) i (condExpFirstK (μs := μs) i.succ f)
+          (Function.update x i (y i)) := by
     intro x y
     rw [condExpExceptCoord_update]
 
@@ -1088,7 +1106,8 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
   have h_nonneg_ae : ∀ᵐ x ∂μˢ, 0 ≤ condEntExceptCoord (μs := μs) i f x := by
     filter_upwards [hnn_ae, hint_ae, hlogint_ae] with x hnn hint hlogint
     exact condEntExceptCoord_nonneg_at i f x hnn hint hlogint
-  have h_log_const_factor : ∀ x, ∫ y, f (Function.update x i y) * log (condExpExceptCoord (μs := μs) i T x) ∂(μs i) =
+  have h_log_const_factor : ∀ x, ∫ y, f (Function.update x i y) *
+      log (condExpExceptCoord (μs := μs) i T x) ∂(μs i) =
       log (condExpExceptCoord (μs := μs) i T x) * condExpExceptCoord (μs := μs) i f x := by
     intro x
     have h_comm : ∀ y, f (Function.update x i y) * log (condExpExceptCoord (μs := μs) i T x) =
@@ -1108,7 +1127,9 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
 
   have h_slice_bound : ∀ᵐ x ∂μˢ,
       EflogT x - Ef x * log (ET x) ≤ Eflogf x - Ef x * log (Ef x) := by
-    filter_upwards [hnn_ae, hint_ae, hlogint_ae, hT_slice_nn_ae, hT_slice_int_ae, hflogT_slice_int_ae, condExpFirstK_pos_on_slice_ae i f hf_meas hf_nn hf_int] with x hnn hint hlogint hT'_nn_ae hT'_int hYlogT'_int_x hT'_pos_on_Y_raw
+    filter_upwards [hnn_ae, hint_ae, hlogint_ae, hT_slice_nn_ae, hT_slice_int_ae,
+        hflogT_slice_int_ae, condExpFirstK_pos_on_slice_ae i f hf_meas hf_nn hf_int]
+        with x hnn hint hlogint hT'_nn_ae hT'_int hYlogT'_int_x hT'_pos_on_Y_raw
     set Y := fun y => f (Function.update x i y) with hY_def
     set T' := fun y => T (Function.update x i y) with hT'_def
     have hEf_eq : Ef x = ∫ y, Y y ∂(μs i) := rfl
@@ -1195,7 +1216,8 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
   have hLHS_eq : ∫ x, f x * (log (T x) - log (condExpExceptCoord (μs := μs) i T x)) ∂μˢ =
       ∫ x, (EflogT x - Ef x * log (ET x)) ∂μˢ := by
     have h1 : ∫ x, f x * (log (T x) - log (condExpExceptCoord (μs := μs) i T x)) ∂μˢ =
-              ∫ x, f x * log (T x) ∂μˢ - ∫ x, f x * log (condExpExceptCoord (μs := μs) i T x) ∂μˢ := by
+              ∫ x, f x * log (T x) ∂μˢ - ∫ x, f x *
+                  log (condExpExceptCoord (μs := μs) i T x) ∂μˢ := by
       have h_eq : ∀ x, f x * (log (T x) - log (condExpExceptCoord (μs := μs) i T x)) =
                   f x * log (T x) - f x * log (condExpExceptCoord (μs := μs) i T x) := by
         intro x; ring
@@ -1222,10 +1244,12 @@ theorem term_le_expected_condEnt (i : Fin n) (f : (Fin n → Ω) → ℝ)
           exact this.symm
         have h_integrand_eq : ∀ y, log (condExpExceptCoord (μs := μs) i T (Function.update x i y)) *
                                    f (Function.update x i y) =
-                                   log (condExpExceptCoord (μs := μs) i T x) * f (Function.update x i y) := by
+                                   log (condExpExceptCoord (μs := μs) i T x) *
+                                       f (Function.update x i y) := by
           intro y
           rw [h_ET_const y]
-        calc ∫ y, log (condExpExceptCoord i T (Function.update x i y)) * f (Function.update x i y) ∂μs i
+        calc ∫ y, log (condExpExceptCoord i T (Function.update x i y)) *
+            f (Function.update x i y) ∂μs i
             = ∫ y, log (condExpExceptCoord i T x) * f (Function.update x i y) ∂μs i := by
                 apply integral_congr_ae; filter_upwards with y; exact h_integrand_eq y
           _ = log (condExpExceptCoord i T x) * ∫ y, f (Function.update x i y) ∂μs i :=
@@ -1324,7 +1348,8 @@ theorem entropy_subadditive (f : (Fin n → Ω) → ℝ)
         have h_eq : (fun x => f x * (log (condExpFirstK (μs := μs) i.succ f x) -
                      log (condExpFirstK (μs := μs) i.castSucc f x))) =ᵐ[μˢ]
             (fun x => f x * (log (condExpFirstK (μs := μs) i.succ f x) -
-                     log (condExpExceptCoord (μs := μs) i (condExpFirstK (μs := μs) i.succ f) x))) := by
+                     log (condExpExceptCoord (μs := μs) i
+                         (condExpFirstK (μs := μs) i.succ f) x))) := by
           filter_upwards [h_tower] with x hx
           rw [hx]
         apply Integrable.congr _ h_eq.symm
@@ -1336,7 +1361,8 @@ theorem entropy_subadditive (f : (Fin n → Ω) → ℝ)
         simp_rw [h_decomp]
         exact Integrable.sub
           (f_mul_log_condExpFirstK_integrable i.succ f hf_meas hf_nn hf_int hf_log_int)
-          (f_mul_log_condExpExceptCoord_condExpFirstK_integrable i f hf_meas hf_nn hf_int hf_log_int)
+          (f_mul_log_condExpExceptCoord_condExpFirstK_integrable i f hf_meas hf_nn
+              hf_int hf_log_int)
       rw [integral_finsetSum Finset.univ (fun i _ => h_term_int i)]
 
     have h_ent_eq : LogSobolev.entropy μˢ f =

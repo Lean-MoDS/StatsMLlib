@@ -324,11 +324,13 @@ theorem linear_predictor_l1_bound'
                                 intro j hj
                                 calc
                                   ∑ k : Fin n, (σ k : ℝ) * ((w' i).1 j * ((Subtype.val ∘ Y') k j))
-                                      = ∑ k : Fin n, (w' i).1 j * ((σ k : ℝ) * ((Subtype.val ∘ Y') k j)) := by
+                                      = ∑ k : Fin n, (w' i).1 j *
+                                          ((σ k : ℝ) * ((Subtype.val ∘ Y') k j)) := by
                                           refine Finset.sum_congr rfl ?_
                                           intro k hk
                                           ring
-                                  _ = (w' i).1 j * ∑ k : Fin n, (σ k : ℝ) * ((Subtype.val ∘ Y') k j) := by
+                                  _ = (w' i).1 j * ∑ k : Fin n, (σ k : ℝ) * ((Subtype.val ∘ Y') k j)
+                                      := by
                                         rw [Finset.mul_sum]
             _ = ∑ j : Fin d, (w' i).1 j * z j := by
                   rw [Finset.mul_sum]
@@ -710,11 +712,13 @@ theorem linear_predictor_l1_bound_of_sample'
                                 intro j hj
                                 calc
                                   ∑ k : Fin n, (σ k : ℝ) * ((w' i).1 j * ((Subtype.val ∘ Y') k j))
-                                      = ∑ k : Fin n, (w' i).1 j * ((σ k : ℝ) * ((Subtype.val ∘ Y') k j)) := by
+                                      = ∑ k : Fin n, (w' i).1 j *
+                                          ((σ k : ℝ) * ((Subtype.val ∘ Y') k j)) := by
                                           refine Finset.sum_congr rfl ?_
                                           intro k hk
                                           ring
-                                  _ = (w' i).1 j * ∑ k : Fin n, (σ k : ℝ) * ((Subtype.val ∘ Y') k j) := by
+                                  _ = (w' i).1 j * ∑ k : Fin n, (σ k : ℝ) * ((Subtype.val ∘ Y') k j)
+                                      := by
                                         rw [Finset.mul_sum]
             _ = ∑ j : Fin d, (w' i).1 j * z j := by
                   rw [Finset.mul_sum]

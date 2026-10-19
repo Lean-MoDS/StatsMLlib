@@ -40,7 +40,8 @@ def Factorizes (G : SimpleGraph V) [DecidableRel G.Adj] (p : (∀ v, Ω v) → �
 /-- A product `h · k` with `h` depending on `A ∪ S` and `k` on `B ∪ S`, where `A ∪ B ∪ S` covers all
 vertices, makes `A` and `B` independent given `S`. -/
 theorem DiscreteCondIndep.of_mul {A B S : Finset V} (hAB : Disjoint A B) (hAS : Disjoint A S)
-    (hcover : A ∪ B ∪ S = univ) {h k : (∀ v, Ω v) → ℝ} (hh : DependsOn h ((A ∪ S : Finset V) : Set V))
+    (hcover : A ∪ B ∪ S = univ) {h k : (∀ v, Ω v) → ℝ}
+    (hh : DependsOn h ((A ∪ S : Finset V) : Set V))
     (hk : DependsOn k ((B ∪ S : Finset V) : Set V)) (hp : ∀ x, p x = h x * k x) :
     DiscreteCondIndep p A B S := by
   have hmem : ∀ v, v ∈ A ∨ v ∈ B ∨ v ∈ S := fun v ↦ by
@@ -118,7 +119,8 @@ private theorem dependsOn_prod {ι : Type*} {s : Finset ι} {f : ι → (∀ v, 
 /-- A function that factorises over `G` satisfies the global Markov property. Split the clique
 potentials into those inside `Ã ∪ S`, where `Ã` is the set reachable from `A` avoiding `S`, and the
 rest, which avoid `Ã`. -/
-theorem Factorizes.isGlobalMarkov (hF : Factorizes G p) : IsGlobalMarkov G (DiscreteCondIndep p) := by
+theorem Factorizes.isGlobalMarkov (hF : Factorizes G p) : IsGlobalMarkov G
+    (DiscreteCondIndep p) := by
   obtain ⟨ψ, -, hψ, hp⟩ := hF
   intro S A B hSA hSB hAB hsep
   set R := G.reachFinset S A

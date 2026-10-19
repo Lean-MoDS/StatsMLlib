@@ -47,7 +47,7 @@ This file records the HDP Theorem 5.4.1 statement in the local random-matrix not
   bound.
 * `RMT.matrixBernstein_lieb_recursion_of_independent`: the arbitrary finite-family HDP Step 2
   recursion for independent summands.
-* `RMT.matrixBernstein_norm_tail_le_of_lieb_recursions_and_individual_mgf_bounds_at_optimizingLambda`:
+* `matrixBernstein_norm_tail_le_of_lieb_recursions_and_individual_mgf_bounds_at_optimizingLambda`:
   the nondegenerate HDP norm-tail bound from the exact Step 2 recursion and Lemma 5.4.10 bounds.
 * `RMT.matrixBernstein_norm_tail_le_of_trace_exp_variance_bounds_at_optimizingLambda`: the
   nondegenerate HDP norm-tail bound from the two variance-matrix trace bounds.
@@ -2298,7 +2298,8 @@ The nondegenerate HDP norm-tail bound from the exact remaining Step 2 and Step 3
 * the Lieb-recursion trace bounds for `X` and `-X`, and
 * the individual matrix MGF Loewner bounds of HDP Lemma 5.4.10 for `X` and `-X`.
 -/
-theorem matrixBernstein_norm_tail_le_of_lieb_recursions_and_individual_mgf_bounds_at_optimizingLambda
+theorem
+    matrixBernstein_norm_tail_le_of_lieb_recursions_and_individual_mgf_bounds_at_optimizingLambda
     {n N : ℕ} (hn : 0 < n)
     (X : Fin N → Ω → Matrix (Fin n) (Fin n) ℝ)
     (μ : Measure Ω) [IsProbabilityMeasure μ] {K t : ℝ}
@@ -2399,7 +2400,8 @@ using the functional-calculus reduction for HDP Lemma 5.4.10. The only remaining
 the scalar inequality
 `exp(λx) ≤ 1 + λx + g(λ)x²` on `[-K, K]`.
 -/
-theorem matrixBernstein_norm_tail_le_of_lieb_recursions_and_mgfRate_scalar_envelope_at_optimizingLambda
+theorem
+    matrixBernstein_norm_tail_le_of_lieb_recursions_and_mgfRate_scalar_envelope_at_optimizingLambda
     {n N : ℕ} (hn : 0 < n)
     (X : Fin N → Ω → Matrix (Fin n) (Fin n) ℝ)
     (μ : Measure Ω) [IsProbabilityMeasure μ] {K t : ℝ}
@@ -2512,7 +2514,8 @@ theorem matrixBernstein_norm_tail_le_of_lieb_recursions_and_mgfRate_scalar_envel
       (by intro i; simpa [Xneg, l] using h_exp_int_neg i)
       h_integrable_neg h_square_integrable_neg h_mean_zero_neg hXneg_symmetric
       h_norm_bound_neg (by simpa [Xneg, l] using hscalar)
-  exact matrixBernstein_norm_tail_le_of_lieb_recursions_and_individual_mgf_bounds_at_optimizingLambda
+  exact
+      matrixBernstein_norm_tail_le_of_lieb_recursions_and_individual_mgf_bounds_at_optimizingLambda
     hn X μ hσ hK ht h_square_integrable hX_symmetric htrace_int htrace_int_neg
     (by simpa [l] using hindividual_pos)
     (by simpa [Xneg, l] using hindividual_pos_neg)

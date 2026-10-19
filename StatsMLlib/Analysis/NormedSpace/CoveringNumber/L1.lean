@@ -41,7 +41,8 @@ variable {d : ℕ}
 
 -- MeasurableSpace for Option (Fin d) using discrete sigma-algebra
 instance instMeasurableSpaceOptionFin (d : ℕ) : MeasurableSpace (Option (Fin d)) := ⊤
-instance instMeasurableSingletonClassOptionFin (d : ℕ) : MeasurableSingletonClass (Option (Fin d)) :=
+instance instMeasurableSingletonClassOptionFin (d : ℕ) :
+    MeasurableSingletonClass (Option (Fin d)) :=
   ⟨fun _ => trivial⟩
 
 -- L1 norm on EuclideanSpace ℝ (Fin d)
@@ -62,7 +63,8 @@ lemma sgn_sq (x : ℝ) : sgn x ^ 2 = 1 := by
   by_cases hx : 0 ≤ x <;> simp [sgn, hx]
 
 -- vector-valued random variable depending on θ
-noncomputable def vecθ (θ : EuclideanSpace ℝ (Fin d)) (R : ℝ) : Option (Fin d) → EuclideanSpace ℝ (Fin d)
+noncomputable def vecθ (θ : EuclideanSpace ℝ (Fin d)) (R : ℝ) :
+    Option (Fin d) → EuclideanSpace ℝ (Fin d)
   | none => 0
   | some j => EuclideanSpace.single j (R * sgn (θ j))
 
@@ -212,7 +214,8 @@ lemma l1pmf_second_moment_coord (θ : EuclideanSpace ℝ (Fin d)) {R : ℝ} (hR 
   -- Simplify nested if with same condition
   have hsum_simp : ∀ x, (if j = x then (if j = x then ((l1pmf θ R hθ) (some x)).toReal •
       (R * sgn (θ x) * (R * sgn (θ x))) else 0) else 0) =
-      (if j = x then ((l1pmf θ R hθ) (some x)).toReal • (R * sgn (θ x) * (R * sgn (θ x))) else 0) := by
+      (if j = x then ((l1pmf θ R hθ) (some x)).toReal • (R * sgn (θ x) * (R * sgn (θ x)))
+        else 0) := by
     intro x; split_ifs <;> rfl
   simp only [hsum_simp]
   rw [Finset.sum_ite_eq Finset.univ j (fun x => _ • ((R * sgn (θ x)) * (R * sgn (θ x))))]
@@ -325,7 +328,8 @@ lemma exists_avgθ_close (θ : EuclideanSpace ℝ (Fin d)) {R eps : ℝ} (hR : 0
               calc ∫ ω, ((avgθ θ R k ω).ofLp j - θ.ofLp j) ^ 2 ∂ν
                   ≤ (k : ℝ)⁻¹ * (∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ) := by
                     -- Define centered random variable
-                    let Y := fun i (ω : Fin k → Option (Fin d)) => (vecθ θ R (ω i)).ofLp j - θ.ofLp j
+                    let Y := fun i (ω : Fin k → Option (Fin d)) =>
+                      (vecθ θ R (ω i)).ofLp j - θ.ofLp j
                     have havg_Y : ∀ ω, (avgθ θ R k ω).ofLp j - θ.ofLp j = (↑k)⁻¹ * ∑ i, Y i ω := by
                       intro ω
                       rw [havg_coord]
@@ -341,25 +345,33 @@ lemma exists_avgθ_close (θ : EuclideanSpace ℝ (Fin d)) {R eps : ℝ} (hR : 0
                       have hkne : (k : ℝ) ≠ 0 := ne_of_gt hkpos
                       field_simp
                     simp_rw [havg_Y]
-                    have hsq_factor : ∀ ω, ((↑k)⁻¹ * ∑ i, Y i ω) ^ 2 = (↑k)⁻¹ ^ 2 * (∑ i, Y i ω) ^ 2 := by intro ω; ring
+                    have hsq_factor :
+                        ∀ ω, ((↑k)⁻¹ * ∑ i, Y i ω) ^ 2 = (↑k)⁻¹ ^ 2 * (∑ i, Y i ω) ^ 2 := by
+                      intro ω; ring
                     simp_rw [hsq_factor]
                     rw [integral_const_mul]
-                    have hexpand_sq : ∀ ω, (∑ i, Y i ω) ^ 2 = ∑ i, ∑ l, Y i ω * Y l ω := by intro ω; rw [sq, Finset.sum_mul_sum]
+                    have hexpand_sq : ∀ ω, (∑ i, Y i ω) ^ 2 = ∑ i, ∑ l, Y i ω * Y l ω := by
+                      intro ω; rw [sq, Finset.sum_mul_sum]
                     simp_rw [hexpand_sq]
                     rw [integral_finsetSum]; swap; · intro i _; exact Integrable.of_finite
                     simp_rw [integral_finsetSum _ (fun _ _ => Integrable.of_finite)]
                     -- Establish independence of Y_i under ν using iIndepFun_pi
-                    have hindep : ProbabilityTheory.iIndepFun (fun i (ω : Fin k → Option (Fin d)) => Y i ω) ν := by
+                    have hindep : ProbabilityTheory.iIndepFun
+                        (fun i (ω : Fin k → Option (Fin d)) => Y i ω) ν := by
                       simp only [Y]
-                      have hμprob : ∀ _ : Fin k, IsProbabilityMeasure μ := fun _ => by simp only [μ]; infer_instance
+                      have hμprob : ∀ _ : Fin k, IsProbabilityMeasure μ := fun _ => by
+                        simp only [μ]; infer_instance
                       -- First establish that coordinate projections are iIndepFun
                       let f : (i : Fin k) → Option (Fin d) → Option (Fin d) := fun _ => id
-                      have hf_meas : ∀ i, AEMeasurable (f i) μ := fun _ => measurable_id.aemeasurable
-                      have hid := @ProbabilityTheory.iIndepFun_pi (Fin k) _ (fun _ => Option (Fin d)) _
-                        (fun _ => μ) hμprob (fun _ => Option (Fin d)) _ f hf_meas
+                      have hf_meas : ∀ i, AEMeasurable (f i) μ := fun _ =>
+                        measurable_id.aemeasurable
+                      have hid :=
+                        @ProbabilityTheory.iIndepFun_pi (Fin k) _ (fun _ => Option (Fin d)) _
+                          (fun _ => μ) hμprob (fun _ => Option (Fin d)) _ f hf_meas
                       simp only [f, id_eq] at hid
                       -- Now compose with the centering function
-                      let g : (i : Fin k) → Option (Fin d) → ℝ := fun _ o => (vecθ θ R o).ofLp j - θ.ofLp j
+                      let g : (i : Fin k) → Option (Fin d) → ℝ := fun _ o =>
+                        (vecθ θ R o).ofLp j - θ.ofLp j
                       have hg_meas : ∀ i, Measurable (g i) := fun _ => measurable_of_countable _
                       have hcomp := hid.comp g hg_meas
                       simp only [g] at hcomp
@@ -367,28 +379,41 @@ lemma exists_avgθ_close (θ : EuclideanSpace ℝ (Fin d)) {R eps : ℝ} (hR : 0
                     -- Show each Y_i has mean 0
                     have hY_mean_zero : ∀ i, ∫ ω, Y i ω ∂ν = 0 := by
                       intro i; simp only [Y]
-                      have hmeas : AEStronglyMeasurable (fun o : Option (Fin d) => (vecθ θ R o).ofLp j - θ.ofLp j) μ := by
+                      have hmeas : AEStronglyMeasurable
+                          (fun o : Option (Fin d) => (vecθ θ R o).ofLp j - θ.ofLp j) μ := by
                         exact Measurable.aestronglyMeasurable (measurable_of_countable _)
-                      have heq := MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := i) hmeas
-                      simp only [μ, ν] at heq ⊢; rw [heq, integral_sub (Integrable.of_finite) (Integrable.of_finite), hmean, integral_const]
-                      have hμprob : IsProbabilityMeasure ((l1pmf θ R hθ).toMeasure) := by infer_instance
+                      have heq :=
+                        MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := i) hmeas
+                      simp only [μ, ν] at heq ⊢
+                      rw [heq, integral_sub (Integrable.of_finite) (Integrable.of_finite), hmean,
+                        integral_const]
+                      have hμprob : IsProbabilityMeasure ((l1pmf θ R hθ).toMeasure) := by
+                        infer_instance
                       unfold Measure.real
                       rw [hμprob.measure_univ, ENNReal.toReal_one, smul_eq_mul, one_mul, sub_self]
                     -- Cross terms (i ≠ l) vanish due to independence and zero mean
                     have hcross : ∀ i l, i ≠ l → ∫ ω, Y i ω * Y l ω ∂ν = 0 := by
                       intro i l hil; have hpair := hindep.indepFun hil
-                      have hmeas_i : AEStronglyMeasurable (Y i) ν := Measurable.aestronglyMeasurable (measurable_of_countable _)
-                      have hmeas_l : AEStronglyMeasurable (Y l) ν := Measurable.aestronglyMeasurable (measurable_of_countable _)
-                      rw [ProbabilityTheory.IndepFun.integral_fun_mul_eq_mul_integral hpair hmeas_i hmeas_l, hY_mean_zero i, hY_mean_zero l, mul_zero]
+                      have hmeas_i : AEStronglyMeasurable (Y i) ν :=
+                        Measurable.aestronglyMeasurable (measurable_of_countable _)
+                      have hmeas_l : AEStronglyMeasurable (Y l) ν :=
+                        Measurable.aestronglyMeasurable (measurable_of_countable _)
+                      rw [ProbabilityTheory.IndepFun.integral_fun_mul_eq_mul_integral hpair hmeas_i
+                        hmeas_l,
+                        hY_mean_zero i, hY_mean_zero l, mul_zero]
                     -- Diagonal terms equal single-sample variance
-                    have hdiag : ∀ i, ∫ ω, Y i ω * Y i ω ∂ν = ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ := by
+                    have hdiag : ∀ i,
+                        ∫ ω, Y i ω * Y i ω ∂ν = ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ := by
                       intro i; simp only [Y]
-                      have hmeas : AEStronglyMeasurable (fun o : Option (Fin d) => ((vecθ θ R o).ofLp j - θ.ofLp j)^2) μ := by
+                      have hmeas : AEStronglyMeasurable
+                          (fun o : Option (Fin d) => ((vecθ θ R o).ofLp j - θ.ofLp j)^2) μ := by
                         exact Measurable.aestronglyMeasurable (measurable_of_countable _)
-                      have heq := MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := i) hmeas
+                      have heq :=
+                        MeasureTheory.integral_comp_eval (μ := fun _ : Fin k => μ) (i := i) hmeas
                       simp only [μ, ν] at heq ⊢; convert heq using 2; ext ω; ring
                     -- Simplify sum: only diagonal terms survive
-                    have hsum_eq : ∑ i : Fin k, ∑ l : Fin k, ∫ ω, Y i ω * Y l ω ∂ν = ∑ i : Fin k, ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ := by
+                    have hsum_eq : ∑ i : Fin k, ∑ l : Fin k, ∫ ω, Y i ω * Y l ω ∂ν =
+                        ∑ i : Fin k, ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ := by
                       congr 1; ext i
                       rw [Finset.sum_eq_single (a := i)]
                       · exact hdiag i
@@ -396,8 +421,9 @@ lemma exists_avgθ_close (θ : EuclideanSpace ℝ (Fin d)) {R eps : ℝ} (hR : 0
                       · intro hi; exact (hi (Finset.mem_univ i)).elim
                     rw [hsum_eq, Finset.sum_const, Finset.card_fin]
                     -- Now k⁻² * (k * ∫ ...) = k⁻¹ * ∫ ...
-                    have halg : ((↑k)⁻¹ : ℝ) ^ 2 * (↑k * ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ) =
-                                (↑k)⁻¹ * ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ := by
+                    have halg :
+                        ((↑k)⁻¹ : ℝ) ^ 2 * (↑k * ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ) =
+                        (↑k)⁻¹ * ∫ o, ((vecθ θ R o).ofLp j - θ.ofLp j)^2 ∂μ := by
                       have hkne : (k : ℝ) ≠ 0 := ne_of_gt hkpos
                       field_simp
                     rw [nsmul_eq_mul, halg]

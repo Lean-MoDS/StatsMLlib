@@ -67,7 +67,8 @@ lemma measurablespace_eq : instMeasurableSpaceSigns m = MeasurableSpace.pi := by
   rfl
 
 lemma measure_eq :
-  (signVecPMF m).toMeasure ≍ Measure.pi fun (_ : Fin m) ↦ (PMF.uniformOfFintype ({-1, 1} : Finset ℤ)).toMeasure := by
+  (signVecPMF m).toMeasure ≍ Measure.pi fun (_ : Fin m) ↦
+      (PMF.uniformOfFintype ({-1, 1} : Finset ℤ)).toMeasure := by
   apply heq_of_eq
   apply Eq.symm
   apply Measure.pi_eq
@@ -156,7 +157,8 @@ theorem massart_lemma_pmf.sign_mean_zero {Z : Type v} {m : ℕ}
     ∫ (ω : Signs m), ↑↑(ω a) * f (S a) ∂(signVecPMF m).toMeasure = 0 := by
   rw [PMF.integral_eq_tsum]
   · dsimp [signVecPMF, PMF.uniformOfFintype]
-    simp only [Finset.mem_univ, ↓reduceIte, Signs.card, Nat.cast_pow, Nat.cast_ofNat, ENNReal.toReal_inv,
+    simp only [Finset.mem_univ, ↓reduceIte, Signs.card, Nat.cast_pow, Nat.cast_ofNat,
+        ENNReal.toReal_inv,
     ENNReal.toReal_pow, ENNReal.toReal_ofNat, Int.reduceNeg]
     rw [tsum_mul_left]
     suffices ∑' (a_1 : Signs m), (↑↑(a_1 a) * f (S a)) = 0 from by
@@ -176,7 +178,8 @@ lemma massart_lemma_pmf
     have hbridge :
         empiricalRademacherComplexity_pmf_without_abs m (F_on (ι:=ι) (Z:=Z) F f) S
           = ∫ σ, Finset.sup' f hs
-                (fun j => MassartNotation.X (F:=F) (S:=S) (m:=m) (ι:=ι) j σ) ∂(signVecPMF m).toMeasure := by
+                (fun j => MassartNotation.X (F:=F) (S:=S) (m:=m) (ι:=ι) j σ)
+              ∂(signVecPMF m).toMeasure := by
       dsimp [empiricalRademacherComplexity_pmf_without_abs]
       dsimp [MassartNotation.X]
       dsimp [MassartNotation.Y]
@@ -298,8 +301,10 @@ lemma massart_lemma_pmf
         measurability)
     · intro a af
       have signs_coord_indep :
-          iIndepFun (fun i ↦ MassartNotation.Y (F:=F) (S:=S) (m:=m) i a) (signVecPMF m).toMeasure := by
-        have h : ∀ (i : Fin m), Measurable fun (σi : ({-1, 1} : Finset ℤ)) ↦ (↑m)⁻¹ * (σi.1 : ℝ) * F a (S i) := by
+          iIndepFun (fun i ↦ MassartNotation.Y (F:=F) (S:=S) (m:=m) i a)
+              (signVecPMF m).toMeasure := by
+        have h : ∀ (i : Fin m), Measurable fun (σi : ({-1, 1} : Finset ℤ)) ↦ (↑m)⁻¹ * (σi.1 : ℝ) *
+            F a (S i) := by
           intro i
           measurability
         convert iIndepFun.comp pi_eval_iIndepFun
@@ -311,3 +316,5 @@ lemma massart_lemma_pmf
     · intro a af
       apply MassartNotation.xy_identity
       exact af
+
+end ProbabilityTheory

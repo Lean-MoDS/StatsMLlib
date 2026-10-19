@@ -52,7 +52,8 @@ lemma metricEntropyOfNat_nonneg (n : ℕ) : 0 ≤ metricEntropyOfNat n := by
   · push Not at hn
     exact Real.log_nonneg (Nat.one_le_cast.mpr (Nat.one_le_of_lt hn))
 
-lemma metricEntropyOfNat_mono {n m : ℕ} (h : n ≤ m) : metricEntropyOfNat n ≤ metricEntropyOfNat m := by
+lemma metricEntropyOfNat_mono {n m : ℕ} (h : n ≤ m) :
+    metricEntropyOfNat n ≤ metricEntropyOfNat m := by
   unfold metricEntropyOfNat
   split_ifs with hn hm hm
   · exact le_rfl
@@ -296,7 +297,8 @@ lemma sqrt_log_card_le_sqrtEntropy_of_card_le {eps : ℝ} {s : Set A} {n : ℕ}
           interval_cases n
           · simp
           · simp
-        have hlog_m : 0 ≤ Real.log (m : ℝ) := Real.log_nonneg (Nat.one_le_cast.mpr (by omega : 1 ≤ m))
+        have hlog_m : 0 ≤ Real.log (m : ℝ) :=
+          Real.log_nonneg (Nat.one_le_cast.mpr (by omega : 1 ≤ m))
         linarith
       · -- n > 1: use log monotonicity
         push Not at hn1
@@ -331,11 +333,13 @@ lemma sqrt_log_mul_le {a b : ℕ} (ha : 1 ≤ a) (hb : 1 ≤ b) :
     have hsq_a : Real.sqrt (Real.log (a : ℝ))^2 = Real.log (a : ℝ) := Real.sq_sqrt hlog_a_nonneg
     have hsq_b : Real.sqrt (Real.log (b : ℝ))^2 = Real.log (b : ℝ) := Real.sq_sqrt hlog_b_nonneg
     have hsq : (Real.sqrt (Real.log (a : ℝ)) + Real.sqrt (Real.log (b : ℝ)))^2 =
-        Real.log (a : ℝ) + 2 * Real.sqrt (Real.log (a : ℝ)) * Real.sqrt (Real.log (b : ℝ)) + Real.log (b : ℝ) := by
+        Real.log (a : ℝ) + 2 * Real.sqrt (Real.log (a : ℝ)) * Real.sqrt (Real.log (b : ℝ)) +
+          Real.log (b : ℝ) := by
       ring_nf
       rw [hsq_a, hsq_b]
     rw [hsq]
-    have h_cross_nonneg : 0 ≤ 2 * Real.sqrt (Real.log (a : ℝ)) * Real.sqrt (Real.log (b : ℝ)) := by positivity
+    have h_cross_nonneg :
+        0 ≤ 2 * Real.sqrt (Real.log (a : ℝ)) * Real.sqrt (Real.log (b : ℝ)) := by positivity
     linarith
   calc Real.sqrt (Real.log (a : ℝ) + Real.log (b : ℝ))
     _ ≤ Real.sqrt ((Real.sqrt (Real.log a) + Real.sqrt (Real.log b))^2) := Real.sqrt_le_sqrt key
@@ -859,7 +863,8 @@ lemma entropyIntegralENNRealTrunc_le_dyadic_sum_strong
       have hhalf_le_D : D / 2 ≤ D := by linarith
       have hhalf_pos : 0 < D / 2 := by linarith
       -- Split the integral
-      -- Note: goal has `let δ := D * 2 ^ (-↑(n' + 1 + 1))` which equals our local δ = D * 2 ^ (-↑(n' + 2))
+      -- Note: goal has `let δ := D * 2 ^ (-↑(n' + 1 + 1))` which equals our local
+      -- δ = D * 2 ^ (-↑(n' + 2))
       -- n' + 1 + 1 = n' + 2 definitionally, so we can just intro and use the split directly
       intro δ'
       have hδ'_eq : δ' = δ := rfl

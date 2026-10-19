@@ -44,7 +44,8 @@ N(s, B_n(δ), ‖·‖_n) = N(s√n, B_2^n(δ√n) ∩ range(X), ‖·‖_2)
 -/
 
 /-- The identity map from EmpiricalSpace n to EuclideanSpace ℝ (Fin n).
-    This preserves values but changes the metric: dist in EmpiricalSpace = (1/√n) * dist in EuclideanSpace -/
+    This preserves values but changes the metric:
+    dist in EmpiricalSpace = (1/√n) * dist in EuclideanSpace -/
 def empiricalToEuclidean (n : ℕ) (v : EmpiricalSpace n) : EuclideanSpace ℝ (Fin n) :=
   (WithLp.equiv 2 (Fin n → ℝ)).symm v
 
@@ -184,7 +185,8 @@ lemma empiricalToEuclidean_bijective : Function.Bijective (empiricalToEuclidean 
     use euclideanToEmpirical n v
     simp
 
-/-- Scaling property: for any s > 0, an s-net in EmpiricalSpace induces an (s√n)-net in EuclideanSpace -/
+/-- Scaling property: for any s > 0, an s-net in EmpiricalSpace induces an (s√n)-net in
+    EuclideanSpace -/
 theorem isENet_empiricalToEuclidean_image (hn : 0 < n)
     {t : Finset (EmpiricalSpace n)} {s : ℝ} {S : Set (EmpiricalSpace n)}
     (hnet : IsENet t s S) :
@@ -217,7 +219,8 @@ theorem linearCoveringNumber_eq_euclidean (hn : 0 < n)
   apply le_antisymm
   · -- coveringNumber s (linearLocalizedBallImage) ≤ coveringNumber (s*√n) (image)
     -- If the RHS is ⊤, the inequality is trivial
-    by_cases h : coveringNumber (s * Real.sqrt n) (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x) = ⊤
+    by_cases h : coveringNumber (s * Real.sqrt n)
+        (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x) = ⊤
     · simp [h]
     -- Otherwise, get a finite (s*√n)-net for the image
     push Not at h
@@ -225,7 +228,8 @@ theorem linearCoveringNumber_eq_euclidean (hn : 0 < n)
         IsENet t (s * Real.sqrt n) (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x) ∧
         (t.card : WithTop ℕ) = m}.Nonempty := by
       by_contra hemp
-      have : coveringNumber (s * Real.sqrt n) (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x) = ⊤ := by
+      have : coveringNumber (s * Real.sqrt n)
+          (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x) = ⊤ := by
         unfold _root_.coveringNumber
         simp only [Set.not_nonempty_iff_eq_empty.mp hemp, WithTop.sInf_empty]
       exact h this
@@ -237,7 +241,8 @@ theorem linearCoveringNumber_eq_euclidean (hn : 0 < n)
     -- Show t_emp is an s-net for linearLocalizedBallImage
     have ht_emp_net : IsENet t_emp s (linearLocalizedBallImage n d δ x) := by
       intro y hy
-      have hy' : empiricalToEuclidean n y ∈ empiricalToEuclidean n '' linearLocalizedBallImage n d δ x :=
+      have hy' : empiricalToEuclidean n y ∈
+          empiricalToEuclidean n '' linearLocalizedBallImage n d δ x :=
         Set.mem_image_of_mem _ hy
       have hcover := ht_net hy'
       rw [Set.mem_iUnion₂] at hcover
@@ -259,7 +264,8 @@ theorem linearCoveringNumber_eq_euclidean (hn : 0 < n)
     calc coveringNumber s (linearLocalizedBallImage n d δ x)
         ≤ t_emp.card := coveringNumber_le_card ht_emp_net
       _ ≤ t_euc.card := by exact_mod_cast Finset.card_image_le
-      _ = coveringNumber (s * Real.sqrt n) (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x) := ht_card
+      _ = coveringNumber (s * Real.sqrt n)
+            (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x) := ht_card
   · -- coveringNumber (s*√n) (image) ≤ coveringNumber s (linearLocalizedBallImage)
     by_cases h : coveringNumber s (linearLocalizedBallImage n d δ x) = ⊤
     · simp [h]
@@ -277,7 +283,8 @@ theorem linearCoveringNumber_eq_euclidean (hn : 0 < n)
     let t_euc : Finset (EuclideanSpace ℝ (Fin n)) := t_emp.image (empiricalToEuclidean n)
     -- Show t_euc is an (s*√n)-net for the image
     have ht_euc_net := isENet_empiricalToEuclidean_image hn ht_net
-    calc coveringNumber (s * Real.sqrt n) (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x)
+    calc coveringNumber (s * Real.sqrt n)
+          (empiricalToEuclidean n '' linearLocalizedBallImage n d δ x)
         ≤ t_euc.card := coveringNumber_le_card ht_euc_net
       _ ≤ t_emp.card := by exact_mod_cast Finset.card_image_le
       _ = coveringNumber s (linearLocalizedBallImage n d δ x) := ht_card
@@ -401,7 +408,8 @@ lemma euclideanLocalizedBall_subset_range (x : Fin n → EuclideanSpace ℝ (Fin
 /-- Any d-dimensional subspace of a Euclidean space admits an isometric linear equivalence to ℝ^d.
     This is a fundamental result: all finite-dimensional inner product spaces of the same dimension
     are isometrically isomorphic. -/
-lemma exists_linearIsometryEquiv_of_finrank_eq (hd : 0 < d) (V : Submodule ℝ (EuclideanSpace ℝ (Fin n)))
+lemma exists_linearIsometryEquiv_of_finrank_eq (hd : 0 < d)
+    (V : Submodule ℝ (EuclideanSpace ℝ (Fin n)))
     (hV : Module.finrank ℝ V = d) :
     Nonempty (V ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin d)) := by
   have : FiniteDimensional ℝ V := Module.finite_of_finrank_pos (hV ▸ hd)
@@ -476,7 +484,8 @@ theorem linearCoveringNumber_le_euclideanBall_d (hn : 0 < n) (hd : 0 < d)
     (x : Fin n → EuclideanSpace ℝ (Fin d)) {s δ : ℝ}
     (hinj : Function.Injective (designMatrixMul x)) :
     linearCoveringNumber n d s δ x ≤
-    coveringNumber (s * Real.sqrt n) (Metric.closedBall 0 (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) := by
+    coveringNumber (s * Real.sqrt n)
+      (Metric.closedBall 0 (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin d))) := by
   -- Step 1: Use linearCoveringNumber_eq_euclidean
   rw [linearCoveringNumber_eq_euclidean hn x]
   -- Step 2: Get the d-dimensional subspace V = range(X)
@@ -494,14 +503,16 @@ theorem linearCoveringNumber_le_euclideanBall_d (hn : 0 < n) (hd : 0 < d)
     tauto
   rw [hlocalized_eq]
   -- Step 5: The ball ∩ V equals the image of the ball in V under the inclusion
-  have hinter_eq : Metric.closedBall (0 : EuclideanSpace ℝ (Fin n)) (δ * Real.sqrt n) ∩ (V : Set _) =
+  have hinter_eq :
+      Metric.closedBall (0 : EuclideanSpace ℝ (Fin n)) (δ * Real.sqrt n) ∩ (V : Set _) =
       V.subtypeL '' (Metric.closedBall (0 : V) (δ * Real.sqrt n)) := by
     rw [submodule_closedBall_eq_inter]
   rw [hinter_eq]
   -- Step 6: Use that ball ∩ V = (V.subtypeL ∘ e.symm) '' ball_d
   -- The composition V.subtypeL ∘ e.symm is an isometric embedding ℝ^d → ℝ^n
   -- e.symm maps ball_d to ball_V
-  have he_symm_ball : e.symm '' (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) (δ * Real.sqrt n)) =
+  have he_symm_ball :
+      e.symm '' (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) (δ * Real.sqrt n)) =
       Metric.closedBall (0 : V) (δ * Real.sqrt n) := by
     rw [e.symm.image_closedBall 0 (δ * Real.sqrt n), e.symm.map_zero]
   -- So V.subtypeL '' ball_V = V.subtypeL '' (e.symm '' ball_d)
@@ -540,7 +551,8 @@ theorem linearCoveringNumber_le_euclideanBall_rank (hn : 0 < n)
     (hr : 0 < designMatrixRank x) :
     linearCoveringNumber n d s δ x ≤
     coveringNumber (s * Real.sqrt n)
-      (Metric.closedBall 0 (δ * Real.sqrt n) : Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) := by
+      (Metric.closedBall 0 (δ * Real.sqrt n) :
+        Set (EuclideanSpace ℝ (Fin (designMatrixRank x)))) := by
   -- Step 1: Use linearCoveringNumber_eq_euclidean
   rw [linearCoveringNumber_eq_euclidean hn x]
   -- Step 2: Get the r-dimensional subspace V = range(X)
@@ -558,20 +570,23 @@ theorem linearCoveringNumber_le_euclideanBall_rank (hn : 0 < n)
     tauto
   rw [hlocalized_eq]
   -- Step 5: The ball ∩ V equals the image of the ball in V under the inclusion
-  have hinter_eq : Metric.closedBall (0 : EuclideanSpace ℝ (Fin n)) (δ * Real.sqrt n) ∩ (V : Set _) =
+  have hinter_eq :
+      Metric.closedBall (0 : EuclideanSpace ℝ (Fin n)) (δ * Real.sqrt n) ∩ (V : Set _) =
       V.subtypeL '' (Metric.closedBall (0 : V) (δ * Real.sqrt n)) := by
     rw [submodule_closedBall_eq_inter]
   rw [hinter_eq]
   -- Step 6: Use that ball ∩ V = (V.subtypeL ∘ e.symm) '' ball_r
   -- The composition V.subtypeL ∘ e.symm is an isometric embedding ℝ^r → ℝ^n
   -- e.symm maps ball_r to ball_V
-  have he_symm_ball : e.symm '' (Metric.closedBall (0 : EuclideanSpace ℝ (Fin (designMatrixRank x))) (δ * Real.sqrt n)) =
+  have he_symm_ball : e.symm ''
+      (Metric.closedBall (0 : EuclideanSpace ℝ (Fin (designMatrixRank x))) (δ * Real.sqrt n)) =
       Metric.closedBall (0 : V) (δ * Real.sqrt n) := by
     rw [e.symm.image_closedBall 0 (δ * Real.sqrt n), e.symm.map_zero]
   -- So V.subtypeL '' ball_V = V.subtypeL '' (e.symm '' ball_r)
   rw [← he_symm_ball, ← Set.image_comp]
   -- The composition f = V.subtypeL ∘ e.symm is an isometric embedding
-  let f : EuclideanSpace ℝ (Fin (designMatrixRank x)) → EuclideanSpace ℝ (Fin n) := V.subtypeL ∘ e.symm
+  let f : EuclideanSpace ℝ (Fin (designMatrixRank x)) → EuclideanSpace ℝ (Fin n) :=
+    V.subtypeL ∘ e.symm
   have hf_isometry : Isometry f := by
     apply Isometry.comp
     · intro v w

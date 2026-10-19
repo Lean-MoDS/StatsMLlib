@@ -385,3 +385,5 @@ theorem cgf_deriv_two [IsFiniteMeasure μ] [NeZero μ] (a b : ℝ)
   · exact (mgf_pos' (NeZero.ne μ) (integrable_expt_bound hX h)).ne'
 
 end GeneratingFunctionDerivatives
+
+end ProbabilityTheory

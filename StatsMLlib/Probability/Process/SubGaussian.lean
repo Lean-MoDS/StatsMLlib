@@ -202,8 +202,7 @@ lemma IsSubGaussian.integrable {Ω : Type*} [MeasurableSpace Ω]
   obtain ⟨_, h_mgf⟩ := h_sg
   have h_exp_pos := h_mgf.integrable_exp_mul 1
   have h_exp_neg := h_mgf.integrable_exp_mul (-1)
-  refine' Integrable.mono' _ _ _
-  · exact fun ω => Real.exp (X ω) + Real.exp (-X ω)
+  refine Integrable.mono' (g := fun ω => Real.exp (X ω) + Real.exp (-X ω)) ?_ ?_ ?_
   · exact Integrable.add (by simpa using h_exp_pos) (by simpa using h_exp_neg)
   · exact h_mgf.aestronglyMeasurable
   · filter_upwards [] with ω using
@@ -221,18 +220,17 @@ lemma integrable_ciSup_of_fintype {Ω : Type*} [MeasurableSpace Ω]
     {Y : ι → Ω → ℝ} {μ : Measure Ω}
     (h_int : ∀ i, Integrable (Y i) μ) :
     Integrable (fun x => ⨆ i, Y i x) μ := by
-  refine' Integrable.mono' _ _ _
-  · exact fun x => ∑ i, |Y i x|
+  refine Integrable.mono' (g := fun x => ∑ i, |Y i x|) ?_ ?_ ?_
   · exact integrable_finsetSum _ fun i _ => (h_int i).abs
   · have h_aesm : ∀ i, AEStronglyMeasurable (fun x => Y i x) μ :=
       fun i => (h_int i).aestronglyMeasurable
     choose g hg using h_aesm
-    refine' ⟨fun x => ⨆ i, g i x, ?_, ?_⟩
+    refine ⟨fun x => ⨆ i, g i x, ?_, ?_⟩
     · exact (Measurable.iSup fun i => (hg i).1.measurable).stronglyMeasurable
     · filter_upwards [ae_all_iff.2 fun i => (hg i).2] with x hx using by
         simp +decide [hx]
   · filter_upwards [] with x
-    refine' abs_le.mpr ⟨?_, ?_⟩
+    refine abs_le.mpr ⟨?_, ?_⟩
     · exact le_trans
         (neg_le_neg
           (Finset.single_le_sum (fun i _ => abs_nonneg (Y i x))
@@ -333,7 +331,8 @@ theorem subGaussian_tail_bound_one_sided {μ : Measure Ω} [IsProbabilityMeasure
   have h_sgb : ∀ l : ℝ, cgf (fun ω => X s ω - X t ω) μ l ≤ l^2 * (σ * dist s t)^2 / 2 := by
     intro l
     unfold cgf mgf
-    have h_mgf_bound : μ[fun ω => exp (l * (X s ω - X t ω))] ≤ exp (l^2 * (σ * dist s t)^2 / 2) := by
+    have h_mgf_bound :
+        μ[fun ω => exp (l * (X s ω - X t ω))] ≤ exp (l^2 * (σ * dist s t)^2 / 2) := by
       calc μ[fun ω => exp (l * (X s ω - X t ω))]
         _ ≤ exp (l^2 * σ^2 * (dist s t)^2 / 2) := hX s t l
         _ = exp (l^2 * (σ * dist s t)^2 / 2) := by ring_nf
@@ -490,7 +489,8 @@ lemma ae_eq_zero_of_mgf_le_one {μ : Measure Ω} [IsProbabilityMeasure μ]
     rw [ae_iff]
     have h_neg_mgf : ∀ l : ℝ, μ[fun ω => exp (l * (-Y ω))] ≤ 1 := fun l => by
       convert hY_mgf (-l) using 2; ext ω; ring_nf
-    have h_neg_int_exp_pos : ∀ l : ℝ, 0 < l → Integrable (fun ω => exp (l * (-Y ω))) μ := fun l hl => by
+    have h_neg_int_exp_pos :
+        ∀ l : ℝ, 0 < l → Integrable (fun ω => exp (l * (-Y ω))) μ := fun l hl => by
       have h_neg_l : -l < 0 := by linarith
       convert hY_int_exp_neg (-l) h_neg_l using 1; ext ω; ring_nf
     have h_tail_zero_neg : ∀ ε : ℝ, 0 < ε → μ {ω | -Y ω > ε} = 0 := fun ε hε => by
@@ -500,7 +500,8 @@ lemma ae_eq_zero_of_mgf_le_one {μ : Measure Ω} [IsProbabilityMeasure μ]
           (μ := μ) (f := fun ω => exp ((k + 1 : ℝ) * (-Y ω)))
           (ae_of_all μ (fun _ => (exp_pos _).le))
           (h_neg_int_exp_pos (k + 1) hk1) (exp ((k + 1 : ℝ) * ε))
-        have h_subset : {ω | -Y ω > ε} ⊆ {ω | exp ((k + 1 : ℝ) * ε) ≤ exp ((k + 1 : ℝ) * (-Y ω))} := by
+        have h_subset :
+            {ω | -Y ω > ε} ⊆ {ω | exp ((k + 1 : ℝ) * ε) ≤ exp ((k + 1 : ℝ) * (-Y ω))} := by
           intro ω hω
           simp only [mem_ofPred_eq] at hω ⊢
           exact exp_le_exp.mpr (mul_lt_mul_of_pos_left hω hk1).le
@@ -608,7 +609,8 @@ theorem subGaussian_first_moment_bound {μ : Measure Ω} [IsProbabilityMeasure �
             convert h using 3
             field_simp; ring
           have h_abs_nonneg : 0 ≤ᵐ[μ] (fun ω => |Y ω|) := ae_of_all μ (fun _ => abs_nonneg _)
-          have h_abs_meas : AEStronglyMeasurable (fun ω => |Y ω|) μ := h_int_abs.aestronglyMeasurable
+          have h_abs_meas : AEStronglyMeasurable (fun ω => |Y ω|) μ :=
+            h_int_abs.aestronglyMeasurable
           have h_abs_aemeas : AEMeasurable (fun ω => |Y ω|) μ := h_abs_meas.aemeasurable
           rw [integral_eq_lintegral_of_nonneg_ae h_abs_nonneg h_abs_meas]
           rw [lintegral_eq_lintegral_tail h_abs_aemeas h_abs_nonneg]
@@ -623,15 +625,19 @@ theorem subGaussian_first_moment_bound {μ : Measure Ω} [IsProbabilityMeasure �
             apply MeasureTheory.lintegral_mono_ae
             filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
             exact h_tail_ennreal t (Set.mem_Ioi.mp ht)
-          have h_gaussian_integrable : Integrable (fun t => 2 * exp (-t^2 / (2 * τ^2))) (volume.restrict (Ioi (0 : ℝ))) := by
+          have h_gaussian_integrable :
+              Integrable (fun t => 2 * exp (-t^2 / (2 * τ^2))) (volume.restrict (Ioi (0 : ℝ))) := by
             apply Integrable.const_mul
-            have h_form : (fun t : ℝ => exp (-t^2 / (2 * τ^2))) = (fun t : ℝ => exp (-(1/(2*τ^2)) * t^2)) := by
+            have h_form : (fun t : ℝ => exp (-t^2 / (2 * τ^2))) =
+                (fun t : ℝ => exp (-(1/(2*τ^2)) * t^2)) := by
               ext t; congr 1; field_simp
             rw [h_form]
             exact integrableOn_Ioi_exp_neg_mul_sq_iff.mpr (by positivity : 0 < 1 / (2 * τ^2))
-          have h_gaussian_nonneg : 0 ≤ᵐ[volume.restrict (Ioi (0 : ℝ))] (fun t => 2 * exp (-t^2 / (2 * τ^2))) :=
+          have h_gaussian_nonneg :
+              0 ≤ᵐ[volume.restrict (Ioi (0 : ℝ))] (fun t => 2 * exp (-t^2 / (2 * τ^2))) :=
             ae_of_all _ (fun _ => by positivity)
-          have h_ofReal_lintegral : ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (2 * exp (-t^2 / (2 * τ^2))) =
+          have h_ofReal_lintegral :
+              ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (2 * exp (-t^2 / (2 * τ^2))) =
               ENNReal.ofReal (∫ t in Ioi (0 : ℝ), 2 * exp (-t^2 / (2 * τ^2))) := by
             rw [← ofReal_integral_eq_lintegral_ofReal h_gaussian_integrable h_gaussian_nonneg]
           rw [h_ofReal_lintegral] at h_lintegral_bound
@@ -785,7 +791,8 @@ theorem subGaussian_finite_max_bound' {μ : Measure Ω} [IsProbabilityMeasure μ
                 exact hω
               exact T.eventually_all.mpr (fun t ht => h_ae_forall t ht)
             -- biSup = sup' for nonempty finite set
-            have h_biSup : ∀ ω, ⨆ t ∈ T, (X t ω - X t₀ ω) = T.sup' hT_ne (fun t => X t ω - X t₀ ω) :=
+            have h_biSup :
+                ∀ ω, ⨆ t ∈ T, (X t ω - X t₀ ω) = T.sup' hT_ne (fun t => X t ω - X t₀ ω) :=
               fun ω => biSup_eq_sup'_of_finset hT_ne _ ⟨t₀, ht₀, by simp only [sub_self, le_refl]⟩
             have h_sup_ae : (fun ω => ⨆ t ∈ T, (X t ω - X t₀ ω)) =ᵐ[μ] (fun _ => 0) := by
               filter_upwards [h_all_ae] with ω h_all

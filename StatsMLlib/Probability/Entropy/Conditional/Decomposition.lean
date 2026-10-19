@@ -131,7 +131,8 @@ lemma condExpFirstK_zero (f : (Fin n → Ω) → ℝ) (x : Fin n → Ω) :
   unfold condExpFirstK
   -- When k = 0, the condition j.val < 0 is false for all j, so we always pick y j
   -- Therefore f (fun j => if j.val < 0 then x j else y j) = f y
-  have h : ∀ y : Fin n → Ω, f (fun j => if j.val < (0 : Fin (n + 1)).val then x j else y j) = f y := by
+  have h : ∀ y : Fin n → Ω,
+      f (fun j => if j.val < (0 : Fin (n + 1)).val then x j else y j) = f y := by
     intro y
     -- j.val < 0 is false for all j : Fin n, so if-then-else reduces to y j
     simp only [Fin.val_zero, Nat.not_lt_zero, ↓reduceIte]

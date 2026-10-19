@@ -479,7 +479,8 @@ theorem conjTranspose_mul_self_eq_sum_sq_singularValue_vecMulVec [DecidableEq m]
     Aᴴ * A =
       ∑ i : Fin (Fintype.card n),
         ((A.singularValues i ^ 2 : ℝ) : 𝕜) •
-          Matrix.vecMulVec (A.rightSingularVectorBasis i) (star (A.rightSingularVectorBasis i)) := by
+          Matrix.vecMulVec (A.rightSingularVectorBasis i)
+            (star (A.rightSingularVectorBasis i)) := by
   apply Matrix.toEuclideanLin.injective
   apply LinearMap.ext
   intro x

@@ -231,7 +231,8 @@ lemma coordinateMask_apply {n : ℕ} (s : Finset (Fin n))
     (x : EuclideanSpace ℝ (Fin n)) (i : Fin n) :
     coordinateMask s x i = if i ∈ s then x i else 0 := rfl
 
-/-- Embed a tuple indexed by a finite set into Euclidean space, filling other coordinates by zero. -/
+/-- Embed a tuple indexed by a finite set into Euclidean space, filling other coordinates by
+zero. -/
 def subtypeMask {n : ℕ} (s : Finset (Fin n)) (x : s → ℝ) :
     EuclideanSpace ℝ (Fin n) :=
   WithLp.toLp 2 fun i => if h : i ∈ s then x ⟨i, h⟩ else 0
@@ -3199,7 +3200,8 @@ lemma integral_exp_norm_toEuclideanCLM_randomVector_sq_le {μ : Measure Ω}
     constructor
     · filter_upwards with g
       exact
-        (inner_randomVector_hasSubgaussianMGF_of_iIndepFun h_indep hX_subG (U g)).integrable_exp_mul s
+        (inner_randomVector_hasSubgaussianMGF_of_iIndepFun h_indep hX_subG (U g)).integrable_exp_mul
+          s
     · have hnorm_outer_bound :
           (fun g : E => ‖∫ ω, ‖f (g, ω)‖ ∂μ‖) ≤ᵐ[γ]
             fun g : E => exp ((K ^ 2 * θ) * inner ℝ (S g) g) := by
@@ -3362,7 +3364,8 @@ lemma integrable_exp_norm_toEuclideanCLM_randomVector_sq {μ : Measure Ω}
     constructor
     · filter_upwards with g
       exact
-        (inner_randomVector_hasSubgaussianMGF_of_iIndepFun h_indep hX_subG (U g)).integrable_exp_mul s
+        (inner_randomVector_hasSubgaussianMGF_of_iIndepFun h_indep hX_subG (U g)).integrable_exp_mul
+          s
     · have hnorm_outer_bound :
           (fun g : E => ‖∫ ω, ‖f (g, ω)‖ ∂μ‖) ≤ᵐ[γ]
             fun g : E => exp ((K ^ 2 * θ) * inner ℝ (S g) g) := by

@@ -43,7 +43,8 @@ theorem pi_map_eval {ι: Type*} {Ω : ι → Type*} [Fintype ι] [DecidableEq ι
     _ = _ := by
       exact Fintype.prod_ite_eq' k fun j ↦ μ k s
 
-variable {Ω ι: Type*} [MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasure μ] [Fintype ι] [DecidableEq ι]
+variable {Ω ι: Type*} [MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasure μ] [Fintype ι]
+    [DecidableEq ι]
 
 theorem pi_eval_iIndepFun :
   iIndepFun Function.eval (Measure.pi fun _ ↦ μ : Measure (ι → Ω)) := by

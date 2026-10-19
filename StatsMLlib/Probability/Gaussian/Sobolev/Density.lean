@@ -10,7 +10,8 @@ import StatsMLlib.Probability.Gaussian.Sobolev.Mollification
 /-!
 # Density of Smooth Compactly Supported Functions in W^{1,2}(γ)
 
-This file proves the main theorem: C_c^∞(ℝⁿ) is dense in the Strong Gaussian Sobolev space W^{1,2}(γ).
+This file proves the main theorem: C_c^∞(ℝⁿ) is dense in the Strong Gaussian Sobolev space
+W^{1,2}(γ).
 
 ## Main Results
 
@@ -594,11 +595,14 @@ lemma eLpNorm_toE1Fun_eq (f : ℝ → ℝ) (p : ℝ≥0∞)
   unfold toE1Fun
   rw [stdGaussianE_1_eq_map_gaussianReal]
   -- The key: f ∘ equivE1Real is AEStronglyMeasurable on map measure
-  have hg : AEStronglyMeasurable (f ∘ equivE1Real) (Measure.map equivE1Real.symm (gaussianReal 0 1)) := by
-    -- Use comp_measurable: AEStronglyMeasurable g (map f μ) → Measurable f → AEStronglyMeasurable (g ∘ f) μ
+  have hg :
+      AEStronglyMeasurable (f ∘ equivE1Real) (Measure.map equivE1Real.symm (gaussianReal 0 1)) := by
+    -- Use comp_measurable:
+    -- AEStronglyMeasurable g (map f μ) → Measurable f → AEStronglyMeasurable (g ∘ f) μ
     -- Here μ = map e.symm (gaussianReal 0 1), f = e, g = f (the original function)
     -- So map e μ = map e (map e.symm (gaussianReal 0 1)) = gaussianReal 0 1
-    have h_map_map : Measure.map equivE1Real (Measure.map equivE1Real.symm (gaussianReal 0 1)) = gaussianReal 0 1 := by
+    have h_map_map : Measure.map equivE1Real (Measure.map equivE1Real.symm (gaussianReal 0 1)) =
+        gaussianReal 0 1 := by
       rw [Measure.map_map measurable_equivE1Real measurable_equivE1Real_symm]
       simp only [Equiv.self_comp_symm]
       exact Measure.map_id
@@ -611,9 +615,12 @@ lemma eLpNorm_toE1Fun_eq (f : ℝ → ℝ) (p : ℝ≥0∞)
 
 /-- The fderiv of toE1Fun f at a point relates to the fderiv of f. -/
 lemma fderiv_toE1Fun (f : ℝ → ℝ) (hf_diff : Differentiable ℝ f) (x : GaussianSobolev.E 1) :
-    fderiv ℝ (toE1Fun f) x = (fderiv ℝ f (equivE1Real x)).comp (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ) := by
+    fderiv ℝ (toE1Fun f) x =
+        (fderiv ℝ f (equivE1Real x)).comp
+        (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ) := by
   unfold toE1Fun
-  have hdiff_eq : DifferentiableAt ℝ equivE1Real x := linearIsometryEquivE1Real.differentiable.differentiableAt
+  have hdiff_eq : DifferentiableAt ℝ equivE1Real x :=
+      linearIsometryEquivE1Real.differentiable.differentiableAt
   rw [fderiv_comp x (hf_diff (equivE1Real x)) hdiff_eq]
   congr 1
   -- fderiv of a linear isometry equiv is itself
@@ -643,7 +650,8 @@ lemma memW12Gaussian_toE1Fun (f : ℝ → ℝ) (hf : MemW12GaussianReal f (gauss
     rw [MeasurableEquiv.memLp_map_measure_iff measurableEquivE1Real.symm]
     have heq : toE1Fun f ∘ measurableEquivE1Real.symm = f := by
       ext x
-      simp only [toE1Fun, Function.comp_apply, measurableEquivE1Real_symm_eq, Equiv.apply_symm_apply]
+      simp only [toE1Fun, Function.comp_apply, measurableEquivE1Real_symm_eq,
+          Equiv.apply_symm_apply]
     rw [heq]
     exact hf.1
   · -- fderiv of toE1Fun f ∈ Lp²(stdGaussianE 1)
@@ -662,20 +670,23 @@ lemma memW12Gaussian_toE1Fun (f : ℝ → ℝ) (hf : MemW12GaussianReal f (gauss
     -- Use: ‖L.comp iso‖ = ‖L‖ for isometries
     have hiso_eq : (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ) =
         linearIsometryEquivE1Real.toLinearIsometry.toContinuousLinearMap := rfl
-    have hnorm_eq : ∀ y, ‖(fderiv ℝ f y).comp (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ)‖ =
+    have hnorm_eq : ∀ y,
+        ‖(fderiv ℝ f y).comp (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ)‖ =
         ‖fderiv ℝ f y‖ := by
       intro y
       rw [hiso_eq]
       exact ContinuousLinearMap.opNorm_comp_linearIsometryEquiv
         (fderiv ℝ f y) linearIsometryEquivE1Real
-    -- Use MemLp.of_le: MemLp g p μ → AEStronglyMeasurable f μ → (∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) → MemLp f p μ
+    -- Use MemLp.of_le:
+    -- MemLp g p μ → AEStronglyMeasurable f μ → (∀ᵐ x ∂μ, ‖f x‖ ≤ ‖g x‖) → MemLp f p μ
     apply MemLp.of_le hf.2
     · -- AEStronglyMeasurable: (fderiv ℝ f ·).comp iso is measurable
       -- The map L ↦ L.comp iso is a continuous linear map (apply compSL.flip to iso)
       let iso := (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ)
       -- compSL.flip iso : (ℝ →L[ℝ] ℝ) →L[ℝ] (E 1 →L[ℝ] ℝ) maps L to L.comp iso
       let compWithIso : (ℝ →L[ℝ] ℝ) →L[ℝ] (GaussianSobolev.E 1 →L[ℝ] ℝ) :=
-        (ContinuousLinearMap.compSL (GaussianSobolev.E 1) ℝ ℝ (RingHom.id ℝ) (RingHom.id ℝ)).flip iso
+        (ContinuousLinearMap.compSL (GaussianSobolev.E 1) ℝ ℝ (RingHom.id ℝ)
+            (RingHom.id ℝ)).flip iso
       exact compWithIso.continuous.comp_aestronglyMeasurable hf.2.aestronglyMeasurable
     · filter_upwards with x
       rw [hnorm_eq]
@@ -692,7 +703,9 @@ lemma continuous_fderiv_toE1Fun (f : ℝ → ℝ) (hf_diff : Differentiable ℝ 
     (hf_cont : Continuous (fun x => fderiv ℝ f x)) :
     Continuous (fun x => fderiv ℝ (toE1Fun f) x) := by
   have heq : (fun x => fderiv ℝ (toE1Fun f) x) =
-      fun x => (fderiv ℝ f (equivE1Real x)).comp (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ) := by
+      fun x =>
+          (fderiv ℝ f (equivE1Real x)).comp
+          (linearIsometryEquivE1Real : GaussianSobolev.E 1 →L[ℝ] ℝ) := by
     funext x
     exact fderiv_toE1Fun f hf_diff x
   rw [heq]
@@ -761,7 +774,8 @@ lemma gaussianSobolevNormSq_fromE1Fun (g : GaussianSobolev.E 1 → ℝ) (hg_smoo
     rw [stdGaussianE_1_eq_map_gaussianReal]
     -- Need: AEStronglyMeasurable (‖fderiv ℝ g ·‖) (map equivE1Real.symm (gaussianReal 0 1))
     have hfderiv_cont : Continuous (fderiv ℝ g) := hg_smooth.continuous_fderiv one_ne_zero
-    have hgrad_aesm : AEStronglyMeasurable (fun x => ‖fderiv ℝ g x‖) (Measure.map equivE1Real.symm (gaussianReal 0 1)) :=
+    have hgrad_aesm : AEStronglyMeasurable (fun x => ‖fderiv ℝ g x‖)
+        (Measure.map equivE1Real.symm (gaussianReal 0 1)) :=
       (continuous_norm.comp hfderiv_cont).aestronglyMeasurable
     rw [eLpNorm_map_measure hgrad_aesm haem]
     -- Need to prove the functions are equal, which makes the eLpNorms equal
@@ -773,9 +787,11 @@ lemma gaussianSobolevNormSq_fromE1Fun (g : GaussianSobolev.E 1 → ℝ) (hg_smoo
       -- equivE1Real.symm = linearIsometryEquivE1Real.symm as functions
       have heq_symm : ⇑equivE1Real.symm = ⇑linearIsometryEquivE1Real.symm := rfl
       have h : fderiv ℝ (g ∘ equivE1Real.symm) x =
-          (fderiv ℝ g (equivE1Real.symm x)).comp (linearIsometryEquivE1Real.symm : ℝ →L[ℝ] GaussianSobolev.E 1) := by
+          (fderiv ℝ g (equivE1Real.symm x)).comp
+              (linearIsometryEquivE1Real.symm : ℝ →L[ℝ] GaussianSobolev.E 1) := by
         conv_lhs => rw [heq_symm]
-        rw [fderiv_comp x (hg_diff _) linearIsometryEquivE1Real.symm.differentiable.differentiableAt]
+        rw [fderiv_comp x (hg_diff _)
+            linearIsometryEquivE1Real.symm.differentiable.differentiableAt]
         congr 1
         exact linearIsometryEquivE1Real.symm.toContinuousLinearEquiv.fderiv
       rw [h]

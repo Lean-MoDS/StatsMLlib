@@ -251,7 +251,8 @@ lemma entropy_mem_dualEntropySetT [IsProbabilityMeasure μ]
       ∫ ω, Y ω * Real.log (Y ω) ∂μ - (∫ ω, Y ω ∂μ) * Real.log (∫ ω', Y ω' ∂μ) := by
     rw [integral_congr_ae h_eq]
     rw [integral_sub hY_log_int h_const_int]
-    have h_const : ∫ ω, Real.log (∫ ω', Y ω' ∂μ) * Y ω ∂μ = Real.log (∫ ω', Y ω' ∂μ) * ∫ ω, Y ω ∂μ := by
+    have h_const : ∫ ω, Real.log (∫ ω', Y ω' ∂μ) * Y ω ∂μ =
+        Real.log (∫ ω', Y ω' ∂μ) * ∫ ω, Y ω ∂μ := by
       rw [← integral_const_mul]
     rw [h_const]
     ring
@@ -365,7 +366,8 @@ theorem entropy_duality_T [IsProbabilityMeasure μ]
                 integrable_const 1, ?_, ?_⟩
         · simp only [integral_const, probReal_univ, smul_eq_mul, mul_one, zero_lt_one]
         · have h1_int : ∫ ω, (1 : ℝ) ∂μ = 1 := by simp [integral_const, probReal_univ]
-          have h1_pos_on_Y : ∀ᵐ ω ∂μ, 0 < Y ω → 0 < (1 : ℝ) := Eventually.of_forall (fun _ _ => one_pos)
+          have h1_pos_on_Y : ∀ᵐ ω ∂μ, 0 < Y ω → 0 < (1 : ℝ) :=
+              Eventually.of_forall (fun _ _ => one_pos)
           rw [integralYLogT_of_pos_on_Y Y (fun _ => 1) h1_pos_on_Y]
           simp only [Real.log_one, h1_int, sub_self, mul_zero, integral_const, smul_zero]
           rfl
@@ -377,7 +379,8 @@ theorem entropy_duality_T [IsProbabilityMeasure μ]
                 integrable_const 1, ?_, ?_⟩
         · simp only [integral_const, probReal_univ, smul_eq_mul, mul_one, zero_lt_one]
         · have h1_int : ∫ ω, (1 : ℝ) ∂μ = 1 := by simp [integral_const, probReal_univ]
-          have h1_pos_on_Y : ∀ᵐ ω ∂μ, 0 < Y ω → 0 < (1 : ℝ) := Eventually.of_forall (fun _ _ => one_pos)
+          have h1_pos_on_Y : ∀ᵐ ω ∂μ, 0 < Y ω → 0 < (1 : ℝ) :=
+              Eventually.of_forall (fun _ _ => one_pos)
           rw [integralYLogT_of_pos_on_Y Y (fun _ => 1) h1_pos_on_Y]
           simp only [Real.log_one, h1_int, sub_self, mul_zero, integral_const, smul_zero]
           rfl
@@ -463,7 +466,8 @@ theorem entropy_ge_integral_log_real [IsProbabilityMeasure μ]
     (∫ ω, Y ω * (Real.log (T ω) - Real.log (∫ ω', T ω' ∂μ)) ∂μ) ≤ entropy μ Y := by
   -- When T > 0 on {Y > 0}, integralYLogT equals the Bochner integral
   have h_eq := integralYLogT_of_pos_on_Y Y T hT_pos_on_Y
-  have h_le := entropy_ge_integral_log Y hY_meas hY_nn hY_int hY_log_int T hT_meas hT_nn hT_int hT_mean_pos
+  have h_le :=
+      entropy_ge_integral_log Y hY_meas hY_nn hY_int hY_log_int T hT_meas hT_nn hT_int hT_mean_pos
   rw [h_eq] at h_le
   exact EReal.coe_le_coe_iff.mp h_le
 

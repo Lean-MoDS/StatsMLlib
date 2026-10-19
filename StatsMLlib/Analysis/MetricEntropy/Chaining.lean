@@ -70,15 +70,16 @@ theorem exists_dyadicNets {s : Set A} (hs : TotallyBounded s) {D : ℝ} (hD : 0 
 /-- DyadicNets with cardinality bounds: each net at scale k has cardinality bounded by
     the covering number at the next finer scale (k+1). This bound is crucial for relating
     chaining arguments to covering numbers in Dudley's theorem. -/
-structure GoodDyadicNets (s : Set A) (D : ℝ) (hD : 0 < D) (hs : TotallyBounded s) extends DyadicNets s D where
+structure GoodDyadicNets (s : Set A) (D : ℝ) (hD : 0 < D) (hs : TotallyBounded s)
+    extends DyadicNets s D where
   /-- Each net at scale k has cardinality ≤ coveringNumber at scale k+1 -/
   card_bound : ∀ k, (nets k).card ≤ (coveringNumber (dyadicScale D (k + 1)) s).untop
       (ne_top_of_lt (coveringNumber_lt_top_of_totallyBounded (dyadicScale_pos hD (k + 1)) hs))
 
 /-- Good dyadic nets exist for nonempty totally bounded sets.
     The key insight: use exists_enet_subset_from_half at each scale, which gives an eps-net
-    inside s with cardinality ≤ coveringNumber(eps/2). Since dyadicScale D k / 2 = dyadicScale D (k+1),
-    this gives the desired cardinality bound. -/
+    inside s with cardinality ≤ coveringNumber(eps/2). Since
+    dyadicScale D k / 2 = dyadicScale D (k+1), this gives the desired cardinality bound. -/
 theorem exists_goodDyadicNets {s : Set A} (hs : TotallyBounded s) (hsne : s.Nonempty)
     {D : ℝ} (hD : 0 < D) :
     Nonempty (GoodDyadicNets s D hD hs) := by
@@ -116,7 +117,8 @@ lemma exists_near_in_net {t : Finset A} {eps : ℝ} {s : Set A}
 
 /-- The chaining approximation: for any point x and any level K,
     there exists a sequence of approximations through the nets. -/
-theorem chaining_approximation {s : Set A} {D : ℝ} (dn : DyadicNets s D) {x : A} (hx : x ∈ s) (K : ℕ) :
+theorem chaining_approximation {s : Set A} {D : ℝ} (dn : DyadicNets s D) {x : A} (hx : x ∈ s)
+    (K : ℕ) :
     ∃ y ∈ dn.nets K, dist x y ≤ dyadicScale D K :=
   exists_near_in_net (dn.isNet K) hx
 

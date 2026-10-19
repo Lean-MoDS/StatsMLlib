@@ -18,7 +18,8 @@ Measure-theoretic infrastructure for symmetrizing empirical processes with finit
 
 ## Main definitions
 
-This module works with the `Signs` type and Rademacher complexity definitions from `StatsMLlib.LearningTheory.Rademacher.Defs`.
+This module works with the `Signs` type and Rademacher complexity definitions from
+`StatsMLlib.LearningTheory.Rademacher.Defs`.
 
 ## Main results
 
@@ -73,18 +74,21 @@ theorem Signs.apply_abs' (σ : Signs n) (k : Fin n) : (|σ k| : ℝ) = 1 := by
   simp
 
 theorem measurable_snocEquiv:
-  @Measurable (Ω × (Fin n → Ω)) (Fin (n + 1) → Ω) Prod.instMeasurableSpace MeasurableSpace.pi fun f ↦ Fin.snoc f.2 f.1 := by
+  @Measurable (Ω × (Fin n → Ω))
+      (Fin (n + 1) → Ω) Prod.instMeasurableSpace MeasurableSpace.pi fun f ↦ Fin.snoc f.2 f.1 := by
   apply Measurable.of_eval
   intro i
   dsimp [Fin.snoc]
   if h : i.1 < n then
-    have : (fun c : Ω × (Fin n → Ω) ↦ if h : ↑i < n then c.2 (i.castLT h) else c.1) = fun c ↦ c.2 (i.castLT h) := by
+    have : (fun c : Ω × (Fin n → Ω) ↦ if h : ↑i < n then c.2 (i.castLT h) else c.1) = fun c ↦
+        c.2 (i.castLT h) := by
       ext c
       rw [dite_eq_left h]
     rw [this]
     exact Measurable.eval measurable_snd
   else
-    have : (fun c : Ω × (Fin n → Ω)↦ if h : ↑i < n then c.2 (i.castLT h) else c.1) = fun c ↦ c.1 := by
+    have : (fun c : Ω × (Fin n → Ω)↦ if h : ↑i < n then c.2 (i.castLT h) else c.1) = fun c ↦ c.1
+        := by
       ext c
       rw [dite_eq_right h]
     rw [this]
@@ -92,12 +96,14 @@ theorem measurable_snocEquiv:
 
 
 lemma measure_equiv : (MeasureTheory.Measure.pi (fun _ ↦ μ) : Measure (Fin n.succ → Ω))
- = (μ.prod (MeasureTheory.Measure.pi (fun _ ↦ μ) : Measure (Fin n → Ω))).map (Fin.snocEquiv (fun _ ↦ Ω)):= by
+ = (μ.prod (MeasureTheory.Measure.pi (fun _ ↦ μ) : Measure (Fin n → Ω))).map
+     (Fin.snocEquiv (fun _ ↦ Ω)):= by
   dsimp [Fin.snocEquiv]
   apply Measure.pi_eq
   intros s hs
   rw [Measure.map_apply measurable_snocEquiv (MeasurableSet.univ_pi hs)]
-  have : ((fun (f : Ω × (Fin n → Ω)) (x : Fin (n+1)) ↦ @Fin.snoc n (fun x ↦ Ω) f.2 f.1 x) ⁻¹' Set.univ.pi s)
+  have : ((fun (f : Ω × (Fin n → Ω)) (x : Fin (n+1)) ↦ @Fin.snoc n (fun x ↦
+      Ω) f.2 f.1 x) ⁻¹' Set.univ.pi s)
     = (s (Fin.last n)) ×ˢ (Set.univ.pi (s ∘ Fin.castSucc)) := by
     ext ω
     simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_const, Set.mem_prod,
@@ -196,16 +202,19 @@ lemma ineq (ω : Ω × Ω) {b : ℝ} (h𝓕': ∀ I : ι, ∀ z : Z, |f I z| ≤
   (ih : ∀ (c : ι → ℝ),
   (∃ C, ∀ I : ι, |c I| ≤ C) →
     (∫ (ω' : Fin n → Ω × Ω),
-        (⨆ I : ι, ∑ i : Fin n, (f I (X (ω' i).1) - f I (X (ω' i).2)) + c I) ∂Measure.pi fun _ ↦ μ.prod μ) =
+        (⨆ I : ι, ∑ i : Fin n, (f I (X (ω' i).1) - f I (X (ω' i).2)) + c I)
+          ∂Measure.pi fun _ ↦ μ.prod μ) =
       ∫ (ω' : Fin n → Ω × Ω),
         (2⁻¹ ^ n *
-              ∑ σ : Fin n → ({-1, 1} : Finset ℤ), ⨆ I : ι, ∑ i : Fin n, (σ i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) + c I)
+              ∑ σ : Fin n → ({-1, 1} : Finset ℤ), ⨆ I : ι, ∑ i : Fin n, (σ i) *
+                  (f I (X (ω' i).1) - f I (X (ω' i).2)) + c I)
           ∂Measure.pi fun _ ↦ μ.prod μ):
   let μ2n : Measure ((Fin n) → Ω × Ω):= MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ)
   (μ2n)[fun ω' : Fin n → Ω × Ω ↦ ⨆ I : ι,
     (∑ i : Fin n, (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.1) - f I (X ω.2)) + c I)]
   = (μ2n)[fun ω' : (Fin n) → Ω × Ω ↦ (2:ℝ)⁻¹ ^ n * ∑ σ : Signs n,
-      ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.1) - f I (X ω.2)) + c I)] := by
+      ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+          ((f I (X ω.1) - f I (X ω.2)) + c I)] := by
   apply ih (fun I ↦ (f I (X ω.1) - f I (X ω.2)) + c I)
   use b+b+C
   exact boundedness₀ h𝓕' hC ω
@@ -213,14 +222,18 @@ lemma ineq (ω : Ω × Ω) {b : ℝ} (h𝓕': ∀ I : ι, ∀ z : Z, |f I z| ≤
 omit [MeasurableSpace Ω] in
 lemma inineq (ω : Ω × Ω) (ω': Fin n → Ω × Ω) {c : ι → ℝ}:
   (2 : ℝ)⁻¹ * ((2⁻¹ ^ n * ∑ σ : Signs n,
-    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.2) - f I (X ω.1) + c I)) +
+    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.2) - f I (X ω.1) + c I)) +
     2⁻¹ ^ n * ∑ σ : Signs n,
-    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.1) - f I (X ω.2) + c I))
+    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.1) - f I (X ω.2) + c I))
   = 2⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1),
-    (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) + (σ (Fin.last n) * (f I (X ω.1) - f I (X ω.2)) + c I)) := by
+    (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) +
+        (σ (Fin.last n) * (f I (X ω.1) - f I (X ω.2)) + c I)) := by
   calc
     _ = 2⁻¹ ^ (n+1) * ∑ σ' ∈ ({-1, 1} : Finset ℤ), (∑ σ : Signs n,
-    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (σ' * (f I (X ω.1) - f I (X ω.2)) + c I)) := by
+    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (σ' * (f I (X ω.1) - f I (X ω.2)) + c I)) := by
       rw [←mul_add, ←mul_assoc]
       simp only [inv_pow, Int.reduceNeg, Finset.mem_singleton, reduceCtorEq, not_false_eq_true,
         Finset.sum_insert, Int.cast_neg, Int.cast_one, neg_mul, one_mul, neg_sub,
@@ -258,7 +271,8 @@ lemma measurable_sum_part [Countable ι]
 lemma measurable₀ [Countable ι]
   (h𝓕 : ∀ (I : ι), Measurable (f I ∘ X)) (n : ℕ)
   (c : ι → ℝ) :
-  Measurable fun ω : Fin n → Ω × Ω ↦ ⨆ I, ∑ i : Fin n, (f I (X (ω i).1) - f I (X (ω i).2)) + c I := by
+  Measurable fun ω : Fin n → Ω × Ω ↦ ⨆ I, ∑ i : Fin n, (f I (X (ω i).1) - f I (X (ω i).2)) + c I
+      := by
   apply Measurable.iSup
   intro I
   apply Measurable.add_const
@@ -281,9 +295,11 @@ theorem abs_iSup_le [Nonempty ι] {f : ι → ℝ} {a : ℝ} (hf : ∀ i, |f i| 
 
 omit [MeasurableSpace Ω] in
 lemma bound_lem {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b)
-  (ω : Fin n → Ω × Ω) (I : ι) : |∑ i : Fin n, (f I (X (ω i).1) - f I (X (ω i).2))| ≤ ↑n * (b + b) := by
+  (ω : Fin n → Ω × Ω) (I : ι) : |∑ i : Fin n, (f I (X (ω i).1) - f I (X (ω i).2))| ≤ ↑n * (b + b)
+      := by
   calc
-    _ ≤ ∑ i : Fin n, |f I (X (ω i).1) - f I (X (ω i).2)| := IsAbsoluteValue.abv_sum abs (fun i ↦ f I (X (ω i).1) - f I (X (ω i).2)) Finset.univ
+    _ ≤ ∑ i : Fin n, |f I (X (ω i).1) - f I (X (ω i).2)|
+        := IsAbsoluteValue.abv_sum abs (fun i ↦ f I (X (ω i).1) - f I (X (ω i).2)) Finset.univ
     _ ≤ ∑ i : Fin n, (b+b) := by
       apply Fintype.sum_mono
       intro i
@@ -293,7 +309,8 @@ lemma bound_lem {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b)
       ring_nf
 
 omit [MeasurableSpace Ω] in
-lemma bound_isum' [Nonempty ι] {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b) {c : ι → ℝ} {C : ℝ} (hC : ∀ (I : ι), |c I| ≤ C)
+lemma bound_isum' [Nonempty ι] {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b) {c : ι → ℝ} {C : ℝ}
+    (hC : ∀ (I : ι), |c I| ≤ C)
   (ω : Fin n → Ω × Ω) :
   |⨆ I, ∑ i : Fin n, (f I (X (ω i).1) - f I (X (ω i).2)) + c I| ≤ ↑n * (b + b) + C := by
   apply abs_iSup_le
@@ -308,7 +325,8 @@ lemma bound_lem' {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b)
   (ω : Fin n → Ω × Ω) (I : ι) (σ : Fin n → ({-1, 1} : Finset ℤ)):
   |∑ i : Fin n, (σ i) * (f I (X (ω i).1) - f I (X (ω i).2))| ≤ ↑n * (b + b) := by
   calc
-    _ ≤ ∑ i : Fin n, |(σ i) * (f I (X (ω i).1) - f I (X (ω i).2))| := IsAbsoluteValue.abv_sum abs _ Finset.univ
+    _ ≤ ∑ i : Fin n, |(σ i) * (f I (X (ω i).1) - f I (X (ω i).2))|
+        := IsAbsoluteValue.abv_sum abs _ Finset.univ
     _ ≤ ∑ i : Fin n, (b+b) := by
       apply Fintype.sum_mono
       intro i
@@ -322,7 +340,8 @@ lemma bound_lem' {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b)
       ring_nf
 
 omit [MeasurableSpace Ω] in
-lemma bound_isum [Nonempty ι] {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b) {c : ι → ℝ} {C : ℝ} (hC : ∀ (I : ι), |c I| ≤ C)
+lemma bound_isum [Nonempty ι] {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b) {c : ι → ℝ} {C : ℝ}
+    (hC : ∀ (I : ι), |c I| ≤ C)
   (ω : Fin n → Ω × Ω) (σ : Fin n → ({-1, 1} : Finset ℤ)) :
   |⨆ I, ∑ i : Fin n, ↑↑(σ i) * (f I (X (ω i).1) - f I (X (ω i).2)) + c I| ≤ ↑n * (b + b) + C := by
   apply abs_iSup_le
@@ -336,7 +355,8 @@ lemma integrable₀ [Countable ι] [Nonempty ι]
   (h𝓕 : ∀ (I : ι), Measurable (f I ∘ X)) {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b) {n : ℕ}
   {c : ι → ℝ} {C : ℝ} (hC : ∀ (I : ι), |c I| ≤ C) :
   let μ2n := Measure.pi fun _ ↦ μ.prod μ;
-  Integrable (fun ω ↦ ⨆ I, ∑ i : Fin n, (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) + (f I (X ω.1.1) - f I (X ω.1.2) + c I))
+  Integrable (fun ω ↦ ⨆ I, ∑ i : Fin n, (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) +
+      (f I (X ω.1.1) - f I (X ω.1.2) + c I))
     ((μ.prod μ).prod μ2n) := by
   constructor
   · apply Measurable.aestronglyMeasurable
@@ -359,7 +379,8 @@ lemma bound_σsum [Nonempty ι]
   {b : ℝ} (h𝓕' : ∀ (I : ι) (z : Z), |f I z| ≤ b) {c : ι → ℝ} {C : ℝ}
   (hC : ∀ (I : ι), |c I| ≤ C) (ω' : Fin n → Ω × Ω) :
   |2⁻¹ ^ n *
-        ∑ σ : Fin n → ({-1, 1} : Finset ℤ), ⨆ I, ∑ i : Fin n, ↑↑(σ i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) + c I| ≤
+        ∑ σ : Fin n → ({-1, 1} : Finset ℤ), ⨆ I, ∑ i : Fin n, ↑↑(σ i) *
+            (f I (X (ω' i).1) - f I (X (ω' i).2)) + c I| ≤
     ↑n * (b + b) + C := by
   rw [abs_mul, abs_of_pos (by simp)]
   have : |∑ σ : Fin n → ({-1, 1} : Finset ℤ),
@@ -386,7 +407,8 @@ lemma bound_σsum [Nonempty ι]
     _ = _ := by simp
 
 theorem integrable₁' [Countable ι] [Nonempty ι]
-  (h𝓕 : ∀ I : ι, Measurable (f I ∘ X)) {b : ℝ} (h𝓕' : ∀ I : ι, ∀ (z : Z), |f I z| ≤ b) {c : ι → ℝ} {C : ℝ}
+  (h𝓕 : ∀ I : ι, Measurable (f I ∘ X)) {b : ℝ} (h𝓕' : ∀ I : ι, ∀ (z : Z), |f I z| ≤ b) {c : ι → ℝ}
+      {C : ℝ}
   (hC : ∀ I : ι, |c I| ≤ C) :
   let μ2n := Measure.pi fun _ ↦ μ.prod μ;
   Integrable
@@ -420,14 +442,16 @@ theorem integrable₁' [Countable ι] [Nonempty ι]
 
 
 theorem integrable₁ (ω : Ω × Ω) [Countable ι] [Nonempty ι]
-  (h𝓕 : ∀ I : ι, Measurable (f I ∘ X)) {b : ℝ} (h𝓕' : ∀ I : ι, ∀ (z : Z), |f I z| ≤ b) {c : ι → ℝ} {C : ℝ}
+  (h𝓕 : ∀ I : ι, Measurable (f I ∘ X)) {b : ℝ} (h𝓕' : ∀ I : ι, ∀ (z : Z), |f I z| ≤ b) {c : ι → ℝ}
+      {C : ℝ}
   (hC : ∀ I : ι, |c I| ≤ C) :
   let μ2n := Measure.pi fun _ ↦ μ.prod μ;
   Integrable
     (fun a ↦
       2⁻¹ ^ n *
         ∑ σ : Fin n → ({-1, 1} : Finset ℤ),
-          ⨆ I : ι, ∑ i : Fin n, (σ i) * (f I (X (a i).1) - f I (X (a i).2)) + (f I (X ω.1) - f I (X ω.2) + c I))
+          ⨆ I : ι, ∑ i : Fin n, (σ i) * (f I (X (a i).1) - f I (X (a i).2)) +
+              (f I (X ω.1) - f I (X ω.2) + c I))
     μ2n := by
   exact integrable₁' h𝓕 h𝓕' (boundedness₀ h𝓕' hC ω)
 
@@ -440,14 +464,17 @@ theorem integrable₂ [Countable ι] [Nonempty ι]
         (fun ω' ↦
             2⁻¹ ^ n *
               ∑ σ : Fin n → ({-1, 1} : Finset ℤ),
-                ⨆ I, ∑ i : Fin n, ↑↑(σ i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) + (f I (X a.1) - f I (X a.2) + c I))
+                ⨆ I, ∑ i : Fin n, ↑↑(σ i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) +
+                    (f I (X a.1) - f I (X a.2) + c I))
           x ∂ Measure.pi fun _ ↦ μ.prod μ)
     (μ.prod μ) := by
   constructor
   · apply StronglyMeasurable.aestronglyMeasurable
-    apply @StronglyMeasurable.integral_prod_right' (Ω × Ω) (Fin n → (Ω × Ω)) ℝ _ _ (Measure.pi fun _ ↦ μ.prod μ) _ _ _ (fun ω ↦ (2⁻¹ ^ n *
+    apply @StronglyMeasurable.integral_prod_right' (Ω × Ω)
+        (Fin n → (Ω × Ω)) ℝ _ _ (Measure.pi fun _ ↦ μ.prod μ) _ _ _ (fun ω ↦ (2⁻¹ ^ n *
       ∑ σ : Fin n → ({-1, 1} : Finset ℤ),
-      ⨆ I, ∑ i : Fin n, ↑↑(σ i) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) + (f I (X ω.1.1) - f I (X ω.1.2) + c I)))
+      ⨆ I, ∑ i : Fin n, ↑↑(σ i) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) +
+          (f I (X ω.1.1) - f I (X ω.1.2) + c I)))
     apply Measurable.stronglyMeasurable
     apply Measurable.const_mul
     apply Finset.measurable_sum Finset.univ
@@ -503,18 +530,21 @@ theorem integrable₃ [Countable ι] [Nonempty ι]
     dsimp
     rw [abs_mul, abs_of_pos (by simp)]
     have : |∑ σ : Fin (n+1) → ({-1, 1} : Finset ℤ),
-      ⨆ I : ι, ∑ i : Fin n, (σ (Fin.castSucc i)) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) + ((σ (Fin.last n)) * (f I (X ω.1.1) - f I (X ω.1.2)) + c I)|
+      ⨆ I : ι, ∑ i : Fin n, (σ (Fin.castSucc i)) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) +
+          ((σ (Fin.last n)) * (f I (X ω.1.1) - f I (X ω.1.2)) + c I)|
       ≤ 2^(n+1) * (n*(b+b)+(b+b+C)) := by
       calc
         _ ≤ ∑ σ : Fin (n+1) → ({-1, 1} : Finset ℤ),
-          |⨆ I : ι, ∑ i : Fin n, (σ (Fin.castSucc i)) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) + ((σ (Fin.last n)) * (f I (X ω.1.1) - f I (X ω.1.2)) + c I)| := by
+          |⨆ I : ι, ∑ i : Fin n, (σ (Fin.castSucc i)) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) +
+              ((σ (Fin.last n)) * (f I (X ω.1.1) - f I (X ω.1.2)) + c I)| := by
           apply Finset.abs_sum_le_sum_abs
         _ ≤ ∑ σ : Fin (n+1) → ({-1, 1} : Finset ℤ), (n*(b+b)+(b+b+C)) := by
           apply Finset.sum_le_sum
           intro σ _
           apply bound_isum h𝓕'
           exact boundedness₁ h𝓕' hC ω.1 (σ (Fin.last n))
-        _ = (Finset.univ : Finset (Fin (n+1) → ({-1, 1} : Finset ℤ))).card • (n*(b+b)+(b+b+C)) := Finset.sum_const (n*(b+b)+(b+b+C))
+        _ = (Finset.univ : Finset (Fin (n+1) → ({-1, 1} : Finset ℤ))).card • (n*(b+b)+(b+b+C))
+            := Finset.sum_const (n*(b+b)+(b+b+C))
         _ = _ := by
           simp only [Int.reduceNeg, Finset.card_univ, Finset.mem_insert, Finset.mem_singleton,
             Fintype.card_pi, Fintype.card_coe, reduceCtorEq, not_false_eq_true,
@@ -531,26 +561,33 @@ lemma ineq2 (ω : Ω × Ω) [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Me
   {c : ι → ℝ} {C : ℝ} (hC : ∀ I : ι, |c I| ≤ C):
   let μ2n : Measure ((Fin n) → Ω × Ω):= MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ)
   (2 : ℝ)⁻¹ * ((μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-    (⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.2) - f I (X ω.1) + c I))] +
+    (⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.2) - f I (X ω.1) + c I))] +
     (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-    (⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.1) - f I (X ω.2) + c I))])
+    (⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.1) - f I (X ω.2) + c I))])
   = (μ2n)[fun ω' ↦ (2 : ℝ)⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1),
-    (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) + (σ (Fin.last n) * (f I (X ω.1) - f I (X ω.2)) + c I))] := by
+    (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) +
+        (σ (Fin.last n) * (f I (X ω.1) - f I (X ω.2)) + c I))] := by
   let μ2n : Measure ((Fin n) → Ω × Ω):= MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ)
   calc
     _ = (2 : ℝ)⁻¹ * ((μ2n)[fun ω' ↦ (2⁻¹ ^ n * ∑ σ : Signs n,
-    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.2) - f I (X ω.1) + c I)) +
+    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.2) - f I (X ω.1) + c I)) +
     2⁻¹ ^ n * ∑ σ : Signs n,
-    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.1) - f I (X ω.2) + c I)]) := by
+    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.1) - f I (X ω.2) + c I)]) := by
       apply congr_arg
       apply Eq.symm
       apply integral_add
       · apply integrable₁ ω.swap h𝓕 h𝓕' hC
       · apply integrable₁ ω h𝓕 h𝓕' hC
     _ = (μ2n)[fun ω' ↦ (2 : ℝ)⁻¹ * ((2⁻¹ ^ n * ∑ σ : Signs n,
-    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.2) - f I (X ω.1) + c I)) +
+    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.2) - f I (X ω.1) + c I)) +
     2⁻¹ ^ n * ∑ σ : Signs n,
-    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + (f I (X ω.1) - f I (X ω.2) + c I))] := by
+    ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+        (f I (X ω.1) - f I (X ω.2) + c I))] := by
       apply Eq.symm
       apply integral_const_mul
     _ = _ := by
@@ -561,25 +598,30 @@ lemma ineq2 (ω : Ω × Ω) [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Me
 
 lemma aux₃ [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Measurable (f I ∘ X))
   {b : ℝ} (h𝓕': ∀ I : ι, ∀ z : Z, |f I z| ≤ b):
-  ∀ (c : ι → ℝ), (∃ C : ℝ, ∀ I : ι, |c I| ≤ C) → (MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ))[fun ω : Fin n → Ω × Ω
+  ∀ (c : ι → ℝ), (∃ C : ℝ, ∀ I : ι, |c I| ≤ C) → (MeasureTheory.Measure.pi (fun _ ↦
+      μ.prod μ))[fun ω : Fin n → Ω × Ω
     ↦ ⨆ I : ι, ∑ i : Fin n, (f I (X (ω i).1) - f I (X (ω i).2)) + c I]
   = (MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ))[fun ω : Fin n → Ω × Ω
-    ↦ 2⁻¹ ^ n * ∑ σ : Signs n, (⨆ I : ι, ∑ i : Fin n, σ i * (f I (X (ω i).1) - f I (X (ω i).2)) + c I)]:= by
+    ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
+        (⨆ I : ι, ∑ i : Fin n, σ i * (f I (X (ω i).1) - f I (X (ω i).2)) + c I)]:= by
   induction' n with n ih
   · simp
   · rintro c ⟨C, hC⟩
     let μ2n : Measure ((Fin n) → Ω × Ω):= MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ)
     calc
-      _ = (((μ.prod μ).prod μ2n).map (Fin.snocEquiv (fun _ ↦ Ω × Ω)))[fun ω ↦ ⨆ I : ι, ∑ i : Fin (n + 1), (f I (X (ω i).1) - f I (X (ω i).2)) + c I] := by
+      _ = (((μ.prod μ).prod μ2n).map (Fin.snocEquiv (fun _ ↦ Ω × Ω)))[fun ω ↦
+          ⨆ I : ι, ∑ i : Fin (n + 1), (f I (X (ω i).1) - f I (X (ω i).2)) + c I] := by
         rw [measure_equiv]
-      _ = ((μ.prod μ).prod μ2n)[(fun ω ↦ ⨆ I : ι, ∑ i : Fin (n + 1), (f I (X (ω i).1) - f I (X (ω i).2)) + c I) ∘ (Fin.snocEquiv (fun _ ↦ Ω × Ω))] := by
+      _ = ((μ.prod μ).prod μ2n)[(fun ω ↦ ⨆ I : ι, ∑ i : Fin (n + 1),
+          (f I (X (ω i).1) - f I (X (ω i).2)) + c I) ∘ (Fin.snocEquiv (fun _ ↦ Ω × Ω))] := by
         apply integral_map
         · apply Measurable.aemeasurable
           dsimp [Fin.snocEquiv]
           exact measurable_snocEquiv
         · apply Measurable.aestronglyMeasurable
           exact measurable₀ h𝓕 (n+1) c
-      _ = ((μ.prod μ).prod μ2n)[fun ω ↦ ⨆ I : ι, ∑ i : Fin n, (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) + ((f I (X ω.1.1) - f I (X ω.1.2)) + c I)] := by
+      _ = ((μ.prod μ).prod μ2n)[fun ω ↦ ⨆ I : ι, ∑ i : Fin n,
+          (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) + ((f I (X ω.1.1) - f I (X ω.1.2)) + c I)] := by
         apply congr_arg
         ext
         dsimp
@@ -587,55 +629,71 @@ lemma aux₃ [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Measurable (f I �
         ext f
         rw [Fin.sum_univ_castSucc, add_assoc]
         simp
-      _ = (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦ ⨆ I : ι, ∑ i : Fin n, (f I (X (ω' i).1) - f I (X (ω' i).2)) + ((f I (X ω.1) - f I (X ω.2)) + c I)]] := by
+      _ = (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦ ⨆ I : ι, ∑ i : Fin n,
+          (f I (X (ω' i).1) - f I (X (ω' i).2)) + ((f I (X ω.1) - f I (X ω.2)) + c I)]] := by
         apply integral_prod
         apply integrable₀ h𝓕 h𝓕' hC
       _ = (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.1) - f I (X ω.2)) + c I)]] := by
+          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+              ((f I (X ω.1) - f I (X ω.2)) + c I)]] := by
         apply congr_arg
         ext ω
         dsimp
         exact (ineq ω h𝓕' hC ih) -- Removing the parentheses triggers an unexpected error
-      _ = (2:ℝ)⁻¹ * ((μ.prod μ)[fun ω'' ↦ (fun ω ↦ ((μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n, ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.2) - f I (X ω.1)) + c I)])) ω''.swap] +
-            (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n, ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.1) - f I (X ω.2)) + c I)]]) := by
+      _ = (2:ℝ)⁻¹ * ((μ.prod μ)[fun ω'' ↦ (fun ω ↦ ((μ2n)[fun ω' ↦ 2⁻¹ ^ n *
+          ∑ σ : Signs n, ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+          ((f I (X ω.2) - f I (X ω.1)) + c I)])) ω''.swap] +
+            (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n, ⨆ I : ι,
+                (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+                ((f I (X ω.1) - f I (X ω.2)) + c I)]]) := by
         grind only [= Prod.snd_swap, = Prod.swap_prod_mk, = Prod.fst_swap, cases eager Prod,
           cases Or]
-      _ = (2:ℝ)⁻¹ * ((μ.prod μ)[fun ω ↦ (μ2n)[fun ω' : Fin n → (Ω × Ω) ↦ (2:ℝ)⁻¹ ^ n * ∑ σ : Signs n,
-          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.2) - f I (X ω.1)) + c I)]] +
+      _ = (2:ℝ)⁻¹ * ((μ.prod μ)[fun ω ↦ (μ2n)[fun ω' : Fin n → (Ω × Ω) ↦ (2:ℝ)⁻¹ ^ n *
+          ∑ σ : Signs n,
+          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+              ((f I (X ω.2) - f I (X ω.1)) + c I)]] +
           (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.1) - f I (X ω.2)) + c I)]]) := by
+          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+              ((f I (X ω.1) - f I (X ω.2)) + c I)]]) := by
         apply congr_arg
         apply congrFun
         apply congr_arg
         apply integral_prod_swap
       _ = (2:ℝ)⁻¹ * (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.2) - f I (X ω.1)) + c I)] +
+          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+              ((f I (X ω.2) - f I (X ω.1)) + c I)] +
           (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.1) - f I (X ω.2)) + c I)]] := by
+          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+              ((f I (X ω.1) - f I (X ω.2)) + c I)]] := by
           apply congr_arg
           apply Eq.symm
           apply integral_add
           · exact (integrable₂ h𝓕 h𝓕' hC).swap
           · exact integrable₂ h𝓕 h𝓕' hC
       _ = (μ.prod μ)[fun ω ↦ 2⁻¹ * ((μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.2) - f I (X ω.1)) + c I)] +
+          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+              ((f I (X ω.2) - f I (X ω.1)) + c I)] +
           (μ2n)[fun ω' ↦ 2⁻¹ ^ n * ∑ σ : Signs n,
-          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) + ((f I (X ω.1) - f I (X ω.2)) + c I)])] := by
+          ⨆ I : ι, (∑ i : Fin n, σ i * (f I (X (ω' i).1) - f I (X (ω' i).2))) +
+              ((f I (X ω.1) - f I (X ω.2)) + c I)])] := by
           apply Eq.symm
           apply integral_const_mul
       _ = (μ.prod μ)[fun ω ↦ (μ2n)[fun ω' ↦  (2:ℝ)⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1),
-        (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) + (σ (Fin.last n) * (f I (X ω.1) - f I (X ω.2)) + c I))]] := by
+        (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω' i).1) - f I (X (ω' i).2)) +
+            (σ (Fin.last n) * (f I (X ω.1) - f I (X ω.2)) + c I))]] := by
         apply congr_arg
         ext ω
         dsimp
         exact ineq2 ω h𝓕 h𝓕' hC
       _ = ((μ.prod μ).prod μ2n)[fun ω ↦  2⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1),
-        (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) + (σ (Fin.last n) * (f I (X ω.1.1) - f I (X ω.1.2)) + c I))] := by
+        (⨆ I : ι, ∑ i : Fin n, σ (Fin.castSucc i) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)) +
+            (σ (Fin.last n) * (f I (X ω.1.1) - f I (X ω.1.2)) + c I))] := by
         apply Eq.symm
         apply integral_prod
         exact integrable₃ h𝓕 h𝓕' hC
       _ = ((μ.prod μ).prod μ2n)[(fun ω : Fin (n+1) → Ω × Ω
-        ↦ 2⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1), (⨆ I : ι, ∑ i : Fin (n+1), σ i * (f I (X (ω i).1) - f I (X (ω i).2)) + c I))
+        ↦ 2⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1), (⨆ I : ι, ∑ i : Fin (n+1), σ i *
+            (f I (X (ω i).1) - f I (X (ω i).2)) + c I))
         ∘ (Fin.snocEquiv fun _ ↦ (Ω × Ω))] := by
         apply congr_arg
         ext ω
@@ -645,9 +703,11 @@ lemma aux₃ [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Measurable (f I �
         apply iSup_congr
         intro I
         have : ∑ i : Fin (n + 1), (σ i) *
-          (f I (X (@Fin.snoc n (fun _ ↦ Ω × Ω) ω.2 ω.1 i).1) - f I (X (@Fin.snoc n (fun _ ↦ Ω × Ω) ω.2 ω.1 i).2))
+          (f I (X (@Fin.snoc n (fun _ ↦ Ω × Ω) ω.2 ω.1 i).1) -
+              f I (X (@Fin.snoc n (fun _ ↦ Ω × Ω) ω.2 ω.1 i).2))
           = ∑ i : Fin (n + 1),
-            Fin.snoc (fun i : Fin n ↦ (σ (Fin.castSucc i)) * (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)))
+            Fin.snoc (fun i : Fin n ↦ (σ (Fin.castSucc i)) *
+                (f I (X (ω.2 i).1) - f I (X (ω.2 i).2)))
             ((σ (Fin.last n)) * (f I (X ω.1.1) - f I (X ω.1.2))) i := by
           congr
           ext i
@@ -662,7 +722,8 @@ lemma aux₃ [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι, Measurable (f I �
         simp only [Fin.snocEquiv_apply]
         rw [this, Fin.sum_snoc, add_assoc]
       _ = (((μ.prod μ).prod μ2n).map (Fin.snocEquiv fun _ ↦ (Ω × Ω)))[(fun ω : Fin (n+1) → Ω × Ω
-        ↦ 2⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1), (⨆ I : ι, ∑ i : Fin (n+1), σ i * (f I (X (ω i).1) - f I (X (ω i).2)) + c I))] := by
+        ↦ 2⁻¹ ^ (n+1) * ∑ σ : Signs (n + 1), (⨆ I : ι, ∑ i : Fin (n+1), σ i *
+            (f I (X (ω i).1) - f I (X (ω i).2)) + c I))] := by
         apply Eq.symm
         apply integral_map
         · apply Measurable.aemeasurable
@@ -684,9 +745,11 @@ theorem symmetrization_equation [Countable ι] [Nonempty ι] (h𝓕 : ∀ I : ι
   simp only [Finset.sum_sub_distrib, inv_pow, Int.reduceNeg]
   exact this
 
-lemma sup_abs_lemma [Nonempty ι] {V : (Z → ℝ) → ℝ} (hV₀: ∀ f, V (-f) = - (V f)) (hV₁: BddAbove (Set.range fun i ↦ |V (f i)|)):
+lemma sup_abs_lemma [Nonempty ι] {V : (Z → ℝ) → ℝ} (hV₀: ∀ f, V (-f) = - (V f))
+    (hV₁: BddAbove (Set.range fun i ↦ |V (f i)|)):
   ⨆ i : ι, |V (f i)| = ⨆ i : Fin 2 × ι, V (if i.1.1 == 0 then f i.2 else -(f i.2)) := by
-  have hV₁' : BddAbove (Set.range fun i : Fin 2 × ι ↦ V (if i.1.1 == 0 then f i.2 else -(f i.2))) := by
+  have hV₁' : BddAbove (Set.range fun i : Fin 2 × ι ↦ V (if i.1.1 == 0 then f i.2 else -(f i.2)))
+      := by
     obtain ⟨a,ha⟩ := hV₁
     use a
     dsimp [upperBounds] at *
@@ -724,7 +787,8 @@ theorem abs_symmetrization_equation [Countable ι] [Nonempty ι] (h𝓕 : ∀ I 
   (MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ))[fun ω : Fin n → Ω × Ω
     ↦ ⨆ I : ι, |∑ i : Fin n, (f I (X (ω i).1) - f I (X (ω i).2))|]
   = (MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ))[fun ω : Fin n → Ω × Ω
-    ↦ 2⁻¹ ^ n * ∑ σ : Signs n, ⨆ I : ι, |∑ i : Fin n, σ i * (f I (X (ω i).1) - f I (X (ω i).2))|]:= by
+    ↦ 2⁻¹ ^ n * ∑ σ : Signs n, ⨆ I : ι, |∑ i : Fin n, σ i *
+        (f I (X (ω i).1) - f I (X (ω i).2))|]:= by
   let f' : (Fin 2 × ι) → Z → ℝ := fun i ↦ if i.1.1 == 0 then f i.2 else -(f i.2)
   calc
     _ = (MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ))[fun ω : Fin n → Ω × Ω
@@ -748,7 +812,8 @@ theorem abs_symmetrization_equation [Countable ι] [Nonempty ι] (h𝓕 : ∀ I 
         exact bound_lem h𝓕' ω I
       exact sup_abs_lemma hV₀ hV₁
     _ = (MeasureTheory.Measure.pi (fun _ ↦ μ.prod μ))[fun ω : Fin n → Ω × Ω
-      ↦ 2⁻¹ ^ n * ∑ σ : Signs n, ⨆ I : Fin 2 × ι, ∑ i : Fin n, σ i * (f' I (X (ω i).1) - f' I (X (ω i).2))]:= by
+      ↦ 2⁻¹ ^ n * ∑ σ : Signs n, ⨆ I : Fin 2 × ι, ∑ i : Fin n, σ i *
+          (f' I (X (ω i).1) - f' I (X (ω i).2))]:= by
       have h𝓕₂ : ∀ I, Measurable (f' I ∘ X) := by
         dsimp [f']
         rintro ⟨s, I⟩

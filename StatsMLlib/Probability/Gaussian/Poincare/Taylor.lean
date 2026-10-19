@@ -20,7 +20,8 @@ Rademacher sums.
 * `sq_deviation_sum`: `(a⁺ - Sₙ)² + (a⁻ - Sₙ)² = 4/n` for Rademacher variables.
 * `deriv2_bounded_of_compactlySupported`: For `f ∈ C_c²(ℝ)`, `sup|f''| < ∞`.
 * `taylor_diff_bound`: The Taylor expansion bound on `|f(a⁺) - f(a⁻)|`.
-* `variance_rademacherSum_taylor_bound`: The refined variance bound using Taylor's theorem, `Var(f(Sₙ)) ≤ E[f'(Sₙ)²] + (4K/√n)E[|f'(Sₙ)|] + 4K²/n`.
+* `variance_rademacherSum_taylor_bound`: The refined variance bound using Taylor's theorem,
+  `Var(f(Sₙ)) ≤ E[f'(Sₙ)²] + (4K/√n)E[|f'(Sₙ)|] + 4K²/n`.
 
 -/
 
@@ -603,10 +604,12 @@ theorem variance_rademacherSum_simple_bound {f : ℝ → ℝ} (hf : CompactlySup
           · apply AEStronglyMeasurable.sub
             · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                 ((measurable_rademacherSumProd n).add
-                  ((measurable_const.sub (measurable_pi_apply 0)).div measurable_const)).aemeasurable
+                  ((measurable_const.sub (measurable_pi_apply 0)).div
+                      measurable_const)).aemeasurable
             · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                 ((measurable_rademacherSumProd n).sub
-                  ((measurable_const.add (measurable_pi_apply 0)).div measurable_const)).aemeasurable
+                  ((measurable_const.add (measurable_pi_apply 0)).div
+                      measurable_const)).aemeasurable
           · linarith [hC 0, norm_nonneg (f 0)]
           · filter_upwards with x
             calc ‖f (aPlusProd n 0 x) - f (aMinusProd n 0 x)‖
@@ -674,7 +677,8 @@ theorem variance_rademacherSum_taylor_bound {f : ℝ → ℝ} (hf : CompactlySup
   -- Bound the integral
   calc variance (fun x => f (rademacherSumProd n x)) μ
       ≤ (n : ℝ) / 4 * ∫ x, (f (aPlusProd n 0 x) - f (aMinusProd n 0 x))^2 ∂μ := hES
-    _ ≤ (n : ℝ) / 4 * ∫ x, (2 / Real.sqrt n * |deriv f (rademacherSumProd n x)| + 4 * K / n)^2 ∂μ := by
+    _ ≤ (n : ℝ) / 4 *
+        ∫ x, (2 / Real.sqrt n * |deriv f (rademacherSumProd n x)| + 4 * K / n)^2 ∂μ := by
         apply mul_le_mul_of_nonneg_left _ (div_nonneg (Nat.cast_nonneg n) (by norm_num))
         apply integral_mono_ae
         · -- Integrability of LHS
@@ -683,10 +687,12 @@ theorem variance_rademacherSum_taylor_bound {f : ℝ → ℝ} (hf : CompactlySup
           · apply AEStronglyMeasurable.sub
             · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                 ((measurable_rademacherSumProd n).add
-                  ((measurable_const.sub (measurable_pi_apply 0)).div measurable_const)).aemeasurable
+                  ((measurable_const.sub (measurable_pi_apply 0)).div
+                      measurable_const)).aemeasurable
             · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                 ((measurable_rademacherSumProd n).sub
-                  ((measurable_const.add (measurable_pi_apply 0)).div measurable_const)).aemeasurable
+                  ((measurable_const.add (measurable_pi_apply 0)).div
+                      measurable_const)).aemeasurable
           · linarith [hC 0, norm_nonneg (f 0)]
           · filter_upwards with x
             calc ‖f (aPlusProd n 0 x) - f (aMinusProd n 0 x)‖
@@ -700,7 +706,9 @@ theorem variance_rademacherSum_taylor_bound {f : ℝ → ℝ} (hf : CompactlySup
           apply integrable_sq_of_bounded (C := 2 * C' / Real.sqrt n + 4 * K / n)
           · apply AEStronglyMeasurable.add
             · apply AEStronglyMeasurable.mul aestronglyMeasurable_const
-              exact (continuous_abs.comp (deriv_continuous_of_compactlySupported hf)).aestronglyMeasurable.comp_aemeasurable
+              exact AEStronglyMeasurable.comp_aemeasurable
+                (continuous_abs.comp
+                  (deriv_continuous_of_compactlySupported hf)).aestronglyMeasurable
                 (measurable_rademacherSumProd n).aemeasurable
             · exact aestronglyMeasurable_const
           · apply add_nonneg
@@ -709,7 +717,8 @@ theorem variance_rademacherSum_taylor_bound {f : ℝ → ℝ} (hf : CompactlySup
           · filter_upwards with x
             have h1 : |deriv f (rademacherSumProd n x)| ≤ C' := hC' _
             calc ‖2 / Real.sqrt n * |deriv f (rademacherSumProd n x)| + 4 * K / n‖
-                = |2 / Real.sqrt n * |deriv f (rademacherSumProd n x)| + 4 * K / n| := Real.norm_eq_abs _
+                = |2 / Real.sqrt n * |deriv f (rademacherSumProd n x)| + 4 * K / n| :=
+                    Real.norm_eq_abs _
               _ = 2 / Real.sqrt n * |deriv f (rademacherSumProd n x)| + 4 * K / n := by
                   apply abs_of_nonneg
                   apply add_nonneg
@@ -717,7 +726,8 @@ theorem variance_rademacherSum_taylor_bound {f : ℝ → ℝ} (hf : CompactlySup
                   · apply div_nonneg (mul_nonneg (by norm_num) hK_nonneg) (Nat.cast_nonneg n)
               _ ≤ 2 / Real.sqrt n * C' + 4 * K / n := by
                   apply add_le_add
-                  · apply mul_le_mul_of_nonneg_left h1 (div_nonneg (by norm_num) (le_of_lt hsqrt_pos))
+                  · apply mul_le_mul_of_nonneg_left h1
+                      (div_nonneg (by norm_num) (le_of_lt hsqrt_pos))
                   · exact le_refl _
               _ = 2 * C' / Real.sqrt n + 4 * K / n := by ring
         · exact hbound
@@ -727,7 +737,8 @@ theorem variance_rademacherSum_taylor_bound {f : ℝ → ℝ} (hf : CompactlySup
         congr 1
         apply integral_congr_ae
         filter_upwards with x
-        have h_deriv_sq : |deriv f (rademacherSumProd n x)|^2 = (deriv f (rademacherSumProd n x))^2 :=
+        have h_deriv_sq : |deriv f (rademacherSumProd n x)|^2 =
+            (deriv f (rademacherSumProd n x))^2 :=
           sq_abs _
         have hsqrt_inv_sq : (Real.sqrt n)⁻¹ ^ 2 = (n : ℝ)⁻¹ := by
           rw [inv_pow, hsqrt_sq]

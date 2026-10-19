@@ -303,7 +303,8 @@ lemma sq_diff_flipped_eq_sq_ZPlus_ZMinus (f : ℝ → ℝ) (ε : ℕ → Ω → 
     rw [this]
     ring
 
-/-- **Key Lemma**: The squared conditional deviation equals 1/4 times the squared flipped difference.
+/-- **Key Lemma**: The squared conditional deviation equals 1/4 times the squared flipped
+difference.
 (Z - E^{(i)}[Z])² = (1/4)(Z - Z^{(i)})² -/
 theorem sq_condExp_deviation_eq_quarter_sq_flip (f : ℝ → ℝ) (ε : ℕ → Ω → ℝ) (i : Fin n)
     (ω : Ω) (hε : ε i ω = 1 ∨ ε i ω = -1) :
@@ -418,7 +419,8 @@ For `f ∈ C_c²(ℝ)` and the normalized Rademacher sum `S_n`:
 -/
 theorem variance_rademacherSum_efronStein (f : ℝ → ℝ) (hf : CompactlySupportedSmooth f) :
     variance (fun x : RademacherSpace n => f (rademacherSumProd n x)) (rademacherProductMeasure n) ≤
-    (n : ℝ) / 4 * ∫ x, (f (aPlusProd n 0 x) - f (aMinusProd n 0 x))^2 ∂(rademacherProductMeasure n) := by
+    (n : ℝ) / 4 *
+        ∫ x, (f (aPlusProd n 0 x) - f (aMinusProd n 0 x))^2 ∂(rademacherProductMeasure n) := by
   -- For n = 0, we have a contradiction with NeZero n
   by_cases hn0 : n = 0
   · exact absurd hn0 (NeZero.ne n)
@@ -517,10 +519,12 @@ theorem variance_rademacherSum_efronStein (f : ℝ → ℝ) (hf : CompactlySuppo
           · apply AEStronglyMeasurable.sub
             · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                 ((measurable_rademacherSumProd n).add
-                  ((measurable_const.sub (measurable_pi_apply i)).div measurable_const)).aemeasurable
+                  ((measurable_const.sub (measurable_pi_apply i)).div
+                      measurable_const)).aemeasurable
             · exact hf.continuous.aestronglyMeasurable.comp_aemeasurable
                 ((measurable_rademacherSumProd n).sub
-                  ((measurable_const.add (measurable_pi_apply i)).div measurable_const)).aemeasurable
+                  ((measurable_const.add (measurable_pi_apply i)).div
+                      measurable_const)).aemeasurable
           · linarith [hC 0, norm_nonneg (f 0)]
           · filter_upwards with x
             calc ‖f (aPlusProd n i x) - f (aMinusProd n i x)‖
@@ -567,7 +571,8 @@ theorem variance_rademacherSum_efronStein (f : ℝ → ℝ) (hf : CompactlySuppo
         -- So f(update x i 1) = f(a⁺) and f(update x i (-1)) = f(a⁻)
         have hf1 : f (rademacherSumProd n (Function.update x i 1)) = f (aPlusProd n i x) := by
           unfold aPlusProd; rw [hupdate_1]
-        have hfneg1 : f (rademacherSumProd n (Function.update x i (-1))) = f (aMinusProd n i x) := by
+        have hfneg1 : f (rademacherSumProd n (Function.update x i (-1))) =
+            f (aMinusProd n i x) := by
           unfold aMinusProd; rw [hupdate_neg1]
         rw [hcond, hf1, hfneg1]
         -- Now the computation depends on whether x i = 1 or x i = -1
@@ -577,14 +582,16 @@ theorem variance_rademacherSum_efronStein (f : ℝ → ℝ) (hf : CompactlySuppo
           have ha_eq : f (aPlusProd n i x) = f (rademacherSumProd n x) := by
             congr 1; unfold aPlusProd; simp [hpos]
           rw [ha_eq]
-          -- LHS = (f(S_n) - (1/2 * f(S_n) + 1/2 * f(a⁻)))² = (1/2 * (f(S_n) - f(a⁻)))² = 1/4 * (f(S_n) - f(a⁻))²
+          -- LHS = (f(S_n) - (1/2 * f(S_n) + 1/2 * f(a⁻)))² = (1/2 * (f(S_n) - f(a⁻)))²
+          --     = 1/4 * (f(S_n) - f(a⁻))²
           ring_nf
           exact le_refl _
         · -- x i = -1: f(S_n) = f(a⁻) (since a⁻ = S_n when x i = -1)
           have ha_eq : f (aMinusProd n i x) = f (rademacherSumProd n x) := by
             congr 1; unfold aMinusProd; simp [hneg]
           rw [ha_eq]
-          -- LHS = (f(S_n) - (1/2 * f(a⁺) + 1/2 * f(S_n)))² = (1/2 * (f(S_n) - f(a⁺)))² = 1/4 * (f(a⁺) - f(S_n))²
+          -- LHS = (f(S_n) - (1/2 * f(a⁺) + 1/2 * f(S_n)))² = (1/2 * (f(S_n) - f(a⁺)))²
+          --     = 1/4 * (f(a⁺) - f(S_n))²
           ring_nf
           exact le_refl _
     _ = (n : ℝ) / 4 * ∫ x, (f (aPlusProd n 0 x) - f (aMinusProd n 0 x))^2
@@ -592,7 +599,8 @@ theorem variance_rademacherSum_efronStein (f : ℝ → ℝ) (hf : CompactlySuppo
         -- By symmetry, all n terms are equal since the Rademacher variables are i.i.d.
         -- ∑ᵢ (1/4) * E[...] = n * (1/4) * E[term at i=0] = (n/4) * E[...]
         -- The integral ∫ (f(a⁺ᵢ(x)) - f(a⁻ᵢ(x)))² dμ(x) is the same for all i
-        have hall_eq : ∀ i ∈ Finset.univ, (1/4 : ℝ) * ∫ x, (f (aPlusProd n i x) - f (aMinusProd n i x))^2
+        have hall_eq : ∀ i ∈ Finset.univ, (1/4 : ℝ) *
+            ∫ x, (f (aPlusProd n i x) - f (aMinusProd n i x))^2
             ∂(rademacherProductMeasure n) =
           (1/4 : ℝ) * ∫ x, (f (aPlusProd n 0 x) - f (aMinusProd n 0 x))^2
             ∂(rademacherProductMeasure n) := by

@@ -36,12 +36,14 @@ abbrev euclideanBall (R : ℝ) : Set (EuclideanSpace ℝ ι) := Metric.closedBal
 
 omit [Nonempty ι] in
 /-- The Euclidean ball is totally bounded (since it's compact in finite dimensions). -/
-lemma euclideanBall_totallyBounded (R : ℝ) : TotallyBounded (euclideanBall R : Set (EuclideanSpace ℝ ι)) :=
+lemma euclideanBall_totallyBounded (R : ℝ) :
+    TotallyBounded (euclideanBall R : Set (EuclideanSpace ℝ ι)) :=
   (ProperSpace.isCompact_closedBall 0 R).totallyBounded
 
 omit [Nonempty ι] in
 /-- The Euclidean ball is nonempty for non-negative radius. -/
-lemma euclideanBall_nonempty {R : ℝ} (hR : 0 ≤ R) : (euclideanBall R : Set (EuclideanSpace ℝ ι)).Nonempty :=
+lemma euclideanBall_nonempty {R : ℝ} (hR : 0 ≤ R) :
+    (euclideanBall R : Set (EuclideanSpace ℝ ι)).Nonempty :=
   ⟨0, Metric.mem_closedBall_self hR⟩
 
 /-- If points x and y are ε-separated (dist x y > ε), then the closed balls of radius ε/2
@@ -62,7 +64,8 @@ lemma packing_halfBalls_pairwiseDisjoint {E : Type*} [PseudoMetricSpace E]
   have hsep := hpacking.2 hx hy hxy
   exact closedBall_half_disjoint heps hsep
 
-/-- A half-radius ball around a point in closedBall(0, R) is contained in closedBall(0, R + eps/2). -/
+/-- A half-radius ball around a point in closedBall(0, R) is contained in
+closedBall(0, R + eps/2). -/
 lemma halfBall_subset_enlargedBall {E : Type*} [SeminormedAddCommGroup E]
     {x : E} {R eps : ℝ} (hx : x ∈ Metric.closedBall (0 : E) R) :
     Metric.closedBall x (eps / 2) ⊆ Metric.closedBall (0 : E) (R + eps / 2) := by
@@ -162,12 +165,14 @@ lemma packing_card_bound_aux
       ENNReal.ofReal ((eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) :=
     fun x => volume_closedBall_eq_rpow x (eps / 2) heps_half_nonneg
   -- Volume of large ball
-  have hvol_large : MeasureTheory.volume (Metric.closedBall (0 : EuclideanSpace ℝ ι) (R + eps / 2)) =
+  have hvol_large :
+      MeasureTheory.volume (Metric.closedBall (0 : EuclideanSpace ℝ ι) (R + eps / 2)) =
       ENNReal.ofReal ((R + eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) :=
     volume_closedBall_eq_rpow 0 (R + eps / 2) hR_plus_pos
   -- Sum of small ball volumes
   have hvol_sum : ∑ x ∈ t, MeasureTheory.volume (Metric.closedBall x (eps / 2)) =
-      t.card * ENNReal.ofReal ((eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) := by
+      t.card * ENNReal.ofReal
+        ((eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) := by
     simp only [hvol_small]
     rw [sum_const]
     simp only [nsmul_eq_mul]
@@ -178,13 +183,18 @@ lemma packing_card_bound_aux
   have hconst_pos := euclideanBallVolumeConst_pos (Fintype.card ι)
   have hsmall_pos : 0 < (eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) :=
     mul_pos (pow_pos heps_half_pos _) hconst_pos
-  have hlarge_pos : 0 < (R + eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) :=
+  have hlarge_pos :
+      0 < (R + eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) :=
     mul_pos (pow_pos (by linarith : 0 < R + eps / 2) _) hconst_pos
-  have hlarge_nonneg : 0 ≤ (R + eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) :=
+  have hlarge_nonneg :
+      0 ≤ (R + eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) :=
     le_of_lt hlarge_pos
   -- Use ENNReal.ofReal for the bound
-  have h : t.card * ENNReal.ofReal ((eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) ≤
-      ENNReal.ofReal ((R + eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) := hvol_le
+  have h :
+      t.card * ENNReal.ofReal
+        ((eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) ≤
+      ENNReal.ofReal ((R + eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) :=
+    hvol_le
   rw [← ENNReal.ofReal_natCast] at h
   rw [← ENNReal.ofReal_mul (Nat.cast_nonneg _)] at h
   have h' := ENNReal.ofReal_le_ofReal_iff hlarge_nonneg |>.mp h
@@ -194,7 +204,8 @@ lemma packing_card_bound_aux
   have hcancel : (t.card : ℝ) ≤ (R + eps / 2) ^ Fintype.card ι / (eps / 2) ^ Fintype.card ι := by
     have hne : (eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) ≠ 0 :=
       ne_of_gt hsmall_pos
-    have hsmall_nonneg : 0 ≤ (eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) :=
+    have hsmall_nonneg :
+        0 ≤ (eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι) :=
       le_of_lt hsmall_pos
     calc (t.card : ℝ)
       _ = t.card * ((eps / 2) ^ Fintype.card ι * euclideanBallVolumeConst (Fintype.card ι)) /
@@ -241,7 +252,8 @@ lemma separated_finite_of_totallyBounded {E : Type*} [PseudoMetricSpace E]
     t.Finite := by
   -- If s is covered by finitely many ε/2-balls, any ε-separated set has bounded cardinality
   have heps2 : 0 < eps / 2 := by linarith
-  obtain ⟨cover, _, hcover_finite, hcover⟩ := Metric.finite_approx_of_totallyBounded hs (eps / 2) heps2
+  obtain ⟨cover, _, hcover_finite, hcover⟩ :=
+    Metric.finite_approx_of_totallyBounded hs (eps / 2) heps2
   -- Each ε/2-ball can contain at most one point from t
   -- Define a function from t to cover: for each x ∈ t, pick a c ∈ cover with x ∈ ball(c, eps/2)
   classical
@@ -265,7 +277,8 @@ lemma separated_finite_of_totallyBounded {E : Type*} [PseudoMetricSpace E]
       have hsep_xy := ht_sep hx hy hxy
       have hdist : dist x y < eps := by
         have heq' : (hmaps x hx).choose = (hmaps y hy).choose := heq
-        calc dist x y ≤ dist x (hmaps x hx).choose + dist (hmaps x hx).choose y := dist_triangle _ _ _
+        calc dist x y ≤ dist x (hmaps x hx).choose + dist (hmaps x hx).choose y :=
+            dist_triangle _ _ _
           _ < eps / 2 + eps / 2 := by
             apply add_lt_add
             · exact Metric.mem_ball.mp hxc
@@ -285,7 +298,8 @@ lemma exists_maximal_packing {E : Type*} [PseudoMetricSpace E]
   classical
   -- Get the cover that bounds packing sizes
   have heps2 : 0 < eps / 2 := by linarith
-  obtain ⟨cover, _, hcover_finite, hcover⟩ := Metric.finite_approx_of_totallyBounded hs (eps / 2) heps2
+  obtain ⟨cover, _, hcover_finite, hcover⟩ :=
+    Metric.finite_approx_of_totallyBounded hs (eps / 2) heps2
   -- Any packing has size at most |cover|
   have hbound : ∀ t : Finset E, IsPacking t eps s → t.card ≤ cover.ncard := by
     intro t ht
@@ -308,7 +322,8 @@ lemma exists_maximal_packing {E : Type*} [PseudoMetricSpace E]
         have hsep_xy := ht_sep hx hy hxy
         have heq' : (hmaps x hx).choose = (hmaps y hy).choose := heq
         have hdist : dist x y < eps := by
-          calc dist x y ≤ dist x (hmaps x hx).choose + dist (hmaps x hx).choose y := dist_triangle _ _ _
+          calc dist x y ≤ dist x (hmaps x hx).choose + dist (hmaps x hx).choose y :=
+              dist_triangle _ _ _
             _ < eps / 2 + eps / 2 := by
               apply add_lt_add
               · exact Metric.mem_ball.mp hxc

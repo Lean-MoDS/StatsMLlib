@@ -480,8 +480,8 @@ def euclideanUnitBall (n : ℕ) : Set (EuclideanSpace ℝ (Fin n)) :=
 /--
 A pair of finite nets used to discretize the bilinear form
 `(x, y) ↦ ⟪A x, y⟫` for an `m × n` matrix.  The underlying net notion is the generic
-`IsENet` from `StatsMLlib.Topology.MetricSpace.CoveringNumber.Basic`; this structure only packages the domain and codomain nets
-needed for rectangular matrix operator norms.
+`IsENet` from `StatsMLlib.Topology.MetricSpace.CoveringNumber.Basic`; this structure only
+packages the domain and codomain nets needed for rectangular matrix operator norms.
 -/
 structure MatrixBilinearNet (m n : ℕ) (ε : ℝ) where
   domainNet : Finset (EuclideanSpace ℝ (Fin n))
@@ -5052,7 +5052,8 @@ theorem norm_subgaussian_matrices_expectation_hdp_of_pos {m n : ℕ} (hm : 0 < m
       Integrable (fun ω => signed.sup' hsigned_nonempty (fun q => Z q ω)) μ := by
     refine Integrable.mono
       (integrable_finsetSum signed (fun q hq => (hZ_int q hq).abs)) ?_ ?_
-    · convert (Finset.measurable_sup' hsigned_nonempty (fun q hq => hZ_meas q hq)).aestronglyMeasurable using 1
+    · convert (Finset.measurable_sup' hsigned_nonempty (fun q hq =>
+        hZ_meas q hq)).aestronglyMeasurable using 1
       funext ω
       simp only [Finset.sup'_apply]
     · refine ae_of_all μ (fun ω => ?_)
@@ -5459,7 +5460,8 @@ theorem sampleCovarianceDeviationOperatorNorm_expectation_hdp_bound_of_pos
   have hsup_int : Integrable (fun ω => signed.sup' hsigned_nonempty (fun q => Z q ω)) μ := by
     refine Integrable.mono
       (integrable_finsetSum signed (fun q hq => (hZ_int q hq).abs)) ?_ ?_
-    · convert (Finset.measurable_sup' hsigned_nonempty (fun q hq => hZ_meas q hq)).aestronglyMeasurable using 1
+    · convert (Finset.measurable_sup' hsigned_nonempty (fun q hq =>
+        hZ_meas q hq)).aestronglyMeasurable using 1
       funext ω
       simp only [Finset.sup'_apply]
     · refine ae_of_all μ (fun ω => ?_)
