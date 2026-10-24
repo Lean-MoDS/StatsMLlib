@@ -911,13 +911,13 @@ theorem linear_predictor_l1_rademacher_complexity_bound
       ≤ (Xinf * W / Real.sqrt (n : ℝ)) *
         Real.sqrt (2 * Real.log (2 * d)) := by
   let : Nonempty (L1Ball (d := d) W) := nonempty_L1Ball hW
-  apply rademacherComplexity_le_of_empirical_le_separable
+  apply rademacherComplexity_le_of_empirical_le_pointwiseSeparable
     (F := linearPredictorL1) (X := Z)
   · intro w
     exact (continuous_linearPredictorL1_input w).measurable.comp hZ
   · exact mul_nonneg hX hW
   · exact fun w x ↦ abs_linearPredictorL1_le hX w x
-  · exact continuous_linearPredictorL1_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL1_weight
   · exact linear_predictor_l1_empirical_bound
       d n Xinf W hX hW d_pos n_pos
 
@@ -940,13 +940,13 @@ theorem linear_predictor_l1_uniform_deviation_expectation_bound
         Real.sqrt (2 * Real.log (2 * d))) := by
   let : Nonempty (L1Ball (d := d) W) := nonempty_L1Ball hW
   let : Nonempty (LinftyBall (d := d) Xinf) := nonempty_LinftyBall hX
-  apply uniform_deviation_expectation_le_of_empirical_le_separable
+  apply uniform_deviation_expectation_le_of_empirical_le_pointwiseSeparable
     (F := linearPredictorL1) n_pos
   · exact fun w ↦ (continuous_linearPredictorL1_input w).measurable
   · exact hZ
   · exact mul_nonneg hX hW
   · exact fun w x ↦ abs_linearPredictorL1_le hX w x
-  · exact continuous_linearPredictorL1_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL1_weight
   · exact linear_predictor_l1_empirical_bound
       d n Xinf W hX hW d_pos n_pos
 
@@ -972,13 +972,13 @@ theorem linear_predictor_l1_uniform_deviation_tail_bound
       ≤ (-ε ^ 2 * n / (2 * (Xinf * W) ^ 2)).exp := by
   let : Nonempty (L1Ball (d := d) W) := nonempty_L1Ball hW.le
   let : Nonempty (LinftyBall (d := d) Xinf) := nonempty_LinftyBall hX.le
-  apply uniform_deviation_tail_bound_separable_of_empirical_le
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le
     (F := linearPredictorL1)
   · exact fun w ↦ (continuous_linearPredictorL1_input w).measurable
   · exact hZ
   · exact mul_pos hX hW
   · exact fun w x ↦ abs_linearPredictorL1_le hX.le w x
-  · exact continuous_linearPredictorL1_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL1_weight
   · exact linear_predictor_l1_empirical_bound
       d n Xinf W hX.le hW.le d_pos n_pos
   · exact hε
@@ -1009,13 +1009,13 @@ theorem linear_predictor_l1_uniform_deviation_tail_bound_delta
             μ Z (Z ∘ S)}).toReal ≤ δ := by
   let : Nonempty (L1Ball (d := d) W) := nonempty_L1Ball hW.le
   let : Nonempty (LinftyBall (d := d) Xinf) := nonempty_LinftyBall hX.le
-  apply uniform_deviation_tail_bound_separable_of_empirical_le_delta
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le_delta
     (μ := μ) n_pos (F := linearPredictorL1)
   · exact fun w ↦ (continuous_linearPredictorL1_input w).measurable
   · exact hZ
   · exact mul_pos hX hW
   · exact fun w x ↦ abs_linearPredictorL1_le hX.le w x
-  · exact continuous_linearPredictorL1_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL1_weight
   · exact linear_predictor_l1_empirical_bound
       d n Xinf W hX.le hW.le d_pos n_pos
   · exact hδ
@@ -1047,7 +1047,7 @@ theorem linear_predictor_l1_uniform_deviation_tail_bound_of_sample_delta
   let : Nonempty (L1Ball (d := d) W) := nonempty_L1Ball hW.le
   let : Nonempty (LinftyBall (d := d) Xinf) := nonempty_LinftyBall hX.le
   exact
-    uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+    uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta
       (μ := μ) (n := n) n_pos
       (linearPredictorL1 :
         L1Ball (d := d) W → LinftyBall (d := d) Xinf → ℝ)
@@ -1058,7 +1058,7 @@ theorem linear_predictor_l1_uniform_deviation_tail_bound_of_sample_delta
           Real.sqrt (2 * Real.log (2 * d)))
       (mul_pos hX hW)
       (fun w x ↦ abs_linearPredictorL1_le hX.le w x)
-      continuous_linearPredictorL1_weight
+      (PointwiseSeparable.of_continuous continuous_linearPredictorL1_weight)
       (linear_predictor_l1_empirical_bound_of_sample
         d n Xinf W hW.le d_pos n_pos)
       hδ hδ_one

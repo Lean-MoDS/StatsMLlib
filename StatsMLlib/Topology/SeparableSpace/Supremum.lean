@@ -8,7 +8,6 @@ import Mathlib.Order.ConditionallyCompleteLattice.Indexed
 import Mathlib.Topology.Order.Lattice
 import Mathlib.Basic.Real.Basic
 import Mathlib.Topology.Algebra.Ring.Real
-import Mathlib.MeasureTheory.MeasurableSpace.Basic
 
 universe u v w
 
@@ -114,30 +113,6 @@ noncomputable abbrev denseRestriction
     [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
     (F : H → α) : ℕ → α :=
   F ∘ denseSeq H
-
-@[simp]
-lemma denseRestriction_apply
-    {H : Type u} {α : Type w}
-    [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
-    (F : H → α) (i : ℕ) :
-    denseRestriction F i = F (denseSeq H i) :=
-  rfl
-
-lemma measurable_denseRestriction_apply
-    {H : Type u} {α : Type w} {β : Type*}
-    [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
-    [MeasurableSpace α] [MeasurableSpace β]
-    {F : H → α → β} (hF : ∀ h, Measurable (F h)) (i : ℕ) :
-    Measurable (denseRestriction F i) :=
-  hF (denseSeq H i)
-
-lemma abs_denseRestriction_le
-    {H : Type u} {α : Type w}
-    [TopologicalSpace H] [SeparableSpace H] [Nonempty H]
-    {F : H → α → ℝ} {b : ℝ}
-    (hF : ∀ h x, |F h x| ≤ b) :
-    ∀ i x, |denseRestriction F i x| ≤ b :=
-  fun i x ↦ hF (denseSeq H i) x
 
 /-- Canonical form of `separableSpaceSup_eq_real`: the supremum of a continuous family
 over a separable space is the supremum of its restriction to the chosen countable dense

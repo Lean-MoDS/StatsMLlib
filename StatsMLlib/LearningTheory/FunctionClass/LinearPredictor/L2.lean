@@ -551,13 +551,13 @@ theorem linear_predictor_l2_rademacher_complexity_bound
       ≤ X * W / Real.sqrt (n : ℝ) := by
   let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W) :=
     (Metric.nonempty_closedBall.mpr hW).to_subtype
-  apply rademacherComplexity_le_of_empirical_le_separable
+  apply rademacherComplexity_le_of_empirical_le_pointwiseSeparable
     (F := linearPredictorL2) (X := Z)
   · intro w
     exact (continuous_linearPredictorL2_input w).measurable.comp hZ
   · exact mul_nonneg hX hW
   · exact fun w x ↦ abs_linearPredictorL2_le hW w x
-  · exact continuous_linearPredictorL2_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL2_weight
   · exact linear_predictor_l2_empirical_bound d n W X hX hW
 
 /--
@@ -581,13 +581,13 @@ theorem linear_predictor_l2_uniform_deviation_expectation_bound
     (Metric.nonempty_closedBall.mpr hW).to_subtype
   let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
     (Metric.nonempty_closedBall.mpr hX).to_subtype
-  apply uniform_deviation_expectation_le_of_empirical_le_separable
+  apply uniform_deviation_expectation_le_of_empirical_le_pointwiseSeparable
     (F := linearPredictorL2) hn
   · exact fun w ↦ (continuous_linearPredictorL2_input w).measurable
   · exact hZ
   · exact mul_nonneg hX hW
   · exact fun w x ↦ abs_linearPredictorL2_le hW w x
-  · exact continuous_linearPredictorL2_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL2_weight
   · exact linear_predictor_l2_empirical_bound d n W X hX hW
 
 /--
@@ -612,13 +612,13 @@ theorem linear_predictor_l2_uniform_deviation_tail_bound
     (Metric.nonempty_closedBall.mpr hW.le).to_subtype
   let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
     (Metric.nonempty_closedBall.mpr hX.le).to_subtype
-  apply uniform_deviation_tail_bound_separable_of_empirical_le
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le
     (F := linearPredictorL2)
   · exact fun w ↦ (continuous_linearPredictorL2_input w).measurable
   · exact hZ
   · exact mul_pos hX hW
   · exact fun w x ↦ abs_linearPredictorL2_le hW.le w x
-  · exact continuous_linearPredictorL2_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL2_weight
   · exact linear_predictor_l2_empirical_bound d n W X hX.le hW.le
   · exact hε
 
@@ -647,13 +647,13 @@ theorem linear_predictor_l2_uniform_deviation_tail_bound_delta
     (Metric.nonempty_closedBall.mpr hW.le).to_subtype
   let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
     (Metric.nonempty_closedBall.mpr hX.le).to_subtype
-  apply uniform_deviation_tail_bound_separable_of_empirical_le_delta
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le_delta
     (μ := μ) hn (F := linearPredictorL2)
   · exact fun w ↦ (continuous_linearPredictorL2_input w).measurable
   · exact hZ
   · exact mul_pos hX hW
   · exact fun w x ↦ abs_linearPredictorL2_le hW.le w x
-  · exact continuous_linearPredictorL2_weight
+  · exact PointwiseSeparable.of_continuous continuous_linearPredictorL2_weight
   · exact linear_predictor_l2_empirical_bound d n W X hX.le hW.le
   · exact hδ
   · exact hδ_one
@@ -688,7 +688,7 @@ theorem linear_predictor_l2_uniform_deviation_tail_bound_of_sample_delta
   let : Nonempty (Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) X) :=
     (Metric.nonempty_closedBall.mpr hX.le).to_subtype
   have htail :=
-    uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+    uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta
       (μ := μ) (n := n) hn
       (linearPredictorL2 :
         Metric.closedBall (0 : EuclideanSpace ℝ (Fin d)) W →
@@ -701,7 +701,7 @@ theorem linear_predictor_l2_uniform_deviation_tail_bound_of_sample_delta
             (∑ k : Fin n, ‖(S k : EuclideanSpace ℝ (Fin d))‖ ^ 2))
       (mul_pos hX hW)
       (fun w x ↦ abs_linearPredictorL2_le hW.le w x)
-      continuous_linearPredictorL2_weight
+      (PointwiseSeparable.of_continuous continuous_linearPredictorL2_weight)
       (linear_predictor_l2_empirical_bound_of_sample d n W X hW.le)
       hδ hδ_one
   simpa only [Function.comp_apply] using htail

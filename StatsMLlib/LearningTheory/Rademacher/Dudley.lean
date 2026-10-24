@@ -2121,12 +2121,12 @@ A sample-uniform Dudley estimate bounds expected Rademacher complexity:
 `(∀ S, Dα(F,S) ≤ C) → Rₙ(F;μ) ≤ C`.
 -/
 theorem rademacher_complexity_le_dudley_of_uniform_entropy
-    [Nonempty ι] [TopologicalSpace ι] [SeparableSpace ι]
+    [Nonempty ι]
     [IsProbabilityMeasure μ]
     (f : ι → 𝒳 → ℝ) (X : Ω → 𝒳)
     (hf : ∀ h, Measurable (f h ∘ X))
     {b c α C : ℝ} (hb : 0 ≤ b) (hf_bound : ∀ h x, |f h x| ≤ b)
-    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hf_ps : PointwiseSeparable f)
     (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
     (htb : ∀ S : Fin n → 𝒳,
       TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
@@ -2134,8 +2134,8 @@ theorem rademacher_complexity_le_dudley_of_uniform_entropy
     (hentropy : ∀ S : Fin n → 𝒳,
       dudleyEntropyEstimate f S (htb S) α c ≤ C) :
     rademacherComplexity n f μ X ≤ C := by
-  apply rademacherComplexity_le_of_empirical_le_separable
-    f X hf hb hf_bound hf_cont
+  apply rademacherComplexity_le_of_empirical_le_pointwiseSeparable
+    f X hf hb hf_bound hf_ps
   intro S
   exact (dudley_entropy_integral_bound_abs
     hα (htb S) hn (hnorm S) hαc).trans (hentropy S)
@@ -2146,14 +2146,13 @@ A sample-uniform Dudley estimate yields
 
 `Pr{UDₙ ≥ 2 C + ε} ≤ exp (-n ε² / (2b²))`.
 -/
-theorem uniform_deviation_tail_bound_separable_of_uniform_dudley
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_uniform_dudley
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
-    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
     [IsProbabilityMeasure μ]
     (f : ι → 𝒳 → ℝ) (hf : ∀ h, Measurable (f h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b c α C : ℝ} (hb : 0 < b) (hf_bound : ∀ h x, |f h x| ≤ b)
-    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hf_ps : PointwiseSeparable f)
     (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
     (htb : ∀ S : Fin n → 𝒳,
       TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
@@ -2164,8 +2163,8 @@ theorem uniform_deviation_tail_bound_separable_of_uniform_dudley
     (μⁿ {S |
       2 * C + ε ≤ uniformDeviation n f μ X (X ∘ S)}).toReal ≤
       (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
-  apply uniform_deviation_tail_bound_separable_of_empirical_le
-    (F := f) hf X hX hb hf_bound hf_cont
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le
+    (F := f) hf X hX hb hf_bound hf_ps
   · intro S
     exact (dudley_entropy_integral_bound_abs
       hα (htb S) hn (hnorm S) hαc).trans (hentropy S)
@@ -2177,14 +2176,13 @@ Sample-dependent Dudley generalization estimate:
 
 `Pr{UDₙ ≥ 2 Dα(F,S) + 3ε} ≤ 2 exp (-n ε² / (2b²))`.
 -/
-theorem uniform_deviation_tail_bound_separable_of_dudley
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_dudley
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
-    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
     [IsProbabilityMeasure μ]
     (f : ι → 𝒳 → ℝ) (hf : ∀ h, Measurable (f h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b c α : ℝ} (hb : 0 < b) (hf_bound : ∀ h x, |f h x| ≤ b)
-    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hf_ps : PointwiseSeparable f)
     (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
     (htb : ∀ S : Fin n → 𝒳,
       TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
@@ -2195,10 +2193,10 @@ theorem uniform_deviation_tail_bound_separable_of_dudley
         3 * ε ≤ uniformDeviation n f μ X (X ∘ S)}).toReal ≤
       2 * (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
   exact
-    uniform_deviation_tail_bound_separable_of_sample_empirical_le
+    uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le
       (μ := μ) f hf X hX
       (fun S ↦ dudleyEntropyEstimate f S (htb S) α c)
-      hb hf_bound hf_cont
+      hb hf_bound hf_ps
       (fun S ↦ dudley_entropy_integral_bound_abs
         hα (htb S) hn (hnorm S) hαc)
       hε
@@ -2209,14 +2207,13 @@ Confidence form of the sample-dependent Dudley estimate:
 
 `Pr{UDₙ ≥ 2 Dα(F,S) + 3b √(2 log(2/δ)/n)} ≤ δ`.
 -/
-theorem uniform_deviation_tail_bound_separable_of_dudley_delta
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_dudley_delta
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
-    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
     [IsProbabilityMeasure μ]
     (f : ι → 𝒳 → ℝ) (hf : ∀ h, Measurable (f h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b c α : ℝ} (hb : 0 < b) (hf_bound : ∀ h x, |f h x| ≤ b)
-    (hf_cont : ∀ x : 𝒳, Continuous fun h ↦ f h x)
+    (hf_ps : PointwiseSeparable f)
     (hn : 0 < n) (hα : 0 < α) (hαc : α < c / 2)
     (htb : ∀ S : Fin n → 𝒳,
       TotallyBounded (Set.univ : Set (EmpiricalFunctionSpace f S)))
@@ -2227,10 +2224,10 @@ theorem uniform_deviation_tail_bound_separable_of_dudley_delta
         3 * (b * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
           uniformDeviation n f μ X (X ∘ S)}).toReal ≤ δ := by
   exact
-    uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+    uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta
       (μ := μ) hn f hf X hX
       (fun S ↦ dudleyEntropyEstimate f S (htb S) α c)
-      hb hf_bound hf_cont
+      hb hf_bound hf_ps
       (fun S ↦ dudley_entropy_integral_bound_abs
         hα (htb S) hn (hnorm S) hαc)
       hδ hδ_one
@@ -2271,7 +2268,7 @@ required in this form.
 /-- Main sample-dependent Dudley entropy-integral example. -/
 example
     [MeasurableSpace 𝒳] [Nonempty 𝒳]
-    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
+    [TopologicalSpace ι] [SeparableSpace ι] [FrechetUrysohnSpace ι]
     [IsProbabilityMeasure μ]
     (F : ι → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
@@ -2286,8 +2283,8 @@ example
       2 * dudleyEntropyEstimate F (X ∘ S) (htb (X ∘ S)) α c +
         3 * (b * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
           uniformDeviation n F μ X (X ∘ S)}).toReal ≤ δ := by
-  exact uniform_deviation_tail_bound_separable_of_dudley_delta
-    F hF_meas X hX hb hF_bound hF_cont hn hα hαc
+  exact uniform_deviation_tail_bound_pointwiseSeparable_of_dudley_delta
+    F hF_meas X hX hb hF_bound (PointwiseSeparable.of_continuous hF_cont) hn hα hαc
     htb hnorm hδ hδ_one
 
 end Generalization

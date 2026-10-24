@@ -7,7 +7,7 @@ import StatsMLlib.LearningTheory.Rademacher.Complexity
 import StatsMLlib.LearningTheory.UniformDeviation.Defs
 import StatsMLlib.Probability.Concentration.McDiarmid
 import StatsMLlib.LearningTheory.UniformDeviation.BoundedDifference
-import StatsMLlib.Topology.SeparableSpace.Supremum
+import StatsMLlib.LearningTheory.Rademacher.PointwiseSeparable
 import StatsMLlib.MeasureTheory.Measure.Real
 
 /-!
@@ -23,7 +23,8 @@ This module uses `uniformDeviation` and the expected Rademacher complexity of a 
 ## Main results
 
 * `uniform_deviation_tail_bound_countable`: tail bound for a countable function class.
-* `uniform_deviation_tail_bound_separable`: tail bound for a separable function class.
+* `uniform_deviation_tail_bound_pointwiseSeparable`: tail bound for a pointwise separable
+  function class.
 -/
 
 section
@@ -143,104 +144,6 @@ theorem uniform_deviation_tail_bound_countable_of_pos
     _ ≤ (- ε ^ 2 * t * n).exp :=
       uniform_deviation_tail_bound_countable (μ := μ) f hf X hX (le_of_lt hb) hf' ht' hε
     _ = _ := by dsimp only [t]; field_simp
-
-open TopologicalSpace
-
-lemma empiricalRademacherComplexity_eq
-    [Nonempty ι] [TopologicalSpace ι] [SeparableSpace ι]
-    (n : ℕ) {f : ι → (𝒳 → ℝ)} (hf : ∀ x : 𝒳, Continuous fun i ↦ f i x) (S : Fin n → 𝒳) :
-    empiricalRademacherComplexity n f S = empiricalRademacherComplexity n (f ∘ denseSeq ι) S := by
-  dsimp [empiricalRademacherComplexity]
-  congr
-  ext i
-  apply separableSpaceSup_eq_real
-  continuity
-
-lemma RademacherComplexity_eq
-    [Nonempty ι] [TopologicalSpace ι] [SeparableSpace ι]
-    (n : ℕ) (f : ι → (𝒳 → ℝ)) (hf : ∀ x : 𝒳, Continuous fun i ↦ f i x)
-    (μ : Measure Ω) (X : Ω → 𝒳) :
-    rademacherComplexity n f μ X = rademacherComplexity n (f ∘ denseSeq ι) μ X := by
-  dsimp [rademacherComplexity]
-  congr
-  ext i
-  exact empiricalRademacherComplexity_eq n hf (X ∘ i)
-
-lemma uniformDeviation_eq
-    [MeasurableSpace 𝒳]
-    [Nonempty ι] [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
-    (n : ℕ) (f : ι → 𝒳 → ℝ)
-    (hf : ∀ i, Measurable (f i))
-    (X : Ω → 𝒳) (hX : Measurable X)
-    {b : ℝ} (hf' : ∀ i x, |f i x| ≤ b)
-    (hf'' : ∀ x : 𝒳, Continuous fun i ↦ f i x)
-    (μ : Measure Ω) [IsFiniteMeasure μ] :
-    uniformDeviation n f μ X = uniformDeviation n (f ∘ denseSeq ι) μ X := by
-  ext y
-  dsimp [uniformDeviation]
-  apply separableSpaceSup_eq_real
-  apply Continuous.abs
-  apply Continuous.sub
-  · continuity
-  · have : ∀ (x : ι), ∀ᵐ (a : Ω) ∂μ, ‖f x (X a)‖ ≤ b := by
-      intro i
-      filter_upwards with ω
-      exact hf' i (X ω)
-    apply MeasureTheory.continuous_of_dominated _ this
-    · apply MeasureTheory.integrable_const
-    · filter_upwards with ω
-      continuity
-    · intro i
-      apply Measurable.aestronglyMeasurable
-      measurability
-
-/-- (Main Theorem) Separable-class tail bound obtained via reduction to a countable dense
-subclass. -/
-theorem uniform_deviation_tail_bound_separable
-    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
-    [TopologicalSpace ι] [SeparableSpace ι]  [FirstCountableTopology ι]
-    [IsProbabilityMeasure μ]
-    (f : ι → 𝒳 → ℝ) (hf : ∀ i, Measurable (f i))
-    (X : Ω → 𝒳) (hX : Measurable X)
-    {b : ℝ} (hb : 0 ≤ b) (hf' : ∀ i x, |f i x| ≤ b)
-    (hf'' : ∀ x : 𝒳, Continuous fun i ↦ f i x)
-    {t : ℝ} (ht' : t * b ^ 2 ≤ 1 / 2)
-    {ε : ℝ} (hε : 0 ≤ ε) :
-    (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
-      (- ε ^ 2 * t * n).exp := by
-  let f' := f ∘ denseSeq ι
-  calc
-    _ = (μⁿ (fun ω ↦ 2 * rademacherComplexity n f' μ X + ε ≤
-        uniformDeviation n f' μ X (X ∘ ω))).toReal := by
-      congr
-      ext ω
-      rw [RademacherComplexity_eq n f hf'' μ X]
-      rw [uniformDeviation_eq n f hf X hX hf' hf'' μ]
-    _ ≤ (- ε ^ 2 * t * n).exp := by
-      apply uniform_deviation_tail_bound_countable f' _ X hX hb _ ht' hε
-      · intro i
-        measurability
-      · exact fun i x ↦ hf' (denseSeq ι i) x
-
-/-- (Main Theorem) Optimized separable-class tail bound with `t = 1 / (2 * b^2)`. -/
-theorem uniform_deviation_tail_bound_separable_of_pos
-    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty ι]
-    [TopologicalSpace ι] [SeparableSpace ι] [FirstCountableTopology ι]
-    [IsProbabilityMeasure μ]
-    (f : ι → 𝒳 → ℝ) (hf : ∀ i, Measurable (f i))
-    (X : Ω → 𝒳) (hX : Measurable X)
-    {b : ℝ} (hb : 0 < b) (hf' : ∀ i x, |f i x| ≤ b)
-    (hf'' : ∀ x : 𝒳, Continuous fun i ↦ f i x)
-    {ε : ℝ} (hε : 0 ≤ ε) :
-    (μⁿ (fun ω ↦ 2 * rademacherComplexity n f μ X + ε ≤ uniformDeviation n f μ X (X ∘ ω))).toReal ≤
-      (- ε ^ 2 * n / (2 * b ^ 2)).exp := by
-  let t := 1 / (2 * b ^ 2)
-  have ht' : t * b ^ 2 ≤ 1 / 2 := le_of_eq (by dsimp only [t]; field_simp)
-  calc
-    _ ≤ (- ε ^ 2 * t * n).exp :=
-      uniform_deviation_tail_bound_separable (μ := μ) f hf X hX (le_of_lt hb) hf' hf'' ht' hε
-    _ = _ := by dsimp only [t]; field_simp
-
 
 private lemma normalized_two_mul_bound_mcdiarmid_scale
     (hn : 0 < n) {b t : ℝ} (ht : t * b ^ 2 ≤ 1 / 2) :
@@ -477,147 +380,107 @@ theorem uniform_deviation_tail_bound_countable_of_sample_empirical_le
         (μ := μ) f hf X hX hb hf' hε
 
 
--- The separable results below are indexed by a topological hypothesis space `H`,
--- while the countable results above use a bare index type `ι`. The two play
--- different roles, so both names are kept.
+-- The pointwise-separable results below are indexed by a hypothesis space `H`,
+-- while the countable results above use a bare index type `ι`. Each result below
+-- restricts the class to an approximating sequence and applies a countable result.
 variable {H : Type v}
 
 /--
-Empirical Rademacher complexity is unchanged after restricting a continuous
-family to the chosen countable dense sequence.
+(Main Theorem) Tail bound for a pointwise separable class, obtained by restricting the class to
+an approximating sequence.
 -/
-lemma empiricalRademacherComplexity_denseRestriction
-    [Nonempty H] [TopologicalSpace H] [SeparableSpace H]
-    (n : ℕ) {F : H → 𝒳 → ℝ}
-    (hF : ∀ x : 𝒳, Continuous fun h ↦ F h x) (S : Fin n → 𝒳) :
-    empiricalRademacherComplexity n F S =
-      empiricalRademacherComplexity n (denseRestriction F) S := by
-  dsimp [empiricalRademacherComplexity]
-  congr
-  ext σ
-  apply separableSpaceSup_eq_real
-  continuity
+theorem uniform_deviation_tail_bound_pointwiseSeparable
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H] [IsProbabilityMeasure μ]
+    (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b : ℝ} (hb : 0 ≤ b) (hF_bound : ∀ h x, |F h x| ≤ b)
+    (hF_ps : PointwiseSeparable F)
+    {t : ℝ} (ht' : t * b ^ 2 ≤ 1 / 2)
+    {ε : ℝ} (hε : 0 ≤ ε) :
+    (μⁿ (fun ω ↦ 2 * rademacherComplexity n F μ X + ε ≤ uniformDeviation n F μ X (X ∘ ω))).toReal ≤
+      (- ε ^ 2 * t * n).exp := by
+  obtain ⟨g, hg⟩ := hF_ps
+  simp only [rademacherComplexity_eq_comp_of_tendsto F g hg hF_bound μ X,
+    uniformDeviation_eq_comp_of_tendsto F g hg hF_bound μ X fun h ↦ (hF_meas h).comp hX]
+  exact uniform_deviation_tail_bound_countable (F ∘ g) (fun i ↦ hF_meas (g i)) X hX hb
+    (fun i x ↦ hF_bound (g i) x) ht' hε
+
+/-- (Main Theorem) Optimized pointwise-separable tail bound with `t = 1 / (2 * b^2)`. -/
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_pos
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H] [IsProbabilityMeasure μ]
+    (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
+    (X : Ω → 𝒳) (hX : Measurable X)
+    {b : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
+    (hF_ps : PointwiseSeparable F)
+    {ε : ℝ} (hε : 0 ≤ ε) :
+    (μⁿ (fun ω ↦ 2 * rademacherComplexity n F μ X + ε ≤ uniformDeviation n F μ X (X ∘ ω))).toReal ≤
+      (- ε ^ 2 * n / (2 * b ^ 2)).exp := by
+  let t := 1 / (2 * b ^ 2)
+  have ht' : t * b ^ 2 ≤ 1 / 2 := le_of_eq (by dsimp only [t]; field_simp)
+  calc
+    _ ≤ (- ε ^ 2 * t * n).exp :=
+      uniform_deviation_tail_bound_pointwiseSeparable (μ := μ) F hF_meas X hX (le_of_lt hb)
+        hF_bound hF_ps ht' hε
+    _ = _ := by dsimp only [t]; field_simp
 
 /--
-Expected Rademacher complexity is unchanged after restriction to
-`denseRestriction F`.
+A uniform fixed-sample bound for a pointwise separable class lifts to expected Rademacher
+complexity.
 -/
-lemma rademacherComplexity_denseRestriction
-    [Nonempty H] [TopologicalSpace H] [SeparableSpace H]
-    (n : ℕ) (F : H → 𝒳 → ℝ)
-    (hF : ∀ x : 𝒳, Continuous fun h ↦ F h x)
-    (μ : Measure Ω) (X : Ω → 𝒳) :
-    rademacherComplexity n F μ X =
-      rademacherComplexity n (denseRestriction F) μ X := by
-  dsimp [rademacherComplexity]
-  congr
-  ext S
-  exact empiricalRademacherComplexity_denseRestriction n hF (X ∘ S)
-
-/--
-A uniform fixed-sample bound for a separable class lifts to expected
-Rademacher complexity through `denseRestriction`.
--/
-theorem rademacherComplexity_le_of_empirical_le_separable
-    [Nonempty H] [TopologicalSpace H] [SeparableSpace H]
-    [IsProbabilityMeasure μ]
+theorem rademacherComplexity_le_of_empirical_le_pointwiseSeparable
+    [Nonempty H] [IsProbabilityMeasure μ]
     (F : H → 𝒳 → ℝ) (X : Ω → 𝒳)
     (hF_meas : ∀ h, Measurable (F h ∘ X))
     {b C : ℝ} (hb : 0 ≤ b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : ∀ S : Fin n → 𝒳, empiricalRademacherComplexity n F S ≤ C) :
     rademacherComplexity n F μ X ≤ C := by
-  rw [rademacherComplexity_denseRestriction n F hF_cont μ X]
-  apply rademacherComplexity_le_of_empirical_le_countable
-    (f := denseRestriction F) (μ := μ)
-  · exact fun i ↦ hF_meas (denseSeq H i)
+  obtain ⟨g, hg⟩ := hF_ps
+  rw [rademacherComplexity_eq_comp_of_tendsto F g hg hF_bound μ X]
+  apply rademacherComplexity_le_of_empirical_le_countable (f := F ∘ g) (μ := μ)
+  · exact fun i ↦ hF_meas (g i)
   · exact hb
-  · exact abs_denseRestriction_le hF_bound
+  · exact fun i x ↦ hF_bound (g i) x
   · intro S
-    rw [← empiricalRademacherComplexity_denseRestriction n hF_cont S]
+    rw [← empiricalRademacherComplexity_eq_comp_of_tendsto F g hg hF_bound S]
     exact hC S
 
 /--
-Uniform deviation is unchanged after restricting a continuous and uniformly
-bounded family to `denseRestriction F`.
--/
-lemma uniformDeviation_denseRestriction
-    [MeasurableSpace 𝒳]
-    [Nonempty H] [TopologicalSpace H] [SeparableSpace H]
-    [FirstCountableTopology H]
-    (n : ℕ) (F : H → 𝒳 → ℝ)
-    (hF_meas : ∀ h, Measurable (F h))
-    (X : Ω → 𝒳) (hX : Measurable X)
-    {b : ℝ} (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
-    (μ : Measure Ω) [IsFiniteMeasure μ] :
-    uniformDeviation n F μ X =
-      uniformDeviation n (denseRestriction F) μ X := by
-  ext S
-  dsimp [uniformDeviation]
-  apply separableSpaceSup_eq_real
-  apply Continuous.abs
-  apply Continuous.sub
-  · continuity
-  · have hdominated :
-        ∀ h : H, ∀ᵐ ω : Ω ∂μ, ‖F h (X ω)‖ ≤ b := by
-      intro h
-      filter_upwards with ω
-      exact hF_bound h (X ω)
-    apply MeasureTheory.continuous_of_dominated _ hdominated
-    · exact MeasureTheory.integrable_const _
-    · filter_upwards with ω
-      continuity
-    · intro h
-      exact (hF_meas h).comp hX |>.aestronglyMeasurable
-
-/--
-Expected uniform-deviation bound for a separable class from a deterministic
+Expected uniform-deviation bound for a pointwise separable class from a deterministic
 fixed-sample empirical Rademacher bound.
 -/
-theorem uniform_deviation_expectation_le_of_empirical_le_separable
-    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
-    [IsProbabilityMeasure μ]
+theorem uniform_deviation_expectation_le_of_empirical_le_pointwiseSeparable
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H] [IsProbabilityMeasure μ]
     (hn : 0 < n)
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b C : ℝ} (hb : 0 ≤ b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : ∀ S : Fin n → 𝒳, empiricalRademacherComplexity n F S ≤ C) :
     μⁿ[fun S : Fin n → Ω ↦ uniformDeviation n F μ X (X ∘ S)] ≤
       2 * C := by
-  calc
-    μⁿ[fun S : Fin n → Ω ↦ uniformDeviation n F μ X (X ∘ S)] =
-        μⁿ[fun S : Fin n → Ω ↦
-          uniformDeviation n (denseRestriction F) μ X (X ∘ S)] := by
-      apply integral_congr_ae
-      filter_upwards with S
-      exact congrFun
-        (uniformDeviation_denseRestriction
-          n F hF_meas X hX hF_bound hF_cont μ) (X ∘ S)
-    _ ≤ 2 * C := by
-      apply uniform_deviation_expectation_le_of_empirical_le_countable
-        (f := denseRestriction F) (μ := μ) hn X
-      · exact fun i ↦ (hF_meas (denseSeq H i)).comp hX
-      · exact hb
-      · exact abs_denseRestriction_le hF_bound
-      · intro S
-        rw [← empiricalRademacherComplexity_denseRestriction n hF_cont S]
-        exact hC S
+  obtain ⟨g, hg⟩ := hF_ps
+  simp only [uniformDeviation_eq_comp_of_tendsto F g hg hF_bound μ X
+    fun h ↦ (hF_meas h).comp hX]
+  apply uniform_deviation_expectation_le_of_empirical_le_countable
+    (f := F ∘ g) (μ := μ) hn X
+  · exact fun i ↦ (hF_meas (g i)).comp hX
+  · exact hb
+  · exact fun i x ↦ hF_bound (g i) x
+  · intro S
+    rw [← empiricalRademacherComplexity_eq_comp_of_tendsto F g hg hF_bound S]
+    exact hC S
 
 /--
-Replace expected Rademacher complexity in the separable-class tail bound by
-any deterministic upper bound `C`.
+Replace expected Rademacher complexity in the pointwise-separable tail bound by any
+deterministic upper bound `C`.
 -/
-theorem uniform_deviation_tail_bound_separable_of_rademacher_le
-    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
-    [IsProbabilityMeasure μ]
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_rademacher_le
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H] [IsProbabilityMeasure μ]
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b C : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : rademacherComplexity n F μ X ≤ C)
     {ε : ℝ} (hε : 0 ≤ ε) :
     (μⁿ {S |
@@ -631,77 +494,61 @@ theorem uniform_deviation_tail_bound_separable_of_rademacher_le
       intro S
       gcongr
     _ ≤ _ :=
-      uniform_deviation_tail_bound_separable_of_pos
-        (μ := μ) F hF_meas X hX hb hF_bound hF_cont hε
+      uniform_deviation_tail_bound_pointwiseSeparable_of_pos
+        (μ := μ) F hF_meas X hX hb hF_bound hF_ps hε
 
 /--
-Separable-class tail bound with a deterministic fixed-sample upper bound on
-empirical Rademacher complexity.
+Pointwise-separable tail bound with a deterministic fixed-sample upper bound on empirical
+Rademacher complexity.
 -/
-theorem uniform_deviation_tail_bound_separable_of_empirical_le
-    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
-    [IsProbabilityMeasure μ]
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H] [IsProbabilityMeasure μ]
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b C : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : ∀ S : Fin n → 𝒳, empiricalRademacherComplexity n F S ≤ C)
     {ε : ℝ} (hε : 0 ≤ ε) :
     (μⁿ {S |
       2 * C + ε ≤ uniformDeviation n F μ X (X ∘ S)}).toReal ≤
       (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
-  apply uniform_deviation_tail_bound_separable_of_rademacher_le
-    (μ := μ) F hF_meas X hX hb hF_bound hF_cont _ hε
-  exact rademacherComplexity_le_of_empirical_le_separable
-    F X (fun h ↦ (hF_meas h).comp hX) hb.le hF_bound hF_cont hC
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_rademacher_le
+    (μ := μ) F hF_meas X hX hb hF_bound hF_ps _ hε
+  exact rademacherComplexity_le_of_empirical_le_pointwiseSeparable
+    F X (fun h ↦ (hF_meas h).comp hX) hb.le hF_bound hF_ps hC
 
 /--
-Sample-dependent separable-class tail bound retaining the observed empirical
-Rademacher complexity in the threshold.
+Sample-dependent pointwise-separable tail bound retaining the observed empirical Rademacher
+complexity in the threshold.
 -/
-theorem uniform_deviation_tail_bound_separable_of_empirical_complexity
-    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
-    [IsProbabilityMeasure μ]
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_complexity
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H] [IsProbabilityMeasure μ]
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     {ε : ℝ} (hε : 0 ≤ ε) :
     (μⁿ {S : Fin n → Ω |
       2 * empiricalRademacherComplexity n F (X ∘ S) + 3 * ε ≤
         uniformDeviation n F μ X (X ∘ S)}).toReal ≤
       2 * (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
-  calc
-    _ = (μⁿ {S : Fin n → Ω |
-        2 * empiricalRademacherComplexity n (denseRestriction F) (X ∘ S) +
-            3 * ε ≤
-          uniformDeviation n (denseRestriction F) μ X (X ∘ S)}).toReal := by
-      congr
-      ext S
-      rw [empiricalRademacherComplexity_denseRestriction n hF_cont (X ∘ S)]
-      rw [uniformDeviation_denseRestriction
-        n F hF_meas X hX hF_bound hF_cont μ]
-    _ ≤ _ :=
-      uniform_deviation_tail_bound_countable_of_empirical_complexity
-        (μ := μ) (denseRestriction F)
-        (measurable_denseRestriction_apply hF_meas)
-        X hX hb (abs_denseRestriction_le hF_bound) hε
+  obtain ⟨g, hg⟩ := hF_ps
+  simp only [empiricalRademacherComplexity_eq_comp_of_tendsto F g hg hF_bound,
+    uniformDeviation_eq_comp_of_tendsto F g hg hF_bound μ X fun h ↦ (hF_meas h).comp hX]
+  exact uniform_deviation_tail_bound_countable_of_empirical_complexity
+    (μ := μ) (F ∘ g) (fun i ↦ hF_meas (g i)) X hX hb (fun i x ↦ hF_bound (g i) x) hε
 
 /--
-Sample-dependent separable-class tail bound with a pointwise upper bound
-`C S` on empirical Rademacher complexity.
+Sample-dependent pointwise-separable tail bound with a pointwise upper bound `C S` on empirical
+Rademacher complexity.
 -/
-theorem uniform_deviation_tail_bound_separable_of_sample_empirical_le
-    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
-    [IsProbabilityMeasure μ]
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le
+    [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H] [IsProbabilityMeasure μ]
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     (C : (Fin n → 𝒳) → ℝ)
     {b : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : ∀ S : Fin n → 𝒳, empiricalRademacherComplexity n F S ≤ C S)
     {ε : ℝ} (hε : 0 ≤ ε) :
     (μⁿ {S : Fin n → Ω |
@@ -717,8 +564,8 @@ theorem uniform_deviation_tail_bound_separable_of_sample_empirical_le
       gcongr
       exact hC (X ∘ S)
     _ ≤ _ :=
-      uniform_deviation_tail_bound_separable_of_empirical_complexity
-        (μ := μ) F hF_meas X hX hb hF_bound hF_cont hε
+      uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_complexity
+        (μ := μ) F hF_meas X hX hb hF_bound hF_ps hε
 
 /-! ## Examples
 
@@ -742,14 +589,16 @@ $$
 $$
 
 Thus this single statement exhibits the three commonly used variants
-requested at once: a separable hypothesis class, a high-probability estimate,
-and empirical rather than expected Rademacher complexity.
+requested at once: an uncountable hypothesis class, a high-probability estimate,
+and empirical rather than expected Rademacher complexity.  A class continuous in a
+separable metric parameter enters through `PointwiseSeparable.of_continuous`.
 -/
 
-/-- Basic separable high-probability bound using observed empirical complexity. -/
+/-- Basic high-probability bound for a continuously parametrized class, using observed
+empirical complexity. -/
 example
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
+    [TopologicalSpace H] [TopologicalSpace.SeparableSpace H] [FrechetUrysohnSpace H]
     [IsProbabilityMeasure μ]
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
@@ -760,7 +609,7 @@ example
       2 * empiricalRademacherComplexity n F (X ∘ S) + 3 * ε ≤
         uniformDeviation n F μ X (X ∘ S)}).toReal ≤
       2 * (-ε ^ 2 * n / (2 * b ^ 2)).exp := by
-  exact uniform_deviation_tail_bound_separable_of_empirical_complexity
-    (μ := μ) F hF_meas X hX hb hF_bound hF_cont hε
+  exact uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_complexity
+    (μ := μ) F hF_meas X hX hb hF_bound (PointwiseSeparable.of_continuous hF_cont) hε
 
 end
