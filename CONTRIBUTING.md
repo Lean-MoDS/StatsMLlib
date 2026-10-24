@@ -24,6 +24,13 @@ Run the whole-library verification from the repository root:
 LEAN_NUM_THREADS=$(nproc) lake build
 ```
 
+If the change adds, moves, or deletes a module, regenerate the module index; CI fails when
+[`FILE_TREE.md`](./FILE_TREE.md) is out of date:
+
+```bash
+python3 scripts/file_tree.py
+```
+
 Describe the mathematical result, its source, the owning module, and any API decisions in the pull
 request. New modules should include a Mathlib-style file header and module docstring.
 
