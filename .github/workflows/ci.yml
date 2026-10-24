@@ -16,3 +16,10 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           check-reservoir-eligibility: true
+
+  file-tree:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check FILE_TREE.md is up to date
+        run: python3 scripts/file_tree.py --check
