@@ -13,8 +13,8 @@ import StatsMLlib.LearningTheory.Rademacher.Reindex
 
 This module combines the contraction theorem with the feature-map RKHS trace
 estimate and the approximate-ERM oracle inequality, giving a loss-to-excess-risk
-endpoint for a weight family indexed by an arbitrary separable, first-countable
-parameter space.  The uniform bound the contraction step needs comes from the
+endpoint for a weight family indexed by an arbitrary separable Fréchet–Urysohn
+(for example, metric) parameter space.  The uniform bound the contraction step needs comes from the
 kernel diagonal bound.
 -/
 
@@ -31,7 +31,7 @@ variable {𝒳 : Type v} {𝒴 : Type w}
 variable {E : Type x} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   [CompleteSpace E]
 variable {G : Type y} [Nonempty G]
-  [TopologicalSpace G] [SeparableSpace G] [FirstCountableTopology G]
+  [TopologicalSpace G] [SeparableSpace G] [FrechetUrysohnSpace G]
 variable {μ : Measure Ω}
 
 local notation "μⁿ" => Measure.pi (fun _ ↦ μ)
@@ -167,12 +167,12 @@ theorem rkhs_approxERM_excessRisk_tail_bound_delta
     exact (hloss_cont z.2).comp
       ((continuous_rkhsPredictor_weight Φ z.1).comp hweights)
   have htail :=
-    approxERM_excessRisk_tail_bound_separable_of_sample_empirical_le_delta
+    approxERM_excessRisk_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta
       (μ := μ) hn lossClass
       (by simpa only [lossClass, predictor] using hclass_meas)
       Z hZ C hb
       (by simpa only [lossClass, predictor] using hclass_bound)
-      hclass_cont
+      (PointwiseSeparable.of_continuous hclass_cont)
       A
       (by simpa only [lossClass, predictor] using hA)
       hC gstar hδ hδ_one

@@ -361,7 +361,7 @@ end
 # Generalization bounds for one-dimensional Lipschitz families
 
 The explicit interval grid and Dudley estimate are inserted into the
-sample-dependent separable-class bridge.  The final threshold contains only
+sample-dependent pointwise-separable-class bridge.  The final threshold contains only
 `ceil (2 W L / α)`, not a covering number or a total-boundedness proof.
 -/
 
@@ -406,10 +406,10 @@ theorem uniform_deviation_tail_bound_lipschitzParameter_dudley_delta
     intro t s
     rw [Subtype.dist_eq, Real.dist_eq]
     exact hF_lip t s x
-  apply uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta
     (μ := μ) hn F hF_meas X hX
     (fun _ ↦ lipschitzParameterDudleyEstimate n W L α c)
-    hb hF_bound hF_cont
+    hb hF_bound (PointwiseSeparable.of_continuous hF_cont)
   · intro S
     exact empiricalRademacherComplexity_le_lipschitzParameterDudleyEstimate
       hn hW hL hα hαc F hF_lip S (hNorm S)

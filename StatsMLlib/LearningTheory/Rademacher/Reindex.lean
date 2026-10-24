@@ -12,7 +12,8 @@ import StatsMLlib.Order.IndexedSupremum
 # Reindexing function classes
 
 These lemmas distinguish a purely set-theoretic change of hypothesis index
-from the topological `denseRestriction` bridge.  Pulling a class back along
+from the approximating-sequence reduction of
+`StatsMLlib.LearningTheory.Rademacher.PointwiseSeparable`.  Pulling a class back along
 an arbitrary map can only decrease empirical complexity; a surjective map
 does not change the class and hence preserves all three central quantities.
 -/

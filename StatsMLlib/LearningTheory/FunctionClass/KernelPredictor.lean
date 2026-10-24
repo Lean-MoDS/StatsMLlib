@@ -231,13 +231,13 @@ theorem rkhs_rademacherComplexity_le
       r * Λ / Real.sqrt (n : ℝ) := by
   let : Nonempty (Metric.closedBall (0 : H) Λ) :=
     (Metric.nonempty_closedBall.mpr hΛ).to_subtype
-  apply rademacherComplexity_le_of_empirical_le_separable
+  apply rademacherComplexity_le_of_empirical_le_pointwiseSeparable
     (F := rkhsPredictor Φ) (X := X)
   · intro w
     exact (measurable_rkhsPredictor_input Φ hΦ w).comp hX
   · exact mul_nonneg hr hΛ
   · exact fun w x ↦ abs_rkhsPredictor_le Φ hΛ hr hdiag w x
-  · exact continuous_rkhsPredictor_weight Φ
+  · exact PointwiseSeparable.of_continuous (continuous_rkhsPredictor_weight Φ)
   · exact rkhs_empiricalRademacherComplexity_le Φ Λ r hΛ hr hdiag
 
 /--
@@ -260,13 +260,13 @@ theorem rkhs_uniformDeviation_expectation_le
       2 * (r * Λ / Real.sqrt (n : ℝ)) := by
   let : Nonempty (Metric.closedBall (0 : H) Λ) :=
     (Metric.nonempty_closedBall.mpr hΛ).to_subtype
-  apply uniform_deviation_expectation_le_of_empirical_le_separable
+  apply uniform_deviation_expectation_le_of_empirical_le_pointwiseSeparable
     (F := rkhsPredictor Φ) hn
   · exact fun w ↦ measurable_rkhsPredictor_input Φ hΦ w
   · exact hX
   · exact mul_nonneg hr hΛ
   · exact fun w x ↦ abs_rkhsPredictor_le Φ hΛ hr hdiag w x
-  · exact continuous_rkhsPredictor_weight Φ
+  · exact PointwiseSeparable.of_continuous (continuous_rkhsPredictor_weight Φ)
   · exact rkhs_empiricalRademacherComplexity_le Φ Λ r hΛ hr hdiag
 
 /--
@@ -297,13 +297,13 @@ theorem rkhs_uniformDeviation_tail_bound_delta
           μ X (X ∘ S)}).toReal ≤ δ := by
   let : Nonempty (Metric.closedBall (0 : H) Λ) :=
     (Metric.nonempty_closedBall.mpr hΛ.le).to_subtype
-  apply uniform_deviation_tail_bound_separable_of_empirical_le_delta
+  apply uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le_delta
     (μ := μ) hn (F := rkhsPredictor Φ)
   · exact fun w ↦ measurable_rkhsPredictor_input Φ hΦ w
   · exact hX
   · exact mul_pos hr hΛ
   · exact fun w x ↦ abs_rkhsPredictor_le Φ hΛ.le hr.le hdiag w x
-  · exact continuous_rkhsPredictor_weight Φ
+  · exact PointwiseSeparable.of_continuous (continuous_rkhsPredictor_weight Φ)
   · exact rkhs_empiricalRademacherComplexity_le
       Φ Λ r hΛ.le hr.le hdiag
   · exact hδ
@@ -333,7 +333,7 @@ theorem rkhs_uniformDeviation_tail_bound_kernelTrace_delta
           μ X (X ∘ S)}).toReal ≤ δ := by
   let : Nonempty (Metric.closedBall (0 : H) Λ) :=
     (Metric.nonempty_closedBall.mpr hΛ.le).to_subtype
-  exact uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+  exact uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta
     (μ := μ) hn
     (rkhsPredictor Φ :
       Metric.closedBall (0 : H) Λ → 𝒳 → ℝ)
@@ -342,7 +342,7 @@ theorem rkhs_uniformDeviation_tail_bound_kernelTrace_delta
     (fun S ↦ Λ * (n : ℝ)⁻¹ * Real.sqrt (kernelTrace Φ S))
     (mul_pos hr hΛ)
     (fun w x ↦ abs_rkhsPredictor_le Φ hΛ.le hr.le hdiag w x)
-    (continuous_rkhsPredictor_weight Φ)
+    (PointwiseSeparable.of_continuous (continuous_rkhsPredictor_weight Φ))
     (rkhs_empiricalRademacherComplexity_le_kernelTrace Φ Λ hΛ.le)
     hδ hδ_one
 

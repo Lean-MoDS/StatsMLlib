@@ -11,7 +11,7 @@ import StatsMLlib.Probability.Concentration.Confidence
 
 This module turns the `ε`-tail bounds of
 `StatsMLlib.LearningTheory.UniformDeviation.Bounds`, for both countable and
-separable classes, into statements with failure probability `0 < δ ≤ 1`.
+pointwise separable classes, into statements with failure probability `0 < δ ≤ 1`.
 -/
 
 section
@@ -151,18 +151,17 @@ theorem uniform_deviation_tail_bound_countable_of_sample_empirical_le_delta
       two_mul_exp_neg_sampleConfidenceRadius_sq hn hb hδ hδ_one
 
 /--
-Separable-class confidence bound from an upper bound `C` on expected
+Pointwise-separable-class confidence bound from an upper bound `C` on expected
 Rademacher complexity.
 -/
-theorem uniform_deviation_tail_bound_separable_of_rademacher_le_delta
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_rademacher_le_delta
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
     [IsProbabilityMeasure μ]
     (hn : 0 < n)
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b C δ : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : rademacherComplexity n F μ X ≤ C)
     (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
     (μⁿ {S : Fin n → Ω |
@@ -171,57 +170,55 @@ theorem uniform_deviation_tail_bound_separable_of_rademacher_le_delta
   calc
     _ ≤ (-deterministicConfidenceRadius b δ n ^ 2 * n /
           (2 * b ^ 2)).exp :=
-      uniform_deviation_tail_bound_separable_of_rademacher_le
-        (μ := μ) F hF_meas X hX hb hF_bound hF_cont hC
+      uniform_deviation_tail_bound_pointwiseSeparable_of_rademacher_le
+        (μ := μ) F hF_meas X hX hb hF_bound hF_ps hC
         (deterministicConfidenceRadius_nonneg hb.le)
     _ = δ :=
       exp_neg_deterministicConfidenceRadius_sq hn hb hδ hδ_one
 
 /--
-Confidence-parameter form of the deterministic-threshold separable-class
+Confidence-parameter form of the deterministic-threshold pointwise-separable-class
 generalization bound.
 
 The displayed radius unfolds to
 `b * √(2 * log (1 / δ) / n)`.
 -/
-theorem uniform_deviation_tail_bound_separable_of_empirical_le_delta
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le_delta
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
     [IsProbabilityMeasure μ]
     (hn : 0 < n)
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     {b C δ : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : ∀ S : Fin n → 𝒳, empiricalRademacherComplexity n F S ≤ C)
     (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
     (μⁿ {S : Fin n → Ω |
       2 * C + b * Real.sqrt (2 * Real.log (1 / δ) / n) ≤
         uniformDeviation n F μ X (X ∘ S)}).toReal ≤ δ := by
   simpa [deterministicConfidenceRadius, confidenceRadius] using
-    uniform_deviation_tail_bound_separable_of_rademacher_le_delta
-      (μ := μ) hn F hF_meas X hX hb hF_bound hF_cont
-      (rademacherComplexity_le_of_empirical_le_separable
-        F X (fun h ↦ (hF_meas h).comp hX) hb.le hF_bound hF_cont hC)
+    uniform_deviation_tail_bound_pointwiseSeparable_of_rademacher_le_delta
+      (μ := μ) hn F hF_meas X hX hb hF_bound hF_ps
+      (rademacherComplexity_le_of_empirical_le_pointwiseSeparable
+        F X (fun h ↦ (hF_meas h).comp hX) hb.le hF_bound hF_ps hC)
       hδ hδ_one
 
 /--
-Confidence-parameter form of the sample-dependent separable-class
+Confidence-parameter form of the sample-dependent pointwise-separable-class
 generalization bound.
 
 The concentration radius unfolds to
 `b * √(2 * log (2 / δ) / n)` because the proof uses a union bound.
 -/
-theorem uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
+theorem uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
     [IsProbabilityMeasure μ]
     (hn : 0 < n)
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
     (C : (Fin n → 𝒳) → ℝ)
     {b δ : ℝ} (hb : 0 < b) (hF_bound : ∀ h x, |F h x| ≤ b)
-    (hF_cont : ∀ x : 𝒳, Continuous fun h ↦ F h x)
+    (hF_ps : PointwiseSeparable F)
     (hC : ∀ S : Fin n → 𝒳, empiricalRademacherComplexity n F S ≤ C S)
     (hδ : 0 < δ) (hδ_one : δ ≤ 1) :
     (μⁿ {S : Fin n → Ω |
@@ -229,8 +226,8 @@ theorem uniform_deviation_tail_bound_separable_of_sample_empirical_le_delta
           3 * (b * Real.sqrt (2 * Real.log (2 / δ) / n)) ≤
         uniformDeviation n F μ X (X ∘ S)}).toReal ≤ δ := by
   have htail :=
-    uniform_deviation_tail_bound_separable_of_sample_empirical_le
-      (μ := μ) F hF_meas X hX C hb hF_bound hF_cont hC
+    uniform_deviation_tail_bound_pointwiseSeparable_of_sample_empirical_le
+      (μ := μ) F hF_meas X hX C hb hF_bound hF_ps hC
       (sampleConfidenceRadius_nonneg (n := n) (δ := δ) hb.le)
   calc
     _ = (μⁿ {S : Fin n → Ω |
@@ -251,7 +248,7 @@ double as acceptance tests that these statements stay usable as written.
 
 example
     [MeasurableSpace 𝒳] [Nonempty 𝒳] [Nonempty H]
-    [TopologicalSpace H] [SeparableSpace H] [FirstCountableTopology H]
+    [TopologicalSpace H] [SeparableSpace H] [FrechetUrysohnSpace H]
     [IsProbabilityMeasure μ]
     (F : H → 𝒳 → ℝ) (hF_meas : ∀ h, Measurable (F h))
     (X : Ω → 𝒳) (hX : Measurable X)
@@ -263,7 +260,7 @@ example
     (μⁿ {S : Fin n → Ω |
       2 * C + b * Real.sqrt (2 * Real.log (1 / δ) / n) ≤
         uniformDeviation n F μ X (X ∘ S)}).toReal ≤ δ := by
-  exact uniform_deviation_tail_bound_separable_of_empirical_le_delta
-    (μ := μ) hn F hF_meas X hX hb hF_bound hF_cont hC hδ hδ_one
+  exact uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le_delta
+    (μ := μ) hn F hF_meas X hX hb hF_bound (PointwiseSeparable.of_continuous hF_cont) hC hδ hδ_one
 
 end

@@ -54,14 +54,15 @@ generalization bound. Each entry names the endpoint; every module listed carries
 | Model | Module | Endpoint |
 | --- | --- | --- |
 | any countable class | `LearningTheory/UniformDeviation/Confidence` | `uniform_deviation_tail_bound_countable_of_empirical_le_delta` |
-| any separable class | `LearningTheory/UniformDeviation/Confidence` | `uniform_deviation_tail_bound_separable_of_empirical_le_delta` |
+| any pointwise separable class | `LearningTheory/UniformDeviation/Confidence` | `uniform_deviation_tail_bound_pointwiseSeparable_of_empirical_le_delta` |
 | `ℓ₂` linear predictors | `LearningTheory/FunctionClass/LinearPredictor/L2` | `linear_predictor_l2_uniform_deviation_tail_bound_delta` |
 | `ℓ₁/ℓ∞` linear predictors | `LearningTheory/FunctionClass/LinearPredictor/L1` | `linear_predictor_l1_uniform_deviation_tail_bound_delta` |
 | feature-map RKHS predictors | `LearningTheory/FunctionClass/KernelPredictor` | `rkhs_uniformDeviation_tail_bound_kernelTrace_delta` |
-| via Dudley's entropy integral | `LearningTheory/Rademacher/Dudley` | `uniform_deviation_tail_bound_separable_of_dudley_delta` |
+| threshold classifiers (Kolmogorov–Smirnov) | `LearningTheory/FunctionClass/Threshold` | `threshold_uniform_deviation_tail_bound_of_empirical_le_delta` |
+| via Dudley's entropy integral | `LearningTheory/Rademacher/Dudley` | `uniform_deviation_tail_bound_pointwiseSeparable_of_dudley_delta` |
 | finite hypothesis classes | `LearningTheory/Rademacher/FiniteClass` | `uniform_deviation_tail_bound_finite_of_dudley_quarter_delta` |
 | Lipschitz-parametrized families | `LearningTheory/Rademacher/LipschitzParameter` | `uniform_deviation_tail_bound_lipschitzParameter_dudley_delta` |
-| approximate ERM, excess risk | `LearningTheory/EmpiricalRiskMinimization/Generalization` | `approxERM_excessRisk_tail_bound_separable_of_sample_empirical_le_delta` |
+| approximate ERM, excess risk | `LearningTheory/EmpiricalRiskMinimization/Generalization` | `approxERM_excessRisk_tail_bound_pointwiseSeparable_of_sample_empirical_le_delta` |
 | the same over an RKHS ball | `LearningTheory/EmpiricalRiskMinimization/KernelPredictor` | `rkhs_approxERM_excessRisk_tail_bound_delta` |
 
 Supporting notions: `empiricalRademacherComplexity` and `rademacherComplexity`
