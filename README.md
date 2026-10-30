@@ -24,7 +24,7 @@ The public source contains 90 modules and no `sorry`, `axiom`, `admit`, or `nati
 | Linear algebra | `StatsMLlib.LinearAlgebra.*` | Singular values, variational principles, matrix perturbation |
 | Probability | `StatsMLlib.Probability.*` | Concentration, entropy methods, Gaussian analysis, random matrices |
 | Learning theory | `StatsMLlib.LearningTheory.*` | Empirical metrics, Rademacher complexity, uniform deviation |
-| Statistics | `StatsMLlib.Statistics.*` | Localized least squares, regression, and minimax guarantees |
+| Statistics | `StatsMLlib.Statistics.*` | Localized least squares, regression, kernel density estimation, and minimax guarantees |
 
 The dependency order is foundational measure theory, topology, and linear algebra; then analysis;
 probability; learning theory; and statistics. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the

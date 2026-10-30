@@ -27,7 +27,7 @@ StatsMLlib/
 ├── Order
 ├── Probability/{Concentration,Entropy,Gaussian,GraphicalModel,Independence,Moments,Process,
 │                RandomMatrix}
-├── Statistics/Regression/LeastSquares
+├── Statistics/{DensityEstimation,Regression/LeastSquares}
 └── Topology/{MetricSpace,SeparableSpace}
 ```
 
