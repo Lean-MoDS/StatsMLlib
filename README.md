@@ -22,7 +22,7 @@ The public source contains 90 modules and no `sorry`, `axiom`, `admit`, or `nati
 | Topology | `StatsMLlib.Topology.*` | Covering and packing numbers, separable suprema |
 | Analysis | `StatsMLlib.Analysis.*` | Metric entropy, chaining, normed-space covering estimates |
 | Linear algebra | `StatsMLlib.LinearAlgebra.*` | Singular values, variational principles, matrix perturbation |
-| Probability | `StatsMLlib.Probability.*` | Concentration, entropy methods, Gaussian analysis, random matrices |
+| Probability | `StatsMLlib.Probability.*` | Concentration, entropy methods, influences and the KKL theorem, Gaussian analysis, random matrices |
 | Learning theory | `StatsMLlib.LearningTheory.*` | Empirical metrics, Rademacher complexity, uniform deviation |
 | Statistics | `StatsMLlib.Statistics.*` | Localized least squares, regression, kernel density estimation, and minimax guarantees |
 
