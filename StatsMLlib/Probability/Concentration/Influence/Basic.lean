@@ -51,7 +51,7 @@ def totalInfluence (f : (Fin n → Bool) → ℝ) : ℝ := ∑ i, influence f i
 lemma influence_nonneg (f : (Fin n → Bool) → ℝ) (i : Fin n) : 0 ≤ influence f i :=
   expect_nonneg fun x ↦ by split_ifs <;> norm_num
 
-/-! ### Lemma 9.3 -/
+/-! ### BLM Lemma 9.3 -/
 
 /-- The rescaled form of `a² log(1/(ac)) ≤ a/c - a²`. -/
 private lemma sq_mul_log_le (A m : ℝ) (hA : 0 < A) (hm : 0 < m) {t : ℝ} (ht : 0 ≤ t) :
@@ -69,7 +69,7 @@ private lemma sq_mul_log_le (A m : ℝ) (hA : 0 < A) (hm : 0 < m) {t : ℝ} (ht 
     field_simp
   linarith
 
-/-- Lemma 9.3: for `f ≥ 0`, `E[f²] log(E[f²] / (E f)²) ≤ 2 𝓔(f)`. -/
+/-- BLM Lemma 9.3: for `f ≥ 0`, `E[f²] log(E[f²] / (E f)²) ≤ 2 𝓔(f)`. -/
 theorem sq_expect_mul_log_le_dirichletForm (f : (Fin n → Bool) → ℝ) (hf : ∀ x, 0 ≤ f x) :
     expect (fun x ↦ f x ^ 2) * log (expect (fun x ↦ f x ^ 2) / expect f ^ 2) ≤
       2 * dirichletForm f f := by
@@ -101,7 +101,7 @@ theorem sq_expect_mul_log_le_dirichletForm (f : (Fin n → Bool) → ℝ) (hf : 
   push_cast
   linarith
 
-/-! ### Theorem 9.4 -/
+/-! ### BLM Theorem 9.4 -/
 
 /-- L2: taking absolute values decreases the Dirichlet form. -/
 lemma dirichletForm_abs_le (u : (Fin n → Bool) → ℝ) :
@@ -158,7 +158,7 @@ lemma sum_sq_expect_abs_martingaleDiff_pos (f : (Fin n → Bool) → ℝ) (hV : 
   exact pow_eq_zero_iff two_ne_zero |>.mp <|
     (Finset.sum_eq_zero_iff_of_nonneg fun j _ ↦ sq_nonneg _).mp h.symm i hi
 
-/-- Theorem 9.4: `Var f · log(Var f / ∑ᵢ (E|Δᵢ|)²) ≤ 2 𝓔(f)`. -/
+/-- BLM Theorem 9.4: `Var f · log(Var f / ∑ᵢ (E|Δᵢ|)²) ≤ 2 𝓔(f)`. -/
 theorem variance_mul_log_le_dirichletForm (f : (Fin n → Bool) → ℝ) (hV : 0 < variance f) :
     variance f * log (variance f / ∑ i : Fin n, expect (fun x ↦ |martingaleDiff f i x|) ^ 2) ≤
       2 * dirichletForm f f := by
@@ -268,7 +268,7 @@ lemma log_pow_four_le {x : ℝ} (hx1 : 1 ≤ x) : log x ^ 4 ≤ 256 * x := by
   calc log x ^ 4 ≤ (x ^ (1 / 4 : ℝ) / (1 / 4)) ^ 4 := pow_le_pow_left₀ (log_nonneg hx1) h 4
     _ = 256 * x := by rw [div_pow, hpow]; norm_num; ring
 
-/-- Theorem 9.5: for Boolean `f` and `n ≥ 2`, `Var(f)² (log n)² / n ≤ ∑ᵢ Iᵢ(f)²`. -/
+/-- BLM Theorem 9.5: for Boolean `f` and `n ≥ 2`, `Var(f)² (log n)² / n ≤ ∑ᵢ Iᵢ(f)²`. -/
 theorem sum_influence_sq_ge (hn : 2 ≤ n) (hf : ∀ x, f x = 0 ∨ f x = 1) :
     variance f ^ 2 * log n ^ 2 / n ≤ ∑ i, influence f i ^ 2 := by
   have hsum0 : 0 ≤ ∑ i, influence f i ^ 2 := Finset.sum_nonneg fun i _ ↦ sq_nonneg _
