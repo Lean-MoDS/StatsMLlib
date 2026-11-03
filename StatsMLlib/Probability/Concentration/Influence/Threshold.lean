@@ -25,12 +25,18 @@ real `p`.
 
 ## Main results
 
-* `Influence.hasDerivAt_expectP` (Russo's lemma, Theorem 9.15): for monotone Boolean `f`,
+* `Influence.hasDerivAt_expectP` (Russo's lemma, BLM Theorem 9.15): for monotone Boolean `f`,
   `d/dp E_p[f] = I^p(f)`.
-* `Influence.totalInfluenceP_eq` (Corollary 9.16):
+* `Influence.totalInfluenceP_eq` (BLM Corollary 9.16):
   `I^p(f) = E_p[(‖X‖ - n p) f] / (p (1 - p))`.
-* `Influence.totalInfluenceP_le` (Corollary 9.16): for `p ∈ (0, 1)`,
+* `Influence.totalInfluenceP_le` (BLM Corollary 9.16): for `p ∈ (0, 1)`,
   `I^p(f) ≤ √(n E_p[f] / (p (1 - p)))`.
+
+## References
+
+* [S. Boucheron, G. Lugosi, P. Massart, *Concentration Inequalities: A Nonasymptotic Theory of
+  Independence*, Oxford University Press, 2013][BLM], Chapter 9. Numbered results cited as
+  `BLM …` refer to this book.
 -/
 
 open BernoulliLSI
@@ -117,7 +123,7 @@ lemma expectP_eq_pair (p : ℝ) (i : Fin n) (g : (Fin n → Bool) → ℝ) :
     offWeight_flipCoord, flipCoord_same]
   ring
 
-/-- **Lemma W4.** The expectation of a flip-invariant function. -/
+/-- The expectation of a flip-invariant function. -/
 lemma expectP_of_flipCoord_invariant (p : ℝ) (i : Fin n) {g : (Fin n → Bool) → ℝ}
     (hg : ∀ x, g (flipCoord i x) = g x) :
     expectP p g = (1 / 2) * ∑ x, g x * offWeight p i x := by
@@ -165,7 +171,7 @@ lemma weight_sub_eq_sum (p : ℝ) (x : Fin n → Bool) :
     weight x - n * p = ∑ j, (boolToReal (x j) - p) := by
   simp [weight, Finset.sum_sub_distrib]
 
-/-- **Lemma C2.** The variance of the binomial count `‖X‖`. -/
+/-- The variance of the binomial count `‖X‖`. -/
 lemma expectP_sq_weight_sub (p : ℝ) :
     expectP p (fun x : Fin n → Bool ↦ (weight x - n * p) ^ 2) = n * (p * (1 - p)) := by
   have hexp : ∀ x : Fin n → Bool, (weight x - n * p) ^ 2 =
@@ -191,14 +197,14 @@ lemma hasDerivAt_coordWeight (p : ℝ) (b : Bool) :
   · simpa [coordWeight, coordSign] using (hasDerivAt_id p).const_sub 1
   · simpa [coordWeight, coordSign] using hasDerivAt_id' p
 
-/-- **Lemma D1.** The derivative of the product weight. -/
+/-- The derivative of the product weight. -/
 lemma hasDerivAt_weightP (p : ℝ) (x : Fin n → Bool) :
     HasDerivAt (fun q ↦ weightP q x) (∑ i, coordSign (x i) * offWeight p i x) p := by
   have h := HasDerivAt.fun_finsetProd (u := Finset.univ) (f := fun j q ↦ coordWeight q (x j))
     fun j _ ↦ hasDerivAt_coordWeight p (x j)
   simpa [weightP, offWeight, smul_eq_mul, mul_comm] using h
 
-/-- **Lemma D2.** The derivative of the weight, multiplied by `p (1 - p)`. -/
+/-- The derivative of the weight, multiplied by `p (1 - p)`. -/
 lemma mul_sum_coordSign_offWeight (p : ℝ) (x : Fin n → Bool) :
     p * (1 - p) * ∑ i, coordSign (x i) * offWeight p i x = (weight x - n * p) * weightP p x := by
   rw [weight_sub_eq_sum, Finset.mul_sum, Finset.sum_mul]
@@ -226,7 +232,7 @@ lemma le_flipCoord_self {i : Fin n} {x : Fin n → Bool} (hx : x i = false) : x 
     simp [hx]
   · rw [flipCoord_noteq i k x hk]
 
-/-- **Lemma M1.** For a monotone Boolean function, the signed difference across a flip is the
+/-- For a monotone Boolean function, the signed difference across a flip is the
 indicator that the flip changes the value. -/
 lemma coordSign_mul_sub_eq (hf : ∀ x, f x = 0 ∨ f x = 1) (hmono : Monotone f) (i : Fin n)
     (x : Fin n → Bool) :
@@ -258,14 +264,14 @@ lemma totalInfluenceP_eq_sum (hf : ∀ x, f x = 0 ∨ f x = 1) (hmono : Monotone
   rw [← coordSign_mul_sub_eq hf hmono i x, offWeight_flipCoord, flipCoord_same]
   cases x i <;> simp [coordSign] <;> ring
 
-/-- **Russo's lemma (Theorem 9.15).** For a monotone Boolean function `f`, the derivative of
+/-- **Russo's lemma (BLM Theorem 9.15).** For a monotone Boolean function `f`, the derivative of
 `p ↦ E_p[f]` is the total `p`-influence of `f`. -/
 theorem hasDerivAt_expectP (hf : ∀ x, f x = 0 ∨ f x = 1) (hmono : Monotone f) (p : ℝ) :
     HasDerivAt (fun q ↦ expectP q f) (totalInfluenceP p f) p := by
   rw [totalInfluenceP_eq_sum hf hmono]
   exact HasDerivAt.fun_sum fun x _ ↦ (hasDerivAt_weightP p x).const_mul (f x)
 
-/-! ### Corollary 9.16 -/
+/-! ### BLM Corollary 9.16 -/
 
 lemma mul_totalInfluenceP_eq (hf : ∀ x, f x = 0 ∨ f x = 1) (hmono : Monotone f) (p : ℝ) :
     p * (1 - p) * totalInfluenceP p f = expectP p (fun x ↦ (weight x - n * p) * f x) := by
@@ -274,13 +280,13 @@ lemma mul_totalInfluenceP_eq (hf : ∀ x, f x = 0 ∨ f x = 1) (hmono : Monotone
   rw [mul_left_comm, mul_sum_coordSign_offWeight]
   ring
 
-/-- **Corollary 9.16**, the identity. -/
+/-- **BLM Corollary 9.16**, the identity. -/
 theorem totalInfluenceP_eq (hf : ∀ x, f x = 0 ∨ f x = 1) (hmono : Monotone f) {p : ℝ}
     (hp : p * (1 - p) ≠ 0) :
     totalInfluenceP p f = expectP p (fun x ↦ (weight x - n * p) * f x) / (p * (1 - p)) := by
   rw [← mul_totalInfluenceP_eq hf hmono, mul_div_cancel_left₀ _ hp]
 
-/-- **Corollary 9.16**, the inequality. -/
+/-- **BLM Corollary 9.16**, the inequality. -/
 theorem totalInfluenceP_le (hf : ∀ x, f x = 0 ∨ f x = 1) (hmono : Monotone f) {p : ℝ}
     (hp0 : 0 < p) (hp1 : p < 1) :
     totalInfluenceP p f ≤ √(n * expectP p f / (p * (1 - p))) := by

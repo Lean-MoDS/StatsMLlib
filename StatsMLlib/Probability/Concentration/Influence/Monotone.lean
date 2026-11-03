@@ -23,7 +23,7 @@ a monotone one with the same expectation and no larger total influence.
 
 * `Influence.expect_shift`: `E[Sᵢ g] = E[g]`.
 * `Influence.totalInfluence_shift_le`: `I(Sᵢ g) ≤ I(g)`.
-* `Influence.exists_monotone` (Theorem 9.10): for every Boolean `f` there is a monotone Boolean
+* `Influence.exists_monotone` (BLM Theorem 9.10): for every Boolean `f` there is a monotone Boolean
   `g` with `E[g] = E[f]` and `I(g) ≤ I(f)`.
 
 ## Implementation notes
@@ -31,6 +31,12 @@ a monotone one with the same expectation and no larger total influence.
 Instead of iterating the shifts until the function becomes monotone, we take a function of
 maximal potential `φ(g) = E[g(x) ‖x‖]` among those with the right expectation and total
 influence; a non-monotone function would be improved by some shift.
+
+## References
+
+* [S. Boucheron, G. Lugosi, P. Massart, *Concentration Inequalities: A Nonasymptotic Theory of
+  Independence*, Oxford University Press, 2013][BLM], Chapter 9. Numbered results cited as
+  `BLM …` refer to this book.
 -/
 
 open BernoulliLSI
@@ -205,7 +211,7 @@ lemma monotone_of_forall_flipCoord {g : (Fin n → Bool) → Bool}
   have hy : mix n y x = y := funext fun k ↦ by simp [mix]
   simpa [hy] using key n le_rfl
 
-/-! ### Theorem 9.10 -/
+/-! ### BLM Theorem 9.10 -/
 
 private lemma exists_monotone_bool (f : (Fin n → Bool) → Bool) :
     ∃ g : (Fin n → Bool) → Bool, Monotone g ∧
@@ -227,7 +233,7 @@ private lemma exists_monotone_bool (f : (Fin n → Bool) → Bool) :
     exact ⟨(expect_shift i g).trans hg.1, (totalInfluence_shift_le i g).trans hg.2⟩
   exact (hmax _ hS).not_gt (potential_lt_potential_shift i g hx hg₀ hg₁)
 
-/-- **Theorem 9.10.** Every Boolean function on the hypercube can be replaced by a monotone
+/-- **BLM Theorem 9.10.** Every Boolean function on the hypercube can be replaced by a monotone
 Boolean function with the same expectation and no larger total influence. -/
 theorem exists_monotone {f : (Fin n → Bool) → ℝ} (hf : ∀ x, f x = 0 ∨ f x = 1) :
     ∃ g : (Fin n → Bool) → ℝ, (∀ x, g x = 0 ∨ g x = 1) ∧ Monotone g ∧
