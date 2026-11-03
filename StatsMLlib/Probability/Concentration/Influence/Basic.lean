@@ -31,12 +31,6 @@ Kahn–Kalai–Linial theorem.
 * `Influence.sum_influence_sq_ge`: for Boolean `f` and `n ≥ 2`,
   `Var(f)² (log n)² / n ≤ ∑ᵢ Iᵢ(f)²`.
 * `Influence.exists_influence_ge` (KKL): some coordinate has `Var f · log n / n ≤ Iᵢ(f)`.
-
-## References
-
-* [S. Boucheron, G. Lugosi, P. Massart, *Concentration Inequalities: A Nonasymptotic Theory of
-  Independence*, Oxford University Press, 2013][BLM], Chapter 9. Numbered results cited as
-  `BLM …` refer to this book.
 -/
 
 open Real BernoulliLSI

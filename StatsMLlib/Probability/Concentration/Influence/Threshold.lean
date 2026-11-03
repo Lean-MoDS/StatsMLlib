@@ -31,12 +31,6 @@ real `p`.
   `I^p(f) = E_p[(‖X‖ - n p) f] / (p (1 - p))`.
 * `Influence.totalInfluenceP_le` (BLM Corollary 9.16): for `p ∈ (0, 1)`,
   `I^p(f) ≤ √(n E_p[f] / (p (1 - p)))`.
-
-## References
-
-* [S. Boucheron, G. Lugosi, P. Massart, *Concentration Inequalities: A Nonasymptotic Theory of
-  Independence*, Oxford University Press, 2013][BLM], Chapter 9. Numbered results cited as
-  `BLM …` refer to this book.
 -/
 
 open BernoulliLSI

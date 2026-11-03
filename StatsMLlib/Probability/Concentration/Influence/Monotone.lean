@@ -31,12 +31,6 @@ a monotone one with the same expectation and no larger total influence.
 Instead of iterating the shifts until the function becomes monotone, we take a function of
 maximal potential `φ(g) = E[g(x) ‖x‖]` among those with the right expectation and total
 influence; a non-monotone function would be improved by some shift.
-
-## References
-
-* [S. Boucheron, G. Lugosi, P. Massart, *Concentration Inequalities: A Nonasymptotic Theory of
-  Independence*, Oxford University Press, 2013][BLM], Chapter 9. Numbered results cited as
-  `BLM …` refer to this book.
 -/
 
 open BernoulliLSI
