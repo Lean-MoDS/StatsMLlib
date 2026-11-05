@@ -147,8 +147,31 @@ theorem rademacher_orthogonality (n : ℕ) (k l : Fin n) (pkl : k ≠ l):
   rw [sum_partition]
   simp [pair_sum_zero n k l pkl]
 
+/-- The uniform distribution on a nonempty finite type, as a `PMF`. Mathlib replaced
+`PMF.uniformOfFintype` by the measure `MeasureTheory.Measure.uniformOfFinset`; the Rademacher
+files work with `PMF`s, so they keep this local version. -/
+noncomputable def uniformPMF (α : Type*) [Fintype α] [Nonempty α] : PMF α :=
+  PMF.ofFintype (fun _ ↦ (Fintype.card α : ℝ≥0∞)⁻¹) <| by
+    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+    exact ENNReal.mul_inv_cancel (by simp) (ENNReal.natCast_ne_top _)
+
+@[simp]
+lemma uniformPMF_apply {α : Type*} [Fintype α] [Nonempty α] (a : α) :
+    uniformPMF α a = (Fintype.card α : ℝ≥0∞)⁻¹ :=
+  PMF.ofFintype_apply _ a
+
+open scoped Classical in
+lemma toMeasure_uniformPMF_apply {α : Type*} [Fintype α] [Nonempty α] [MeasurableSpace α]
+    (s : Set α) (hs : MeasurableSet s) :
+    (uniformPMF α).toMeasure s = Fintype.card s / Fintype.card α := by
+  rw [PMF.toMeasure_apply _ hs, tsum_fintype]
+  simp only [Set.indicator_apply, uniformPMF_apply]
+  rw [Finset.sum_ite, Finset.sum_const_zero, add_zero, Finset.sum_const, nsmul_eq_mul,
+    div_eq_mul_inv, Fintype.card_subtype]
+
+/-- The uniform distribution on sign vectors. -/
 noncomputable def signVecPMF (n : ℕ) : PMF (Signs n) :=
-  PMF.uniformOfFintype (Signs n)
+  uniformPMF (Signs n)
 
 variable {ι : Type v} {𝒳 : Type w}
 
@@ -181,7 +204,7 @@ lemma empiricalRademacherComplexity_eq_empiricalRademacherComplexity_pmf
   have huniform :
     ∑' σ : Signs n, g σ * ((signVecPMF n) σ).toReal
       = (Fintype.card (Signs n) : ℝ)⁻¹ * ∑ σ : Signs n, g σ := by
-    simp [signVecPMF, PMF.uniformOfFintype_apply,
+    simp [signVecPMF,
           tsum_fintype, Finset.mul_sum, ENNReal.toReal_inv]
     apply congrArg
     ext σ
@@ -214,7 +237,7 @@ lemma empiricalRademacherComplexity_without_abs_eq_empiricalRademacherComplexity
   have huniform :
     ∑' σ : Signs n, g σ * ((signVecPMF n) σ).toReal
       = (Fintype.card (Signs n) : ℝ)⁻¹ * ∑ σ : Signs n, g σ := by
-    simp [signVecPMF, PMF.uniformOfFintype_apply,
+    simp [signVecPMF,
           tsum_fintype, Finset.mul_sum, ENNReal.toReal_inv]
     apply congrArg
     ext σ
@@ -446,7 +469,7 @@ lemma empiricalRademacherFunctional_eq_pmf
   have huniform :
       ∑' σ : Signs n, g σ * ((signVecPMF n) σ).toReal =
         (Fintype.card (Signs n) : ℝ)⁻¹ * ∑ σ : Signs n, g σ := by
-    simp [signVecPMF, PMF.uniformOfFintype_apply,
+    simp [signVecPMF,
       tsum_fintype, Finset.mul_sum, ENNReal.toReal_inv]
     apply congrArg
     ext σ

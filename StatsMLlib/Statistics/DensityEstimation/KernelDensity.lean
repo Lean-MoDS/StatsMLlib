@@ -133,7 +133,7 @@ theorem measurable_kdeL1Error {f : ℝ → ℝ} (hh : h ≠ 0) (hK : Integrable 
   have hf' : Measurable f' := hf.1.stronglyMeasurable_mk.measurable
   -- The map `t ↦ (t - a) / h` does not charge null sets, so `K` may be replaced by `K'`.
   have hshift (a : ℝ) : ∀ᵐ t, K ((t - a) / h) = K' ((t - a) / h) := by
-    have hφ : Measure.QuasiMeasurePreserving (fun t : ℝ ↦ h⁻¹ • (t - a)) volume volume :=
+    have hφ : QuasiMeasurePreserving (fun t : ℝ ↦ h⁻¹ • (t - a)) volume volume :=
       (Measure.quasiMeasurePreserving_smul volume (inv_ne_zero hh)).comp
         (measurePreserving_sub_right volume a).quasiMeasurePreserving
     filter_upwards [hφ.ae_eq_comp hK.1.ae_eq_mk] with t ht

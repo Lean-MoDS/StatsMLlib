@@ -69,7 +69,7 @@ lemma integrable_stdGaussian_of_lipschitz {f : EuclideanSpace ℝ ι → ℝ} {L
   rw [← map_finIso]
   refine (integrable_map_equiv (finIso ι).toHomeomorph.toMeasurableEquiv f).2 ?_
   have hg : LipschitzWith (Real.toNNReal (L : ℝ)) (f ∘ finIso ι) := by
-    simpa using hf.comp (finIso ι).lipschitz
+    simpa using hf.comp (finIso ι).lipschitzWith
   exact lipschitzE_integrable L.coe_nonneg hg
 
 /-- **Gaussian Lipschitz concentration, upper tail.** For an `L`-Lipschitz function `f` of a
@@ -81,7 +81,7 @@ theorem stdGaussian_lipschitz_concentration_upper [Nonempty ι] {f : EuclideanSp
       exp (-t ^ 2 / (2 * (L : ℝ) ^ 2)) := by
   have hn : 0 < Fintype.card ι := Fintype.card_pos
   have hg : LipschitzWith L (f ∘ finIso ι) := by
-    simpa using hf.comp (finIso ι).lipschitz
+    simpa using hf.comp (finIso ι).lipschitzWith
   have h := gaussian_lipschitz_concentration_one_sided hn hL hg t ht
   rw [stdGaussian_apply_eq, integral_stdGaussian_eq]
   exact h

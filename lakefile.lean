@@ -26,9 +26,11 @@ package «StatsMLlib» where
   -- add any package configuration options here
   leanOptions := options
   moreServerOptions := linter
+  -- StatsMLlib files do not use the module system, while Mathlib does.
+  allowNonModules := true
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git" @ "v4.34.0"
+  "https://github.com/leanprover-community/mathlib4.git" @ "v4.35.0"
 
 @[default_target]
 lean_lib «StatsMLlib» where
@@ -36,4 +38,4 @@ lean_lib «StatsMLlib» where
 
 meta if get_config? env = some "dev" then
 require «doc-gen4» from git
-  "https://github.com/leanprover/doc-gen4" @ "v4.34.0"
+  "https://github.com/leanprover/doc-gen4" @ "v4.35.0"

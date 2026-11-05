@@ -68,13 +68,13 @@ lemma measurablespace_eq : instMeasurableSpaceSigns m = MeasurableSpace.pi := by
 
 lemma measure_eq :
   (signVecPMF m).toMeasure ≍ Measure.pi fun (_ : Fin m) ↦
-      (PMF.uniformOfFintype ({-1, 1} : Finset ℤ)).toMeasure := by
+      (uniformPMF ({-1, 1} : Finset ℤ)).toMeasure := by
   apply heq_of_eq
   apply Eq.symm
   apply Measure.pi_eq
   intro s hs
   dsimp [signVecPMF, Signs, instFintypeSigns]
-  rw [PMF.toMeasure_uniformOfFintype_apply (Set.univ.pi s) (MeasurableSet.univ_pi hs)]
+  rw [toMeasure_uniformPMF_apply (Set.univ.pi s) (MeasurableSet.univ_pi hs)]
   have : (Fintype.card (Set.univ.pi s) : ENNReal) /
       (Fintype.card (Fin m → ({-1, 1} : Finset ℤ)) : ENNReal) =
       ∏ i : Fin m, (Fintype.card (s i) : ENNReal) / (2 : ENNReal) := by
@@ -99,7 +99,7 @@ lemma measure_eq :
   rw [this]
   congr
   ext i
-  rw [PMF.toMeasure_uniformOfFintype_apply (s i) (hs i)]
+  rw [toMeasure_uniformPMF_apply (s i) (hs i)]
   simp
 
 
@@ -156,8 +156,8 @@ theorem massart_lemma_pmf.sign_mean_zero {Z : Type v} {m : ℕ}
     (a : Fin m):
     ∫ (ω : Signs m), ↑↑(ω a) * f (S a) ∂(signVecPMF m).toMeasure = 0 := by
   rw [PMF.integral_eq_tsum]
-  · dsimp [signVecPMF, PMF.uniformOfFintype]
-    simp only [Finset.mem_univ, ↓reduceIte, Signs.card, Nat.cast_pow, Nat.cast_ofNat,
+  · dsimp [signVecPMF]
+    simp only [uniformPMF_apply, Signs.card, Nat.cast_pow, Nat.cast_ofNat,
         ENNReal.toReal_inv,
     ENNReal.toReal_pow, ENNReal.toReal_ofNat, Int.reduceNeg]
     rw [tsum_mul_left]
@@ -311,7 +311,7 @@ lemma massart_lemma_pmf
           (fun i ↦ fun (σi : ({-1, 1} : Finset ℤ)) => (m : ℝ)⁻¹ * (σi.1 : ℝ) * F a (S i)) h
         · rfl
         · exact eq_of_heq measure_eq
-        · exact PMF.toMeasure.isProbabilityMeasure (PMF.uniformOfFintype { x // x ∈ {-1, 1} })
+        · exact PMF.toMeasure.isProbabilityMeasure (uniformPMF { x // x ∈ {-1, 1} })
       exact signs_coord_indep
     · intro a af
       apply MassartNotation.xy_identity
