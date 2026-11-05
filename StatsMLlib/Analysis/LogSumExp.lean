@@ -188,16 +188,17 @@ lemma norm_fderiv_softmax_le (hβ : β ≠ 0) (x : ι → ℝ) (i : ι) :
 
 lemma contDiff_softmax (β : ℝ) (i : ι) : ContDiff ℝ 1 (fun y : ι → ℝ ↦ softmax β y i) := by
   have hnum : ContDiff ℝ 1 (fun y : ι → ℝ ↦ exp (β * y i)) :=
-    (contDiff_const.mul (contDiff_apply ℝ ℝ i)).exp
+    (contDiff_const.mul (contDiff_apply ℝ (fun _ ↦ ℝ) i)).exp
   have hden : ContDiff ℝ 1 (fun y : ι → ℝ ↦ ∑ j, exp (β * y j)) :=
-    ContDiff.sum fun j _ ↦ (contDiff_const.mul (contDiff_apply ℝ ℝ j)).exp
+    ContDiff.sum fun j _ ↦ (contDiff_const.mul (contDiff_apply ℝ (fun _ ↦ ℝ) j)).exp
   exact hnum.div hden fun y ↦ (sum_exp_mul_pos β y).ne'
 
 /-- Log-sum-exp is smooth. -/
 lemma contDiff_logSumExp (β : ℝ) {n : WithTop ℕ∞} :
     ContDiff ℝ n (logSumExp β : (ι → ℝ) → ℝ) :=
-  contDiff_const.mul <| (ContDiff.sum fun i _ ↦ (contDiff_const.mul (contDiff_apply ℝ ℝ i)).exp).log
-    fun y ↦ (sum_exp_mul_pos β y).ne'
+  contDiff_const.mul <|
+    (ContDiff.sum fun i _ ↦ (contDiff_const.mul (contDiff_apply ℝ (fun _ ↦ ℝ) i)).exp).log
+      fun y ↦ (sum_exp_mul_pos β y).ne'
 
 /-- The gradient of log-sum-exp has operator norm at most one. -/
 lemma norm_fderiv_logSumExp_le (hβ : β ≠ 0) (x : ι → ℝ) :

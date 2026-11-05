@@ -939,7 +939,7 @@ private lemma massart_bound_for_increment_term (c_pos : 0 < c)
       hk) (incrementFinset c_pos h' n j)) S := by
     simp only [empiricalRademacherComplexity_pmf_without_abs, signVecPMF,
       Signs.card, Nat.cast_pow, Nat.cast_ofNat, Int.reduceNeg, Finset.mul_sum,
-      PMF.integral_eq_sum, PMF.uniformOfFintype_apply, ENNReal.toReal_inv, ENNReal.toReal_pow,
+      PMF.integral_eq_sum, uniformPMF_apply, ENNReal.toReal_inv, ENNReal.toReal_pow,
       ENNReal.toReal_ofNat, smul_eq_mul, signs_card_inv]
     rfl
   _ ≤ C * (√(2 * Real.log ((Set.Finite.toFinset (finite_incrementSet c_pos h' n j)).card))) / m
